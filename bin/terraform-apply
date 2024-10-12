@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e  # Exit immediately if a command exits with a non-zero status.
+
+trap 'echo "Error: Script failed at line $LINENO"; exit 1;' ERR
+
+cd terraform
+terraform init
+terraform fmt
+terraform apply -auto-approve

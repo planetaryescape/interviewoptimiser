@@ -1,0 +1,26 @@
+.EasyMDEContainer .CodeMirror.cm-s-dark {
+  background-color: #2d2d2d;
+  color: #d4d4d4;
+}
+
+.EasyMDEContainer .editor-toolbar.disabled-for-preview a:not(.no-disable) {
+  background: inherit;
+}
+
+.EasyMDEContainer .editor-preview-dark {
+  background-color: #2d2d2d;
+  color: #d4d4d4;
+}
+
+/* Add these new styles for the cursor in dark mode */
+.EasyMDEContainer .CodeMirror.cm-s-dark .CodeMirror-cursor {
+  border-left: 1px solid #d4d4d4;
+}
+
+.EasyMDEContainer .CodeMirror.cm-s-dark .CodeMirror-selected {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.EasyMDEContainer .CodeMirror.cm-s-dark .CodeMirror-selectedtext {
+  background: rgba(255, 255, 255, 0.2);
+}
