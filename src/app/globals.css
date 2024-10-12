@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --gradient: linear-gradient(
+      to top left,
+      hsl(210, 60%, 70%),
+      hsl(195, 55%, 60%)
+    );
+    --background: 255 20% 96%;
+    --foreground: 210 15% 20%;
+
+    --muted: 210 20% 95%;
+    --muted-foreground: 210 10% 40%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 15% 20%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 15% 20%;
+
+    --border: 210 15% 85%;
+    --input: 210 15% 90%;
+
+    --primary: 210 60% 40%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 30 30% 90%;
+    --secondary-foreground: 210 15% 20%;
+
+    --accent: 25 80% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --ring: 210 60% 40%;
+
+    --radius: 0.5rem;
+  }
+  .dark {
+    --gradient: linear-gradient(
+      to top left,
+      hsl(210, 30%, 20%),
+      hsl(195, 25%, 25%)
+    );
+
+    --background: 210 15% 15%;
+    --foreground: 0 0% 100%;
+
+    --muted: 210 15% 20%;
+    --muted-foreground: 0 0% 80%;
+
+    --popover: 210 15% 20%;
+    --popover-foreground: 0 0% 100%;
+
+    --card: 210 25% 25%;
+    --card-foreground: 0 0% 100%;
+
+    --border: 210 15% 25%;
+    --input: 210 15% 20%;
+
+    --primary: 210 60% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 30 30% 40%;
+    --secondary-foreground: 0 0% 100%;
+
+    --accent: 25 80% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 65% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --ring: 210 60% 50%;
+
+    --radius: 0.5rem;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  line-height: 1.5;
+}
+
+body {
+  padding: env(safe-area-inset-top, 20px) env(safe-area-inset-right, 20px)
+    env(safe-area-inset-bottom, 20px) env(safe-area-inset-left, 20px);
+  font-family: var(--font-montserrat), sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-raleway), sans-serif;
+}
+
+.EasyMDEContainer .CodeMirror {
+  border: none !important;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.editor-toolbar {
+  border: none !important;
+}

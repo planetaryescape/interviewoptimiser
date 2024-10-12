@@ -1,0 +1,18 @@
+import { Customisation, User } from "@/db/schema";
+import { useQuery } from "@tanstack/react-query";
+
+async function fetchUser() {
+  const response = await fetch(`/api/users`);
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  const data = await response.json();
+  return data.data;
+}
+
+export function useUser() {
+  return useQuery<User & { customisation: Customisation }>({
+    queryKey: ["user"],
+    queryFn: () => fetchUser(),
+  });
+}
