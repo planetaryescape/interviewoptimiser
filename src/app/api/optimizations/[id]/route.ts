@@ -1,6 +1,5 @@
 import { db } from "@/db";
 import {
-  coverLetters,
   customSections,
   cvs,
   educations,
@@ -50,8 +49,6 @@ export async function GET(
       with: {
         cv: true,
         feedback: true,
-        coverLetter: true,
-        sectionsOrder: true,
       },
       where: eq(optimizations.id, optimizationId),
     });
@@ -244,11 +241,6 @@ export async function DELETE(
       await tx.delete(skills).where(eq(skills.cvId, cv.id));
       await tx.delete(links).where(eq(links.cvId, cv.id));
       await tx.delete(customSections).where(eq(customSections.cvId, cv.id));
-
-      // Delete optimization-related data
-      await tx
-        .delete(coverLetters)
-        .where(eq(coverLetters.optimizationId, optimizationId));
 
       await tx
         .delete(feedback)

@@ -23,6 +23,9 @@ importers:
       '@mdxeditor/editor':
         specifier: ^3.14.0
         version: 3.14.0(@codemirror/language@6.10.3)(@lezer/common@1.2.1)(@lezer/highlight@1.2.1)(@types/react-dom@18.3.0)(@types/react@18.3.11)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(yjs@13.6.19)
+      '@openai/realtime-api-beta':
+        specifier: github:openai/openai-realtime-api-beta
+        version: https://codeload.github.com/openai/openai-realtime-api-beta/tar.gz/339e9553a757ef1cf8c767272fc750c1e62effbb
       '@radix-ui/react-accordion':
         specifier: ^1.2.1
         version: 1.2.1(@types/react-dom@18.3.0)(@types/react@18.3.11)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2226,6 +2229,10 @@ packages:
 
   '@open-draft/deferred-promise@2.2.0':
     resolution: {integrity: sha512-CecwLWx3rhxVQF6V4bAgPS5t+So2sTbPgAzafKkVizyi7tlwpcFpdFqq+wqF2OwNBmqFuu6tOyouTuxgpMfzmA==}
+
+  '@openai/realtime-api-beta@https://codeload.github.com/openai/openai-realtime-api-beta/tar.gz/339e9553a757ef1cf8c767272fc750c1e62effbb':
+    resolution: {tarball: https://codeload.github.com/openai/openai-realtime-api-beta/tar.gz/339e9553a757ef1cf8c767272fc750c1e62effbb}
+    version: 0.0.0
 
   '@opentelemetry/api-logs@0.52.1':
     resolution: {integrity: sha512-qnSqB2DQ9TPP96dl8cDubDvrUyWc0/sK81xHTK8eSUspzDM3bsewX903qclQFvVhgStjRWdC5bLb3kQqMkfV5A==}
@@ -11120,6 +11127,13 @@ snapshots:
   '@oozcitak/util@8.3.4': {}
 
   '@open-draft/deferred-promise@2.2.0': {}
+
+  '@openai/realtime-api-beta@https://codeload.github.com/openai/openai-realtime-api-beta/tar.gz/339e9553a757ef1cf8c767272fc750c1e62effbb':
+    dependencies:
+      ws: 8.18.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   '@opentelemetry/api-logs@0.52.1':
     dependencies:

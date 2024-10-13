@@ -1,14 +1,13 @@
 import { BackgroundGradient as AnotherBackgroundGradient } from "@/components/background-gradient";
 import { OptimisationCard } from "@/components/optimisation-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CoverLetter, CV, Optimization } from "@/db/schema";
+import { CV, Optimization } from "@/db/schema";
 
 interface OptimisationsGridProps {
   optimizations: Array<
     Optimization & {
       id?: number;
       cv?: CV;
-      coverLetter?: CoverLetter;
     }
   >;
   onDelete?: (id: number) => void;

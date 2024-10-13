@@ -14,13 +14,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
-import {
-  CoverLetter,
-  Customisation,
-  CV,
-  Optimization,
-  User,
-} from "@/db/schema";
+import { Customisation, CV, Optimization, User } from "@/db/schema";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
@@ -38,7 +32,6 @@ async function fetchOptimizations() {
       id?: number;
       cv?: CV;
       user?: User & { customization?: Customisation };
-      coverLetter?: CoverLetter;
     }
   >("optimizations", true);
   return repository.getAll();

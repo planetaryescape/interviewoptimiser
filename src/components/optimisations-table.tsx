@@ -24,7 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CoverLetter, CV, Optimization } from "@/db/schema";
+import { CV, Optimization } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { idHandler } from "@/lib/utils/idHandler";
 import { Loader2, MoreVertical } from "lucide-react";
@@ -35,7 +35,6 @@ interface OptimisationsTableProps {
     Optimization & {
       id?: number;
       cv?: CV;
-      coverLetter?: CoverLetter;
     }
   >;
   onDelete?: (id: number) => void;
@@ -67,8 +66,7 @@ export const OptimisationsTable = ({
             optimization.cv;
           const hasCoverLetter =
             optimization.isCoverLetterComplete &&
-            !optimization.coverLetterError &&
-            optimization.coverLetter;
+            !optimization.coverLetterError;
 
           return (
             <TableRow
@@ -102,22 +100,6 @@ export const OptimisationsTable = ({
               </TableCell>
               <TableCell>
                 <div className="flex justify-end items-center space-x-2">
-                  {hasCV &&
-                    (hasCoverLetter ? (
-                      <Button asChild size="sm" variant="outline">
-                        <Link
-                          href={`/dashboard/cover-letter/${idHandler.encode(
-                            optimization.coverLetter?.id ?? 0
-                          )}`}
-                        >
-                          View Cover Letter
-                        </Link>
-                      </Button>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">
-                        Open CV to generate cover letter
-                      </span>
-                    ))}
                   <Button
                     asChild={!isCVProcessing}
                     size="sm"

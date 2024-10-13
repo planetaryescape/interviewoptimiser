@@ -136,11 +136,12 @@ export default function CreateOptimization() {
   });
 
   const handleSubmit = async () => {
+    setIsAlertDialogOpen(true);
     if (!user || user.credits <= 0) {
-      posthog.capture("out_of_credits", {
-        userId: user?.id,
-      });
-      setIsOutOfCreditsDialogOpen(true);
+      // posthog.capture("out_of_credits", {
+      //   userId: user?.id,
+      // });
+      // setIsOutOfCreditsDialogOpen(true);
     } else {
       setIsAlertDialogOpen(true);
     }
@@ -149,10 +150,10 @@ export default function CreateOptimization() {
   const handleConfirmSubmit = async () => {
     setIsAlertDialogOpen(false);
     try {
-      if (!user || user.credits <= 0) {
-        toast.error("You don't have enough credits to optimise a CV.");
-        return;
-      }
+      // if (!user || user.credits <= 0) {
+      //   toast.error("You don't have enough credits to optimise a CV.");
+      //   return;
+      // }
 
       if (!cvText.trim() || !jobDescriptionText.trim()) {
         toast.error("Please provide both CV and job description.");
@@ -175,17 +176,25 @@ export default function CreateOptimization() {
         userId: user?.id,
       };
 
-      posthog.capture("submit_optimization", {
-        userId: user?.id,
-      });
+      // posthog.capture("submit_optimization", {
+      //   userId: user?.id,
+      // });
 
+      console.log("optimization:", optimization);
       const createdOptimization = await createOptimizationMutation.mutateAsync(
         optimization
       );
-      await submitOptimizationMutation.mutateAsync(
-        createdOptimization.sys.id ?? 0
+
+      router.push(
+        `/dashboard/interview/${idHandler.encode(
+          createdOptimization.sys.id ?? 0
+        )}`
       );
+      // await submitOptimizationMutation.mutateAsync(
+      //   createdOptimization.sys.id ?? 0
+      // );
     } catch (error) {
+      console.log("error:", error);
       Sentry.withScope((scope) => {
         scope.setExtra("context", "handleConfirmSubmit");
         scope.setExtra("error", error);

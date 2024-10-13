@@ -1,5 +1,4 @@
 import {
-  CoverLetter,
   CustomSection,
   CV,
   Education,
@@ -22,6 +21,5 @@ export type CVWithRelations = CV & {
   optimization: Optimization & {
     sectionsOrder: SectionsOrder;
     feedback: Feedback[];
-    coverLetter: CoverLetter;
   };
 };
