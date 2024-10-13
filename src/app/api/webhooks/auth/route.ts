@@ -1,6 +1,5 @@
 import { db } from "@/db";
 import {
-  coverLetters,
   customisations,
   customSections,
   cvs,
@@ -9,7 +8,6 @@ import {
   feedback,
   links,
   optimizations,
-  sectionsOrder,
   skills,
   users,
 } from "@/db/schema";
@@ -221,12 +219,7 @@ export async function POST(request: Request) {
 
         // Delete optimization-related data
         logger.info({}, "Deleting optimization-related data");
-        const optimizationRelatedTables = [
-          coverLetters,
-          feedback,
-          cvs,
-          sectionsOrder,
-        ];
+        const optimizationRelatedTables = [feedback, cvs];
         await Promise.all(
           optimizationRelatedTables.map((table) =>
             deleteRelatedData(table, "optimizationId", getUserOptimizationIds())

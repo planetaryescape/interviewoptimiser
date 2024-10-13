@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { optimizations, sectionsOrder } from "@/db/schema";
+import { optimizations } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
 import { config } from "@/lib/config";
 import { logger } from "@/lib/logger";
@@ -16,22 +16,22 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   logger.info("POST request received at /api/optimizations");
-  const { userId: clerkUserId } = getAuth(request);
-  if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to POST /api/optimizations");
-    return NextResponse.json(formatErrorEntity("Unauthorized"), {
-      status: 401,
-    });
-  }
+  // const { userId: clerkUserId } = getAuth(request);
+  // if (!clerkUserId) {
+  //   logger.warn("Unauthorized access attempt to POST /api/optimizations");
+  //   return NextResponse.json(formatErrorEntity("Unauthorized"), {
+  //     status: 401,
+  //   });
+  // }
 
   try {
-    const { id: userId } = await getUserFromClerkId(clerkUserId);
-    if (!userId) {
-      logger.warn({ clerkUserId }, "User not found in database");
-      return NextResponse.json(formatErrorEntity("User not found"), {
-        status: 404,
-      });
-    }
+    // const { id: userId } = await getUserFromClerkId(clerkUserId);
+    // if (!userId) {
+    //   logger.warn({ clerkUserId }, "User not found in database");
+    //   return NextResponse.json(formatErrorEntity("User not found"), {
+    //     status: 404,
+    //   });
+    // }
 
     const body = await request.json();
     const { submittedCVText, jobDescriptionText, additionalInfo } = body;
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       const [createdOptimisation] = await tx
         .insert(optimizations)
         .values({
-          userId,
+          // userId,
           submittedCVText: sanitisedSubmittedCVText,
           jobDescriptionText: sanitisedJobDescriptionText,
           additionalInfo: sanitisedAdditionalInfo,
@@ -71,24 +71,9 @@ export async function POST(request: NextRequest) {
         "Successfully created new optimization"
       );
 
-      const [newSectionsOrder] = await tx
-        .insert(sectionsOrder)
-        .values({
-          ...config.defaultSectionsOrder,
-          optimizationId: createdOptimisation.id,
-        })
-        .onConflictDoUpdate({
-          target: [sectionsOrder.optimizationId],
-          set: {
-            ...config.defaultSectionsOrder,
-          },
-        })
-        .returning();
-
       logger.info(
         {
           optimizationId: createdOptimisation.id,
-          sectionsOrderId: newSectionsOrder.id,
         },
         "Successfully created new sections order"
       );
@@ -147,8 +132,6 @@ export async function GET(request: NextRequest) {
       orderBy: desc(optimizations.createdAt),
       with: {
         cv: true,
-        coverLetter: true,
-        sectionsOrder: true,
       },
     });
 

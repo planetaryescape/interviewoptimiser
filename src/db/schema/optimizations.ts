@@ -7,7 +7,6 @@ import {
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
-import { coverLetters } from "./coverLetters"; // Add this import
 import { cvs } from "./cvs";
 import { feedback } from "./feedback";
 import { sectionsOrder } from "./sectionsOrder";
@@ -15,9 +14,7 @@ import { users } from "./users";
 
 export const optimizations = pgTable("optimizations", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id")
-    .references(() => users.id)
-    .notNull(),
+  userId: integer("user_id").references(() => users.id),
   submittedCVText: text("submitted_cv_text").notNull(),
   jobDescriptionText: text("job_description_text").notNull(),
   additionalInfo: text("additional_info"),
@@ -49,10 +46,6 @@ export const optimizationRelations = relations(
       references: [cvs.optimizationId],
     }),
     feedback: many(feedback),
-    coverLetter: one(coverLetters, {
-      fields: [optimizations.id],
-      references: [coverLetters.optimizationId],
-    }),
   })
 );
 

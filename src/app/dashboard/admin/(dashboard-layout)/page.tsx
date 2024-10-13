@@ -4,13 +4,7 @@ import { OptimisationsGrid } from "@/components/optimisations-grid";
 import { OptimisationsTable } from "@/components/optimisations-table";
 import { Button } from "@/components/ui/button";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
-import {
-  CoverLetter,
-  Customisation,
-  CV,
-  Optimization,
-  User,
-} from "@/db/schema";
+import { Customisation, CV, Optimization, User } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
@@ -26,7 +20,6 @@ async function fetchOptimizations() {
       id?: number;
       cv?: CV;
       user?: User & { customization?: Customisation };
-      coverLetter?: CoverLetter;
     }
   >("admin/optimizations", true);
   return repository.getAll();

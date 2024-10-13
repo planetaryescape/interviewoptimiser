@@ -48,6 +48,7 @@
     "Sanitising",
     "simplemde",
     "tanstack",
+    "wavtools",
     "zustand"
   ]
 }

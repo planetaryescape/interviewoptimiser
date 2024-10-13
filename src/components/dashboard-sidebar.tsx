@@ -4,7 +4,8 @@ import { BackgroundGradient as AnotherBackgroundGradient } from "@/components/ba
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useUser } from "@/hooks/useUser";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Video } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { FeedbackModal } from "./feedback-modal";
 import { SidebarButton } from "./sidebar-button";
@@ -35,6 +36,13 @@ export default function DashboardSidebar() {
             </SidebarButton>
           )}
           <SidebarButton href="/dashboard/settings">Settings</SidebarButton>
+          <Link
+            href="/dashboard/interview"
+            className="flex items-center p-2 text-base font-normal text-muted-foreground rounded-lg hover:bg-muted hover:text-primary"
+          >
+            <Video className="mr-2 h-4 w-4" />
+            <span>Interview</span>
+          </Link>
         </nav>
       </div>
       <div className="p-4 space-y-4">

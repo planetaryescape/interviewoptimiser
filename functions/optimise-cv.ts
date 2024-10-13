@@ -1,5 +1,4 @@
 import {
-  customSections,
   cvs,
   educations,
   experiences,
@@ -243,12 +242,6 @@ export const handler = Sentry.AWSLambda.wrapHandler(async (event: SQSEvent) => {
               { customSections: finalCV.customSections },
               "Inserting custom sections"
             );
-            await tx.insert(customSections).values(
-              finalCV.customSections.map((section) => ({
-                ...section,
-                cvId: newCVId,
-              }))
-            );
           }
 
           logger.info("Successfully inserted CV");
@@ -287,8 +280,12 @@ export const handler = Sentry.AWSLambda.wrapHandler(async (event: SQSEvent) => {
           // Deduct a credit from the user
           await tx
             .update(users)
-            .set({ credits: optimization.user.credits - 1 })
-            .where(eq(users.id, optimization.user.id));
+            .set({
+              credits: optimization.user?.credits
+                ? optimization.user.credits - 1
+                : 0,
+            })
+            .where(eq(users.id, optimization.user?.id ?? 0));
 
           return insertedCV;
         });

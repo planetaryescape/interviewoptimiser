@@ -28,6 +28,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@openai/realtime-api-beta": "github:openai/openai-realtime-api-beta",
     "@aws-sdk/client-lambda": "^3.669.0",
     "@aws-sdk/client-s3": "^3.669.0",
     "@aws-sdk/client-sqs": "^3.667.0",

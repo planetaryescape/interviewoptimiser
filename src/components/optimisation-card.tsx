@@ -22,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CoverLetter, CV, NewOptimization, Optimization } from "@/db/schema";
+import { CV, NewOptimization, Optimization } from "@/db/schema";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
@@ -37,7 +37,6 @@ interface OptimisationCardProps {
   optimization: Optimization & {
     id?: number;
     cv?: CV;
-    coverLetter?: CoverLetter;
   };
   onDelete?: (id: number) => void;
   deletingId: number | null;
@@ -54,9 +53,7 @@ export const OptimisationCard = ({
   const hasCV =
     optimization.isCvComplete && !optimization.cvError && optimization.cv;
   const hasCoverLetter =
-    optimization.isCoverLetterComplete &&
-    !optimization.coverLetterError &&
-    optimization.coverLetter;
+    optimization.isCoverLetterComplete && !optimization.coverLetterError;
 
   const { mutate: handleRetry, isPending } = useMutation({
     mutationFn: async (optimization: NewOptimization) => {
@@ -242,23 +239,6 @@ export const OptimisationCard = ({
               </Link>
             )}
           </Button>
-
-          {hasCV &&
-            (hasCoverLetter ? (
-              <Button asChild size="sm" variant="outline">
-                <Link
-                  href={`/dashboard/cover-letter/${idHandler.encode(
-                    optimization.coverLetter?.id ?? 0
-                  )}`}
-                >
-                  View Cover Letter
-                </Link>
-              </Button>
-            ) : (
-              <span className="text-xs text-muted-foreground">
-                View CV to generate cover letter
-              </span>
-            ))}
 
           {onDelete && (
             <DropdownMenu>

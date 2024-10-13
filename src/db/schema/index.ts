@@ -1,6 +1,5 @@
 export * from "./changelogs";
 export * from "./countries";
-export * from "./coverLetters";
 export * from "./customisations";
 export * from "./customSections";
 export * from "./cvs";
