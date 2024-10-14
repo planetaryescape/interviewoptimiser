@@ -1,14 +1,27 @@
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { config } from "@/lib/config";
 import {
-  useCreateOptimizationActions,
-  useCreateOptimizationAdditionalInfo,
-} from "@/stores/createOptimizationStore";
+  useCreateInterviewActions,
+  useCreateInterviewAdditionalInfo,
+  useCreateInterviewDuration,
+  useCreateInterviewInterviewType,
+} from "@/stores/createInterviewStore";
 
 export function Step3AdditionalInfo() {
-  const additionalInfo = useCreateOptimizationAdditionalInfo();
-  const { setAdditionalInfo } = useCreateOptimizationActions();
+  const additionalInfo = useCreateInterviewAdditionalInfo();
+  const { setAdditionalInfo } = useCreateInterviewActions();
+  const interviewType = useCreateInterviewInterviewType();
+  const { setInterviewType } = useCreateInterviewActions();
+  const duration = useCreateInterviewDuration();
+  const { setDuration } = useCreateInterviewActions();
 
   return (
     <div className="space-y-4 w-full">
@@ -16,6 +29,35 @@ export function Step3AdditionalInfo() {
         <Label htmlFor="additional-info">
           Additional Information or Instructions
         </Label>
+        <Select value={interviewType} onValueChange={setInterviewType}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select an interview type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="behavioral">Behavioral</SelectItem>
+            <SelectItem value="technical">Technical</SelectItem>
+            <SelectItem value="case_study">Case Study</SelectItem>
+            <SelectItem value="competency_based">Competency Based</SelectItem>
+            <SelectItem value="stress">Stress</SelectItem>
+            <SelectItem value="cultural_fit">Cultural Fit</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={duration.toString()}
+          onValueChange={(value) => setDuration(parseInt(value))}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select an interview duration" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="15">15 minutes</SelectItem>
+            <SelectItem value="30">30 minutes</SelectItem>
+            <SelectItem value="45">45 minutes</SelectItem>
+            <SelectItem value="60">60 minutes</SelectItem>
+          </SelectContent>
+        </Select>
+
         <Textarea
           id="additional-info"
           value={additionalInfo}

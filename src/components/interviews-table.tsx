@@ -24,28 +24,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CV, Optimization } from "@/db/schema";
+import { Interview } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { idHandler } from "@/lib/utils/idHandler";
 import { Loader2, MoreVertical } from "lucide-react";
 import Link from "next/link";
 
-interface OptimisationsTableProps {
-  optimizations: Array<
-    Optimization & {
+interface InterviewsTableProps {
+  interviews: Array<
+    Interview & {
       id?: number;
-      cv?: CV;
     }
   >;
   onDelete?: (id: number) => void;
   deletingId: number | null;
 }
 
-export const OptimisationsTable = ({
-  optimizations,
+export const InterviewsTable = ({
+  interviews,
   onDelete,
   deletingId,
-}: OptimisationsTableProps) => {
+}: InterviewsTableProps) => {
   return (
     <Table className="size-full row-span-1 bg-card text-card-foreground">
       <TableHeader className="sticky top-0 bg-card">
@@ -57,69 +56,37 @@ export const OptimisationsTable = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {optimizations.map((optimization) => {
-          const isCVProcessing =
-            !optimization.isCvComplete && !optimization.cvError;
-          const hasCV =
-            optimization.isCvComplete &&
-            !optimization.cvError &&
-            optimization.cv;
-          const hasCoverLetter =
-            optimization.isCoverLetterComplete &&
-            !optimization.coverLetterError;
-
+        {interviews.map((interview) => {
           return (
             <TableRow
-              key={optimization.id}
+              key={interview.id}
               className={cn(
-                "transition-all duration-300 border-b border-gray-400 dark:border-gray-600",
-                (optimization.cvError || optimization.coverLetterError) &&
-                  "bg-red-100 dark:bg-red-900"
+                "transition-all duration-300 border-b border-gray-400 dark:border-gray-600"
               )}
             >
               <TableCell>
                 <div>
                   <div className="font-medium">
-                    {optimization.role || "Role Not Specified"}
+                    {interview.role || "Role Not Specified"}
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {optimization.company || "Company Not Specified"}
-                  </div>
-                  <div className="text-sm">
-                    {optimization.cv?.name || "Candidate Name Not Available"}
+                    {interview.company || "Company Not Specified"}
                   </div>
                 </div>
               </TableCell>
               <TableCell>
-                {new Date(optimization.createdAt).toLocaleDateString()}
-              </TableCell>
-              <TableCell>
-                {optimization.isCvComplete && optimization.isCoverLetterComplete
-                  ? "Completed"
-                  : "Pending"}
+                {new Date(interview.createdAt).toLocaleDateString()}
               </TableCell>
               <TableCell>
                 <div className="flex justify-end items-center space-x-2">
-                  <Button
-                    asChild={!isCVProcessing}
-                    size="sm"
-                    variant={hasCV ? "outline" : "outline"}
-                    disabled={isCVProcessing}
-                  >
-                    {isCVProcessing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Processing CV
-                      </>
-                    ) : (
-                      <Link
-                        href={`/dashboard/cv/${idHandler.encode(
-                          optimization.cv?.id ?? 0
-                        )}`}
-                      >
-                        View CV
-                      </Link>
-                    )}
+                  <Button asChild size="sm" variant="outline">
+                    <Link
+                      href={`/dashboard/interview/${idHandler.encode(
+                        interview.id ?? 0
+                      )}`}
+                    >
+                      View CV
+                    </Link>
                   </Button>
                 </div>
               </TableCell>
@@ -148,17 +115,17 @@ export const OptimisationsTable = ({
                               </AlertDialogTitle>
                               <AlertDialogDescription>
                                 This action cannot be undone. This will
-                                permanently delete the optimization and all
+                                permanently delete the interview and all
                                 associated data.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
-                                onClick={() => onDelete(optimization.id!)}
-                                disabled={deletingId === optimization.id}
+                                onClick={() => onDelete(interview.id!)}
+                                disabled={deletingId === interview.id}
                               >
-                                {deletingId === optimization.id ? (
+                                {deletingId === interview.id ? (
                                   <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     Deleting...

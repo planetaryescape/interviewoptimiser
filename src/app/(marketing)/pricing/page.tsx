@@ -8,15 +8,10 @@ export default function PricingPagePage() {
           Flexible Pay-as-you-go Pricing for Every Job Seeker
         </h2>
         <p className="text-center mb-8">
-          Buy only the credits you need, when you need them.
+          Buy only the minutes you need, when you need them.
         </p>
 
         <PricingPlans />
-
-        <p className="text-sm text-center mt-8">
-          Each credit allows you to optimize one CV or generate one cover
-          letter.
-        </p>
       </div>
     </section>
   );

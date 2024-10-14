@@ -11,9 +11,9 @@ export const config = {
     additionalInfo: 3000,
     customisations: 3000,
   },
-  startingFreeCredits: 3,
+  startingFreeMinutes: 2,
   earlyBirdPromo: {
-    credits: 10,
+    minutes: 10,
     userCount: 20,
     enabled: true,
   },

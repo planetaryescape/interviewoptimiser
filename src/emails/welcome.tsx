@@ -63,7 +63,7 @@ export const WelcomeEmail = ({ firstName }: { firstName?: string }) => {
                 </Text>
 
                 <Text className="text-base">
-                  You now have {config.startingFreeCredits} free credits to
+                  You now have {config.startingFreeMinutes} free minutes to
                   start optimising your CV. Simply upload your CV, a job
                   description and some custom instructions if any to see how
                   quickly we can tailor your CV for the job you want.
@@ -73,7 +73,7 @@ export const WelcomeEmail = ({ firstName }: { firstName?: string }) => {
                   <Text className="text-base">
                     If you&apos;re one of the first{" "}
                     {config.earlyBirdPromo.userCount} sign ups, you&apos;ll
-                    receive {config.earlyBirdPromo.credits} credits instead! Get
+                    receive {config.earlyBirdPromo.minutes} minutes instead! Get
                     started now and make sure your CV is ready for the
                     opportunities ahead.
                   </Text>

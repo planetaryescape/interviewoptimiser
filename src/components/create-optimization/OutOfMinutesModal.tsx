@@ -9,31 +9,31 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-interface OutOfCreditsModalProps {
+interface OutOfMinutesModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onBuyCredits: () => void;
+  onBuyMinutes: () => void;
 }
 
-export function OutOfCreditsModal({
+export function OutOfMinutesModal({
   isOpen,
   onClose,
-  onBuyCredits,
-}: OutOfCreditsModalProps) {
+  onBuyMinutes,
+}: OutOfMinutesModalProps) {
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Out of Credits</AlertDialogTitle>
+          <AlertDialogTitle>Out of Minutes</AlertDialogTitle>
           <AlertDialogDescription>
-            You&apos;ve run out of credits. Purchase more credits to continue
-            optimizing CVs.
+            You&apos;ve run out of minutes. Purchase more minutes to continue
+            creating interviews.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onBuyCredits}>
-            Buy Credits
+          <AlertDialogAction onClick={onBuyMinutes}>
+            Buy Minutes
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

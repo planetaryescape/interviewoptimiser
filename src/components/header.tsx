@@ -69,7 +69,7 @@ export function Header({ className }: { className?: string }) {
               <Link href="/dashboard">Dashboard</Link>
             </SignedIn>
             <SignedIn>
-              <Link href="/pricing">Buy Credits</Link>
+              <Link href="/pricing">Buy Minutes</Link>
             </SignedIn>
           </nav>
           <Separator
@@ -80,9 +80,9 @@ export function Header({ className }: { className?: string }) {
             {user ? (
               <div className="flex items-center gap-2">
                 <CreditCard className="hidden md:block h-4 w-4" />
-                <span className="font-medium hidden md:block">Credits:</span>
+                <span className="font-medium hidden md:block">Minutes:</span>
                 <Badge variant="secondary" className="">
-                  {user?.credits}
+                  {user?.minutes}
                 </Badge>
               </div>
             ) : null}

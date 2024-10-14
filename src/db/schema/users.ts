@@ -37,7 +37,7 @@ export const users = pgTable(
     updatedAt: timestamp("updated_at", {})
       .$default(() => new Date())
       .notNull(),
-    credits: integer("credits").notNull().default(10), // Add this line
+    minutes: integer("minutes").notNull().default(2),
   },
   (users) => ({
     usernameIndex: uniqueIndex("username_idx").on(users.username),

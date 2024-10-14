@@ -18,9 +18,9 @@ export async function PricingPlans() {
   const sortedProducts = (products.data || [])
     .filter((product) => product && typeof product === "object")
     .sort((a, b) => {
-      const creditsA = parseInt(a.metadata?.credits || "0", 10);
-      const creditsB = parseInt(b.metadata?.credits || "0", 10);
-      return creditsA - creditsB;
+      const minutesA = parseInt(a.metadata?.minutes || "0", 10);
+      const minutesB = parseInt(b.metadata?.minutes || "0", 10);
+      return minutesA - minutesB;
     });
 
   if (sortedProducts.length === 0) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Optimization } from "@/db/schema";
+import { Interview } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
 import { WavRecorder, WavStreamPlayer } from "@/lib/wavtools";
@@ -18,13 +18,11 @@ export default function InterviewScreen({
 }: {
   params: { id: string };
 }) {
-  const { data: optimization } = useQuery({
-    queryKey: ["optimization", params.id],
+  const { data: interview } = useQuery({
+    queryKey: ["interview", params.id],
     queryFn: async () => {
-      const optimizationRepo = await getRepository<Optimization>(
-        "optimizations"
-      );
-      return await optimizationRepo.getById(params.id);
+      const interviewRepo = await getRepository<Interview>("interviews");
+      return await interviewRepo.getById(params.id);
     },
   });
 
@@ -170,8 +168,8 @@ export default function InterviewScreen({
 
     client.updateSession({
       instructions: createInterviewInstructions(
-        optimization?.data.submittedCVText || "",
-        optimization?.data.jobDescriptionText || ""
+        interview?.data.submittedCVText || "",
+        interview?.data.jobDescriptionText || ""
       ),
     });
     client.updateSession({
@@ -208,10 +206,7 @@ export default function InterviewScreen({
       // cleanup; resets to defaults
       client.reset();
     };
-  }, [
-    optimization?.data.jobDescriptionText,
-    optimization?.data.submittedCVText,
-  ]);
+  }, [interview?.data.jobDescriptionText, interview?.data.submittedCVText]);
 
   const setupAudioVisualization = useCallback(() => {
     const wavRecorder = wavRecorderRef.current;

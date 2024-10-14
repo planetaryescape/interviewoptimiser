@@ -6,7 +6,6 @@ import {
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
-import { cvs } from "./cvs";
 
 export const paperSizeEnum = pgEnum("paper_size", ["A4", "Letter", "Legal"]);
 export const marginSizeEnum = pgEnum("margin_size", [
@@ -26,9 +25,7 @@ export const pageSettings = pgTable("page_settings", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const pageSettingsRelations = relations(pageSettings, ({ many }) => ({
-  cvs: many(cvs),
-}));
+export const pageSettingsRelations = relations(pageSettings, ({}) => ({}));
 
 export type PageSettings = typeof pageSettings.$inferSelect;
 export type NewPageSettings = typeof pageSettings.$inferInsert;

@@ -1,5 +1,6 @@
 import { db } from "@/db";
 import { users } from "@/db/schema";
+import { config } from "@/lib/config";
 import { createDefaultApiRouteContext } from "@/lib/createDefaultApiRouteContext";
 import { logger } from "@/lib/logger";
 import { stripe } from "@/lib/stripe";
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
       await db
         .update(users)
         .set({
-          credits: 3,
+          minutes: config.startingFreeMinutes,
         })
         .where(
           eq(users.stripeCustomerId, event.data.object.customer as string)
@@ -83,13 +84,13 @@ export async function POST(request: Request) {
           .where(eq(users.email, email));
       }
 
-      const credits = lineItems.data.reduce((acc, lineItem) => {
-        const credits = parseInt(
-          (lineItem.price?.product as Stripe.Product)?.metadata.credits
+      const minutes = lineItems.data.reduce((acc, lineItem) => {
+        const minutes = parseInt(
+          (lineItem.price?.product as Stripe.Product)?.metadata.minutes
         );
         const quantity = lineItem.quantity || 0;
 
-        return acc + credits * quantity;
+        return acc + minutes * quantity;
       }, 0);
 
       logger.info(
@@ -100,7 +101,7 @@ export async function POST(request: Request) {
           ),
           customerId,
           email,
-          credits,
+          minutes,
         },
         "Products retrieved"
       );
@@ -108,13 +109,13 @@ export async function POST(request: Request) {
       const [user] = await db
         .update(users)
         .set({
-          credits: sql`${users.credits} + ${credits}`,
+          minutes: sql`${users.minutes} + ${minutes}`,
           stripeCustomerId: customerId,
         })
         .where(eq(users.stripeCustomerId, customerId))
         .returning();
 
-      logger.info({ ...context, credits, user }, "Credits added");
+      logger.info({ ...context, minutes, user }, "Minutes added");
 
       return NextResponse.json(formatEmptyEntity());
     }

@@ -1,31 +1,30 @@
 import { BackgroundGradient as AnotherBackgroundGradient } from "@/components/background-gradient";
-import { OptimisationCard } from "@/components/optimisation-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CV, Optimization } from "@/db/schema";
+import { Interview } from "@/db/schema";
+import { InterviewCard } from "./interview-card";
 
-interface OptimisationsGridProps {
-  optimizations: Array<
-    Optimization & {
+interface InterviewsGridProps {
+  interviews: Array<
+    Interview & {
       id?: number;
-      cv?: CV;
     }
   >;
   onDelete?: (id: number) => void;
   deletingId: number | null;
 }
 
-export const OptimisationsGrid = ({
-  optimizations,
+export const InterviewsGrid = ({
+  interviews,
   onDelete,
   deletingId,
-}: OptimisationsGridProps) => {
+}: InterviewsGridProps) => {
   return (
     <ScrollArea className="relative size-full row-span-1 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 text-card-foreground p-4">
       <div className="size-full grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4 auto-rows-max">
-        {optimizations.map((optimization) => (
-          <OptimisationCard
-            key={optimization.id}
-            optimization={optimization}
+        {interviews.map((interview) => (
+          <InterviewCard
+            key={interview.id}
+            interview={interview}
             onDelete={onDelete}
             deletingId={deletingId}
           />

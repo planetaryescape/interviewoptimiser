@@ -1,10 +1,10 @@
 "use client";
 
-import { OptimisationsGrid } from "@/components/optimisations-grid";
-import { OptimisationsTable } from "@/components/optimisations-table";
+import { InterviewsGrid } from "@/components/interviews-grid";
+import { InterviewsTable } from "@/components/interviews-table";
 import { Button } from "@/components/ui/button";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
-import { Customisation, CV, Optimization, User } from "@/db/schema";
+import { Interview } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
@@ -14,45 +14,39 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-async function fetchOptimizations() {
-  const repository = await getRepository<
-    Optimization & {
-      id?: number;
-      cv?: CV;
-      user?: User & { customization?: Customisation };
-    }
-  >("admin/optimizations", true);
+async function fetchInterviews() {
+  const repository = await getRepository<Interview>("admin/interviews", true);
   return repository.getAll();
 }
 
-export default function OptimisationsSection() {
+export default function InterviewsSection() {
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [currentPage, setCurrentPage] = useState(1);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const {
-    data: optimizationsData,
+    data: interviewsData,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["optimizations"],
-    queryFn: fetchOptimizations,
+    queryKey: ["interviews"],
+    queryFn: fetchInterviews,
     refetchInterval: 3000,
   });
 
-  const optimizations = useMemo(
-    () => optimizationsData?.data || [],
-    [optimizationsData]
+  const interviews = useMemo(
+    () => interviewsData?.data || [],
+    [interviewsData]
   );
   const queryClient = useQueryClient();
 
   useEffect(() => {
     queryClient.invalidateQueries({ queryKey: ["user"] });
-  }, [optimizations, queryClient]);
+  }, [interviews, queryClient]);
 
   const itemsPerPage = 9;
-  const totalPages = Math.ceil(optimizations.length / itemsPerPage);
-  const currentOptimizations = optimizations.slice(
+  const totalPages = Math.ceil(interviews.length / itemsPerPage);
+  const currentInterviews = interviews.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -60,15 +54,15 @@ export default function OptimisationsSection() {
   const deleteOptimizationMutation = useMutation({
     mutationFn: async (id: number) => {
       setDeletingId(id);
-      const repository = await getRepository<Optimization>(
-        "admin/optimizations",
+      const repository = await getRepository<Interview>(
+        "admin/interviews",
         true
       );
       await repository.delete(idHandler.encode(id));
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["optimizations"] });
-      toast.success("Optimization deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["interviews"] });
+      toast.success("Interview deleted successfully");
       setDeletingId(null);
     },
     onError: (error, id) => {
@@ -80,7 +74,7 @@ export default function OptimisationsSection() {
 
         Sentry.captureException(error);
       });
-      toast.error(`Error deleting optimization: ${(error as Error).message}`);
+      toast.error(`Error deleting interview: ${(error as Error).message}`);
       setDeletingId(null);
     },
   });
@@ -89,15 +83,15 @@ export default function OptimisationsSection() {
     deleteOptimizationMutation.mutate(id);
   };
 
-  const NoOptimizationsPlaceholder = () => (
+  const NoInterviewsPlaceholder = () => (
     <div className="flex flex-col items-center justify-center h-full text-center p-8">
       <FileText className="w-16 h-16 text-muted-foreground mb-4" />
-      <h3 className="text-2xl font-semibold mb-2">No optimizations yet</h3>
+      <h3 className="text-2xl font-semibold mb-2">No interviews yet</h3>
       <p className="text-muted-foreground mb-4">
-        Start by creating your first CV optimization
+        Start by creating your first interview
       </p>
       <Button asChild>
-        <Link href="/dashboard/create">Create Your First Optimization</Link>
+        <Link href="/dashboard/create">Create Your First Interview</Link>
       </Button>
     </div>
   );
@@ -106,7 +100,7 @@ export default function OptimisationsSection() {
     <section className="h-full grid grid-rows-[auto_1fr_auto]">
       <div className="flex justify-between items-center mb-4 row-span-1">
         <h2 className="text-2xl font-semibold text-foreground">
-          Optimisations (Admin)
+          Interviews (Admin)
         </h2>
         <div className="flex items-center space-x-2">
           <Button
@@ -128,28 +122,24 @@ export default function OptimisationsSection() {
         </div>
       ) : error ? (
         <p className="row-span-2 bg-background text-foreground p-4">
-          Error loading optimizations: {(error as Error).message}
+          Error loading interviews: {(error as Error).message}
         </p>
-      ) : optimizations.length === 0 ? (
-        <NoOptimizationsPlaceholder />
+      ) : interviews.length === 0 ? (
+        <NoInterviewsPlaceholder />
       ) : viewMode === "grid" ? (
-        <OptimisationsGrid
+        <InterviewsGrid
           deletingId={deletingId}
-          optimizations={currentOptimizations.map(
-            (optimization) => optimization.data
-          )}
+          interviews={currentInterviews.map((interview) => interview.data)}
           onDelete={handleDelete}
         />
       ) : (
-        <OptimisationsTable
+        <InterviewsTable
           deletingId={deletingId}
-          optimizations={currentOptimizations.map(
-            (optimization) => optimization.data
-          )}
+          interviews={currentInterviews.map((interview) => interview.data)}
           onDelete={handleDelete}
         />
       )}
-      {optimizations.length > 0 && (
+      {interviews.length > 0 && (
         <div className="mt-4 flex justify-center row-span-1">
           <div className="flex items-center space-x-2">
             <Button
