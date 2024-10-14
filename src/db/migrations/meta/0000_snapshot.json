@@ -1,5 +1,5 @@
 {
-  "id": "f6dc3a0b-6799-4217-954b-991d449ff7eb",
+  "id": "2caa893d-6f05-42c8-bc44-6b68d6d4d3f3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -196,314 +196,6 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.cvs": {
-      "name": "cvs",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "optimization_id": {
-          "name": "optimization_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "title": {
-          "name": "title",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "email": {
-          "name": "email",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "phone": {
-          "name": "phone",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "location": {
-          "name": "location",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "summary": {
-          "name": "summary",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "is_public": {
-          "name": "is_public",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "page_settings_id": {
-          "name": "page_settings_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "cvs_optimization_id_optimizations_id_fk": {
-          "name": "cvs_optimization_id_optimizations_id_fk",
-          "tableFrom": "cvs",
-          "tableTo": "optimizations",
-          "columnsFrom": [
-            "optimization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "cvs_page_settings_id_page_settings_id_fk": {
-          "name": "cvs_page_settings_id_page_settings_id_fk",
-          "tableFrom": "cvs",
-          "tableTo": "page_settings",
-          "columnsFrom": [
-            "page_settings_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.educations": {
-      "name": "educations",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "cv_id": {
-          "name": "cv_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "degree": {
-          "name": "degree",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "school": {
-          "name": "school",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "location": {
-          "name": "location",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "start_date": {
-          "name": "start_date",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "end_date": {
-          "name": "end_date",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "current": {
-          "name": "current",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "order": {
-          "name": "order",
-          "type": "serial",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "educations_cv_id_idx": {
-          "name": "educations_cv_id_idx",
-          "columns": [
-            {
-              "expression": "cv_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "educations_cv_id_cvs_id_fk": {
-          "name": "educations_cv_id_cvs_id_fk",
-          "tableFrom": "educations",
-          "tableTo": "cvs",
-          "columnsFrom": [
-            "cv_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.experiences": {
-      "name": "experiences",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "cv_id": {
-          "name": "cv_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "title": {
-          "name": "title",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "company": {
-          "name": "company",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "location": {
-          "name": "location",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "start_date": {
-          "name": "start_date",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "end_date": {
-          "name": "end_date",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "current": {
-          "name": "current",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "order": {
-          "name": "order",
-          "type": "serial",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "experiences_cv_id_idx": {
-          "name": "experiences_cv_id_idx",
-          "columns": [
-            {
-              "expression": "cv_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "experiences_cv_id_cvs_id_fk": {
-          "name": "experiences_cv_id_cvs_id_fk",
-          "tableFrom": "experiences",
-          "tableTo": "cvs",
-          "columnsFrom": [
-            "cv_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "public.feature_request_likes": {
       "name": "feature_request_likes",
       "schema": "",
@@ -636,69 +328,6 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.feedback": {
-      "name": "feedback",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "optimization_id": {
-          "name": "optimization_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "content": {
-          "name": "content",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "completed": {
-          "name": "completed",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "feedback_optimization_id_optimizations_id_fk": {
-          "name": "feedback_optimization_id_optimizations_id_fk",
-          "tableFrom": "feedback",
-          "tableTo": "optimizations",
-          "columnsFrom": [
-            "optimization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "public.images": {
       "name": "images",
       "schema": "",
@@ -802,78 +431,8 @@
         }
       }
     },
-    "public.links": {
-      "name": "links",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "cv_id": {
-          "name": "cv_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "url": {
-          "name": "url",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "order": {
-          "name": "order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "links_cv_id_idx": {
-          "name": "links_cv_id_idx",
-          "columns": [
-            {
-              "expression": "cv_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "links_cv_id_cvs_id_fk": {
-          "name": "links_cv_id_cvs_id_fk",
-          "tableFrom": "links",
-          "tableTo": "cvs",
-          "columnsFrom": [
-            "cv_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.optimizations": {
-      "name": "optimizations",
+    "public.interviews": {
+      "name": "interviews",
       "schema": "",
       "columns": {
         "id": {
@@ -886,7 +445,7 @@
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "submitted_cv_text": {
           "name": "submitted_cv_text",
@@ -906,39 +465,26 @@
           "primaryKey": false,
           "notNull": false
         },
-        "is_cv_complete": {
-          "name": "is_cv_complete",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
-        "is_cover_letter_complete": {
-          "name": "is_cover_letter_complete",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
-        "cv_error": {
-          "name": "cv_error",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
-        "cover_letter_error": {
-          "name": "cover_letter_error",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
-        "score": {
-          "name": "score",
-          "type": "integer",
+        "report": {
+          "name": "report",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "duration": {
+          "name": "duration",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 15
+        },
+        "type": {
+          "name": "type",
+          "type": "interview_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'behavioral'"
         },
         "created_at": {
           "name": "created_at",
@@ -975,9 +521,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "optimizations_user_id_users_id_fk": {
-          "name": "optimizations_user_id_users_id_fk",
-          "tableFrom": "optimizations",
+        "interviews_user_id_users_id_fk": {
+          "name": "interviews_user_id_users_id_fk",
+          "tableFrom": "interviews",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
@@ -1051,164 +597,6 @@
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.sections_order": {
-      "name": "sections_order",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "optimization_id": {
-          "name": "optimization_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "experiences": {
-          "name": "experiences",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "educations": {
-          "name": "educations",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "skills": {
-          "name": "skills",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "links": {
-          "name": "links",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "custom_sections": {
-          "name": "custom_sections",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "summary": {
-          "name": "summary",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "sections_order_optimization_id_optimizations_id_fk": {
-          "name": "sections_order_optimization_id_optimizations_id_fk",
-          "tableFrom": "sections_order",
-          "tableTo": "optimizations",
-          "columnsFrom": [
-            "optimization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "sections_order_optimization_id_unique": {
-          "name": "sections_order_optimization_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "optimization_id"
-          ]
-        }
-      }
-    },
-    "public.skills": {
-      "name": "skills",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "cv_id": {
-          "name": "cv_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "skill": {
-          "name": "skill",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "order": {
-          "name": "order",
-          "type": "serial",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "skills_cv_id_idx": {
-          "name": "skills_cv_id_idx",
-          "columns": [
-            {
-              "expression": "cv_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "skills_cv_id_cvs_id_fk": {
-          "name": "skills_cv_id_cvs_id_fk",
-          "tableFrom": "skills",
-          "tableTo": "cvs",
-          "columnsFrom": [
-            "cv_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -1316,12 +704,12 @@
           "primaryKey": false,
           "notNull": true
         },
-        "credits": {
-          "name": "credits",
+        "minutes": {
+          "name": "minutes",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": 10
+          "default": 2
         }
       },
       "indexes": {
@@ -1386,6 +774,19 @@
         "in_progress",
         "completed",
         "declined"
+      ]
+    },
+    "public.interview_type": {
+      "name": "interview_type",
+      "schema": "public",
+      "values": [
+        "behavioral",
+        "situational",
+        "technical",
+        "case_study",
+        "competency_based",
+        "stress",
+        "cultural_fit"
       ]
     },
     "public.margin_size": {
