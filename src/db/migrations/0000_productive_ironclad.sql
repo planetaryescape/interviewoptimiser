@@ -5,6 +5,12 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
+ CREATE TYPE "public"."interview_type" AS ENUM('behavioral', 'situational', 'technical', 'case_study', 'competency_based', 'stress', 'cultural_fit');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
  CREATE TYPE "public"."margin_size" AS ENUM('Normal', 'Narrow', 'Wide');
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -54,46 +60,6 @@ CREATE TABLE IF NOT EXISTS "customisations" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "cvs" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"optimization_id" integer NOT NULL,
-	"name" varchar(255) NOT NULL,
-	"title" varchar(255) NOT NULL,
-	"email" varchar(255) NOT NULL,
-	"phone" varchar(50) NOT NULL,
-	"location" varchar(255) NOT NULL,
-	"summary" text NOT NULL,
-	"is_public" boolean DEFAULT false NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"page_settings_id" integer
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "educations" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"cv_id" integer NOT NULL,
-	"degree" varchar(255) NOT NULL,
-	"school" varchar(255) NOT NULL,
-	"location" varchar(255) NOT NULL,
-	"start_date" varchar(255) NOT NULL,
-	"end_date" varchar(255),
-	"current" boolean DEFAULT false NOT NULL,
-	"order" serial NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "experiences" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"cv_id" integer NOT NULL,
-	"title" varchar(255) NOT NULL,
-	"company" varchar(255) NOT NULL,
-	"location" varchar(255) NOT NULL,
-	"start_date" varchar(255) NOT NULL,
-	"end_date" varchar(255),
-	"current" boolean DEFAULT false NOT NULL,
-	"description" text NOT NULL,
-	"order" serial NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "feature_request_likes" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
@@ -111,15 +77,6 @@ CREATE TABLE IF NOT EXISTS "feature_requests" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "feedback" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"optimization_id" integer NOT NULL,
-	"content" text NOT NULL,
-	"completed" boolean DEFAULT false,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "images" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
@@ -133,25 +90,15 @@ CREATE TABLE IF NOT EXISTS "images" (
 	CONSTRAINT "images_url_unique" UNIQUE("url")
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "links" (
+CREATE TABLE IF NOT EXISTS "interviews" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"cv_id" integer NOT NULL,
-	"name" varchar(255) NOT NULL,
-	"url" varchar(255) NOT NULL,
-	"order" integer NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "optimizations" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
+	"user_id" integer,
 	"submitted_cv_text" text NOT NULL,
 	"job_description_text" text NOT NULL,
 	"additional_info" text,
-	"is_cv_complete" boolean DEFAULT false,
-	"is_cover_letter_complete" boolean DEFAULT false,
-	"cv_error" boolean DEFAULT false,
-	"cover_letter_error" boolean DEFAULT false,
-	"score" integer,
+	"report" text,
+	"duration" integer DEFAULT 15 NOT NULL,
+	"type" "interview_type" DEFAULT 'behavioral' NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"candidate" text,
@@ -168,27 +115,6 @@ CREATE TABLE IF NOT EXISTS "page_settings" (
 	"layout" varchar(255) NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "sections_order" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"optimization_id" integer NOT NULL,
-	"experiences" integer NOT NULL,
-	"educations" integer NOT NULL,
-	"skills" integer NOT NULL,
-	"links" integer NOT NULL,
-	"custom_sections" integer NOT NULL,
-	"summary" integer NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "sections_order_optimization_id_unique" UNIQUE("optimization_id")
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "skills" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"cv_id" integer NOT NULL,
-	"skill" varchar(255) NOT NULL,
-	"order" serial NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "users" (
@@ -208,37 +134,13 @@ CREATE TABLE IF NOT EXISTS "users" (
 	"email" varchar NOT NULL,
 	"created_at" timestamp NOT NULL,
 	"updated_at" timestamp NOT NULL,
-	"credits" integer DEFAULT 10 NOT NULL,
+	"minutes" integer DEFAULT 2 NOT NULL,
 	CONSTRAINT "users_username_unique" UNIQUE("username"),
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "customisations" ADD CONSTRAINT "customisations_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "cvs" ADD CONSTRAINT "cvs_optimization_id_optimizations_id_fk" FOREIGN KEY ("optimization_id") REFERENCES "public"."optimizations"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "cvs" ADD CONSTRAINT "cvs_page_settings_id_page_settings_id_fk" FOREIGN KEY ("page_settings_id") REFERENCES "public"."page_settings"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "educations" ADD CONSTRAINT "educations_cv_id_cvs_id_fk" FOREIGN KEY ("cv_id") REFERENCES "public"."cvs"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "experiences" ADD CONSTRAINT "experiences_cv_id_cvs_id_fk" FOREIGN KEY ("cv_id") REFERENCES "public"."cvs"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -262,45 +164,17 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "feedback" ADD CONSTRAINT "feedback_optimization_id_optimizations_id_fk" FOREIGN KEY ("optimization_id") REFERENCES "public"."optimizations"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
  ALTER TABLE "images" ADD CONSTRAINT "images_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "links" ADD CONSTRAINT "links_cv_id_cvs_id_fk" FOREIGN KEY ("cv_id") REFERENCES "public"."cvs"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "interviews" ADD CONSTRAINT "interviews_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "optimizations" ADD CONSTRAINT "optimizations_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "sections_order" ADD CONSTRAINT "sections_order_optimization_id_optimizations_id_fk" FOREIGN KEY ("optimization_id") REFERENCES "public"."optimizations"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "skills" ADD CONSTRAINT "skills_cv_id_cvs_id_fk" FOREIGN KEY ("cv_id") REFERENCES "public"."cvs"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "educations_cv_id_idx" ON "educations" USING btree ("cv_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "experiences_cv_id_idx" ON "experiences" USING btree ("cv_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "images_prompt_id_idx" ON "images" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "links_cv_id_idx" ON "links" USING btree ("cv_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "skills_cv_id_idx" ON "skills" USING btree ("cv_id");--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "username_idx" ON "users" USING btree ("username");--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "email_idx" ON "users" USING btree ("email");
