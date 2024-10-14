@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@openai/realtime-api-beta": "github:openai/openai-realtime-api-beta",
-    "@aws-sdk/client-lambda": "^3.669.0",
+    "@aws-sdk/client-lambda": "^3.670.0",
     "@aws-sdk/client-s3": "^3.670.0",
     "@aws-sdk/client-sqs": "^3.670.0",
     "@clerk/nextjs": "^5.7.2",
