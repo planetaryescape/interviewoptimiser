@@ -10,7 +10,7 @@ import { WavRenderer } from "@/utils/wav_renderer";
 import { RealtimeClient } from "@openai/realtime-api-beta";
 import { ItemType } from "@openai/realtime-api-beta/dist/lib/client.js";
 import { useQuery } from "@tanstack/react-query";
-import { Play, Square, Video, VideoOff } from "lucide-react";
+import { FileText, Play, Square, Video, VideoOff, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export default function InterviewScreen({
@@ -310,7 +310,9 @@ export default function InterviewScreen({
       ]);
 
       // Always use VAD mode
-      client.updateSession({ turn_detection: { type: "server_vad" } });
+      client.updateSession({
+        turn_detection: { type: "server_vad", silence_duration_ms: 1000 },
+      });
 
       await wavRecorder.record((data) => client.appendInputAudio(data.mono));
 
@@ -326,8 +328,9 @@ export default function InterviewScreen({
     setElapsedTime(0);
     // setItems([]);
 
-    const client = clientRef.current;
-    client.disconnect();
+    // const client = clientRef.current;
+    //
+    // client.disconnect();
 
     const wavRecorder = wavRecorderRef.current;
     await wavRecorder.end();
@@ -341,6 +344,75 @@ export default function InterviewScreen({
       stream.getTracks().forEach((track) => track.stop());
       videoRef.current.srcObject = null;
     }
+  }, []);
+
+  const generateReport = useCallback(() => {
+    const client = clientRef.current;
+    const wavStreamPlayer = wavStreamPlayerRef.current;
+
+    client.on("conversation.updated", async ({ item, delta }: any) => {
+      const items = client.conversation.getItems();
+      if (delta?.audio) {
+        wavStreamPlayer.add16BitPCM(delta.audio, item.id);
+      }
+      if (item.status === "completed" && item.formatted.audio?.length) {
+        const wavFile = await WavRecorder.decode(
+          item.formatted.audio,
+          24000,
+          24000
+        );
+        item.formatted.file = wavFile;
+      }
+      setItems(items);
+      if (item.role === "assistant" && item.status === "completed") {
+        console.log("item:", item);
+        console.log("Disconnecting client");
+        client.disconnect();
+      }
+    });
+
+    // client.connect();
+    client.sendUserMessageContent([
+      {
+        type: "input_text",
+        text: `
+        Please analyze the interview and generate a comprehensive report on the candidate's performance. Do not be overly positive. The report should be candid and constructive, following the principles of Radical Candor: “Care Personally, Challenge Directly.” Provide clear, respectful feedback that empowers the candidate to improve. Be specific, using examples from the interview to reinforce points.
+
+        	•	Assess their speaking skills, including fluency, clarity, and confidence. Was there any hesitation or stuttering? Were there many "um"s or "ah"s or other filler words?
+        	•	Assess clarity, relevance, and depth of responses.
+	        •	Evaluate communication skills, including how well the candidate elaborates on answers and provides specific examples.
+	        •	Judge problem-solving skills, technical knowledge, teamwork, adaptability, and overall fit.
+	        •	Be candid but respectful, giving constructive feedback following the principles of Radical Candor.
+
+
+          Structure of Feedback Report:
+
+          1. General Assessment
+
+	          •	Begin with an overall evaluation of the candidate’s performance. Comment on their confidence, clarity, engagement, and professionalism during the interview.
+	          •	Use specific examples to highlight where they performed well or could improve. For instance, “Your response to the question about [specific topic] demonstrated a solid understanding of [relevant skill].”
+	          •	Maintain a balanced tone, acknowledging both strengths and areas where improvement is needed, framing all points constructively.
+
+          2. Detailed Feedback
+
+          Areas of Strength
+
+	          •	Identify key strengths shown during the interview. Provide specific examples where the candidate excelled, focusing on their approach, problem-solving ability, and relevant skills.
+	          •	Be encouraging, acknowledging the qualities that could help them succeed in a real interview. For example, “Your ability to clearly articulate your experience with [specific skill] was a highlight and could be an asset in this role.”
+
+          Areas for Improvement
+
+	          •	Candidly address areas where the candidate could improve, using examples to reinforce these points. Keep the tone respectful but direct, saying things like, “While your answer to [specific question] showed some insight, adding more details on [specific aspect] could strengthen your response.”
+	          •	For each area, provide one or two actionable tips to help the candidate enhance their performance. For example, “Consider preparing specific examples of how you’ve applied [specific skill], which can make your responses more compelling.”
+
+          3. Actionable Next Steps
+
+	          •	Strengths to Build On: Summarize the candidate’s top strengths and suggest ways to leverage these in future interviews. For example, “Continue to emphasize your experience with [specific skill], as this aligns well with the requirements for roles like [role].”
+	          •	Focus Areas: List specific areas to work on before the next interview, such as preparing examples, refining response structure, or improving clarity. Offer practical steps, such as, “Practice responding to questions on [specific skill], focusing on concise, structured answers.”
+	          •	End with an encouraging note, reminding the candidate that improvement is a continuous process and that building on their strengths while addressing improvement areas can significantly boost their performance.
+        `,
+      },
+    ]);
   }, []);
 
   const toggleVideo = useCallback(() => {
@@ -367,6 +439,7 @@ export default function InterviewScreen({
       conversationEl.scrollTop = conversationEl.scrollHeight;
     }
   }, [items]);
+  console.log("items:", items);
 
   return (
     <div className="flex h-full bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -439,20 +512,43 @@ export default function InterviewScreen({
             </div>
           </div>
         </div>
-        {!isInterviewStarted ? (
-          <Button onClick={startInterview} className="w-full" size="lg">
-            <Play className="mr-2 h-5 w-5" /> Start Interview
-          </Button>
-        ) : (
+
+        <div className="flex justify-between gap-4">
           <Button
-            onClick={stopInterview}
-            className="w-full"
+            onClick={() => {
+              const client = clientRef.current;
+              client.disconnect();
+            }}
+            className=""
             variant="destructive"
             size="lg"
           >
-            <Square className="mr-2 h-5 w-5" /> Stop Interview
+            <X className="mr-2 h-5 w-5" /> Disconnect
           </Button>
-        )}
+
+          {!isInterviewStarted ? (
+            <div className="flex gap-4">
+              <Button onClick={startInterview} className="w-full" size="lg">
+                <Play className="mr-2 h-5 w-5" /> I&apos;m ready to start the
+                interview
+              </Button>
+              {items.length > 0 && (
+                <Button onClick={generateReport} className="w-full" size="lg">
+                  <FileText className="mr-2 h-5 w-5" /> Generate Report
+                </Button>
+              )}
+            </div>
+          ) : (
+            <Button
+              onClick={stopInterview}
+              className="w-full"
+              variant="destructive"
+              size="lg"
+            >
+              <Square className="mr-2 h-5 w-5" /> Stop Interview
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Right side - Live Transcription and Notes Area */}
@@ -475,7 +571,7 @@ export default function InterviewScreen({
                   >
                     <div
                       className={
-                        "overflow-hidden break-words col-span-1 col-start-2 flex justify-end"
+                        "overflow-hidden break-words col-span-1 col-start-2 flex flex-col justify-end gap-4"
                       }
                     >
                       {!conversationItem.formatted.tool && (
@@ -486,6 +582,13 @@ export default function InterviewScreen({
                               : conversationItem.formatted.text ||
                                 "(item sent)")}
                         </div>
+                      )}
+
+                      {conversationItem.formatted.file && (
+                        <audio
+                          src={conversationItem.formatted.file.url}
+                          controls
+                        />
                       )}
                     </div>
                     <div
@@ -526,7 +629,7 @@ export default function InterviewScreen({
                   </div>
                   <div
                     className={
-                      "overflow-hidden break-words col-span-1 col-start-2 flex justify-start"
+                      "overflow-hidden break-words col-span-1 col-start-2 flex flex-col justify-start gap-4"
                     }
                   >
                     {!conversationItem.formatted.tool && (
@@ -535,6 +638,13 @@ export default function InterviewScreen({
                           conversationItem.formatted.text ||
                           "(truncated)"}
                       </div>
+                    )}
+
+                    {conversationItem.formatted.file && (
+                      <audio
+                        src={conversationItem.formatted.file.url}
+                        controls
+                      />
                     )}
                   </div>
                 </div>
