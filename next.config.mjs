@@ -83,7 +83,7 @@ export default withSentryConfig(withPWA(nextConfig), {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
 
-  org: "cv-optimiser",
+  org: "mockmate",
   project: "javascript-nextjs",
 
   // Only print logs for uploading source maps in CI
