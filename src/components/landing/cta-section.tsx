@@ -14,7 +14,7 @@ export function CTASection() {
           prepare you to seize it.
         </p>
         <Button size="lg" variant="secondary" asChild>
-          <Link href="/sign-up">Start Your Free Trial Now</Link>
+          <Link href="/sign-up">Get Started Now</Link>
         </Button>
       </div>
     </section>

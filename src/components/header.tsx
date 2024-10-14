@@ -94,7 +94,7 @@ export function Header({ className }: { className?: string }) {
                 asChild
                 variant="default"
               >
-                <Link href="/dashboard/create">Optimise Your CV Now</Link>
+                <Link href="/dashboard/create">Start Mock Interview</Link>
               </Button>
             )}
           </SignedIn>
@@ -106,7 +106,7 @@ export function Header({ className }: { className?: string }) {
               asChild
               variant="default"
             >
-              <Link href="/sign-up">Optimise Your CV Now</Link>
+              <Link href="/sign-up">Start Mock Interview</Link>
             </Button>
           </SignedOut>
 
