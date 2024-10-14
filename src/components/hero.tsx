@@ -36,7 +36,7 @@ export function Hero() {
             {userId ? (
               <Link href="/dashboard/create">Start Your Mock Interview</Link>
             ) : (
-              <Link href="/sign-up">Try Free for 2 Minutes</Link>
+              <Link href="/sign-up">Get Started for Free</Link>
             )}
           </Button>
         </div>
