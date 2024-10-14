@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { optimizations } from "@/db/schema";
+import { interviews } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
 import { config } from "@/lib/config";
 import { logger } from "@/lib/logger";
@@ -15,7 +15,7 @@ import { desc, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-  logger.info("POST request received at /api/optimizations");
+  logger.info("POST request received at /api/interviews");
   // const { userId: clerkUserId } = getAuth(request);
   // if (!clerkUserId) {
   //   logger.warn("Unauthorized access attempt to POST /api/optimizations");
@@ -34,10 +34,16 @@ export async function POST(request: NextRequest) {
     // }
 
     const body = await request.json();
-    const { submittedCVText, jobDescriptionText, additionalInfo } = body;
-    logger.info("Received optimization data");
+    const {
+      submittedCVText,
+      jobDescriptionText,
+      additionalInfo,
+      duration,
+      type,
+    } = body;
+    logger.info("Received interview data");
 
-    const [newOptimization] = await db.transaction(async (tx) => {
+    const [newInterview] = await db.transaction(async (tx) => {
       logger.info({}, "Sanitising user input");
       const sanitisedSubmittedCVText = sanitiseUserInputText(submittedCVText, {
         truncate: true,
@@ -56,10 +62,12 @@ export async function POST(request: NextRequest) {
       });
 
       logger.info({}, "Creating new optimization");
-      const [createdOptimisation] = await tx
-        .insert(optimizations)
+      const [createdInterview] = await tx
+        .insert(interviews)
         .values({
           // userId,
+          type: type ?? "behavioral",
+          duration: duration ?? 15,
           submittedCVText: sanitisedSubmittedCVText,
           jobDescriptionText: sanitisedJobDescriptionText,
           additionalInfo: sanitisedAdditionalInfo,
@@ -67,31 +75,31 @@ export async function POST(request: NextRequest) {
         .returning();
 
       logger.info(
-        { optimizationId: createdOptimisation.id },
-        "Successfully created new optimization"
+        { interviewId: createdInterview.id },
+        "Successfully created new interview"
       );
 
       logger.info(
         {
-          optimizationId: createdOptimisation.id,
+          interviewId: createdInterview.id,
         },
         "Successfully created new sections order"
       );
 
-      return [createdOptimisation];
+      return [createdInterview];
     });
 
     logger.info(
-      { optimizationId: newOptimization.id },
-      "Successfully created new optimization"
+      { interviewId: newInterview.id },
+      "Successfully created new interview"
     );
 
-    return NextResponse.json(formatEntity(newOptimization, "optimization"), {
+    return NextResponse.json(formatEntity(newInterview, "interview"), {
       status: 201,
     });
   } catch (error) {
     Sentry.withScope((scope) => {
-      scope.setExtra("context", "POST /api/optimizations");
+      scope.setExtra("context", "POST /api/interviews");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
@@ -100,7 +108,7 @@ export async function POST(request: NextRequest) {
         message: error instanceof Error ? error.message : "Unknown error",
         error,
       },
-      "Error in POST /api/optimizations"
+      "Error in POST /api/interviews"
     );
     return NextResponse.json(formatErrorEntity("Internal server error"), {
       status: 500,
@@ -109,10 +117,10 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  logger.info("GET request received at /api/optimizations");
+  logger.info("GET request received at /api/interviews");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to GET /api/optimizations");
+    logger.warn("Unauthorized access attempt to GET /api/interviews");
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -127,24 +135,19 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const userOptimizations = await db.query.optimizations.findMany({
-      where: eq(optimizations.userId, userId),
-      orderBy: desc(optimizations.createdAt),
-      with: {
-        cv: true,
-      },
+    const userInterviews = await db.query.interviews.findMany({
+      where: eq(interviews.userId, userId),
+      orderBy: desc(interviews.createdAt),
     });
 
     logger.info(
-      { count: userOptimizations.length },
-      "Successfully retrieved optimizations"
+      { count: userInterviews.length },
+      "Successfully retrieved interviews"
     );
-    return NextResponse.json(
-      formatEntityList(userOptimizations, "optimization")
-    );
+    return NextResponse.json(formatEntityList(userInterviews, "interview"));
   } catch (error) {
     Sentry.withScope((scope) => {
-      scope.setExtra("context", "GET /api/optimizations");
+      scope.setExtra("context", "GET /api/interviews");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
@@ -153,7 +156,7 @@ export async function GET(request: NextRequest) {
         message: error instanceof Error ? error.message : "Unknown error",
         error,
       },
-      "Error in GET /api/optimizations"
+      "Error in GET /api/interviews"
     );
     return NextResponse.json(formatErrorEntity("Internal server error"), {
       status: 500,

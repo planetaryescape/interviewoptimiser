@@ -8,7 +8,7 @@ export type EntityType =
   | "feature-request"
   | "user"
   | "cv"
-  | "optimization"
+  | "interview"
   | "error"
   | "customisation"
   | "subscription"

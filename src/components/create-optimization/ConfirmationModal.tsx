@@ -8,28 +8,30 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useCreateInterviewDuration } from "@/stores/createInterviewStore";
 
 interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  userCredits: number;
+  userMinutes: number;
 }
 
 export function ConfirmationModal({
   isOpen,
   onClose,
   onConfirm,
-  userCredits,
+  userMinutes,
 }: ConfirmationModalProps) {
+  const duration = useCreateInterviewDuration();
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Confirm CV Optimization</AlertDialogTitle>
+          <AlertDialogTitle>Start Mock Interview </AlertDialogTitle>
           <AlertDialogDescription>
-            Optimizing your CV will cost 1 credit. You currently have{" "}
-            {userCredits} credit(s). Do you want to proceed?
+            This mock interview will cost {duration} minute(s). You currently
+            have {userMinutes} minute(s). Do you want to proceed?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

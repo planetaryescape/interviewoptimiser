@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 
 export async function getUserFromClerkId(clerkUserId: string): Promise<{
   id?: number;
-  credits?: number;
+  minutes?: number;
   role?: string;
   email?: string;
   firstName?: string;
@@ -13,7 +13,7 @@ export async function getUserFromClerkId(clerkUserId: string): Promise<{
   const user = await db
     .select({
       id: users.id,
-      credits: users.credits,
+      minutes: users.minutes,
       role: users.role,
       email: users.email,
       firstName: users.firstname,
@@ -25,7 +25,7 @@ export async function getUserFromClerkId(clerkUserId: string): Promise<{
 
   return {
     id: user[0].id,
-    credits: user[0].credits,
+    minutes: user[0].minutes,
     role: user[0].role,
     email: user[0].email,
     firstName: user[0].firstName ?? undefined,

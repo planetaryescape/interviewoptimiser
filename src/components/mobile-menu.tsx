@@ -111,9 +111,9 @@ export function MobileMenu({ isDashboard, onFeedbackClick }: MobileMenuProps) {
               <SignedIn>
                 <div className="flex items-center justify-center gap-2 w-full">
                   <CreditCard className="h-4 w-4" />
-                  <span className="font-medium">Credits:</span>
+                  <span className="font-medium">Minutes:</span>
                   <Badge variant="secondary" className="">
-                    {user?.credits}
+                    {user?.minutes}
                   </Badge>
                 </div>
               </SignedIn>

@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Optimization } from "@/db/schema";
+import { Interview } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -25,13 +25,11 @@ export default function InterviewReport({
 }: {
   params: { id: string };
 }) {
-  const { data: optimization } = useQuery({
-    queryKey: ["optimization", params.id],
+  const { data: interview } = useQuery({
+    queryKey: ["interview", params.id],
     queryFn: async () => {
-      const optimizationRepo = await getRepository<Optimization>(
-        "optimizations"
-      );
-      return await optimizationRepo.getById(params.id);
+      const interviewRepo = await getRepository<Interview>("interviews");
+      return await interviewRepo.getById(params.id);
     },
   });
 

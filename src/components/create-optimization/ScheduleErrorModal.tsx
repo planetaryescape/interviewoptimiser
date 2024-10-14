@@ -7,7 +7,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useCreateOptimizationActions } from "@/stores/createOptimizationStore";
+import { useCreateInterviewActions } from "@/stores/createInterviewStore";
 
 interface ScheduleErrorModalProps {
   isOpen: boolean;
@@ -18,7 +18,7 @@ export function ScheduleErrorModal({
   isOpen,
   onClose,
 }: ScheduleErrorModalProps) {
-  const { resetStore } = useCreateOptimizationActions();
+  const { resetStore } = useCreateInterviewActions();
 
   const handleClose = () => {
     onClose();

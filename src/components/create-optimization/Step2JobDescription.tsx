@@ -6,17 +6,17 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { config } from "@/lib/config";
 import {
-  useCreateOptimizationActions,
-  useCreateOptimizationJobDescriptionText,
-} from "@/stores/createOptimizationStore";
+  useCreateInterviewActions,
+  useCreateInterviewJobDescriptionText,
+} from "@/stores/createInterviewStore";
 import * as Sentry from "@sentry/nextjs";
 import { useDebounce } from "@uidotdev/usehooks";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export function Step2JobDescription() {
-  const jobDescriptionText = useCreateOptimizationJobDescriptionText();
-  const { setJobDescriptionText } = useCreateOptimizationActions();
+  const jobDescriptionText = useCreateInterviewJobDescriptionText();
+  const { setJobDescriptionText } = useCreateInterviewActions();
   const [jobFile, setJobFile] = useState<File | null>(null);
   const [jobDescriptionLink, setJobDescriptionLink] = useState("");
   const [showStep2Error, setShowStep2Error] = useState(false);

@@ -1,16 +1,5 @@
 import { db } from "@/db";
-import {
-  customisations,
-  customSections,
-  cvs,
-  educations,
-  experiences,
-  feedback,
-  links,
-  optimizations,
-  skills,
-  users,
-} from "@/db/schema";
+import { customisations, interviews, users } from "@/db/schema";
 import AccountDeletedEmail from "@/emails/account-deleted";
 import WelcomeEmail from "@/emails/welcome";
 import { getUserFromClerkId } from "@/lib/auth";
@@ -21,7 +10,7 @@ import { resend } from "@/lib/resend";
 import { stripe } from "@/lib/stripe";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/serverless";
-import { countDistinct, eq, inArray } from "drizzle-orm";
+import { countDistinct, eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { NextResponse } from "next/server";
 
@@ -60,11 +49,11 @@ export async function POST(request: Request) {
         clerkUserId: data.data.id,
         email: data.data.email_addresses[0].email_address,
         role: "user",
-        credits:
+        minutes:
           config.earlyBirdPromo.enabled &&
           numOfUsers.count < config.earlyBirdPromo.userCount
-            ? config.earlyBirdPromo.credits
-            : config.startingFreeCredits,
+            ? config.earlyBirdPromo.minutes
+            : config.startingFreeMinutes,
         stripeCustomerId: customer.id,
       });
 
@@ -180,55 +169,12 @@ export async function POST(request: Request) {
       const firstName = user.firstName;
 
       await db.transaction(async (tx) => {
-        const getUserOptimizationIds = () =>
-          tx
-            .select({ id: optimizations.id })
-            .from(optimizations)
-            .where(eq(optimizations.userId, userId));
-
-        const getUserCvIds = () =>
-          tx
-            .select({ id: cvs.id })
-            .from(cvs)
-            .where(inArray(cvs.optimizationId, getUserOptimizationIds()));
-
-        logger.info({}, "Deleting user related data");
-        // Helper function for deleting data based on a subquery
-        const deleteRelatedData = async (
-          table: any,
-          foreignKey: string,
-          subquery: any
-        ) => {
-          await tx.delete(table).where(inArray(table[foreignKey], subquery));
-        };
-
         logger.info({}, "Deleting CV-related data");
         // Delete CV-related data
-        const cvRelatedTables = [
-          experiences,
-          educations,
-          skills,
-          links,
-          customSections,
-        ];
-        await Promise.all(
-          cvRelatedTables.map((table) =>
-            deleteRelatedData(table, "cvId", getUserCvIds())
-          )
-        );
 
-        // Delete optimization-related data
-        logger.info({}, "Deleting optimization-related data");
-        const optimizationRelatedTables = [feedback, cvs];
-        await Promise.all(
-          optimizationRelatedTables.map((table) =>
-            deleteRelatedData(table, "optimizationId", getUserOptimizationIds())
-          )
-        );
-
-        logger.info({}, "Deleting optimizations");
+        logger.info({}, "Deleting interviews");
         // Delete optimizations
-        await tx.delete(optimizations).where(eq(optimizations.userId, userId));
+        await tx.delete(interviews).where(eq(interviews.userId, userId));
 
         // Delete customisations
         logger.info({}, "Deleting customisations");

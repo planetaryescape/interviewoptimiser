@@ -1,30 +1,3 @@
-import NumberTicker from "@/components/ui/number-ticker";
-import { Skeleton } from "@/components/ui/skeleton";
-
-const StatisticItem = ({ value, label }: { value: number; label: string }) => (
-  <div className="space-y-2">
-    <h3 className="text-4xl md:text-8xl font-bold text-foreground">
-      <NumberTicker value={value} />
-    </h3>
-    <p className="text-xl font-medium text-muted-foreground">{label}</p>
-  </div>
-);
-
-const StatisticSkeleton = () => (
-  <div className="space-y-2">
-    <Skeleton className="h-10 w-24 mx-auto" />
-    <Skeleton className="h-6 w-36 mx-auto" />
-  </div>
-);
-
-const StatisticsContentSkeleton = () => (
-  <>
-    <StatisticSkeleton />
-    <StatisticSkeleton />
-    <StatisticSkeleton />
-  </>
-);
-
 export function SocialProofSection() {
   return (
     <section className="relative w-full py-12 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10">

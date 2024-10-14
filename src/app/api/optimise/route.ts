@@ -24,16 +24,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id: userId, credits } = await getUserFromClerkId(clerkUserId);
+    const { id: userId, minutes } = await getUserFromClerkId(clerkUserId);
     if (!userId) {
       logger.error("User not found");
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    if (credits && credits <= 0) {
-      logger.error("Not enough credits");
+    if (minutes && minutes <= 0) {
+      logger.error("Not enough minutes");
       return NextResponse.json(
-        { error: "Not enough credits" },
+        { error: "Not enough minutes" },
         { status: 403 }
       );
     }

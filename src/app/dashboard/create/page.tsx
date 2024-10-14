@@ -2,7 +2,7 @@
 
 import { BackgroundGradient as AnotherBackgroundGradient } from "@/components/background-gradient";
 import { ConfirmationModal } from "@/components/create-optimization/ConfirmationModal";
-import { OutOfCreditsModal } from "@/components/create-optimization/OutOfCreditsModal";
+import { OutOfMinutesModal } from "@/components/create-optimization/OutOfMinutesModal";
 import { ProcessingTakeover } from "@/components/create-optimization/ProcessingTakeover";
 import { ScheduleErrorModal } from "@/components/create-optimization/ScheduleErrorModal";
 import { Step1CV } from "@/components/create-optimization/Step1CV";
@@ -11,23 +11,24 @@ import { Step3AdditionalInfo } from "@/components/create-optimization/Step3Addit
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { NewOptimization } from "@/db/schema";
+import { NewInterview } from "@/db/schema";
 import { useUser } from "@/hooks/useUser";
 import { config } from "@/lib/config";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { sanitiseUserInputText } from "@/lib/sanitiseUserInputText";
 import { idHandler } from "@/lib/utils/idHandler";
 import {
-  useCreateOptimizationActions,
-  useCreateOptimizationAdditionalInfo,
-  useCreateOptimizationCVText,
-  useCreateOptimizationIsAlertDialogOpen,
-  useCreateOptimizationIsOutOfCreditsDialogOpen,
-  useCreateOptimizationIsScheduleErrorDialogOpen,
-  useCreateOptimizationJobDescriptionText,
-  useCreateOptimizationShowTakeover,
-  useCreateOptimizationStep,
-} from "@/stores/createOptimizationStore";
+  useCreateInterviewActions,
+  useCreateInterviewAdditionalInfo,
+  useCreateInterviewCVText,
+  useCreateInterviewDuration,
+  useCreateInterviewIsAlertDialogOpen,
+  useCreateInterviewIsOutOfMinutesDialogOpen,
+  useCreateInterviewIsScheduleErrorDialogOpen,
+  useCreateInterviewJobDescriptionText,
+  useCreateInterviewShowTakeover,
+  useCreateInterviewStep,
+} from "@/stores/createInterviewStore";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
@@ -36,25 +37,25 @@ import { useRouter } from "next/navigation";
 import { usePostHog } from "posthog-js/react";
 import { toast } from "sonner";
 
-export default function CreateOptimization() {
-  const step = useCreateOptimizationStep();
-  const cvText = useCreateOptimizationCVText();
-  const jobDescriptionText = useCreateOptimizationJobDescriptionText();
-  const additionalInfo = useCreateOptimizationAdditionalInfo();
-  const showTakeover = useCreateOptimizationShowTakeover();
-  const isAlertDialogOpen = useCreateOptimizationIsAlertDialogOpen();
-  const isOutOfCreditsDialogOpen =
-    useCreateOptimizationIsOutOfCreditsDialogOpen();
+export default function CreateInterview() {
+  const step = useCreateInterviewStep();
+  const cvText = useCreateInterviewCVText();
+  const jobDescriptionText = useCreateInterviewJobDescriptionText();
+  const additionalInfo = useCreateInterviewAdditionalInfo();
+  const showTakeover = useCreateInterviewShowTakeover();
+  const isAlertDialogOpen = useCreateInterviewIsAlertDialogOpen();
+  const isOutOfMinutesDialogOpen = useCreateInterviewIsOutOfMinutesDialogOpen();
   const isScheduleErrorDialogOpen =
-    useCreateOptimizationIsScheduleErrorDialogOpen();
+    useCreateInterviewIsScheduleErrorDialogOpen();
   const {
     setStep,
     setShowTakeover,
     setIsAlertDialogOpen,
-    setIsOutOfCreditsDialogOpen,
+    setIsOutOfMinutesDialogOpen,
     setIsScheduleErrorDialogOpen,
     resetStore,
-  } = useCreateOptimizationActions();
+  } = useCreateInterviewActions();
+  const duration = useCreateInterviewDuration();
 
   const router = useRouter();
   const posthog = usePostHog();
@@ -75,13 +76,13 @@ export default function CreateOptimization() {
     setStep(Math.max(1, step - 1));
   };
 
-  const createOptimizationMutation = useMutation({
-    mutationFn: async (optimization: NewOptimization) => {
-      const optimizationRepository = await getRepository<NewOptimization>(
-        "optimizations",
+  const createInterviewMutation = useMutation({
+    mutationFn: async (interview: NewInterview) => {
+      const interviewRepository = await getRepository<NewInterview>(
+        "interviews",
         true
       );
-      return optimizationRepository.create(optimization);
+      return interviewRepository.create(interview);
     },
     onError: (error) => {
       Sentry.withScope((scope) => {
@@ -91,31 +92,31 @@ export default function CreateOptimization() {
 
         Sentry.captureException(error);
       });
-      toast.error(`Error creating optimization: ${(error as Error).message}`);
+      toast.error(`Error creating interview: ${(error as Error).message}`);
     },
   });
 
-  const submitOptimizationMutation = useMutation({
-    mutationFn: async (optimizationId: number) => {
-      const response = await fetch(`/api/optimise`, {
+  const submitInterviewMutation = useMutation({
+    mutationFn: async (interviewId: number) => {
+      const response = await fetch(`/api/interviews`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          optimizationId: idHandler.encode(optimizationId),
+          interviewId: idHandler.encode(interviewId),
         }),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(
-          `Failed to optimise CV: ${response.status} ${errorText}`
+          `Failed to create interview: ${response.status} ${errorText}`
         );
       }
 
       return response.json();
     },
     onSuccess: () => {
-      toast.success("Optimization submitted successfully");
+      toast.success("Interview submitted successfully");
       setShowTakeover(true);
       setTimeout(() => {
         router.push(`/dashboard`);
@@ -125,7 +126,7 @@ export default function CreateOptimization() {
     },
     onError: (error) => {
       Sentry.withScope((scope) => {
-        scope.setExtra("context", "submitOptimizationMutation");
+        scope.setExtra("context", "submitInterviewMutation");
         scope.setExtra("error", error);
         scope.setExtra("message", error.message);
 
@@ -137,11 +138,11 @@ export default function CreateOptimization() {
 
   const handleSubmit = async () => {
     setIsAlertDialogOpen(true);
-    if (!user || user.credits <= 0) {
-      // posthog.capture("out_of_credits", {
-      //   userId: user?.id,
-      // });
-      // setIsOutOfCreditsDialogOpen(true);
+    if (!user || user.minutes <= 0 || user.minutes < duration) {
+      posthog.capture("out_of_minutes", {
+        userId: user?.id,
+      });
+      setIsOutOfMinutesDialogOpen(true);
     } else {
       setIsAlertDialogOpen(true);
     }
@@ -150,17 +151,17 @@ export default function CreateOptimization() {
   const handleConfirmSubmit = async () => {
     setIsAlertDialogOpen(false);
     try {
-      // if (!user || user.credits <= 0) {
-      //   toast.error("You don't have enough credits to optimise a CV.");
-      //   return;
-      // }
+      if (!user || user.minutes <= 0 || user.minutes < duration) {
+        toast.error("You don't have enough minutes to create an interview.");
+        return;
+      }
 
       if (!cvText.trim() || !jobDescriptionText.trim()) {
         toast.error("Please provide both CV and job description.");
         return;
       }
 
-      const optimization: NewOptimization = {
+      const interview: NewInterview = {
         submittedCVText: sanitiseUserInputText(cvText, {
           truncate: true,
           maxLength: config.maxTextLengths.cv,
@@ -180,18 +181,16 @@ export default function CreateOptimization() {
       //   userId: user?.id,
       // });
 
-      console.log("optimization:", optimization);
-      const createdOptimization = await createOptimizationMutation.mutateAsync(
-        optimization
+      console.log("interview:", interview);
+      const createdInterview = await createInterviewMutation.mutateAsync(
+        interview
       );
 
       router.push(
-        `/dashboard/interview/${idHandler.encode(
-          createdOptimization.sys.id ?? 0
-        )}`
+        `/dashboard/interview/${idHandler.encode(createdInterview.sys.id ?? 0)}`
       );
-      // await submitOptimizationMutation.mutateAsync(
-      //   createdOptimization.sys.id ?? 0
+      // await submitInterviewMutation.mutateAsync(
+      //   createdInterview.sys.id ?? 0
       // );
     } catch (error) {
       console.log("error:", error);
@@ -235,13 +234,13 @@ export default function CreateOptimization() {
           </Button>
           <div className="flex items-center space-x-2">
             <CreditCard className="h-4 w-4" />
-            <span className="font-medium">Credits:</span>
-            <Badge variant="secondary">{user?.credits}</Badge>
+            <span className="font-medium">Minutes:</span>
+            <Badge variant="secondary">{user?.minutes}</Badge>
           </div>
           <Button
             disabled={
-              createOptimizationMutation.isPending ||
-              submitOptimizationMutation.isPending ||
+              createInterviewMutation.isPending ||
+              submitInterviewMutation.isPending ||
               (step === 2 && !canProceedToStep3) ||
               (step === 1 && !canProceedToStep2)
             }
@@ -253,8 +252,8 @@ export default function CreateOptimization() {
               }
             }}
           >
-            {createOptimizationMutation.isPending ||
-            submitOptimizationMutation.isPending
+            {createInterviewMutation.isPending ||
+            submitInterviewMutation.isPending
               ? "Submitting..."
               : step === 3
               ? "Submit"
@@ -267,13 +266,13 @@ export default function CreateOptimization() {
         isOpen={isAlertDialogOpen}
         onClose={() => setIsAlertDialogOpen(false)}
         onConfirm={handleConfirmSubmit}
-        userCredits={user?.credits || 0}
+        userMinutes={user?.minutes || 0}
       />
 
-      <OutOfCreditsModal
-        isOpen={isOutOfCreditsDialogOpen}
-        onClose={() => setIsOutOfCreditsDialogOpen(false)}
-        onBuyCredits={() => router.push("/pricing")}
+      <OutOfMinutesModal
+        isOpen={isOutOfMinutesDialogOpen}
+        onClose={() => setIsOutOfMinutesDialogOpen(false)}
+        onBuyMinutes={() => router.push("/pricing")}
       />
 
       <ScheduleErrorModal
