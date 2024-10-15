@@ -138,8 +138,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
       drizzle-kit:
-        specifier: ^0.25.0
-        version: 0.25.0
+        specifier: ^0.26.1
+        version: 0.26.1
       drizzle-orm:
         specifier: ^0.34.1
         version: 0.34.1(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(@types/react@18.3.11)(postgres@3.4.4)(react@18.3.1)
@@ -4900,8 +4900,8 @@ packages:
     peerDependencies:
       react: '>=16.12.0'
 
-  drizzle-kit@0.25.0:
-    resolution: {integrity: sha512-Rcf0nYCAKizwjWQCY+d3zytyuTbDb81NcaPor+8NebESlUz1+9W3uGl0+r9FhU4Qal5Zv9j/7neXCSCe7DHzjA==}
+  drizzle-kit@0.26.1:
+    resolution: {integrity: sha512-5/e1tzOPicPDooCm/uJIU9mWK3eD5dhW5EY61TQyVVo29xYxFLmZpXlBdOYlbfDHBsNhVzhb0XjWFmAAj7d7WA==}
     hasBin: true
 
   drizzle-orm@0.34.1:
@@ -13950,7 +13950,7 @@ snapshots:
       react-is: 17.0.2
       tslib: 2.7.0
 
-  drizzle-kit@0.25.0:
+  drizzle-kit@0.26.1:
     dependencies:
       '@drizzle-team/brocli': 0.10.1
       '@esbuild-kit/esm-loader': 2.6.5
