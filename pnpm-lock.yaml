@@ -207,8 +207,8 @@ importers:
         specifier: ^1.167.1
         version: 1.167.1
       posthog-node:
-        specifier: ^4.2.0
-        version: 4.2.0
+        specifier: ^4.2.1
+        version: 4.2.1
       puppeteer-core:
         specifier: ^23.5.3
         version: 23.5.3
@@ -7031,8 +7031,8 @@ packages:
   posthog-js@1.167.1:
     resolution: {integrity: sha512-xt+HWcB1vi6tcHxQEf1FgctWqolQli899Yb/6j581U9uZy6ow16qXPrKJghHSuoJ18l4s0WvFB997J2EghzfbQ==}
 
-  posthog-node@4.2.0:
-    resolution: {integrity: sha512-hgyCYMyzMvuF3qWMw6JvS8gT55v7Mtp5wKWcnDrw+nu39D0Tk9BXD7I0LOBp0lGlHEPaXCEVYUtviNKrhMALGA==}
+  posthog-node@4.2.1:
+    resolution: {integrity: sha512-l+fsjYEkTik3m/G0pE7gMr4qBJP84LhK779oQm6MBzhBGpd4By4qieTW+4FUAlNCyzQTynn3Nhsa50c0IELSxQ==}
     engines: {node: '>=15.0.0'}
 
   preact@10.24.1:
@@ -16649,7 +16649,7 @@ snapshots:
       preact: 10.24.1
       web-vitals: 4.2.3
 
-  posthog-node@4.2.0:
+  posthog-node@4.2.1:
     dependencies:
       axios: 1.7.7
       rusha: 0.8.14
