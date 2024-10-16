@@ -129,7 +129,7 @@
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10",
     "next-pwa": "^5.6.0",
-    "pino-pretty": "^11.2.2",
+    "pino-pretty": "^11.3.0",
     "postcss": "^8",
     "react-email": "3.0.1",
     "tailwindcss": "^3.4.14",
