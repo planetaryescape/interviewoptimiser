@@ -91,7 +91,7 @@
     "oxlint": "^0.9.10",
     "pdf-parse": "^1.1.1",
     "pdfreader": "^3.0.5",
-    "pino": "^9.4.0",
+    "pino": "^9.5.0",
     "postgres": "^3.4.4",
     "posthog-js": "^1.169.0",
     "posthog-node": "^4.2.1",
