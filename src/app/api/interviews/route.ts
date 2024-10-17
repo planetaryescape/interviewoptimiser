@@ -16,22 +16,22 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   logger.info("POST request received at /api/interviews");
-  // const { userId: clerkUserId } = getAuth(request);
-  // if (!clerkUserId) {
-  //   logger.warn("Unauthorized access attempt to POST /api/optimizations");
-  //   return NextResponse.json(formatErrorEntity("Unauthorized"), {
-  //     status: 401,
-  //   });
-  // }
+  const { userId: clerkUserId } = getAuth(request);
+  if (!clerkUserId) {
+    logger.warn("Unauthorized access attempt to POST /api/optimizations");
+    return NextResponse.json(formatErrorEntity("Unauthorized"), {
+      status: 401,
+    });
+  }
 
   try {
-    // const { id: userId } = await getUserFromClerkId(clerkUserId);
-    // if (!userId) {
-    //   logger.warn({ clerkUserId }, "User not found in database");
-    //   return NextResponse.json(formatErrorEntity("User not found"), {
-    //     status: 404,
-    //   });
-    // }
+    const { id: userId } = await getUserFromClerkId(clerkUserId);
+    if (!userId) {
+      logger.warn({ clerkUserId }, "User not found in database");
+      return NextResponse.json(formatErrorEntity("User not found"), {
+        status: 404,
+      });
+    }
 
     const body = await request.json();
     const {

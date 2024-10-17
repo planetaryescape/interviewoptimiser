@@ -83,8 +83,8 @@ export default withSentryConfig(withPWA(nextConfig), {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
 
-  org: "mockmate",
-  project: "javascript-nextjs",
+  org: "interviewoptimiser",
+  project: "webapp",
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,

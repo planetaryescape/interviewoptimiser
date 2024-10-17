@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { config } from "@/lib/config";
 import { useAuth } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
 import Link from "next/link";
@@ -21,7 +22,7 @@ export function Hero() {
       <div className="grid md:grid-cols-2 gap-12 items-center">
         <div className="space-y-6 z-50">
           <h1 className="text-4xl md:text-5xl font-bold text-[#333] dark:text-white leading-tight">
-            MockMate: Your AI Interview Coach
+            {config.projectName}: Your AI Interview Coach
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300">
             Ace your next interview with personalized AI-powered practice

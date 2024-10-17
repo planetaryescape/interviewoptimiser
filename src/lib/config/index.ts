@@ -1,8 +1,8 @@
 const isDev = process.env.NODE_ENV === "development";
-const domain = isDev ? "localhost:3000" : "mockmate.pro";
+const domain = isDev ? "localhost:3000" : "interviewoptimiser.com";
 
 export const config = {
-  projectName: "MockMate",
+  projectName: "Interview Optimiser",
   baseUrl: `http://${domain}`,
   domain,
   maxTextLengths: {

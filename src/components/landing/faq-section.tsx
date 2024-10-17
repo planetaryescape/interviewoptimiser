@@ -1,26 +1,24 @@
 import { BackgroundGradient as AnotherBackgroundGradient } from "@/components/background-gradient";
+import { config } from "@/lib/config";
 
 export function FAQSection() {
   const faqs = [
     {
-      question: "How does MockMate's AI interview practice work?",
-      answer:
-        "MockMate uses advanced AI to create personalized interview simulations based on your CV and target job. You'll engage in real-time conversations, receiving instant feedback to improve your skills.",
+      question: `How does ${config.projectName}'s AI interview practice work?`,
+      answer: `${config.projectName} uses advanced AI to create personalized interview simulations based on your CV and target job. You'll engage in real-time conversations, receiving instant feedback to improve your skills.`,
     },
     {
-      question: "Is MockMate suitable for all career levels and industries?",
+      question: `Is ${config.projectName} suitable for all career levels and industries?`,
       answer:
         "Absolutely! Our AI adapts to various industries, job roles, and experience levels, providing tailored questions and feedback relevant to your specific career goals.",
     },
     {
-      question: "What types of interviews can I practice with MockMate?",
-      answer:
-        "MockMate offers a range of interview types, including behavioral, technical, case studies, and more. You can choose the style that best fits your target role and industry.",
+      question: `What types of interviews can I practice with ${config.projectName}?`,
+      answer: `${config.projectName} offers a range of interview types, including behavioral, technical, case studies, and more. You can choose the style that best fits your target role and industry.`,
     },
     {
       question: "How do I access my interview feedback and progress?",
-      answer:
-        "After each session, you'll receive a detailed feedback report highlighting your strengths and areas for improvement. You can access these reports anytime through your MockMate account and track your progress over time.",
+      answer: `After each session, you'll receive a detailed feedback report highlighting your strengths and areas for improvement. You can access these reports anytime through your ${config.projectName} account and track your progress over time.`,
     },
   ];
 

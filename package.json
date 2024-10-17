@@ -1,9 +1,9 @@
 {
-  "name": "mockmate",
+  "name": "interviewoptimiser",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "env": "doppler setup -c dev -p mockmate",
+    "env": "doppler setup -c dev -p interviewoptimiser",
     "dev": "doppler run -- next dev | pino-pretty",
     "email:build": "email build -d ./src/emails -p pnpm",
     "email:dev": "email dev",

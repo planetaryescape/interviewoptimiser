@@ -93,7 +93,7 @@ export default function TermsOfService() {
           <strong>Account Data:</strong> You can delete your account and all the
           associated data we store in our system at any time by going to your{" "}
           <a
-            href="https://accounts.mockmate.com/user"
+            href="https://accounts.interviewoptimiser.com/user"
             className="dark:text-white"
           >
             account settings
