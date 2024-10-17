@@ -10,7 +10,7 @@ import {
   formatErrorEntity,
 } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
-import * as Sentry from "@sentry/serverless";
+import * as Sentry from "@sentry/nextjs";
 import { desc, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 

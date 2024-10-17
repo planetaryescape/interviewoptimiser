@@ -1,5 +1,6 @@
 "use client";
 
+import { remarkMarkdownComponents } from "@/components/remark-markdown-components";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -19,6 +20,8 @@ import {
   ThumbsUp,
 } from "lucide-react";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function InterviewReport({
   params,
@@ -32,6 +35,8 @@ export default function InterviewReport({
       return await interviewRepo.getById(params.id);
     },
   });
+
+  console.log("interview:", interview);
 
   const [reportData, setReportData] = useState({
     overallScore: 85,
@@ -101,9 +106,9 @@ export default function InterviewReport({
   };
 
   return (
-    <div className="flex flex-col min-h-full overflow-y-auto bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="grid grid-rows-[auto_1fr] min-h-full overflow-y-auto bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Toolbar */}
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm row-span-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <h1 className="text-2xl font-bold text-gray-900">
@@ -137,9 +142,9 @@ export default function InterviewReport({
       </div>
 
       {/* Report Content */}
-      <div className="flex-grow">
+      <div className="row-span-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-xl overflow-auto">
             <div className="p-8 space-y-8">
               {/* Overall Performance */}
               <section>
@@ -188,88 +193,31 @@ export default function InterviewReport({
                 </div>
               </section>
 
-              {/* Key Insights */}
               <section>
-                <h3 className="text-xl font-semibold mb-3 text-blue-600">
-                  Key Insights
-                </h3>
-                <ul className="list-disc list-inside space-y-2">
-                  {reportData.keyInsights.map((insight, index) => (
-                    <li key={index} className="text-gray-700">
-                      {insight}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-
-              {/* Detailed Question Analysis */}
-              <section>
-                <h2 className="text-2xl font-semibold mb-4">
-                  Detailed Question Analysis
-                </h2>
-                {reportData.questionResponses.map((item, index) => (
-                  <div key={index} className="mb-6 p-4 bg-gray-50 rounded-lg">
-                    <h3 className="text-lg font-semibold mb-2">
-                      Question {index + 1}: {item.question}
-                    </h3>
-                    <p className="mb-2">
-                      <strong>Your Response:</strong> {item.response}
-                    </p>
-                    <p className="mb-2">
-                      <strong>Feedback:</strong> {item.feedback}
-                    </p>
-                    <div className="flex items-center">
-                      <strong className="mr-2">Score:</strong>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                        <div
-                          className="bg-blue-600 h-2.5 rounded-full"
-                          style={{ width: `${item.score * 10}%` }}
-                        ></div>
-                      </div>
-                      <span className="ml-2">{item.score}/10</span>
-                    </div>
-                  </div>
-                ))}
-              </section>
-
-              {/* Skill Assessment */}
-              <section>
-                <h2 className="text-2xl font-semibold mb-4">
-                  Skill Assessment
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(reportData.skillAssessment).map(
-                    ([skill, score]) => (
-                      <div key={skill} className="p-4 bg-gray-50 rounded-lg">
-                        <h3 className="text-lg font-semibold mb-2 capitalize">
-                          {skill.replace(/([A-Z])/g, " $1").trim()}
-                        </h3>
-                        <div className="flex items-center">
-                          <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                            <div
-                              className="bg-blue-600 h-2.5 rounded-full"
-                              style={{ width: `${score}%` }}
-                            ></div>
-                          </div>
-                          <span className="ml-2">{score}%</span>
-                        </div>
-                      </div>
-                    )
-                  )}
+                <h2 className="text-2xl font-semibold mb-4">Interview Notes</h2>
+                <div className="list-decimal list-inside space-y-2">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={remarkMarkdownComponents}
+                    className="text-sm text-gray-700"
+                  >
+                    {interview?.data.report}
+                  </ReactMarkdown>
                 </div>
               </section>
 
-              {/* Recommendations */}
               <section>
                 <h2 className="text-2xl font-semibold mb-4">
-                  Recommendations for Improvement
+                  Interview Transcript
                 </h2>
                 <ul className="list-decimal list-inside space-y-2">
-                  {reportData.recommendations.map((recommendation, index) => (
-                    <li key={index} className="text-gray-700">
-                      {recommendation}
-                    </li>
-                  ))}
+                  {interview?.data.transcript
+                    ?.split("\n")
+                    .map((item, index) => (
+                      <li key={index} className="text-gray-700">
+                        {item}
+                      </li>
+                    ))}
                 </ul>
               </section>
             </div>

@@ -36,27 +36,33 @@ export function AudioVisualizer({
             aiCanvasRef.current.height
           );
 
-          const userFrequencies = wavRecorder?.getFrequencies("voice");
-          const aiFrequencies = wavStreamPlayer?.getFrequencies("voice");
+          if (wavRecorder && wavStreamPlayer) {
+            const userFrequencies = wavRecorder.recording
+              ? wavRecorder.getFrequencies("voice")
+              : { values: new Float32Array([0]) };
+            const aiFrequencies = wavStreamPlayer.analyser
+              ? wavStreamPlayer.getFrequencies("voice")
+              : { values: new Float32Array([0]) };
 
-          WavRenderer.drawBars(
-            userCanvasRef.current,
-            userCtx,
-            Array.from(userFrequencies?.values || []),
-            "#0099ff",
-            10,
-            5,
-            50
-          );
-          WavRenderer.drawBars(
-            aiCanvasRef.current,
-            aiCtx,
-            Array.from(aiFrequencies?.values || []),
-            "#009900",
-            10,
-            5,
-            50
-          );
+            WavRenderer.drawBars(
+              userCanvasRef.current,
+              userCtx,
+              Array.from(userFrequencies?.values || []),
+              "#0099ff",
+              10,
+              5,
+              50
+            );
+            WavRenderer.drawBars(
+              aiCanvasRef.current,
+              aiCtx,
+              Array.from(aiFrequencies?.values || []),
+              "#009900",
+              10,
+              5,
+              50
+            );
+          }
         }
       }
 

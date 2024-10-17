@@ -1,19 +1,34 @@
 "use client";
 
 import { AudioVisualizer } from "@/components/audio-visualizer";
+import { GeneratingReportTakeover } from "@/components/generating-report-takeover";
 import { Timer } from "@/components/timer";
 import { Button } from "@/components/ui/button";
-import { Interview } from "@/db/schema";
+import { Interview, NewInterview } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
 import { WavRecorder, WavStreamPlayer } from "@/lib/wavtools";
 import { createInterviewInstructions } from "@/utils/conversation_config";
-import { RealtimeClient } from "@openai/realtime-api-beta";
-import { ItemType } from "@openai/realtime-api-beta/dist/lib/client.js";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AnimatePresence } from "framer-motion";
 import { Play, Square, Video, VideoOff } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { RealtimeClient, type FormattedItem } from "openai-realtime-api";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+
+/**
+ * Running a local relay server will allow you to hide your API key
+ * and run custom logic on the server
+ *
+ * Set the local relay server address to:
+ * REACT_APP_LOCAL_RELAY_SERVER_URL=http://localhost:8081
+ *
+ * This will also require you to set OPENAI_API_KEY= in a `.env` file
+ * You can run it with `npm run relay`, in parallel with `npm start`
+ */
+const LOCAL_RELAY_SERVER_URL: string =
+  process.env.REACT_APP_LOCAL_RELAY_SERVER_URL || "";
 
 export default function InterviewScreen({
   params,
@@ -27,7 +42,37 @@ export default function InterviewScreen({
       return await interviewRepo.getById(params.id);
     },
   });
+  const queryClient = useQueryClient();
+  const router = useRouter();
 
+  const { mutate: updateInterview } = useMutation({
+    mutationFn: async (interview: Partial<NewInterview>) => {
+      const interviewRepo = await getRepository<Interview>("interviews");
+      return await interviewRepo.update(params.id, interview);
+    },
+    onSuccess: (data) => {
+      console.log("Interview updated:", data);
+      queryClient.invalidateQueries({ queryKey: ["interview", params.id] });
+    },
+    onError: (error) => {
+      setShowTakeover(false);
+      console.error("Error updating interview:", error);
+      toast.error("Error updating interview. Please try again.");
+    },
+  });
+
+  /**
+   * Ask user for API Key
+   * If we're using the local relay server, we don't need this
+   */
+  const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY || "";
+
+  /**
+   * Instantiate:
+   * - WavRecorder (speech input)
+   * - WavStreamPlayer (speech output)
+   * - RealtimeClient (API client)
+   */
   const wavRecorderRef = useRef<WavRecorder>(
     new WavRecorder({ sampleRate: 24000 })
   );
@@ -35,18 +80,23 @@ export default function InterviewScreen({
     new WavStreamPlayer({ sampleRate: 24000 })
   );
   const clientRef = useRef<RealtimeClient>(
-    new RealtimeClient({
-      apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-      dangerouslyAllowAPIKeyInBrowser: true,
-    })
+    new RealtimeClient(
+      LOCAL_RELAY_SERVER_URL
+        ? { url: LOCAL_RELAY_SERVER_URL }
+        : {
+            apiKey: apiKey,
+            dangerouslyAllowAPIKeyInBrowser: true,
+          }
+    )
   );
 
-  const [items, setItems] = useState<ItemType[]>([]);
+  const [items, setItems] = useState<FormattedItem[]>([]);
   const [isInterviewStarted, setIsInterviewStarted] = useState(false);
   const [isInterviewDone, setIsInterviewDone] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [notes, setNotes] = useState("");
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
+  const [showTakeover, setShowTakeover] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -57,17 +107,20 @@ export default function InterviewScreen({
   const conversationRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Get refs
     const wavStreamPlayer = wavStreamPlayerRef.current;
     const client = clientRef.current;
 
     if (!client || !wavStreamPlayer) return;
 
+    // Set instructions
     client.updateSession({
       instructions: createInterviewInstructions(
         interview?.data?.submittedCVText || "",
         interview?.data?.jobDescriptionText || ""
       ),
     });
+    // Set transcription, otherwise we don't get user transcriptions back
     client.updateSession({
       input_audio_transcription: { model: "whisper-1" },
     });
@@ -94,22 +147,7 @@ export default function InterviewScreen({
         item.formatted.file = wavFile;
       }
 
-      console.log("isInterviewDone:>>", isInterviewDone);
-      if (!isInterviewDone) {
-        setItems(items);
-      } else {
-        if (
-          (items.at(-1) as any)?.status === "completed" &&
-          items.at(-1)?.role === "assistant"
-        ) {
-          console.log("items.at(-1):", items.at(-1));
-
-          const wavRecorder = wavRecorderRef.current;
-          await wavRecorder.end();
-
-          // client.disconnect();
-        }
-      }
+      setItems(items);
     });
 
     setItems(client.conversation.getItems());
@@ -117,11 +155,31 @@ export default function InterviewScreen({
     return () => {
       client.reset();
     };
-  }, [
-    interview?.data?.jobDescriptionText,
-    interview?.data?.submittedCVText,
-    isInterviewDone,
-  ]);
+  }, [interview?.data?.jobDescriptionText, interview?.data?.submittedCVText]);
+
+  useEffect(() => {
+    const getStream = async () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        if (isVideoEnabled) {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: isVideoEnabled,
+          });
+
+          videoRef.current.srcObject = stream;
+          videoRef.current.muted = true;
+        } else {
+          const videoTrack = (
+            videoRef.current.srcObject as MediaStream
+          ).getVideoTracks()[0];
+          if (videoTrack) {
+            videoTrack.enabled = !isVideoEnabled;
+          }
+        }
+      }
+    };
+
+    getStream();
+  }, [isVideoEnabled]);
 
   const startInterview = useCallback(async () => {
     try {
@@ -133,25 +191,18 @@ export default function InterviewScreen({
         throw new Error("Failed to initialize interview components");
       }
 
+      // Set state variables
+      setIsInterviewStarted(true);
       setItems(client.conversation.getItems());
-
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: isVideoEnabled,
-      });
-
-      // Set video stream
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.muted = true;
-      }
 
       // Connect to microphone
       await wavRecorder.begin();
 
+      // Connect to audio output
       await wavStreamPlayer.connect();
-      await client.connect();
 
+      // Connect to realtime API
+      await client.connect();
       client.sendUserMessageContent([
         {
           type: "input_text",
@@ -166,7 +217,17 @@ export default function InterviewScreen({
 
       await wavRecorder.record((data) => client.appendInputAudio(data.mono));
 
-      setIsInterviewStarted(true);
+      // -------------
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: isVideoEnabled,
+      });
+
+      // Set video stream
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.muted = true;
+      }
     } catch (error) {
       console.error("Error starting interview:", error);
       toast.error("Failed to start the interview. Please try again.");
@@ -176,34 +237,46 @@ export default function InterviewScreen({
 
   const stopInterview = useCallback(async () => {
     setIsInterviewStarted(false);
-    setElapsedTime(0);
 
     const client = clientRef.current;
 
+    const wavRecorder = wavRecorderRef.current;
+    await wavRecorder.end();
+
     const wavStreamPlayer = wavStreamPlayerRef.current;
-    // await wavStreamPlayer.interrupt();
+    await wavStreamPlayer.interrupt();
 
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach((track) => {
-        track.stop();
-        stream.removeTrack(track);
-      });
-      videoRef.current.srcObject = null;
-    }
+    // -------------
 
-    client.sendUserMessageContent([
-      {
-        type: "input_text",
-        text: `
-        Please analyze the interview and generate a comprehensive report on the candidate's performance. Do not be overly positive. The report should be candid and constructive, following the principles of Radical Candor: "Care Personally, Challenge Directly." Provide clear, respectful feedback that empowers the candidate to improve. Be specific, using examples from the interview to reinforce points.
+    // if (videoRef.current && videoRef.current.srcObject) {
+    //   const stream = videoRef.current.srcObject as MediaStream;
+    //   stream.getTracks().forEach((track) => {
+    //     track.stop();
+    //     stream.removeTrack(track);
+    //   });
+    //   videoRef.current.srcObject = null;
+    // }
+
+    updateInterview({
+      transcript: items.reduce(
+        (acc, item) => acc + `${item.role}: \t${item.formatted.transcript}\n`,
+        ""
+      ),
+    });
+
+    if (client.isConnected) {
+      client.clearEventHandlers();
+      client.sendUserMessageContent([
+        {
+          type: "input_text",
+          text: `
+        Please analyze the interview and generate a comprehensive well formatted report in markdown on the candidate's performance. Do not be overly positive. The report should be candid and constructive, following the principles of Radical Candor: "Care Personally, Challenge Directly." Provide clear, respectful feedback that empowers the candidate to improve. Be specific, using examples from the interview to reinforce points. This is very important for the candidate to get feedback on how they did. Give a score out of 100 for each of the sections and at the end give an overall score. These scores are very important for the candidate to get feedback on how they did and they are the cornerstone of the report.
 
         	•	Assess their speaking skills, including fluency, clarity, and confidence. Was there any hesitation or stuttering? Were there many "um"s or "ah"s or other filler words?
         	•	Assess clarity, relevance, and depth of responses.
           •	Evaluate communication skills, including how well the candidate elaborates on answers and provides specific examples.
           •	Judge problem-solving skills, technical knowledge, teamwork, adaptability, and overall fit.
           •	Be candid but respectful, giving constructive feedback following the principles of Radical Candor.
-
 
           Structure of Feedback Report:
 
@@ -229,10 +302,56 @@ export default function InterviewScreen({
 
             •	Strengths to Build On: Summarize the candidate's top strengths and suggest ways to leverage these in future interviews. For example, "Continue to emphasize your experience with [specific skill], as this aligns well with the requirements for roles like [role]."
             •	Focus Areas: List specific areas to work on before the next interview, such as preparing examples, refining response structure, or improving clarity. Offer practical steps, such as, "Practice responding to questions on [specific skill], focusing on concise, structured answers."
-            •	End with an encouraging note, reminding the candidate that improvement is a continuous process and that building on their strengths while addressing improvement areas can significantly boost their performance.
+            •	End with an encouraging note (don't say "encouraging note", just give the note), reminding the candidate that improvement is a continuous process and that building on their strengths while addressing improvement areas can significantly boost their performance.
         `,
-      },
-    ]);
+        },
+      ]);
+
+      const reportTimeout = 120000;
+      const timeout = setTimeout(() => {
+        console.log(
+          `Disconnecting client after ${reportTimeout / 1000} seconds`
+        );
+        client.disconnect();
+        console.log("client.isConnected:", client.isConnected);
+      }, reportTimeout);
+
+      const startTime = Date.now();
+      let endTime = 0;
+      setShowTakeover(true);
+      let numberOfItems = 0;
+      client.on("conversation.updated", async ({ item }: any) => {
+        console.log("loading report...");
+        if (numberOfItems % 100 === 0) {
+          console.log("saving partial report:", item.formatted.transcript);
+          updateInterview({
+            report: item.formatted.transcript,
+          });
+        }
+        numberOfItems++;
+        if (item?.role === "assistant" && item?.status === "completed") {
+          console.log("Final item:>>>>>>>>>>>>>>>>", item);
+          endTime = Date.now();
+          client.disconnect();
+          clearTimeout(timeout);
+
+          console.log("startTime:", startTime);
+          console.log("endTime:", endTime);
+          console.log("time taken in seconds:", (endTime - startTime) / 1000);
+
+          console.log("client.isConnected:", client.isConnected);
+
+          console.log("interview:", interview);
+          await updateInterview({
+            report: item.formatted.transcript,
+          });
+
+          toast.success("Interview updated successfully.");
+          setShowTakeover(false);
+          router.push(`/dashboard/interview/${params.id}/report`);
+        }
+      });
+    }
 
     setIsInterviewDone(true);
   }, []);
@@ -242,17 +361,9 @@ export default function InterviewScreen({
     toast.error("You've run out of minutes. The interview has been stopped.");
   }, [stopInterview]);
 
-  const toggleVideo = useCallback(() => {
+  const toggleVideo = () => {
     setIsVideoEnabled((prev) => !prev);
-    if (videoRef.current && videoRef.current.srcObject) {
-      const videoTrack = (
-        videoRef.current.srcObject as MediaStream
-      ).getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = !isVideoEnabled;
-      }
-    }
-  }, [isVideoEnabled]);
+  };
 
   useEffect(() => {
     if (conversationRef.current) {
@@ -261,7 +372,7 @@ export default function InterviewScreen({
   }, [items]);
 
   return (
-    <div className="flex h-full bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="relative flex h-full bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Left side - Interview Controls & Video Area */}
       <div className="w-1/2 p-8 flex flex-col justify-between">
         <div className="flex justify-between items-center mb-6">
@@ -397,11 +508,7 @@ export default function InterviewScreen({
                         "dark:text-gray-300 text-gray-700 col-start-3 text-right"
                       )}
                     >
-                      <div>
-                        {(
-                          conversationItem.role || conversationItem.type
-                        ).replaceAll("_", " ")}
-                      </div>
+                      <div>{conversationItem.role.replaceAll("_", " ")}</div>
                     </div>
                   </div>
                 );
@@ -421,11 +528,7 @@ export default function InterviewScreen({
                       "dark:text-gray-300 text-gray-700 col-start-1"
                     )}
                   >
-                    <div>
-                      {(
-                        conversationItem.role || conversationItem.type
-                      ).replaceAll("_", " ")}
-                    </div>
+                    <div>{conversationItem.role.replaceAll("_", " ")}</div>
                   </div>
                   <div
                     className={
@@ -464,6 +567,10 @@ export default function InterviewScreen({
           />
         </div>
       </div>
+
+      <AnimatePresence>
+        {showTakeover && <GeneratingReportTakeover />}
+      </AnimatePresence>
     </div>
   );
 }

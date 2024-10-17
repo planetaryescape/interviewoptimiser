@@ -26,6 +26,7 @@ export const interviews = pgTable("interviews", {
   jobDescriptionText: text("job_description_text").notNull(),
   additionalInfo: text("additional_info"),
   report: text("report"),
+  transcript: text("transcript"),
   duration: integer("duration").notNull().default(15),
   type: interviewTypeEnum("type").notNull().default("behavioral"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
