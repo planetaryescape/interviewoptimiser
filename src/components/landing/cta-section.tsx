@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { config } from "@/lib/config";
 import Link from "next/link";
 
 export function CTASection() {
@@ -6,7 +7,7 @@ export function CTASection() {
     <section className="relative w-full py-12 md:py-24 lg:py-32 bg-primary text-white">
       <div className="container mx-auto px-4 md:px-6 text-center">
         <h2 className="text-3xl font-bold sm:text-4xl md:text-5xl mb-4">
-          Elevate Your Interview Skills with MockMate
+          Elevate Your Interview Skills with {config.projectName}
         </h2>
         <p className="text-xl mb-8">
           Start your journey to interview success with AI-powered practice

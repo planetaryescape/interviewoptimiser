@@ -27,11 +27,11 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "MockMate – AI-Powered Interview Practice for Job Success",
+  title: "Interview Optimiser – AI-Powered Interview Practice for Job Success",
   description:
     "Prepare for interviews with AI-driven mock sessions tailored to your role and industry. Build confidence and sharpen your skills with personalized, conversational practice. Start with a free trial!",
   keywords: [
-    "MockMate",
+    "Interview Optimiser",
     "mock interview",
     "AI interview practice",
     "AI interview prep",
@@ -50,17 +50,18 @@ export const metadata: Metadata = {
     "AI-driven interview prep",
   ],
   openGraph: {
-    title: "MockMate – AI-Powered Interview Practice for Job Success",
+    title:
+      "Interview Optimiser – AI-Powered Interview Practice for Job Success",
     description:
-      "Boost your interview skills with MockMate, the AI-powered mock interview tool designed to build your confidence. Get personalized practice tailored to your job and industry.",
-    url: "https://www.mockmate.com", // Replace with your actual domain
-    siteName: "MockMate",
+      "Boost your interview skills with Interview Optimiser, the AI-powered mock interview tool designed to build your confidence. Get personalized practice tailored to your job and industry.",
+    url: "https://www.interviewoptimiser.com", // Replace with your actual domain
+    siteName: "Interview Optimiser",
     images: [
       {
-        url: "https://mockmate.com/api/og", // Update with your OG image URL
+        url: "https://interviewoptimiser.com/api/og", // Update with your OG image URL
         width: 1200,
         height: 630,
-        alt: "MockMate App",
+        alt: "Interview Optimiser App",
       },
     ],
     locale: "en_US",
@@ -68,18 +69,19 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "MockMate – AI-Powered Interview Practice for Job Success",
+    title:
+      "Interview Optimiser – AI-Powered Interview Practice for Job Success",
     description:
-      "Get AI-powered, conversational interview practice tailored to your career goals. MockMate helps you prepare for success!",
-    images: ["https://mockmate.com/api/og"],
-    site: "@mockmateapp",
+      "Get AI-powered, conversational interview practice tailored to your career goals. Interview Optimiser helps you prepare for success!",
+    images: ["https://interviewoptimiser.com/api/og"],
+    site: "@bhekanik",
   },
   robots: {
     index: true,
     follow: true,
   },
   alternates: {
-    canonical: "https://www.mockmate.com",
+    canonical: "https://www.interviewoptimiser.com",
   },
   icons: {
     icon: [

@@ -11,7 +11,7 @@ export class WavRenderer {
     const canvasHeight = canvas.height;
     const canvasWidth = canvas.width;
 
-    ctx.fillStyle = color;
+    // ctx.fillStyle = color;
 
     const barCount = Math.floor(canvasWidth / (barWidth + barSpacing));
     const frequencyStep = Math.floor(frequencies.length / barCount);
@@ -19,6 +19,11 @@ export class WavRenderer {
     for (let i = 0; i < barCount; i++) {
       const frequency = frequencies[i * frequencyStep];
       const barHeight = Math.min(frequency * heightMultiplier, canvasHeight);
+
+      ctx.fillStyle =
+        color === "#0099ff"
+          ? `rgba(59, 130, 246, ${barHeight / 100})`
+          : `rgba(236, 72, 153, ${barHeight / 100}`;
       const x = i * (barWidth + barSpacing);
       const y = canvasHeight - barHeight;
 
