@@ -91,7 +91,8 @@ export async function PUT(
 
     const interviewId = idHandler.decode(params.id);
     const body = await request.json();
-    const inputInterview = interviewSchema.parse(body);
+    const inputInterview = interviewSchema.partial().parse(body);
+    logger.info({ inputInterview }, "Parsed interview input");
 
     // Ensure the interview belongs to the user
     const existingInterview = await db.query.interviews.findFirst({
@@ -110,15 +111,14 @@ export async function PUT(
         }
       );
     }
+
+    const { ...remainingInterview } = inputInterview;
+
     const [updatedResult] = await db.transaction(async (tx) => {
       const [updatedInterview] = await tx
         .update(interviews)
         .set({
-          type: inputInterview.type,
-          duration: inputInterview.duration,
-          submittedCVText: inputInterview.submittedCVText,
-          jobDescriptionText: inputInterview.jobDescriptionText,
-          additionalInfo: inputInterview.additionalInfo,
+          ...remainingInterview,
         })
         .where(eq(interviews.id, interviewId))
         .returning();

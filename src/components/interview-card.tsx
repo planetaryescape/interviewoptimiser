@@ -67,9 +67,9 @@ export const InterviewCard = ({
             <Link
               href={`/dashboard/interview/${idHandler.encode(
                 interview.id ?? 0
-              )}`}
+              )}/report`}
             >
-              View Interview
+              View Report
             </Link>
           </Button>
 
