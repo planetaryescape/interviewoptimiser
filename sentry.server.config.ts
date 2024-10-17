@@ -4,10 +4,7 @@
 
 import * as Sentry from "@sentry/nextjs";
 
-const isDev = process.env.NODE_ENV === "development";
-
 Sentry.init({
-  enabled: !isDev,
   dsn: "https://102d902545d2f76114e6c3886a531799@o4508119114514432.ingest.de.sentry.io/4508119116480592",
 
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
