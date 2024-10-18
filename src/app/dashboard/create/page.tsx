@@ -187,7 +187,9 @@ export default function CreateInterview() {
       );
 
       router.push(
-        `/dashboard/interview/${idHandler.encode(createdInterview.sys.id ?? 0)}`
+        `/dashboard/interview-interview/${idHandler.encode(
+          createdInterview.sys.id ?? 0
+        )}`
       );
       // await submitInterviewMutation.mutateAsync(
       //   createdInterview.sys.id ?? 0
