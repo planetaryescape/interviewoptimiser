@@ -1,0 +1,20 @@
+import { getHumeAccessToken } from "@/utils/get-hume-access-token";
+import dynamic from "next/dynamic";
+
+const Chat = dynamic(() => import("@/components/chat"), {
+  ssr: false,
+});
+
+export default async function Page({ params }: { params: { id: string } }) {
+  const accessToken = await getHumeAccessToken();
+
+  if (!accessToken) {
+    throw new Error();
+  }
+
+  return (
+    <div className={"grow flex flex-col"}>
+      <Chat accessToken={accessToken} id={params.id} />
+    </div>
+  );
+}
