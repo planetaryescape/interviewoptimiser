@@ -1,17 +1,47 @@
 "use client";
 
+import { Interview, NewInterview } from "@/db/schema";
+import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
 import { useVoice } from "@humeai/voice-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { Mic, MicOff, Phone } from "lucide-react";
+import { useParams } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { toast } from "sonner";
 import { MicFFT } from "./mic-fft";
 import { Button } from "./ui/button";
 import { Toggle } from "./ui/toggle";
 
 export function Controls() {
-  const { disconnect, status, isMuted, unmute, mute, micFft, sendUserInput } =
-    useVoice();
+  const {
+    disconnect,
+    status,
+    messages,
+    isMuted,
+    unmute,
+    mute,
+    micFft,
+    sendUserInput,
+  } = useVoice();
+  const params = useParams();
+  const queryClient = useQueryClient();
+
+  const { mutate: updateInterview } = useMutation({
+    mutationFn: async (interview: Partial<NewInterview>) => {
+      const interviewRepo = await getRepository<Interview>("interviews");
+      return await interviewRepo.update(params.id as string, interview);
+    },
+    onSuccess: (data) => {
+      console.log("Interview updated:", data);
+      queryClient.invalidateQueries({ queryKey: ["interview", params.id] });
+    },
+    onError: (error) => {
+      console.error("Error updating interview:", error);
+      toast.error("Error updating interview. Please try again.");
+    },
+  });
 
   const initialUserMessageSentRef = useRef(false);
 
@@ -23,13 +53,15 @@ export function Controls() {
     return () => {
       initialUserMessageSentRef.current = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status.value]);
 
   return (
     <div
       className={cn(
-        "fixed bottom-0 left-0 w-full p-4 flex items-center justify-center",
-        "bg-gradient-to-t from-card via-card/90 to-card/0"
+        "w-full p-4 flex items-center justify-center",
+        "bg-gradient-to-t from-card via-card/90 to-card/0 row-span-1",
+        status.value !== "connected" ? "hidden" : ""
       )}
     >
       <AnimatePresence>
@@ -74,7 +106,20 @@ export function Controls() {
 
             <Button
               className={"flex items-center gap-1"}
-              onClick={() => {
+              onClick={async () => {
+                await updateInterview({
+                  transcript: messages.reduce((acc, msg) => {
+                    if (
+                      msg.type === "user_message" ||
+                      msg.type === "assistant_message"
+                    ) {
+                      return (
+                        acc + `${msg.message.role}: \t${msg.message.content}\n`
+                      );
+                    }
+                    return acc;
+                  }, ""),
+                });
                 disconnect();
               }}
               variant={"destructive"}

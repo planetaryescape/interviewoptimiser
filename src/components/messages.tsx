@@ -15,11 +15,13 @@ export const Messages = forwardRef<
   return (
     <motion.div
       layoutScroll
-      className={"bg-primary overflow-auto p-4 h-full"}
+      className={
+        "overflow-auto p-4 h-full row-span-1 bg-blue-50 dark:bg-blue-950"
+      }
       ref={ref}
     >
       <motion.div
-        className={"max-w-2xl mx-auto w-full h-full flex flex-col gap-4 pb-24"}
+        className={"max-w-2xl mx-auto w-full h-full flex flex-col gap-4"}
       >
         <AnimatePresence mode={"popLayout"}>
           {messages.map((msg, index) => {
