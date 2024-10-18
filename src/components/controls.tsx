@@ -4,12 +4,26 @@ import { cn } from "@/lib/utils";
 import { useVoice } from "@humeai/voice-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Mic, MicOff, Phone } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { MicFFT } from "./mic-fft";
 import { Button } from "./ui/button";
 import { Toggle } from "./ui/toggle";
 
 export function Controls() {
-  const { disconnect, status, isMuted, unmute, mute, micFft } = useVoice();
+  const { disconnect, status, isMuted, unmute, mute, micFft, sendUserInput } =
+    useVoice();
+
+  const initialUserMessageSentRef = useRef(false);
+
+  useEffect(() => {
+    if (status.value === "connected" && !initialUserMessageSentRef.current) {
+      initialUserMessageSentRef.current = true;
+      sendUserInput("I'm ready to start the interview");
+    }
+    return () => {
+      initialUserMessageSentRef.current = false;
+    };
+  }, [status.value]);
 
   return (
     <div

@@ -117,7 +117,9 @@ export default function InterviewScreen({
     client.updateSession({
       instructions: createInterviewInstructions(
         interview?.data?.submittedCVText || "",
-        interview?.data?.jobDescriptionText || ""
+        interview?.data?.jobDescriptionText || "",
+        interview?.data?.duration || 15,
+        interview?.data?.type || "behavioral"
       ),
     });
     // Set transcription, otherwise we don't get user transcriptions back

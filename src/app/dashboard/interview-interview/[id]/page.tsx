@@ -13,7 +13,7 @@ export default async function Page({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className={"grow flex flex-col"}>
+    <div className={"grow flex flex-col h-full overflow-auto"}>
       <Chat accessToken={accessToken} id={params.id} />
     </div>
   );
