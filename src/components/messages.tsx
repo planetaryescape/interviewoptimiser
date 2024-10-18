@@ -11,16 +11,15 @@ export const Messages = forwardRef<
   Record<never, never>
 >(function Messages(_, ref) {
   const { messages } = useVoice();
-  console.log("messages:", messages);
 
   return (
     <motion.div
       layoutScroll
-      className={"grow rounded-md overflow-auto p-4"}
+      className={"bg-primary overflow-auto p-4 h-full"}
       ref={ref}
     >
       <motion.div
-        className={"max-w-2xl mx-auto w-full flex flex-col gap-4 pb-24"}
+        className={"max-w-2xl mx-auto w-full h-full flex flex-col gap-4 pb-24"}
       >
         <AnimatePresence mode={"popLayout"}>
           {messages.map((msg, index) => {
