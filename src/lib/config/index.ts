@@ -6,14 +6,14 @@ export const config = {
   baseUrl: `http://${domain}`,
   domain,
   maxTextLengths: {
-    cv: 15000,
-    jobDescription: 5000,
+    cv: 18000,
+    jobDescription: 8000,
     additionalInfo: 3000,
     customisations: 3000,
   },
   startingFreeMinutes: 2,
   earlyBirdPromo: {
-    minutes: 10,
+    minutes: 3,
     userCount: 20,
     enabled: true,
   },
