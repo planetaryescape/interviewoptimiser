@@ -121,7 +121,7 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.145",
     "@types/file-saver": "^2.0.7",
-    "@types/lodash": "^4.17.10",
+    "@types/lodash": "^4.17.11",
     "@types/node": "^22",
     "@types/pdf-parse": "^1.1.4",
     "@types/react": "^18",
