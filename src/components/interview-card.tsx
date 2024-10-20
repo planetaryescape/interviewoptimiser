@@ -62,7 +62,7 @@ export const InterviewCard = ({
         </CardDescription>
       </CardContent>
       <div className="mt-auto p-4 bg-muted/50 border-t border-gray-300 dark:border-gray-700 flex justify-between items-center">
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center justify-between w-full">
           <Button asChild size="sm" variant={"outline"}>
             <Link
               href={`/dashboard/interview/${idHandler.encode(

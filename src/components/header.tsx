@@ -33,9 +33,9 @@ export function Header({ className }: { className?: string }) {
   return (
     <header
       className={cn(
-        "shadow-sm text-foreground relative z-[100]",
+        "shadow-sm text-foreground relative z-[100] border-b border-gray-400 dark:border-gray-600",
         pathname.startsWith("/dashboard")
-          ? "bg-card text-card-foreground border-b border-gray-300 dark:border-gray-700"
+          ? "bg-card text-card-foreground"
           : "bg-background text-foreground",
         className
       )}
@@ -50,28 +50,58 @@ export function Header({ className }: { className?: string }) {
           <Image
             src="/logo.png"
             alt={`${config.projectName} Logo`}
-            width={24}
-            height={24}
+            width={60}
+            height={60}
           />
           <span>{config.projectName}</span>
         </Link>
         <div className="flex items-center space-x-2 md:space-x-4">
           <nav className="hidden md:flex space-x-8 items-center">
             <SignedOut>
-              <Link href="/pricing">Pricing</Link>
+              <Link
+                className={cn(pathname === "/pricing" && "font-bold")}
+                href="/pricing"
+              >
+                Pricing
+              </Link>
             </SignedOut>
-            <Link href="/changelog">Changelog</Link>
-            <Link href="/feature-requests">Feature Requests</Link>
+            <Link
+              className={cn(pathname === "/changelog" && "font-bold")}
+              href="/changelog"
+            >
+              Changelog
+            </Link>
+            <Link
+              className={cn(pathname === "/feature-requests" && "font-bold")}
+              href="/feature-requests"
+            >
+              Feature Requests
+            </Link>
             <SignedOut>
               <Button size="sm" asChild variant="ghost">
-                <Link href="/sign-in">Sign In</Link>
+                <Link
+                  className={cn(pathname === "/sign-in" && "font-bold")}
+                  href="/sign-in"
+                >
+                  Sign In
+                </Link>
               </Button>
             </SignedOut>
             <SignedIn>
-              <Link href="/dashboard">Dashboard</Link>
+              <Link
+                className={cn(pathname === "/dashboard" && "font-bold")}
+                href="/dashboard"
+              >
+                Dashboard
+              </Link>
             </SignedIn>
             <SignedIn>
-              <Link href="/pricing">Buy Minutes</Link>
+              <Link
+                className={cn(pathname === "/pricing" && "font-bold")}
+                href="/pricing"
+              >
+                Buy Minutes
+              </Link>
             </SignedIn>
           </nav>
           <Separator
