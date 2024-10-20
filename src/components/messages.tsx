@@ -49,7 +49,10 @@ export const Messages = forwardRef<
                       ? "z-10"
                       : index === arr.length - 2
                       ? "z-5 transform opacity-50"
-                      : "z-0 transform opacity-25"
+                      : "z-0 transform opacity-25",
+                    msg.type === "user_message"
+                      ? "text-yellow-900 dark:text-yellow-200"
+                      : "text-red-900 dark:text-red-200"
                   )}
                   initial={{
                     opacity: 0,

@@ -57,7 +57,6 @@ export default function CreateInterview() {
     resetStore,
   } = useCreateInterviewActions();
   const duration = useCreateInterviewDuration();
-  console.log("duration:", duration);
   const interviewType = useCreateInterviewInterviewType();
 
   const router = useRouter();

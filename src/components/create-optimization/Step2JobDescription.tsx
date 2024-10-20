@@ -139,7 +139,7 @@ export function Step2JobDescription() {
           }}
         />
       </div>
-      <div>
+      <div className="space-y-4">
         <Label htmlFor="job-paste">Or paste Job Description</Label>
         <Textarea
           id="job-paste"
