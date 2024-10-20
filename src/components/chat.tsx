@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Controls } from "./controls";
 import { GeneratingReportTakeover } from "./generating-report-takeover";
 import { Messages } from "./messages";
+import MessagesPlaceholder from "./messages-placeholder";
 import { StartCall } from "./start-call";
 import { TimerHume } from "./timer-hume";
 
@@ -76,6 +77,7 @@ export default function ClientComponent({
   // optional: use configId from environment variable
   const configId = process.env["NEXT_PUBLIC_HUME_CONFIG_ID"];
   const [interviewEnded, setInterviewEnded] = useState(false);
+  const [interviewStarted, setInterviewStarted] = useState(false);
   const [showTakeover, setShowTakeover] = useState(false);
 
   useEffect(() => {
@@ -125,9 +127,19 @@ export default function ClientComponent({
           totalTime={(interview?.data.duration ?? 15) * 60}
           setInterviewEnded={setInterviewEnded}
         />
-        <Messages ref={ref} />
+        {interviewStarted ? (
+          <Messages ref={ref} />
+        ) : (
+          <MessagesPlaceholder
+            interviewEnded={interviewEnded}
+            setInterviewStarted={setInterviewStarted}
+          />
+        )}
         <Controls setInterviewEnded={setInterviewEnded} />
-        <StartCall interviewEnded={interviewEnded} />
+        <StartCall
+          interviewEnded={interviewEnded}
+          setInterviewStarted={setInterviewStarted}
+        />
 
         <AnimatePresence>
           {showTakeover && <GeneratingReportTakeover />}
