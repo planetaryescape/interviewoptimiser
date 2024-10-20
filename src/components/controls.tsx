@@ -7,9 +7,9 @@ import { useVoice } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { Mic, MicOff, Pause, Play } from "lucide-react";
+import { Mic, MicOff } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { MicFFT } from "./mic-fft";
 import { Button } from "./ui/button";
@@ -29,13 +29,10 @@ export function Controls({
     mute,
     micFft,
     sendUserInput,
-    pauseAssistant,
     sendAssistantInput,
-    resumeAssistant,
   } = useVoice();
   const params = useParams();
   const queryClient = useQueryClient();
-  const [isPaused, setIsPaused] = useState(false);
 
   const { mutate: updateInterview } = useMutation({
     mutationFn: async (interview: Partial<NewInterview>) => {
@@ -72,18 +69,6 @@ export function Controls({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status.value]);
-
-  const handlePauseResume = () => {
-    if (isPaused) {
-      resumeAssistant();
-      setIsPaused(false);
-      toast.success("Interview resumed");
-    } else {
-      pauseAssistant();
-      setIsPaused(true);
-      toast.success("Interview paused");
-    }
-  };
 
   return (
     <div
@@ -132,24 +117,6 @@ export function Controls({
             <div className={"relative grid h-8 w-48 shrink grow-0"}>
               <MicFFT fft={micFft} className={"fill-current"} />
             </div>
-
-            <Button
-              className={"flex items-center gap-1"}
-              onClick={handlePauseResume}
-              variant={"secondary"}
-            >
-              {isPaused ? (
-                <>
-                  <Play className={"size-4"} />
-                  Resume
-                </>
-              ) : (
-                <>
-                  <Pause className={"size-4"} />
-                  Pause
-                </>
-              )}
-            </Button>
 
             <Button
               className={"flex items-center gap-1"}

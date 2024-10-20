@@ -192,7 +192,7 @@ export const handler = Sentry.AWSLambda.wrapHandler(async (event: SQSEvent) => {
 
         await db.transaction(async (tx) => {
           await tx.insert(reports).values({
-            interviewId: interviewId,
+            interviewId,
             ...generatedReport,
             areasOfStrength: JSON.stringify(generatedReport.areasOfStrength),
             areasForImprovement: JSON.stringify(

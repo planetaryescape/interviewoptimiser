@@ -4,7 +4,7 @@ import { logger } from "@/lib/logger";
 import { stripe } from "@/lib/stripe";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
-import * as Sentry from "@sentry/serverless";
+import * as Sentry from "@sentry/nextjs";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {

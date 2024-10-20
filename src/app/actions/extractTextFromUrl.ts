@@ -2,7 +2,7 @@
 
 import { cleanUpText } from "@/lib/clean-up-text";
 import { logger } from "@/lib/logger";
-import * as Sentry from "@sentry/serverless";
+import * as Sentry from "@sentry/nextjs";
 import { load } from "cheerio";
 import TurndownService from "turndown";
 

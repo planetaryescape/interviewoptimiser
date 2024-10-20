@@ -1,7 +1,7 @@
 "use server";
 
 import { logger } from "@/lib/logger";
-import * as Sentry from "@sentry/serverless";
+import * as Sentry from "@sentry/nextjs";
 import mammoth from "mammoth";
 
 // @ts-expect-error TODO: fix this

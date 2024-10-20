@@ -202,6 +202,7 @@ export function TimerHume({
       queryClient.invalidateQueries({ queryKey: ["interview", params.id] });
     },
     onError: (error) => {
+      console.log("error:", error);
       Sentry.withScope((scope) => {
         scope.setContext("params", params);
         Sentry.captureException(error);
