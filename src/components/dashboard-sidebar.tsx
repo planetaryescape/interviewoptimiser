@@ -15,7 +15,7 @@ export default function DashboardSidebar() {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
 
   return (
-    <aside className="w-64 relative hidden md:flex shadow-md flex-col justify-between bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 text-card-foreground border-r border-gray-300 dark:border-gray-700">
+    <aside className="w-64 relative hidden md:flex shadow-md flex-col justify-between bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 text-card-foreground border-r border-gray-400 dark:border-gray-600">
       <div className="p-2">
         <nav className="space-y-2">
           <SidebarButton href="/dashboard">Interviews</SidebarButton>

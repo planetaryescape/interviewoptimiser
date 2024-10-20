@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { Interview, Report } from "@/db/schema";
+import { config } from "@/lib/config";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
 import * as Sentry from "@sentry/nextjs";
@@ -23,7 +24,6 @@ import {
   Briefcase,
   ChevronDown,
   FileDown,
-  Save,
   ThumbsUp,
   TrendingDown,
   TrendingUp,
@@ -95,11 +95,6 @@ export default function InterviewReport({
     }
   }, [report, generateReportMutation]);
 
-  const handleSave = () => {
-    // Implement save functionality
-    console.log("Saving report...");
-  };
-
   const handleExport = (format: "pdf" | "docx") => {
     // Implement export functionality
     console.log(`Exporting report as ${format}...`);
@@ -131,14 +126,12 @@ export default function InterviewReport({
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-full bg-blue-50 dark:bg-blue-950">
       {/* Toolbar */}
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm mb-8">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="sticky top-0 z-10 bg-card text-card-foreground shadow-sm mb-8 border-b border-gray-400 dark:border-gray-600">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <h1 className="text-2xl font-semibold text-gray-900">
-              Interview Report
-            </h1>
+            <h1 className="text-2xl font-semibold">Interview Report</h1>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <Switch
@@ -148,22 +141,9 @@ export default function InterviewReport({
                 />
                 <Label htmlFor="include-transcript">Include Transcript</Label>
               </div>
-              <Button
-                onClick={handleSave}
-                variant="outline"
-                size="sm"
-                className="bg-white hover:bg-gray-50"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Save Report
-              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="bg-white hover:bg-gray-50"
-                  >
+                  <Button variant="outline" size="sm" className="">
                     <FileDown className="w-4 h-4 mr-2" />
                     Export
                     <ChevronDown className="w-4 h-4 ml-2" />
@@ -193,14 +173,14 @@ export default function InterviewReport({
             {/* Header */}
             <header className="text-center mb-8">
               <Image
-                src="/placeholder.svg?height=60&width=200"
-                alt="Interview Optimiser Logo"
+                src="/logo.png"
+                alt={`${config.projectName} Logo`}
                 width={200}
-                height={60}
-                className="mx-auto mb-6"
+                height={200}
+                className="mx-auto"
               />
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Interview Report
+                Interview Optimiser Report
               </h1>
               <p className="text-xl text-gray-600">
                 {interview?.data.candidate} - {interview?.data.role}
