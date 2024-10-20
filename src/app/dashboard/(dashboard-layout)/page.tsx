@@ -57,8 +57,6 @@ export default function OptimisationsSection() {
     queryFn: fetchInterviews,
   });
 
-  console.log("interviewsData:", interviewsData);
-
   const interviews = useMemo(
     () => interviewsData?.data || [],
     [interviewsData]
