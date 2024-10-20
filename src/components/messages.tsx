@@ -78,7 +78,12 @@ export const Messages = forwardRef<
                   <div className="text-xs capitalize font-medium leading-none opacity-50 mb-2">
                     {msg.message.role}
                   </div>
-                  <div className="mb-2">{msg.message.content}</div>
+                  <div className="mb-2">
+                    {msg.message.content?.replace(
+                      "<One minute left>Tell the candidate how much time is left and start wrapping up the interview and tell the candidate that a report will be generated</One minute left>.",
+                      ""
+                    )}
+                  </div>
                 </motion.div>
               );
             })}
