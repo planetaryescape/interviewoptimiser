@@ -1,5 +1,6 @@
 export type EntityType =
   | "empty"
+  | "report"
   | "sections-order"
   | "page-settings"
   | "changelog"

@@ -15,6 +15,27 @@
       "when": 1729201167332,
       "tag": "0001_orange_puma",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1729384113566,
+      "tag": "0002_curved_harpoon",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1729385075652,
+      "tag": "0003_breezy_ezekiel",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1729385322526,
+      "tag": "0004_minor_vin_gonzales",
+      "breakpoints": true
     }
   ]
 }

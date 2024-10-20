@@ -6,4 +6,5 @@ export * from "./featureRequests";
 export * from "./images";
 export * from "./interviews";
 export * from "./pageSettings";
+export * from "./reports";
 export * from "./users";

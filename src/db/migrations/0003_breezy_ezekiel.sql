@@ -1,0 +1,1 @@
+ALTER TABLE "interviews" ADD COLUMN "completed" boolean DEFAULT false NOT NULL;

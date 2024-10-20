@@ -21,14 +21,10 @@ export function GeneratingReportTakeover() {
         </div>
         <p className="mb-4">
           We&apos;re generating your report. This usually takes about a minute.
-          You&apos;ll be redirected to the dashboard in a moment.
+          You&apos;ll be redirected to the report page when it&apos;s ready.
         </p>
         <p className="text-sm text-muted-foreground">
-          Your report will continue processing in the background.
-        </p>
-        <p className="text-sm text-muted-foreground">
-          You&apos;ll see a &quot;View Report&quot; button on your interview in
-          the dashboard when it&apos;s ready.
+          Please wait while we analyze your interview performance.
         </p>
       </motion.div>
     </motion.div>

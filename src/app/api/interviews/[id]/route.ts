@@ -6,7 +6,7 @@ import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/serverless";
-import { desc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -35,11 +35,22 @@ export async function GET(
     const interviewId = idHandler.decode(params.id);
 
     const userInterview = await db.query.interviews.findFirst({
-      orderBy: desc(interviews.createdAt),
       where: eq(interviews.id, interviewId),
+      with: {
+        report: true,
+      },
     });
 
-    logger.info({ id: userInterview?.id }, "Successfully retrieved interview");
+    if (!userInterview) {
+      return NextResponse.json(formatErrorEntity("Interview not found"), {
+        status: 404,
+      });
+    }
+
+    logger.info(
+      { id: userInterview.id },
+      "Successfully retrieved interview with report"
+    );
     return NextResponse.json(formatEntity(userInterview, "interview"));
   } catch (error) {
     Sentry.withScope((scope) => {

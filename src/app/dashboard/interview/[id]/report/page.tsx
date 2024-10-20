@@ -8,92 +8,91 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Interview } from "@/db/schema";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
+import { Interview, Report } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
-import { useQuery } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
+import * as Sentry from "@sentry/nextjs";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
+  BarChart2,
+  Briefcase,
   ChevronDown,
   FileDown,
   Save,
-  ThumbsDown,
   ThumbsUp,
+  TrendingDown,
+  TrendingUp,
+  User,
+  UserCircle,
 } from "lucide-react";
-import { useState } from "react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { toast } from "sonner";
 
 export default function InterviewReport({
   params,
 }: {
   params: { id: string };
 }) {
-  const { data: interview } = useQuery({
+  const queryClient = useQueryClient();
+  const { data: interview, isLoading } = useQuery({
     queryKey: ["interview", params.id],
     queryFn: async () => {
-      const interviewRepo = await getRepository<Interview>("interviews");
+      const interviewRepo = await getRepository<
+        Interview & {
+          report: Report;
+        }
+      >("interviews");
       return await interviewRepo.getById(params.id);
     },
   });
 
-  console.log("interview:", interview);
+  const report = interview?.data.report;
 
-  const [reportData, setReportData] = useState({
-    overallScore: 85,
-    strengths: [
-      "Clear communication",
-      "Relevant experience",
-      "Problem-solving skills",
-    ],
-    areasForImprovement: [
-      "Elaborating on answers",
-      "Providing more specific examples",
-    ],
-    keyInsights: [
-      "Candidate showed strong technical knowledge",
-      "Could improve on relating past experiences to the role",
-      "Demonstrated good cultural fit",
-    ],
-    questionResponses: [
-      {
-        question: "Tell me about a challenging project you've worked on.",
-        response: "I worked on a high-traffic e-commerce platform...",
-        feedback:
-          "Good overview, but could provide more specific details about your role and contributions.",
-        score: 8,
-      },
-      {
-        question: "How do you handle conflicts in a team?",
-        response:
-          "I believe in open communication and finding common ground...",
-        feedback:
-          "Solid approach, but consider adding a specific example to illustrate your conflict resolution skills.",
-        score: 7,
-      },
-      {
-        question:
-          "Explain a complex technical concept to a non-technical person.",
-        response: "I would compare a database to a library...",
-        feedback:
-          "Excellent analogy! Clear and easy to understand for non-technical individuals.",
-        score: 9,
-      },
-    ],
-    skillAssessment: {
-      technicalSkills: 85,
-      communicationSkills: 80,
-      problemSolving: 90,
-      teamwork: 85,
-      adaptability: 75,
+  const generateReportMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch("/api/report", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ interviewId: params.id }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate report");
+      }
+
+      return response.json();
     },
-    recommendations: [
-      "Practice the STAR method (Situation, Task, Action, Result) when answering behavioral questions to provide more structured and detailed responses.",
-      "Prepare more specific examples from your past experiences to illustrate your skills and achievements.",
-      "Work on tailoring your responses to show how your skills directly apply to the position you're interviewing for.",
-      "Consider taking a public speaking course to further enhance your communication skills.",
-      "Stay updated with the latest trends in your field to demonstrate your commitment to continuous learning.",
-    ],
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["interview", params.id] });
+    },
+    onError: (error) => {
+      toast.error("Failed to generate report. Please try again.");
+      Sentry.withScope((scope) => {
+        scope.setContext("params", params);
+        Sentry.captureException(error);
+      });
+    },
   });
+
+  useEffect(() => {
+    if (
+      !isLoading &&
+      interview?.data &&
+      !report &&
+      !generateReportMutation.isPending
+    ) {
+      generateReportMutation.mutate();
+    }
+  }, [report, generateReportMutation]);
 
   const handleSave = () => {
     // Implement save functionality
@@ -105,23 +104,65 @@ export default function InterviewReport({
     console.log(`Exporting report as ${format}...`);
   };
 
+  const [includeTranscript, setIncludeTranscript] = useState(true);
+
+  if (isLoading || generateReportMutation.isPending || !report) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-100">
+        <div className="text-center bg-white p-8 rounded-lg shadow-xl max-w-md">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Generating Report
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Please wait while we generate the report for your interview. This
+            may take a few moments.
+          </p>
+          <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+            <div className="bg-blue-600 h-2.5 rounded-full w-3/4 animate-pulse"></div>
+          </div>
+          <p className="text-sm text-gray-500">
+            This process usually takes about 1-2 minutes.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-rows-[auto_1fr] min-h-full overflow-y-auto bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gray-100">
       {/* Toolbar */}
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm row-span-1">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm mb-8">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-semibold text-gray-900">
               Interview Report
             </h1>
             <div className="flex items-center space-x-4">
-              <Button onClick={handleSave} variant="outline" size="sm">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="include-transcript"
+                  checked={includeTranscript}
+                  onCheckedChange={setIncludeTranscript}
+                />
+                <Label htmlFor="include-transcript">Include Transcript</Label>
+              </div>
+              <Button
+                onClick={handleSave}
+                variant="outline"
+                size="sm"
+                className="bg-white hover:bg-gray-50"
+              >
                 <Save className="w-4 h-4 mr-2" />
                 Save Report
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="bg-white hover:bg-gray-50"
+                  >
                     <FileDown className="w-4 h-4 mr-2" />
                     Export
                     <ChevronDown className="w-4 h-4 ml-2" />
@@ -142,88 +183,278 @@ export default function InterviewReport({
       </div>
 
       {/* Report Content */}
-      <div className="row-span-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white rounded-2xl shadow-xl overflow-auto">
-            <div className="p-8 space-y-8">
-              {/* Overall Performance */}
-              <section>
-                <h2 className="text-2xl font-semibold mb-4">
-                  Overall Performance
-                </h2>
-                <div className="flex items-center mb-4">
-                  <div className="w-24 h-24 rounded-full border-8 border-blue-500 flex items-center justify-center text-3xl font-bold text-blue-600">
-                    {reportData.overallScore}%
+      <ScrollArea className="h-[calc(100vh-8rem)] px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[21cm] mx-auto bg-white shadow-lg">
+          <div
+            className="py-12 px-8 sm:px-12 space-y-8"
+            style={{ fontSize: "11pt" }}
+          >
+            {/* Header */}
+            <header className="text-center mb-8">
+              <Image
+                src="/placeholder.svg?height=60&width=200"
+                alt="Interview Optimiser Logo"
+                width={200}
+                height={60}
+                className="mx-auto mb-6"
+              />
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Interview Report
+              </h1>
+              <p className="text-xl text-gray-600">
+                {interview?.data.candidate} - {interview?.data.role}
+              </p>
+            </header>
+
+            {/* Candidate Info */}
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4 text-gray-800 border-b pb-2">
+                Candidate Information
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="flex items-center">
+                  <User className="w-5 h-5 mr-3 text-blue-600" />
+                  <div>
+                    <p className="text-sm text-gray-500">Name</p>
+                    <p className="font-medium">{interview?.data.candidate}</p>
                   </div>
-                  <div className="ml-6">
-                    {reportData.overallScore >= 80 ? (
-                      <ThumbsUp className="w-12 h-12 text-green-500" />
-                    ) : reportData.overallScore >= 60 ? (
-                      <AlertTriangle className="w-12 h-12 text-yellow-500" />
-                    ) : (
-                      <ThumbsDown className="w-12 h-12 text-red-500" />
+                </div>
+                <div className="flex items-center">
+                  <Briefcase className="w-5 h-5 mr-3 text-blue-600" />
+                  <div>
+                    <p className="text-sm text-gray-500">Company</p>
+                    <p className="font-medium">{interview?.data.company}</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <UserCircle className="w-5 h-5 mr-3 text-blue-600" />
+                  <div>
+                    <p className="text-sm text-gray-500">Role</p>
+                    <p className="font-medium">{interview?.data.role}</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Overall Performance */}
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4 text-gray-800 border-b pb-2">
+                Overall Performance
+              </h2>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center">
+                  <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                    <BarChart2 className="w-10 h-10 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-4xl font-bold text-gray-800">
+                      {report.overallScore}%
+                    </p>
+                    <p className="text-gray-500">Overall Score</p>
+                  </div>
+                </div>
+                <div>
+                  {report.overallScore >= 80 ? (
+                    <div className="flex items-center text-green-600">
+                      <ThumbsUp className="w-8 h-8 mr-2" />
+                      <span className="text-lg font-semibold">Excellent</span>
+                    </div>
+                  ) : report.overallScore >= 60 ? (
+                    <div className="flex items-center text-yellow-600">
+                      <AlertTriangle className="w-8 h-8 mr-2" />
+                      <span className="text-lg font-semibold">Good</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center text-red-600">
+                      <AlertTriangle className="w-8 h-8 mr-2" />
+                      <span className="text-lg font-semibold">
+                        Needs Improvement
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={remarkMarkdownComponents}
+                className="text-gray-700 leading-relaxed"
+              >
+                {report.generalAssessment}
+              </ReactMarkdown>
+            </section>
+
+            {/* Detailed Feedback */}
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4 text-gray-800 border-b pb-2">
+                Detailed Feedback
+              </h2>
+              <div className="space-y-6">
+                {[
+                  {
+                    title: "Speaking Skills",
+                    content: report.speakingSkills,
+                    score: report.speakingSkillsScore,
+                  },
+                  {
+                    title: "Communication Skills",
+                    content: report.communicationSkills,
+                    score: report.communicationSkillsScore,
+                  },
+                  {
+                    title: "Problem-Solving Skills",
+                    content: report.problemSolvingSkills,
+                    score: report.problemSolvingSkillsScore,
+                  },
+                  {
+                    title: "Technical Knowledge",
+                    content: report.technicalKnowledge,
+                    score: report.technicalKnowledgeScore,
+                  },
+                  {
+                    title: "Teamwork",
+                    content: report.teamwork,
+                    score: report.teamworkScore,
+                  },
+                  {
+                    title: "Adaptability",
+                    content: report.adaptability,
+                    score: report.adaptabilityScore,
+                  },
+                ].map((item, index) => (
+                  <div key={index} className="border-b pb-4 last:border-b-0">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="text-xl font-semibold text-gray-800">
+                        {item.title}
+                      </h3>
+                      <div className="flex items-center">
+                        <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                          <span className="text-xl font-bold text-blue-600">
+                            {item.score}%
+                          </span>
+                        </div>
+                        {item.score >= 80 ? (
+                          <TrendingUp className="w-6 h-6 text-green-500" />
+                        ) : item.score >= 60 ? (
+                          <TrendingUp className="w-6 h-6 text-yellow-500" />
+                        ) : (
+                          <TrendingDown className="w-6 h-6 text-red-500" />
+                        )}
+                      </div>
+                    </div>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={remarkMarkdownComponents}
+                      className="text-gray-700"
+                    >
+                      {item.content}
+                    </ReactMarkdown>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Strengths and Areas for Improvement */}
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4 text-gray-800 border-b pb-2">
+                Strengths and Areas for Improvement
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-xl font-semibold mb-4 text-green-600">
+                    Areas of Strength
+                  </h3>
+                  <ul className="space-y-3">
+                    {JSON.parse(report.areasOfStrength).map(
+                      (strength: string, index: number) => (
+                        <li key={index} className="flex items-start">
+                          <ThumbsUp className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-1" />
+                          <span className="text-gray-700">{strength}</span>
+                        </li>
+                      )
                     )}
-                  </div>
+                  </ul>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div>
-                    <h3 className="text-xl font-semibold mb-3 text-green-600">
-                      Strengths
-                    </h3>
-                    <ul className="list-disc list-inside space-y-2">
-                      {reportData.strengths.map((strength, index) => (
-                        <li key={index} className="text-gray-700">
-                          {strength}
+                <div>
+                  <h3 className="text-xl font-semibold mb-4 text-red-600">
+                    Areas for Improvement
+                  </h3>
+                  <ul className="space-y-3">
+                    {JSON.parse(report.areasForImprovement).map(
+                      (area: string, index: number) => (
+                        <li key={index} className="flex items-start">
+                          <AlertTriangle className="w-5  h-5 text-red-500 mr-3 flex-shrink-0 mt-1" />
+                          <span className="text-gray-700">{area}</span>
                         </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold mb-3 text-red-600">
-                      Areas for Improvement
-                    </h3>
-                    <ul className="list-disc list-inside space-y-2">
-                      {reportData.areasForImprovement.map((area, index) => (
-                        <li key={index} className="text-gray-700">
-                          {area}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                      )
+                    )}
+                  </ul>
                 </div>
-              </section>
+              </div>
+            </section>
 
-              <section>
-                <h2 className="text-2xl font-semibold mb-4">Interview Notes</h2>
-                <div className="list-decimal list-inside space-y-2">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={remarkMarkdownComponents}
-                    className="text-sm text-gray-700"
-                  >
-                    {interview?.data.report}
-                  </ReactMarkdown>
-                </div>
-              </section>
+            {/* Actionable Next Steps */}
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4 text-gray-800 border-b pb-2">
+                Actionable Next Steps
+              </h2>
 
-              <section>
-                <h2 className="text-2xl font-semibold mb-4">
+              <ol className="space-y-4 list-decimal list-inside">
+                {JSON.parse(report.actionableNextSteps).map(
+                  (step: string, index: number) => (
+                    <li key={index} className="pl-2 py-3 bg-blue-50 rounded-lg">
+                      <span className="text-gray-700 ml-2">{step}</span>
+                    </li>
+                  )
+                )}
+              </ol>
+            </section>
+
+            {/* Interview Transcript */}
+            {includeTranscript && (
+              <section className="mb-8">
+                <h2 className="text-2xl font-semibold mb-4 text-gray-800 border-b pb-2">
                   Interview Transcript
                 </h2>
-                <ul className="list-decimal list-inside space-y-2">
+                <div className="bg-gray-50 p-6 rounded-xl shadow-inner">
                   {interview?.data.transcript
                     ?.split("\n")
-                    .map((item, index) => (
-                      <li key={index} className="text-gray-700">
-                        {item}
-                      </li>
-                    ))}
-                </ul>
+                    .map((line, index) => {
+                      const [role, ...textParts] = line.split(":");
+                      const text = textParts.join(":").trim();
+                      const persona = role
+                        .replace("assistant", "Interviewer")
+                        .replace("user", "Candidate")
+                        .trim();
+                      return (
+                        <div key={index} className="mb-4 last:mb-0">
+                          <span
+                            className={cn(
+                              "font-semibold text-blue-600 block mb-1",
+                              persona === "Candidate" && "text-green-600"
+                            )}
+                          >
+                            {persona}:
+                          </span>
+                          <p className="text-gray-700 bg-white p-3 rounded-lg shadow-sm">
+                            {text}
+                          </p>
+                        </div>
+                      );
+                    })}
+                </div>
               </section>
-            </div>
+            )}
+
+            {/* Footer */}
+            <footer className="text-center text-gray-500 text-sm mt-8 pt-4 border-t">
+              <p>
+                Generated on {new Date().toLocaleDateString()} by Interview
+                Optimiser
+              </p>
+            </footer>
           </div>
         </div>
-      </div>
+      </ScrollArea>
     </div>
   );
 }
