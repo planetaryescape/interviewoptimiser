@@ -1,5 +1,6 @@
 "use client";
 
+import { Expressions } from "@/components/expressions";
 import { remarkMarkdownComponents } from "@/components/remark-markdown-components";
 import { Button } from "@/components/ui/button";
 import {
@@ -416,12 +417,16 @@ export default function InterviewReport({
                   Interview Transcript
                 </h2>
                 <div className="bg-gray-50 p-6 rounded-xl shadow-inner">
-                  {interview?.data.transcript
-                    ?.split("\n")
-                    .map((line, index) => {
-                      const [role, ...textParts] = line.split(":");
-                      const text = textParts.join(":").trim();
-                      const persona = role
+                  {JSON.parse(interview?.data.transcript ?? "[]").map(
+                    (
+                      message: {
+                        role: string;
+                        content: string;
+                        prosody: Record<string, number>;
+                      },
+                      index: number
+                    ) => {
+                      const persona = message.role
                         .replace("assistant", "Interviewer")
                         .replace("user", "Candidate")
                         .trim();
@@ -436,11 +441,21 @@ export default function InterviewReport({
                             {persona}:
                           </span>
                           <p className="text-gray-700 bg-white p-3 rounded-lg shadow-sm">
-                            {text}
+                            <span className="block mb-2">
+                              {message.content}
+                            </span>
+                            {persona === "Candidate" &&
+                              Object.keys(message.prosody).length > 0 && (
+                                <Expressions
+                                  values={message.prosody}
+                                  withScores={false}
+                                />
+                              )}
                           </p>
                         </div>
                       );
-                    })}
+                    }
+                  )}
                 </div>
               </section>
             )}

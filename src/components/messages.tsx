@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { useVoice } from "@humeai/voice-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ComponentRef, forwardRef } from "react";
-import { Expressions } from "./expressions";
 
 export const Messages = forwardRef<
   ComponentRef<typeof motion.div>,
@@ -15,7 +14,7 @@ export const Messages = forwardRef<
   return (
     <motion.div
       layoutScroll
-      className="overflow-auto p-4 h-full row-span-1 bg-[#3c4a3e] text-white"
+      className="overflow-auto p-4 h-full row-span-1 bg-blue-50 dark:bg-blue-950 text-white"
       ref={ref}
     >
       <motion.div className="max-w-2xl mx-auto w-full h-full flex flex-col justify-center items-center gap-4">
@@ -42,21 +41,29 @@ export const Messages = forwardRef<
                   className={cn(
                     "w-full max-w-lg mx-auto",
                     "bg-transparent",
-                    "rounded-lg",
-                    isLatest ? "mb-16 text-center" : "mb-4 absolute",
+                    "rounded-lg text-center",
+                    isLatest ? "mb-16" : "mb-4",
                     isLatest
                       ? "z-10"
                       : index === arr.length - 2
-                      ? "z-5 top-4 left-1/2 transform -translate-x-1/2 opacity-50"
-                      : "z-0 top-0 left-1/2 transform -translate-x-1/2 opacity-25"
+                      ? "z-5 transform opacity-50"
+                      : "z-0 transform opacity-25"
                   )}
-                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                  initial={{
+                    opacity: 0,
+                    y: 50,
+                    // scale: 0.9
+                  }}
                   animate={{
                     opacity: fadeAmount,
                     y: 0,
-                    scale: isLatest ? 1 : 0.9,
+                    // scale: isLatest ? 1 : 0.9,
                   }}
-                  exit={{ opacity: 0, y: -50, scale: 0.9 }}
+                  exit={{
+                    opacity: 0,
+                    y: -50,
+                    // scale: 0.9
+                  }}
                   transition={{ duration: 0.5, ease: "easeInOut" }}
                   style={{
                     fontSize: isLatest
@@ -69,9 +76,6 @@ export const Messages = forwardRef<
                     {msg.message.role}
                   </div>
                   <div className="mb-2">{msg.message.content}</div>
-                  {isLatest && (
-                    <Expressions values={{ ...msg.models.prosody?.scores }} />
-                  )}
                 </motion.div>
               );
             }

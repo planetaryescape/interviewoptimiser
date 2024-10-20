@@ -22,6 +22,7 @@ import {
   useCreateInterviewAdditionalInfo,
   useCreateInterviewCVText,
   useCreateInterviewDuration,
+  useCreateInterviewInterviewType,
   useCreateInterviewIsAlertDialogOpen,
   useCreateInterviewIsOutOfMinutesDialogOpen,
   useCreateInterviewIsScheduleErrorDialogOpen,
@@ -56,6 +57,7 @@ export default function CreateInterview() {
     resetStore,
   } = useCreateInterviewActions();
   const duration = useCreateInterviewDuration();
+  const interviewType = useCreateInterviewInterviewType();
 
   const router = useRouter();
   const posthog = usePostHog();
@@ -175,6 +177,8 @@ export default function CreateInterview() {
           maxLength: config.maxTextLengths.additionalInfo,
         }),
         userId: user?.id,
+        duration: duration * 60,
+        type: interviewType,
       };
 
       // posthog.capture("submit_optimization", {
