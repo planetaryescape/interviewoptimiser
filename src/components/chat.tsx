@@ -3,7 +3,7 @@
 import { Interview } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { createInterviewInstructions } from "@/utils/conversation_config";
-import { JSONMessage, VoiceProvider } from "@humeai/voice-react";
+import { VoiceProvider } from "@humeai/voice-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
@@ -104,7 +104,7 @@ export default function ClientComponent({
             interview?.data.type ?? "behavioral"
           ),
         }}
-        onMessage={(message: JSONMessage) => {
+        onMessage={() => {
           if (timeout.current) {
             window.clearTimeout(timeout.current);
           }
