@@ -1,9 +1,16 @@
 "use client";
 
+import { Interview, NewInterview } from "@/db/schema";
+import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
 import { useVoice } from "@humeai/voice-react";
+import * as Sentry from "@sentry/nextjs";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { ComponentRef, forwardRef } from "react";
+import { useParams } from "next/navigation";
+import { ComponentRef, forwardRef, useEffect } from "react";
+import * as R from "remeda";
+import { toast } from "sonner";
 import { Expressions } from "./expressions";
 
 export const Messages = forwardRef<
@@ -11,6 +18,55 @@ export const Messages = forwardRef<
   Record<never, never>
 >(function Messages(_, ref) {
   const { messages } = useVoice();
+  const queryClient = useQueryClient();
+  const params = useParams();
+
+  const partialTranscriptMutation = useMutation({
+    mutationFn: async (interview: Partial<NewInterview>) => {
+      const interviewRepo = await getRepository<Interview>("interviews");
+      return await interviewRepo.update(params.id as string, interview);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["interview", params.id] });
+    },
+    onError: (error) => {
+      Sentry.withScope((scope) => {
+        scope.setContext("params", params);
+        Sentry.captureException(error);
+      });
+      toast.error("Error updating interview. Please try again.");
+    },
+  });
+
+  useEffect(() => {
+    if (messages.length === 0) return;
+    partialTranscriptMutation.mutate({
+      transcript: JSON.stringify(
+        messages
+          .map((msg) => {
+            if (
+              msg.type === "user_message" ||
+              msg.type === "assistant_message"
+            ) {
+              return {
+                role: msg.message.role,
+                content: msg.message.content,
+                prosody: R.pipe(
+                  msg.models.prosody?.scores ?? ({} as Record<string, number>),
+                  R.entries(),
+                  R.sortBy(R.pathOr([1], 0)),
+                  R.reverse(),
+                  R.take(3)
+                ),
+              };
+            }
+            return null;
+          })
+          .filter((msg) => msg !== null)
+      ),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages]);
 
   return (
     <motion.div
@@ -29,6 +85,11 @@ export const Messages = forwardRef<
               msg.type === "user_message" ||
               msg.type === "assistant_message"
             ) {
+              if (
+                msg.message.content ===
+                "<One minute left>Tell the candidate how much time is left and start wrapping up the interview and tell the candidate that a report will be generated</One minute left>."
+              )
+                return null;
               return (
                 <motion.div
                   key={msg.type + index}

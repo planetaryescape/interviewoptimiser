@@ -3,28 +3,19 @@
 import { User } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 export function Timer({
   isInterviewStarted,
-  elapsedTime,
-  setElapsedTime,
   totalTime,
   onOutOfMinutes,
 }: {
   isInterviewStarted: boolean;
-  elapsedTime: number;
-  setElapsedTime: Dispatch<SetStateAction<number>>;
   totalTime: number;
   onOutOfMinutes: () => void;
 }) {
+  const [elapsedTime, setElapsedTime] = useState(0);
   const timerCanvasRef = useRef<HTMLCanvasElement>(null);
   const lastDecrementTimeRef = useRef<number>(0);
   const queryClient = useQueryClient();

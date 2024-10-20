@@ -4,17 +4,22 @@ import { Interview, NewInterview } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
 import { useVoice } from "@humeai/voice-react";
+import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { Mic, MicOff, Phone } from "lucide-react";
+import { Mic, MicOff, Pause, Play } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { MicFFT } from "./mic-fft";
 import { Button } from "./ui/button";
 import { Toggle } from "./ui/toggle";
 
-export function Controls() {
+export function Controls({
+  setInterviewEnded,
+}: {
+  setInterviewEnded: (ended: boolean) => void;
+}) {
   const {
     disconnect,
     status,
@@ -24,22 +29,34 @@ export function Controls() {
     mute,
     micFft,
     sendUserInput,
+    pauseAssistant,
+    sendAssistantInput,
+    resumeAssistant,
   } = useVoice();
   const params = useParams();
   const queryClient = useQueryClient();
+  const [isPaused, setIsPaused] = useState(false);
 
   const { mutate: updateInterview } = useMutation({
     mutationFn: async (interview: Partial<NewInterview>) => {
       const interviewRepo = await getRepository<Interview>("interviews");
       return await interviewRepo.update(params.id as string, interview);
     },
-    onSuccess: (data) => {
-      console.log("Interview updated:", data);
+    onSuccess: () => {
+      sendAssistantInput("hang_up");
+      disconnect();
       queryClient.invalidateQueries({ queryKey: ["interview", params.id] });
+      setInterviewEnded(true);
     },
     onError: (error) => {
-      console.error("Error updating interview:", error);
+      sendAssistantInput("hang_up");
+      disconnect();
+      Sentry.withScope((scope) => {
+        scope.setContext("params", params);
+        Sentry.captureException(error);
+      });
       toast.error("Error updating interview. Please try again.");
+      setInterviewEnded(true);
     },
   });
 
@@ -55,6 +72,18 @@ export function Controls() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status.value]);
+
+  const handlePauseResume = () => {
+    if (isPaused) {
+      resumeAssistant();
+      setIsPaused(false);
+      toast.success("Interview resumed");
+    } else {
+      pauseAssistant();
+      setIsPaused(true);
+      toast.success("Interview paused");
+    }
+  };
 
   return (
     <div
@@ -106,6 +135,24 @@ export function Controls() {
 
             <Button
               className={"flex items-center gap-1"}
+              onClick={handlePauseResume}
+              variant={"secondary"}
+            >
+              {isPaused ? (
+                <>
+                  <Play className={"size-4"} />
+                  Resume
+                </>
+              ) : (
+                <>
+                  <Pause className={"size-4"} />
+                  Pause
+                </>
+              )}
+            </Button>
+
+            <Button
+              className={"flex items-center gap-1"}
               onClick={async () => {
                 await updateInterview({
                   transcript: messages.reduce((acc, msg) => {
@@ -120,18 +167,10 @@ export function Controls() {
                     return acc;
                   }, ""),
                 });
-                disconnect();
               }}
               variant={"destructive"}
             >
-              <span>
-                <Phone
-                  className={"size-4 opacity-50"}
-                  strokeWidth={2}
-                  stroke={"currentColor"}
-                />
-              </span>
-              <span>End Call</span>
+              End Interview
             </Button>
           </motion.div>
         ) : null}

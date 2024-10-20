@@ -3,7 +3,7 @@ import { useVoice } from "@humeai/voice-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "./ui/button";
 
-export function StartCall() {
+export function StartCall({ interviewEnded }: { interviewEnded: boolean }) {
   const { status, connect } = useVoice();
 
   return (
@@ -42,6 +42,7 @@ export function StartCall() {
                 }}
               >
                 <Button
+                  disabled={interviewEnded}
                   className={"z-50"}
                   onClick={() => {
                     connect()
