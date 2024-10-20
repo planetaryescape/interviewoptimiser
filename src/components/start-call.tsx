@@ -1,9 +1,16 @@
 import { cn } from "@/lib/utils";
 import { useVoice } from "@humeai/voice-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { MessageCircle } from "lucide-react";
 import { Button } from "./ui/button";
 
-export function StartCall({ interviewEnded }: { interviewEnded: boolean }) {
+export function StartCall({
+  interviewEnded,
+  setInterviewStarted,
+}: {
+  interviewEnded: boolean;
+  setInterviewStarted: (value: boolean) => void;
+}) {
   const { status, connect } = useVoice();
 
   return (
@@ -46,11 +53,14 @@ export function StartCall({ interviewEnded }: { interviewEnded: boolean }) {
                   className={"z-50"}
                   onClick={() => {
                     connect()
-                      .then(() => {})
+                      .then(() => {
+                        setInterviewStarted(true);
+                      })
                       .catch(() => {})
                       .finally(() => {});
                   }}
                 >
+                  <MessageCircle className="mr-2 h-4 w-4" />
                   Start Interview
                 </Button>
               </motion.div>

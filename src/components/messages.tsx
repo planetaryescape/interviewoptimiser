@@ -19,11 +19,13 @@ export const Messages = forwardRef<
     >
       <motion.div className="max-w-2xl mx-auto w-full h-full flex flex-col justify-center items-center gap-4">
         <AnimatePresence mode="popLayout">
-          {messages.slice(-3).map((msg, index, arr) => {
-            if (
-              msg.type === "user_message" ||
-              msg.type === "assistant_message"
-            ) {
+          {messages
+            .filter(
+              (msg) =>
+                msg.type === "user_message" || msg.type === "assistant_message"
+            )
+            .slice(-3)
+            .map((msg, index, arr) => {
               if (
                 msg.message.content ===
                 "<One minute left>Tell the candidate how much time is left and start wrapping up the interview and tell the candidate that a report will be generated</One minute left>."
@@ -52,23 +54,21 @@ export const Messages = forwardRef<
                   initial={{
                     opacity: 0,
                     y: 50,
-                    // scale: 0.9
+                    scale: 0.9,
                   }}
                   animate={{
                     opacity: fadeAmount,
                     y: 0,
-                    // scale: isLatest ? 1 : 0.9,
+                    scale: isLatest ? 1 : 0.9,
                   }}
                   exit={{
                     opacity: 0,
                     y: -50,
-                    // scale: 0.9
+                    scale: 0.9,
                   }}
                   transition={{ duration: 0.5, ease: "easeInOut" }}
                   style={{
-                    fontSize: isLatest
-                      ? "1.5rem"
-                      : `${1 - (arr.length - index - 1) * 0.2}rem`,
+                    fontSize: isLatest ? "1.5rem" : `1rem`,
                     transition: "all 0.3s ease-in-out",
                   }}
                 >
@@ -78,9 +78,7 @@ export const Messages = forwardRef<
                   <div className="mb-2">{msg.message.content}</div>
                 </motion.div>
               );
-            }
-            return null;
-          })}
+            })}
         </AnimatePresence>
       </motion.div>
     </motion.div>

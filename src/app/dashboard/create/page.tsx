@@ -57,6 +57,7 @@ export default function CreateInterview() {
     resetStore,
   } = useCreateInterviewActions();
   const duration = useCreateInterviewDuration();
+  console.log("duration:", duration);
   const interviewType = useCreateInterviewInterviewType();
 
   const router = useRouter();
@@ -152,6 +153,7 @@ export default function CreateInterview() {
 
   const handleConfirmSubmit = async () => {
     setIsAlertDialogOpen(false);
+    setShowTakeover(true);
     try {
       if (!user || user.minutes <= 0 || user.minutes < duration) {
         toast.error("You don't have enough minutes to create an interview.");
@@ -177,7 +179,7 @@ export default function CreateInterview() {
           maxLength: config.maxTextLengths.additionalInfo,
         }),
         userId: user?.id,
-        duration: duration * 60,
+        duration,
         type: interviewType,
       };
 

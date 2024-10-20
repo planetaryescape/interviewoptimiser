@@ -8,8 +8,8 @@ export async function GET() {
         style={{
           display: "flex",
           fontSize: 50,
-          color: "#1C2833", // Darker text color for high contrast
-          background: "linear-gradient(135deg, #4A9BB1, #387F92)", // Darker gradient background
+          color: "hsl(240, 20%, 10%)", // Using the foreground color
+          background: "linear-gradient(135deg, #E06C75, #C678DD)", // Using hex colors instead of hsl
           width: "1200px",
           height: "630px",
           padding: "40px",
@@ -44,8 +44,8 @@ export async function GET() {
               x2="100%"
               y2="100%"
             >
-              <stop offset="0%" stopColor="#4A9BB1" />
-              <stop offset="100%" stopColor="#387F92" />
+              <stop offset="0%" stopColor="hsl(340, 65%, 60%)" />
+              <stop offset="100%" stopColor="hsl(340, 65%, 50%)" />
             </linearGradient>
 
             {/* Wave Pattern */}
@@ -60,7 +60,7 @@ export async function GET() {
               <path
                 d="M0 60 Q 30 0, 60 60 T 120 60"
                 fill="none"
-                stroke="#AABCCD" // Darkened for better contrast
+                stroke="hsl(340, 65%, 70%)" // Lighter wave color
                 strokeWidth="2"
               />
             </pattern>
@@ -103,8 +103,8 @@ export async function GET() {
             style={{
               display: "flex",
               fontWeight: "bold",
-              color: "#1C2833", // Dark text for strong contrast
-              fontSize: "100px", // Increased to stand out more
+              color: "hsl(240, 20%, 10%)", // Using the foreground color
+              fontSize: "100px",
               lineHeight: "1.2",
               textShadow: "2px 2px 6px rgba(255, 255, 255, 0.3)",
             }}
@@ -114,41 +114,29 @@ export async function GET() {
           <div
             style={{
               display: "flex",
-              fontSize: "48px", // Increased for better readability
+              fontSize: "48px",
               marginTop: "20px",
-              color: "#34495E", // Darker shade for improved readability
+              color: "hsl(240, 20%, 20%)", // Slightly darker for better readability
               lineHeight: "1.5",
             }}
           >
-            Elevate Your CV with AI Precision
+            Elevate Your Interview Skills with AI Precision
           </div>
           <div
             style={{
               display: "flex",
               marginTop: "30px",
-              fontSize: "40px", // Increased more significantly
-              color: "#D35400", // Deeper orange for better contrast
+              fontSize: "40px",
+              color: "hsl(0, 0%, 100%)", // White text for contrast
               fontStyle: "italic",
-              textShadow: "1px 1px 4px rgba(255, 255, 255, 0.3)", // Extra text shadow for better contrast
+              textShadow: "1px 1px 4px rgba(0, 0, 0, 0.3)",
               position: "relative",
               alignItems: "center",
+              backgroundColor: "hsla(340, 65%, 40%, 0.8)", // Darker, semi-transparent background
+              padding: "10px 20px",
+              borderRadius: "10px",
             }}
           >
-            {/* Dark background behind orange text for better contrast */}
-            <div
-              style={{
-                position: "absolute",
-                backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent dark background
-                width: "100%",
-                height: "100%",
-                top: -25,
-                left: -55,
-                zIndex: "-1", // Ensures the background stays behind the text
-                borderRadius: "10px", // Optional: adding some rounding to the background
-                padding: "50px",
-                display: "flex",
-              }}
-            />
             Fast, Accurate, and Tailored
           </div>
         </div>
@@ -170,7 +158,7 @@ export async function GET() {
           {/* Abstract Shape at the Bottom */}
           <path
             d="M0,500 C300,650 900,350 1200,500 L1200,630 L0,630 Z"
-            fill="#4A9BB1" // Adjusted color for the abstract shape
+            fill="hsl(340, 65%, 55%)" // Slightly darker than the background
             opacity="0.3"
           />
         </svg>
