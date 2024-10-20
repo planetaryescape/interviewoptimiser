@@ -5,7 +5,7 @@ import { createDefaultApiRouteContext } from "@/lib/createDefaultApiRouteContext
 import { logger } from "@/lib/logger";
 import { stripe } from "@/lib/stripe";
 import { formatEmptyEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
-import * as Sentry from "@sentry/serverless";
+import * as Sentry from "@sentry/nextjs";
 import { eq, isNull, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";

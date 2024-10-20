@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       const [createdInterview] = await tx
         .insert(interviews)
         .values({
-          // userId,
+          userId,
           type: type ?? "behavioral",
           duration: duration ?? 15,
           submittedCVText: sanitisedSubmittedCVText,

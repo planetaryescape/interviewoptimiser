@@ -13,7 +13,6 @@ import { Controls } from "./controls";
 import { GeneratingReportTakeover } from "./generating-report-takeover";
 import { Messages } from "./messages";
 import MessagesPlaceholder from "./messages-placeholder";
-import { StartCall } from "./start-call";
 import { TimerHume } from "./timer-hume";
 
 export default function ClientComponent({
@@ -136,10 +135,6 @@ export default function ClientComponent({
           />
         )}
         <Controls setInterviewEnded={setInterviewEnded} />
-        <StartCall
-          interviewEnded={interviewEnded}
-          setInterviewStarted={setInterviewStarted}
-        />
 
         <AnimatePresence>
           {showTakeover && <GeneratingReportTakeover />}

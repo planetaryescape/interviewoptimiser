@@ -1,6 +1,6 @@
 import { logger } from "@/lib/logger";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
-import * as Sentry from "@sentry/serverless";
+import * as Sentry from "@sentry/nextjs";
 import { NextRequest, NextResponse } from "next/server";
 
 const API_KEY = process.env.INTERVIEWOPTIMISER_API_KEY;

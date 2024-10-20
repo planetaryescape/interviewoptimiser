@@ -3,7 +3,7 @@ import { logger } from "@/lib/logger";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
-import * as Sentry from "@sentry/serverless";
+import * as Sentry from "@sentry/nextjs";
 import { NextRequest, NextResponse } from "next/server";
 
 const API_GATEWAY_URL =

@@ -9,7 +9,7 @@ import { logger } from "@/lib/logger";
 import { resend } from "@/lib/resend";
 import { stripe } from "@/lib/stripe";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
-import * as Sentry from "@sentry/serverless";
+import * as Sentry from "@sentry/nextjs";
 import { countDistinct, eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { NextResponse } from "next/server";

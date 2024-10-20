@@ -5,7 +5,7 @@ import { logger } from "@/lib/logger";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
-import * as Sentry from "@sentry/serverless";
+import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { NextRequest, NextResponse } from "next/server";
@@ -103,7 +103,7 @@ export async function PUT(
     const interviewId = idHandler.decode(params.id);
     const body = await request.json();
     const inputInterview = interviewSchema.partial().parse(body);
-    logger.info({ inputInterview }, "Parsed interview input");
+    logger.info({ interviewId }, "Parsed interview input");
 
     // Ensure the interview belongs to the user
     const existingInterview = await db.query.interviews.findFirst({

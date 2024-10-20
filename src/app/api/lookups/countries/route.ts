@@ -3,7 +3,7 @@ import { countries } from "@/db/schema";
 import { logger } from "@/lib/logger";
 import { formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
-import * as Sentry from "@sentry/serverless";
+import * as Sentry from "@sentry/nextjs";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
