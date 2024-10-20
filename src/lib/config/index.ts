@@ -5,6 +5,7 @@ export const config = {
   projectName: "Interview Optimiser",
   baseUrl: `http://${domain}`,
   domain,
+  supportEmail: `${domain.split(".")[0]}@bhekani.com`,
   maxTextLengths: {
     cv: 18000,
     jobDescription: 8000,

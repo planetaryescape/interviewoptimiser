@@ -27,7 +27,7 @@ data "aws_region" "current" {}
 
 locals {
   region                = "eu-west-2"
-  project_name          = "cvoptmiser"
+  project_name          = "interviewoptimiser"
   account_id            = data.aws_caller_identity.current.account_id
   current_region        = data.aws_region.current.name
   s3_bucket_name        = "${local.project_name}-lambdas"
@@ -43,16 +43,8 @@ locals {
   }
 
   lambdas = {
-    generate_cover_letter = {
-      name       = "generate-cover-letter"
-      sentry_dsn = "https://432e24ad8d4c63144ab026e372ea0cdb@o1198116.ingest.us.sentry.io/4507218555961344"
-    }
-    optimise_cv = {
-      name       = "optimise-cv"
-      sentry_dsn = "https://432e24ad8d4c63144ab026e372ea0cdb@o1198116.ingest.us.sentry.io/4507218555961344"
-    }
-    restart_incomplete_optimizations = {
-      name       = "restart-incomplete-optimizations"
+    generate_report = {
+      name       = "generate-report"
       sentry_dsn = "https://432e24ad8d4c63144ab026e372ea0cdb@o1198116.ingest.us.sentry.io/4507218555961344"
     }
     generate_pdf = {
@@ -76,9 +68,9 @@ locals {
   }
 
   base_tags = {
-    "cvoptmiser/service"    = local.project_name
-    "cvoptmiser/region"     = try(local.region, null)
-    "cvoptmiser/managed-by" = "terraform"
+    "interviewoptmiser/service"    = local.project_name
+    "interviewoptmiser/region"     = try(local.region, null)
+    "interviewoptmiser/managed-by" = "terraform"
   }
 
   # Remove null or empty values from tags
@@ -93,29 +85,13 @@ locals {
   sqs_queue_base_url = "https://sqs.${local.region}.amazonaws.com/${data.aws_caller_identity.current.account_id}"
 
   lambda_environment_variables = {
-    generate_cover_letter = {
+    generate_report = {
       DATABASE_URL      = var.DATABASE_URL
       OPENAI_API_KEY    = var.OPENAI_API_KEY
-      SQS_QUEUE_URL     = "${local.sqs_queue_base_url}/${local.project_name}-generate-cover-letter-queue"
-      DLQ_URL           = "${local.sqs_queue_base_url}/${local.project_name}-generate-cover-letter-dlq"
+      SQS_QUEUE_URL     = "${local.sqs_queue_base_url}/${local.project_name}-generate-report-queue"
+      DLQ_URL           = "${local.sqs_queue_base_url}/${local.project_name}-generate-report-dlq"
       PINO_LOG_LEVEL    = "info"
       LAMBDA_AWS_REGION = local.region
-    }
-    optimise_cv = {
-      DATABASE_URL      = var.DATABASE_URL
-      OPENAI_API_KEY    = var.OPENAI_API_KEY
-      SQS_QUEUE_URL     = "${local.sqs_queue_base_url}/${local.project_name}-optimize-cv-queue"
-      DLQ_URL           = "${local.sqs_queue_base_url}/${local.project_name}-optimize-cv-dlq"
-      PINO_LOG_LEVEL    = "info"
-      LAMBDA_AWS_REGION = local.region
-    }
-    restart_incomplete_optimizations = {
-      DATABASE_URL            = var.DATABASE_URL
-      OPENAI_API_KEY          = var.OPENAI_API_KEY
-      OPTIMISE_CV_LAMBDA_NAME = local.lambda_details["optimise_cv"].function_name
-      SQS_QUEUE_URL           = aws_sqs_queue.optimise_cv_queue.url
-      PINO_LOG_LEVEL          = "info"
-      LAMBDA_AWS_REGION       = local.region
     }
     generate_pdf = {
       LAMBDA_BUCKET_NAME = local.s3_bucket_name
@@ -123,10 +99,9 @@ locals {
       LAMBDA_AWS_REGION  = local.region
     }
     add_to_queue = {
-      OPTIMISE_CV_QUEUE_URL           = aws_sqs_queue.optimise_cv_queue.url
-      GENERATE_COVER_LETTER_QUEUE_URL = aws_sqs_queue.generate_cover_letter_queue.url
-      PINO_LOG_LEVEL                  = "info"
-      LAMBDA_AWS_REGION               = local.region
+      GENERATE_REPORT_QUEUE_URL = aws_sqs_queue.generate_report_queue.url
+      PINO_LOG_LEVEL            = "info"
+      LAMBDA_AWS_REGION         = local.region
     }
   }
 }

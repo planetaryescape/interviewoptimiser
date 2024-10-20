@@ -39,10 +39,8 @@ resource "aws_iam_policy" "lambda_sqs_policy" {
           "sqs:SendMessage"
         ],
         Resource = [
-          aws_sqs_queue.optimise_cv_queue.arn,
-          aws_sqs_queue.optimise_cv_dlq.arn,
-          aws_sqs_queue.generate_cover_letter_queue.arn,
-          aws_sqs_queue.generate_cover_letter_dlq.arn
+          aws_sqs_queue.generate_report_queue.arn,
+          aws_sqs_queue.generate_report_dlq.arn
         ]
       }
     ]
@@ -55,8 +53,8 @@ resource "aws_iam_role_policy_attachment" "lambda_sqs_policy_attachment" {
 }
 
 # Add S3 write permissions to the Lambda execution role
-resource "aws_iam_policy" "lambda_s3_write_policy" {
-  name        = "lambda_s3_write_policy"
+resource "aws_iam_policy" "lambda_s3_write_policy_generate_report" {
+  name        = "lambda_s3_write_policy_generate_report"
   description = "IAM policy for writing to S3 from Lambda"
 
   policy = jsonencode({
@@ -74,9 +72,9 @@ resource "aws_iam_policy" "lambda_s3_write_policy" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_s3_write_policy_attachment" {
+resource "aws_iam_role_policy_attachment" "lambda_s3_write_policy_attachment_generate_report" {
   role       = aws_iam_role.lambda_execution_role.name
-  policy_arn = aws_iam_policy.lambda_s3_write_policy.arn
+  policy_arn = aws_iam_policy.lambda_s3_write_policy_generate_report.arn
 }
 
 # Attach the AWSLambdaBasicExecutionRole managed policy

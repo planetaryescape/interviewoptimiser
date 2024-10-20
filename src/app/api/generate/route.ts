@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 const API_GATEWAY_URL =
   "https://fexjbopvxf.execute-api.eu-west-2.amazonaws.com/prod/add-to-queue";
 
-const API_KEY = process.env.CVOPTIMISER_API_KEY;
+const API_KEY = process.env.INTERVIEWOPTIMISER_API_KEY;
 
 export async function POST(req: NextRequest) {
   try {
