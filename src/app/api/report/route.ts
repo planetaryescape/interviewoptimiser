@@ -117,9 +117,11 @@ export async function POST(request: NextRequest) {
 
     // User prompt for OpenAI
     const userPrompt = `
-      Analyze the following interview transcript and generate a comprehensive, well-formatted report in Markdown (with hierarchical headings, bold, italic, etc.) on the candidate's performance. Focus your analysis solely on the interview transcript.
+      Analyze the following interview transcript and generate a comprehensive, well-formatted report in Markdown (with hierarchical headings, bold, italic, etc.) on the candidate's performance. Focus your analysis on both the content of the interview transcript and the prosody analysis provided for each message.
 
-      Important: The CV, job description, and additional information are provided only for context. Do not use them as the basis for your analysis or report. Focus solely on the interview transcript for your evaluation.
+      Important: The CV, job description, and additional information are provided only for context. Do not use them as the basis for your analysis or report. Focus solely on the interview transcript and prosody analysis for your evaluation.
+
+      Each message in the transcript contains prosody analysis, indicating the user's tone. Carefully analyze the emotional expressions provided for each message. The score indicates how likely the user is expressing that emotion in their voice. Consider these expressions and confidence scores to craft an empathic, appropriate assessment. Even if the user does not explicitly state their emotions, infer the emotional context from these expressions.
 
       Before starting the report, extract the following information:
       1. The candidate's name
@@ -133,21 +135,24 @@ export async function POST(request: NextRequest) {
         • Comments on confidence, clarity, engagement, and professionalism
         • Specific examples highlighting strengths and areas for improvement
         • Balanced tone acknowledging both positives and negatives
+        • Analysis of the candidate's emotional state throughout the interview based on prosody data
 
       2. Detailed Feedback
         • Speaking skills assessment (fluency, clarity, confidence, hesitation, filler words)
         • Clarity, relevance, and depth of responses
         • Communication skills evaluation (elaboration, specific examples)
         • Problem-solving skills, technical knowledge, teamwork, adaptability, and overall fit
+        • Emotional intelligence and ability to manage stress during the interview (based on prosody analysis)
         • Areas of Strength (3-5 points with specific examples)
         • Areas for Improvement (2-3 points with specific examples and actionable tips)
 
       3. Actionable Next Steps
         • Strengths to build on (with suggestions for leveraging in future interviews)
         • Focus areas for improvement (with practical steps)
+        • Suggestions for managing emotions and stress during interviews
         • Encouraging closing note on continuous improvement
 
-      Provide a score out of 100 for each major section. Conclude with an overall performance score.
+      Provide a score out of 100 for each major section, including a separate score for emotional management based on the prosody analysis. Conclude with an overall performance score.
 
       Interview Transcript:
       ${interview.transcript}
@@ -157,7 +162,7 @@ export async function POST(request: NextRequest) {
       Job Description: ${interview.jobDescriptionText}
       Additional Information: ${interview.additionalInfo}
 
-      Maintain a candid yet respectful tone throughout the report, adhering to Radical Candor principles. Base your analysis and feedback exclusively on the interview transcript.
+      Maintain a candid yet respectful tone throughout the report, adhering to Radical Candor principles. Base your analysis and feedback on both the interview transcript content and the prosody analysis provided for each message.
     `;
 
     // Generate report using OpenAI

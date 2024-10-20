@@ -8,7 +8,6 @@ import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useEffect, useRef } from "react";
-import * as R from "remeda";
 import { toast } from "sonner";
 
 export function TimerHume({
@@ -106,14 +105,7 @@ export function TimerHume({
                 return {
                   role: msg.message.role,
                   content: msg.message.content,
-                  prosody: R.pipe(
-                    msg.models.prosody?.scores ??
-                      ({} as Record<string, number>),
-                    R.entries(),
-                    R.sortBy(R.pathOr([1], 0)),
-                    R.reverse(),
-                    R.take(3)
-                  ),
+                  prosody: msg.models.prosody?.scores ?? {},
                 };
               }
               return null;
@@ -240,14 +232,7 @@ export function TimerHume({
                   return {
                     role: msg.message.role,
                     content: msg.message.content,
-                    prosody: R.pipe(
-                      msg.models.prosody?.scores ??
-                        ({} as Record<string, number>),
-                      R.entries(),
-                      R.sortBy(R.pathOr([1], 0)),
-                      R.reverse(),
-                      R.take(3)
-                    ),
+                    prosody: msg.models.prosody?.scores ?? {},
                   };
                 }
                 return null;

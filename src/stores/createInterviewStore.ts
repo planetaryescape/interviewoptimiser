@@ -41,7 +41,7 @@ const initialState: CreateInterviewState = {
   cvText: "",
   jobDescriptionText: "",
   additionalInfo: "",
-  duration: 30,
+  duration: 3,
   interviewType: "behavioral",
   showTakeover: false,
   isAlertDialogOpen: false,

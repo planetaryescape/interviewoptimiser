@@ -51,10 +51,12 @@ export function Step3AdditionalInfo() {
             <SelectValue placeholder="Select an interview duration" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="3">3 minutes</SelectItem>
+            <SelectItem value="5">5 minutes</SelectItem>
+            <SelectItem value="10">10 minutes</SelectItem>
             <SelectItem value="15">15 minutes</SelectItem>
+            <SelectItem value="20">20 minutes</SelectItem>
             <SelectItem value="30">30 minutes</SelectItem>
-            <SelectItem value="45">45 minutes</SelectItem>
-            <SelectItem value="60">60 minutes</SelectItem>
           </SelectContent>
         </Select>
 

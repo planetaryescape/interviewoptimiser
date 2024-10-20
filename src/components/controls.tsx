@@ -155,17 +155,23 @@ export function Controls({
               className={"flex items-center gap-1"}
               onClick={async () => {
                 await updateInterview({
-                  transcript: messages.reduce((acc, msg) => {
-                    if (
-                      msg.type === "user_message" ||
-                      msg.type === "assistant_message"
-                    ) {
-                      return (
-                        acc + `${msg.message.role}: \t${msg.message.content}\n`
-                      );
-                    }
-                    return acc;
-                  }, ""),
+                  transcript: JSON.stringify(
+                    messages
+                      .map((msg) => {
+                        if (
+                          msg.type === "user_message" ||
+                          msg.type === "assistant_message"
+                        ) {
+                          return {
+                            role: msg.message.role,
+                            content: msg.message.content,
+                            prosody: msg.models.prosody?.scores ?? {},
+                          };
+                        }
+                        return null;
+                      })
+                      .filter((msg) => msg !== null)
+                  ),
                 });
               }}
               variant={"destructive"}
