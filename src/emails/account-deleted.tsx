@@ -68,7 +68,7 @@ export const AccountDeletedEmail = ({ firstName }: { firstName?: string }) => {
 
             <Section className="text-center">
               <Button
-                href={`mailto:cvoptimiser@bhekani.com`}
+                href={`mailto:${config.supportEmail}`}
                 className="bg-brand rounded-lg px-[18px] py-3 text-white"
               >
                 Contact Support

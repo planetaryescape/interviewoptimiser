@@ -74,60 +74,22 @@ resource "aws_lambda_function" "generate_pdf" {
   }
 }
 
-# Event source mapping for optimise_cv Lambda function
-resource "aws_lambda_event_source_mapping" "optimise_cv_mapping" {
-  event_source_arn = aws_sqs_queue.optimise_cv_queue.arn
-  function_name    = aws_lambda_function.lambdas["optimise_cv"].arn
-  batch_size       = 1
-  enabled          = true
-}
-
-# Event source mapping for generate_cover_letter Lambda function
-resource "aws_lambda_event_source_mapping" "generate_cover_letter_mapping" {
-  event_source_arn = aws_sqs_queue.generate_cover_letter_queue.arn
-  function_name    = aws_lambda_function.lambdas["generate_cover_letter"].arn
+# Event source mapping for generate_report Lambda function
+resource "aws_lambda_event_source_mapping" "generate_report_mapping" {
+  event_source_arn = aws_sqs_queue.generate_report_queue.arn
+  function_name    = aws_lambda_function.lambdas["generate_report"].arn
   batch_size       = 1
   enabled          = true
 }
 
 # Lambda permissions
-resource "aws_lambda_permission" "allow_sqs_to_call_optimise_cv" {
-  statement_id  = "AllowSQSTriggerOptimiseCV"
+resource "aws_lambda_permission" "allow_sqs_to_call_generate_report" {
+  statement_id  = "AllowSQSTriggerGenerateReport"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.lambdas["optimise_cv"].function_name
+  function_name = aws_lambda_function.lambdas["generate_report"].function_name
   principal     = "sqs.amazonaws.com"
-  source_arn    = aws_sqs_queue.optimise_cv_queue.arn
+  source_arn    = aws_sqs_queue.generate_report_queue.arn
 }
-
-resource "aws_lambda_permission" "allow_sqs_to_call_generate_cover_letter" {
-  statement_id  = "AllowSQSTriggerGenerateCoverLetter"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.lambdas["generate_cover_letter"].function_name
-  principal     = "sqs.amazonaws.com"
-  source_arn    = aws_sqs_queue.generate_cover_letter_queue.arn
-}
-
-resource "aws_lambda_permission" "allow_cloudwatch_to_call_restart_incomplete_optimizations" {
-  statement_id  = "AllowCloudWatchToInvoke"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.lambdas["restart_incomplete_optimizations"].function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.every_10m_restart_incomplete_optimizations.arn
-}
-
-# CloudWatch Event Rule
-resource "aws_cloudwatch_event_rule" "every_10m_restart_incomplete_optimizations" {
-  name                = "every-10m-restart-incomplete-optimizations"
-  description         = "Trigger restart-incomplete-optimizations Lambda function every 10 minutes"
-  schedule_expression = "rate(10 minutes)"
-}
-
-resource "aws_cloudwatch_event_target" "restart_incomplete_optimizations_target" {
-  rule      = aws_cloudwatch_event_rule.every_10m_restart_incomplete_optimizations.name
-  target_id = "RestartIncompleteOptimizationsLambda"
-  arn       = aws_lambda_function.lambdas["restart_incomplete_optimizations"].arn
-}
-
 # Lambda permission for API Gateway v2
 resource "aws_lambda_permission" "api_gateway_lambda" {
   statement_id  = "AllowAPIGatewayInvoke"

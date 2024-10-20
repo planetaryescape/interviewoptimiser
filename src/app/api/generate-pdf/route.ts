@@ -3,7 +3,7 @@ import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/serverless";
 import { NextRequest, NextResponse } from "next/server";
 
-const API_KEY = process.env.CVOPTIMISER_API_KEY;
+const API_KEY = process.env.INTERVIEWOPTIMISER_API_KEY;
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     const { htmlContent, paperSize, margin } = await req.json();
 
     const response = await fetch(
-      "https://is8zmcrjig.execute-api.eu-west-2.amazonaws.com/prod/generate-pdf",
+      "https://ex0jrlkyi3.execute-api.eu-west-2.amazonaws.com/prod/generate-pdf",
       {
         method: "POST",
         headers: {

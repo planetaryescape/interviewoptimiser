@@ -17,26 +17,22 @@ export const handler = Sentry.AWSLambda.wrapHandler(
         };
       }
 
-      const { optimizationId, queueType } = JSON.parse(event.body);
+      const { interviewId, queueType } = JSON.parse(event.body);
 
-      if (!optimizationId || !queueType) {
+      if (!interviewId || !queueType) {
         return {
           statusCode: 400,
           body: JSON.stringify({
-            error: "Missing optimizationId or queueType",
+            error: "Missing interviewId or queueType",
           }),
         };
       }
 
       let queueUrl: string;
       switch (queueType) {
-        case "optimise-cv":
-          logger.info("Adding to optimise-cv queue");
-          queueUrl = process.env.OPTIMISE_CV_QUEUE_URL!;
-          break;
-        case "generate-cover-letter":
-          logger.info("Adding to generate-cover-letter queue");
-          queueUrl = process.env.GENERATE_COVER_LETTER_QUEUE_URL!;
+        case "generate-report":
+          logger.info("Adding to generate-report queue");
+          queueUrl = process.env.GENERATE_REPORT_QUEUE_URL!;
           break;
         default:
           logger.error({ queueType }, "Invalid queueType");
@@ -47,7 +43,7 @@ export const handler = Sentry.AWSLambda.wrapHandler(
       }
 
       const message = {
-        optimizationId: optimizationId,
+        interviewId: interviewId,
       };
 
       logger.info({ message, queueUrl }, "Sending message to queue");
@@ -62,7 +58,7 @@ export const handler = Sentry.AWSLambda.wrapHandler(
       await sqs.send(sendMessageCommand);
 
       logger.info(
-        { optimizationId, queueType },
+        { interviewId, queueType },
         "Message added to queue successfully"
       );
 

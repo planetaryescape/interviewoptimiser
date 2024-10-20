@@ -19,13 +19,15 @@ export const WelcomeEmail = ({ firstName }: { firstName?: string }) => {
   return (
     <Html>
       <Head />
-      <Preview>Welcome to {config.projectName} - Optimise Your CV Now</Preview>
+      <Preview>
+        Welcome to {config.projectName} - Optimise Your Interview Performance
+      </Preview>
       <Tailwind
         config={{
           theme: {
             extend: {
               colors: {
-                brand: "hsl(228 73% 13%)",
+                brand: "hsl(340, 65%, 45%)", // Adjust to match your Interview Optimiser branding
                 offwhite: "hsl(210, 36%, 96%)",
               },
               spacing: {
@@ -56,26 +58,27 @@ export const WelcomeEmail = ({ firstName }: { firstName?: string }) => {
                 <Text className="text-base">Hi {firstName ?? "there"},</Text>
 
                 <Text className="text-base">
-                  We&apos;re excited to welcome you to the {config.projectName}{" "}
-                  community. Our AI-powered tool helps you create tailored CVs
-                  that stand out and get through ATS systems, making sure you
-                  have the best chance to land that interview.
+                  We&apos;re thrilled to have you join the {config.projectName}{" "}
+                  community. Our AI-powered platform is designed to help you
+                  prepare for interviews with tailored mock sessions and
+                  real-time feedback, ensuring you perform your best during any
+                  interview.
                 </Text>
 
                 <Text className="text-base">
                   You now have {config.startingFreeMinutes} free minutes to
-                  start optimising your CV. Simply upload your CV, a job
-                  description and some custom instructions if any to see how
-                  quickly we can tailor your CV for the job you want.
+                  start improving your interview skills. Simply upload your CV,
+                  job description, and select an interview type to begin
+                  practicing in a realistic mock interview setting.
                 </Text>
 
                 {config.earlyBirdPromo.enabled && (
                   <Text className="text-base">
-                    If you&apos;re one of the first{" "}
-                    {config.earlyBirdPromo.userCount} sign ups, you&apos;ll
-                    receive {config.earlyBirdPromo.minutes} minutes instead! Get
-                    started now and make sure your CV is ready for the
-                    opportunities ahead.
+                    As one of our first {config.earlyBirdPromo.userCount}{" "}
+                    sign-ups, you&apos;ll receive{" "}
+                    {config.earlyBirdPromo.minutes} minutes of additional free
+                    practice time! Start now and prepare to ace your next
+                    interview.
                   </Text>
                 )}
               </Row>
@@ -86,14 +89,14 @@ export const WelcomeEmail = ({ firstName }: { firstName?: string }) => {
                 href={`${config.baseUrl}/dashboard/create`}
                 className="bg-brand rounded-lg px-[18px] py-3 text-white"
               >
-                Optimise Your CV Now
+                Start Your Mock Interview Now
               </Button>
             </Section>
             <Section>
               <Text className="text-base">
-                Thank you for signing up! If you have any questions, feel free
+                Thank you for joining us! If you have any questions, feel free
                 to contact{" "}
-                <Link href="mailto:cvoptimiser@bhekani.com">
+                <Link href={`mailto:${config.supportEmail}`}>
                   our support team
                 </Link>
                 .
