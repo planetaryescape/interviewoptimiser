@@ -8,6 +8,7 @@ import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useEffect, useRef } from "react";
+import * as R from "remeda";
 import { toast } from "sonner";
 
 export function TimerHume({
@@ -95,12 +96,30 @@ export function TimerHume({
       !timeUpRef.current
     ) {
       updateInterview({
-        transcript: messages.reduce((acc, msg) => {
-          if (msg.type === "user_message" || msg.type === "assistant_message") {
-            return acc + `${msg.message.role}: \t${msg.message.content}\n`;
-          }
-          return acc;
-        }, ""),
+        transcript: JSON.stringify(
+          messages
+            .map((msg) => {
+              if (
+                msg.type === "user_message" ||
+                msg.type === "assistant_message"
+              ) {
+                return {
+                  role: msg.message.role,
+                  content: msg.message.content,
+                  prosody: R.pipe(
+                    msg.models.prosody?.scores ??
+                      ({} as Record<string, number>),
+                    R.entries(),
+                    R.sortBy(R.pathOr([1], 0)),
+                    R.reverse(),
+                    R.take(3)
+                  ),
+                };
+              }
+              return null;
+            })
+            .filter((msg) => msg !== null)
+        ),
       });
 
       timeUpRef.current = true;
@@ -182,6 +201,23 @@ export function TimerHume({
     },
   });
 
+  const partialTranscriptMutation = useMutation({
+    mutationFn: async (interview: Partial<NewInterview>) => {
+      const interviewRepo = await getRepository<Interview>("interviews");
+      return await interviewRepo.update(params.id as string, interview);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["interview", params.id] });
+    },
+    onError: (error) => {
+      Sentry.withScope((scope) => {
+        scope.setContext("params", params);
+        Sentry.captureException(error);
+      });
+      toast.error("Error updating interview. Please try again.");
+    },
+  });
+
   useEffect(() => {
     if (status.value === "connected") {
       if (!callDurationTimestamp) return;
@@ -192,9 +228,37 @@ export function TimerHume({
       ) {
         decrementMutation.mutate();
         lastDecrementTimeRef.current = unformatTime(callDurationTimestamp);
+
+        partialTranscriptMutation.mutate({
+          transcript: JSON.stringify(
+            messages
+              .map((msg) => {
+                if (
+                  msg.type === "user_message" ||
+                  msg.type === "assistant_message"
+                ) {
+                  return {
+                    role: msg.message.role,
+                    content: msg.message.content,
+                    prosody: R.pipe(
+                      msg.models.prosody?.scores ??
+                        ({} as Record<string, number>),
+                      R.entries(),
+                      R.sortBy(R.pathOr([1], 0)),
+                      R.reverse(),
+                      R.take(3)
+                    ),
+                  };
+                }
+                return null;
+              })
+              .filter((msg) => msg !== null)
+          ),
+        });
       }
     }
-  }, [decrementMutation, status.value, callDurationTimestamp]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [decrementMutation, status.value, callDurationTimestamp, messages]);
 
   return (
     <canvas

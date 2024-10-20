@@ -1,16 +1,9 @@
 "use client";
 
-import { Interview, NewInterview } from "@/db/schema";
-import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
 import { useVoice } from "@humeai/voice-react";
-import * as Sentry from "@sentry/nextjs";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { useParams } from "next/navigation";
-import { ComponentRef, forwardRef, useEffect } from "react";
-import * as R from "remeda";
-import { toast } from "sonner";
+import { ComponentRef, forwardRef } from "react";
 import { Expressions } from "./expressions";
 
 export const Messages = forwardRef<
@@ -18,69 +11,16 @@ export const Messages = forwardRef<
   Record<never, never>
 >(function Messages(_, ref) {
   const { messages } = useVoice();
-  const queryClient = useQueryClient();
-  const params = useParams();
-
-  const partialTranscriptMutation = useMutation({
-    mutationFn: async (interview: Partial<NewInterview>) => {
-      const interviewRepo = await getRepository<Interview>("interviews");
-      return await interviewRepo.update(params.id as string, interview);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["interview", params.id] });
-    },
-    onError: (error) => {
-      Sentry.withScope((scope) => {
-        scope.setContext("params", params);
-        Sentry.captureException(error);
-      });
-      toast.error("Error updating interview. Please try again.");
-    },
-  });
-
-  useEffect(() => {
-    if (messages.length === 0) return;
-    partialTranscriptMutation.mutate({
-      transcript: JSON.stringify(
-        messages
-          .map((msg) => {
-            if (
-              msg.type === "user_message" ||
-              msg.type === "assistant_message"
-            ) {
-              return {
-                role: msg.message.role,
-                content: msg.message.content,
-                prosody: R.pipe(
-                  msg.models.prosody?.scores ?? ({} as Record<string, number>),
-                  R.entries(),
-                  R.sortBy(R.pathOr([1], 0)),
-                  R.reverse(),
-                  R.take(3)
-                ),
-              };
-            }
-            return null;
-          })
-          .filter((msg) => msg !== null)
-      ),
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages]);
 
   return (
     <motion.div
       layoutScroll
-      className={
-        "overflow-auto p-4 h-full row-span-1 bg-blue-50 dark:bg-blue-950"
-      }
+      className="overflow-auto p-4 h-full row-span-1 bg-[#3c4a3e] text-white"
       ref={ref}
     >
-      <motion.div
-        className={"max-w-2xl mx-auto w-full h-full flex flex-col gap-4"}
-      >
-        <AnimatePresence mode={"popLayout"}>
-          {messages.map((msg, index) => {
+      <motion.div className="max-w-2xl mx-auto w-full h-full flex flex-col justify-center items-center gap-4">
+        <AnimatePresence mode="popLayout">
+          {messages.slice(-3).map((msg, index, arr) => {
             if (
               msg.type === "user_message" ||
               msg.type === "assistant_message"
@@ -90,41 +30,51 @@ export const Messages = forwardRef<
                 "<One minute left>Tell the candidate how much time is left and start wrapping up the interview and tell the candidate that a report will be generated</One minute left>."
               )
                 return null;
+
+              const isLatest = index === arr.length - 1;
+              const fadeAmount = isLatest
+                ? 1
+                : 1 - (arr.length - index - 1) * 0.3;
+
               return (
                 <motion.div
                   key={msg.type + index}
                   className={cn(
-                    "w-[80%]",
-                    "bg-card",
-                    "border border-border rounded",
-                    msg.type === "user_message" ? "ml-auto" : ""
+                    "w-full max-w-lg mx-auto",
+                    "bg-transparent",
+                    "rounded-lg",
+                    isLatest ? "mb-16 text-center" : "mb-4 absolute",
+                    isLatest
+                      ? "z-10"
+                      : index === arr.length - 2
+                      ? "z-5 top-4 left-1/2 transform -translate-x-1/2 opacity-50"
+                      : "z-0 top-0 left-1/2 transform -translate-x-1/2 opacity-25"
                   )}
-                  initial={{
-                    opacity: 0,
-                    y: 10,
-                  }}
+                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
                   animate={{
-                    opacity: 1,
+                    opacity: fadeAmount,
                     y: 0,
+                    scale: isLatest ? 1 : 0.9,
                   }}
-                  exit={{
-                    opacity: 0,
-                    y: 0,
+                  exit={{ opacity: 0, y: -50, scale: 0.9 }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                  style={{
+                    fontSize: isLatest
+                      ? "1.5rem"
+                      : `${1 - (arr.length - index - 1) * 0.2}rem`,
+                    transition: "all 0.3s ease-in-out",
                   }}
                 >
-                  <div
-                    className={cn(
-                      "text-xs capitalize font-medium leading-none opacity-50 pt-4 px-3"
-                    )}
-                  >
+                  <div className="text-xs capitalize font-medium leading-none opacity-50 mb-2">
                     {msg.message.role}
                   </div>
-                  <div className={"pb-3 px-3"}>{msg.message.content}</div>
-                  <Expressions values={{ ...msg.models.prosody?.scores }} />
+                  <div className="mb-2">{msg.message.content}</div>
+                  {isLatest && (
+                    <Expressions values={{ ...msg.models.prosody?.scores }} />
+                  )}
                 </motion.div>
               );
             }
-
             return null;
           })}
         </AnimatePresence>
