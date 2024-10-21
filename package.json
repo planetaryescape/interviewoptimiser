@@ -79,7 +79,7 @@
     "hashids": "^2.3.0",
     "html-docx-js": "^0.3.1",
     "html-to-docx": "^1.8.0",
-    "hume": "^0.9.1",
+    "hume": "^0.9.2",
     "lodash": "^4.17.21",
     "lucide-react": "^0.453.0",
     "mammoth": "^1.8.0",
