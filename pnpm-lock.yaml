@@ -22,7 +22,7 @@ importers:
         version: 5.7.5(next@14.2.15(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@humeai/voice-react':
         specifier: ^0.1.16
-        version: 0.1.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@2.79.2)
+        version: 0.1.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@3.29.5)
       '@mdxeditor/editor':
         specifier: ^3.14.0
         version: 3.14.0(@codemirror/language@6.10.3)(@lezer/common@1.2.3)(@lezer/highlight@1.2.1)(@types/react-dom@18.3.1)(@types/react@18.3.11)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(yjs@13.6.20)
@@ -192,8 +192,8 @@ importers:
         specifier: ^4.68.1
         version: 4.68.1(zod@3.23.8)
       openai-realtime-api:
-        specifier: ^1.0.4
-        version: 1.0.4
+        specifier: ^1.0.5
+        version: 1.0.5
       oxlint:
         specifier: ^0.10.1
         version: 0.10.1
@@ -6788,8 +6788,8 @@ packages:
     resolution: {integrity: sha512-VXJjc87FScF88uafS3JllDgvAm+c/Slfz06lorj2uAY34rlUu0Nt+v8wreiImcrgAjjIHp1rXpTDlLOGw29WwQ==}
     engines: {node: '>=18'}
 
-  openai-realtime-api@1.0.4:
-    resolution: {integrity: sha512-T/UJq83Ke0EXeJn6mHwwZ6SnCBjdl2sXlRriCNnEWDv+dgwkskHZe9emFvC0iEtAhHYcyEp1IlPIAVpRVBE63Q==}
+  openai-realtime-api@1.0.5:
+    resolution: {integrity: sha512-6+3Z7+0YnVPHHZoxZBmQ3PJnffrU6crHWxJFYRzeXvOFZqqCAW+tZKcSPczxT8JkLOpYic1QmJj+fL2xOntUaQ==}
     engines: {node: '>=18'}
 
   openai@4.68.1:
@@ -10383,11 +10383,11 @@ snapshots:
 
   '@humanwhocodes/object-schema@2.0.3': {}
 
-  '@humeai/voice-react@0.1.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@2.79.2)':
+  '@humeai/voice-react@0.1.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@3.29.5)':
     dependencies:
       date-fns: 3.6.0
       hume: 0.9.1
-      meyda: 5.6.3(rollup@2.79.2)
+      meyda: 5.6.3(rollup@3.29.5)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       type-fest: 4.26.1
@@ -12052,15 +12052,15 @@ snapshots:
       resolve: 1.22.8
       rollup: 2.79.2
 
-  '@rollup/plugin-node-resolve@15.3.0(rollup@2.79.2)':
+  '@rollup/plugin-node-resolve@15.3.0(rollup@3.29.5)':
     dependencies:
-      '@rollup/pluginutils': 5.1.2(rollup@2.79.2)
+      '@rollup/pluginutils': 5.1.2(rollup@3.29.5)
       '@types/resolve': 1.20.2
       deepmerge: 4.3.1
       is-module: 1.0.0
       resolve: 1.22.8
     optionalDependencies:
-      rollup: 2.79.2
+      rollup: 3.29.5
 
   '@rollup/plugin-replace@2.4.2(rollup@2.79.2)':
     dependencies:
@@ -12073,14 +12073,6 @@ snapshots:
       '@types/estree': 0.0.39
       estree-walker: 1.0.1
       picomatch: 2.3.1
-      rollup: 2.79.2
-
-  '@rollup/pluginutils@5.1.2(rollup@2.79.2)':
-    dependencies:
-      '@types/estree': 1.0.6
-      estree-walker: 2.0.2
-      picomatch: 2.3.1
-    optionalDependencies:
       rollup: 2.79.2
 
   '@rollup/pluginutils@5.1.2(rollup@3.29.5)':
@@ -15898,9 +15890,9 @@ snapshots:
 
   merge2@1.4.1: {}
 
-  meyda@5.6.3(rollup@2.79.2):
+  meyda@5.6.3(rollup@3.29.5):
     dependencies:
-      '@rollup/plugin-node-resolve': 15.3.0(rollup@2.79.2)
+      '@rollup/plugin-node-resolve': 15.3.0(rollup@3.29.5)
       dct: 0.1.0
       fftjs: 0.0.4
       node-getopt: 0.3.2
@@ -16452,7 +16444,7 @@ snapshots:
     dependencies:
       mimic-function: 5.0.1
 
-  openai-realtime-api@1.0.4:
+  openai-realtime-api@1.0.5:
     dependencies:
       nanoid: 5.0.7
       ws: 8.18.0
