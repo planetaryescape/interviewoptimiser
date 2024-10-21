@@ -70,7 +70,7 @@
     "cmdk": "1.0.0",
     "date-fns": "^4.1.0",
     "drizzle-kit": "^0.26.2",
-    "drizzle-orm": "^0.35.2",
+    "drizzle-orm": "^0.35.3",
     "drizzle-zod": "^0.5.1",
     "easymde": "^2.18.0",
     "esbuild": "^0.24.0",
