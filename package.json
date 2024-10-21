@@ -105,7 +105,7 @@
     "react-virtualized": "^9.22.5",
     "recharts": "^2.13.0",
     "remark-gfm": "^4.0.0",
-    "remeda": "^2.15.2",
+    "remeda": "^2.16.0",
     "resend": "^4.0.0",
     "sonner": "^1.5.0",
     "stripe": "^17.2.1",
