@@ -20,7 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Interview } from "@/db/schema";
+import { Interview, Report } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { idHandler } from "@/lib/utils/idHandler";
 import { Loader2, MoreVertical } from "lucide-react";
@@ -29,6 +29,7 @@ import Link from "next/link";
 interface InterviewCardProps {
   interview: Interview & {
     id?: number;
+    report?: Report;
   };
   onDelete?: (id: number) => void;
   deletingId: number | null;
@@ -63,13 +64,21 @@ export const InterviewCard = ({
       </CardContent>
       <div className="mt-auto p-4 bg-muted/50 border-t border-gray-300 dark:border-gray-700 flex justify-between items-center">
         <div className="flex gap-2 items-center justify-between w-full">
-          <Button asChild size="sm" variant={"outline"}>
+          <Button
+            disabled={!interview.report}
+            asChild
+            size="sm"
+            variant={"outline"}
+          >
+            {!interview.report && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
             <Link
               href={`/dashboard/interview/${idHandler.encode(
                 interview.id ?? 0
               )}/report`}
             >
-              View Report
+              {interview.report ? "View Report" : "Generating Report"}
             </Link>
           </Button>
 

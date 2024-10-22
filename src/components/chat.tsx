@@ -61,7 +61,7 @@ export default function ClientComponent({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["interview", params.id] });
       setShowTakeover(false);
-      router.push(`/dashboard/interview/${params.id}/report`);
+      router.push(`/dashboard`);
     },
     onError: (error) => {
       console.error("Error generating report:", error);
