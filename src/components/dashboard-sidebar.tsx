@@ -31,7 +31,7 @@ export default function DashboardSidebar() {
           )}
           {isAdmin && (
             <SidebarButton href="/dashboard/admin">
-              Optimisations (Admin)
+              Interviews (Admin)
             </SidebarButton>
           )}
           <SidebarButton href="/dashboard/settings">Settings</SidebarButton>

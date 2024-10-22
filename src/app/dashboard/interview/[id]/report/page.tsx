@@ -15,15 +15,19 @@ import { Switch } from "@/components/ui/switch";
 import { Interview, Report } from "@/db/schema";
 import { config } from "@/lib/config";
 import { getRepository } from "@/lib/data/repositoryFactory";
+import { getPagePreviewHtml } from "@/lib/getPagePreviewHtml";
+import { prepareHtml } from "@/lib/prepareHtml";
 import { cn } from "@/lib/utils";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import saveAs from "file-saver";
 import {
   AlertTriangle,
   BarChart2,
   Briefcase,
   ChevronDown,
   FileDown,
+  Loader2,
   ThumbsUp,
   TrendingDown,
   TrendingUp,
@@ -42,7 +46,11 @@ export default function InterviewReport({
   params: { id: string };
 }) {
   const queryClient = useQueryClient();
-  const { data: interview, isLoading } = useQuery({
+  const {
+    data: interview,
+    isLoading,
+    isPending: interviewIsPending,
+  } = useQuery({
     queryKey: ["interview", params.id],
     queryFn: async () => {
       const interviewRepo = await getRepository<
@@ -87,17 +95,68 @@ export default function InterviewReport({
   useEffect(() => {
     if (
       !isLoading &&
+      !interviewIsPending &&
       interview?.data &&
-      !report &&
+      !interview?.data.report &&
       !generateReportMutation.isPending
     ) {
       generateReportMutation.mutate();
     }
-  }, [report, generateReportMutation]);
+  }, [interview?.data, generateReportMutation, isLoading, interviewIsPending]);
+
+  const { mutate: exportDocument, isPending } = useMutation({
+    mutationFn: async (format: "pdf" | "docx") => {
+      const htmlContent = getPagePreviewHtml("report-preview");
+
+      const processedHtml = prepareHtml(htmlContent);
+
+      const response = await fetch(`/api/generate-${format}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          htmlContent: processedHtml,
+          paperSize: "A4",
+          margin: 20,
+          bodyFont: "font-montserrat",
+          headingFont: "font-raleway",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to generate ${format.toUpperCase()}`);
+      }
+
+      return response.blob();
+    },
+    onSuccess: (blob, format) => {
+      saveAs(blob, `Report.${format}`);
+      toast.success(`Report exported as ${format.toUpperCase()} successfully`, {
+        description:
+          format === "docx"
+            ? "If you encounter any issues with opening the document in Microsoft Word, please use Google Docs as an alternative, then you can convert it back to docx format."
+            : undefined,
+        duration: 10000,
+      });
+    },
+    onError: (error, format) => {
+      Sentry.withScope((scope) => {
+        scope.setExtra("context", "exportDocument");
+        scope.setExtra("format", format);
+        scope.setExtra("error", error);
+        scope.setExtra("message", error.message);
+
+        Sentry.captureException(error);
+      });
+      toast.error(
+        `Something went wrong while exporting ${format.toUpperCase()}. Please try again.`
+      );
+    },
+  });
 
   const handleExport = (format: "pdf" | "docx") => {
-    // Implement export functionality
-    console.log(`Exporting report as ${format}...`);
+    exportDocument(format);
   };
 
   const [includeTranscript, setIncludeTranscript] = useState(true);
@@ -143,8 +202,17 @@ export default function InterviewReport({
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="">
-                    <FileDown className="w-4 h-4 mr-2" />
+                  <Button
+                    disabled={isPending}
+                    variant="outline"
+                    size="sm"
+                    className=""
+                  >
+                    {isPending ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <FileDown className="w-4 h-4 mr-2" />
+                    )}
                     Export
                     <ChevronDown className="w-4 h-4 ml-2" />
                   </Button>
@@ -163,17 +231,19 @@ export default function InterviewReport({
         </div>
       </div>
 
-      {/* Report Content */}
       <ScrollArea className="h-[calc(100vh-8rem)] px-4 sm:px-6 lg:px-8">
-        <div className="max-w-[21cm] mx-auto bg-white shadow-lg">
+        <div
+          className="relative max-w-[210mm] mx-auto bg-white shadow-lg"
+          id="report-preview"
+        >
           <div
-            className="py-12 px-8 sm:px-12 space-y-8"
-            style={{ fontSize: "11pt" }}
+            id="page-0"
+            className="space-y-8"
+            style={{ fontSize: "11pt", margin: "20mm", padding: 0 }}
           >
-            {/* Header */}
-            <header className="text-center mb-8">
+            <header className="text-center mb-8 bg-blue-300">
               <Image
-                src="/logo.png"
+                src="https://interviewoptimiser.com/logo.png"
                 alt={`${config.projectName} Logo`}
                 width={200}
                 height={200}
@@ -188,29 +258,29 @@ export default function InterviewReport({
             </header>
 
             {/* Candidate Info */}
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4 text-gray-800 border-b pb-2">
+            <section className="mb-8 text-gray-800">
+              <h2 className="text-2xl font-semibold mb-4 border-b pb-2">
                 Candidate Information
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-3 gap-6">
                 <div className="flex items-center">
                   <User className="w-5 h-5 mr-3 text-blue-600" />
                   <div>
-                    <p className="text-sm text-gray-500">Name</p>
+                    <p className="text-sm">Name</p>
                     <p className="font-medium">{interview?.data.candidate}</p>
                   </div>
                 </div>
                 <div className="flex items-center">
                   <Briefcase className="w-5 h-5 mr-3 text-blue-600" />
                   <div>
-                    <p className="text-sm text-gray-500">Company</p>
+                    <p className="text-sm">Company</p>
                     <p className="font-medium">{interview?.data.company}</p>
                   </div>
                 </div>
                 <div className="flex items-center">
                   <UserCircle className="w-5 h-5 mr-3 text-blue-600" />
                   <div>
-                    <p className="text-sm text-gray-500">Role</p>
+                    <p className="text-sm">Role</p>
                     <p className="font-medium">{interview?.data.role}</p>
                   </div>
                 </div>

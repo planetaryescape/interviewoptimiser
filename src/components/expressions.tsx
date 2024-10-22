@@ -24,7 +24,7 @@ export function Expressions({
   return (
     <div
       className={
-        "text-xs p-3 w-full border-t border-gray-200 flex flex-col md:flex-row gap-3"
+        "text-xs p-3 w-full border-t border-gray-200 flex flex-row gap-3"
       }
     >
       {top3.map(([key, value]) => {
