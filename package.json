@@ -86,7 +86,7 @@
     "next": "14.2.15",
     "next-themes": "^0.3.0",
     "nextjs-toploader": "^3.7.15",
-    "openai": "^4.68.1",
+    "openai": "^4.68.2",
     "openai-realtime-api": "^1.0.5",
     "oxlint": "^0.10.1",
     "pdf-parse": "^1.1.1",
