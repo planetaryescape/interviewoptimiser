@@ -1,13 +1,3 @@
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -26,8 +16,7 @@ import { PageSettings } from "@/db/schema";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FileText, Loader2, Maximize, Share, Type } from "lucide-react";
-import { useFeatureFlagEnabled } from "posthog-js/react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
 export const paperSizes = {
@@ -41,8 +30,6 @@ export const marginSizes = {
   Narrow: 12.7,
   Wide: 25.4,
 };
-
-export type CVLayout = "Polished" | "Classic" | "Modern" | "Professional";
 
 const fonts = [
   { label: "Bebas Neue", value: "font-bebas-neue" },
@@ -84,9 +71,6 @@ interface PagePreviewToolbarProps {
   setHeadingFont: (font: string) => void;
   onShare: (option: "pdf" | "docx" | "link") => void;
   isSharing: boolean;
-  showLayoutSelector?: boolean;
-  layout?: CVLayout;
-  setLayout?: (layout: CVLayout) => void;
   children?: React.ReactNode;
   onSettingsChange: (settings: Partial<PageSettings>) => Promise<unknown>;
   pageSettings: PageSettings;
@@ -103,23 +87,18 @@ export function PagePreviewToolbar({
   setHeadingFont,
   onShare,
   isSharing,
-  showLayoutSelector = false,
-  layout,
-  setLayout,
   children,
   onSettingsChange,
   pageSettings,
 }: PagePreviewToolbarProps) {
-  const [isDocxWarningOpen, setIsDocxWarningOpen] = useState(false);
-  const multipleLayoutsFlagEnabled = useFeatureFlagEnabled("multiple-layouts");
   const queryClient = useQueryClient();
 
   const { mutate: updatePageSettings } = useMutation({
     mutationFn: onSettingsChange,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["page-settings"] });
-      queryClient.invalidateQueries({ queryKey: ["cover-letter"] });
-      queryClient.invalidateQueries({ queryKey: ["cv"] });
+      queryClient.invalidateQueries({ queryKey: ["report"] });
+      queryClient.invalidateQueries({ queryKey: ["interview"] });
     },
     onError: (error) => {
       Sentry.withScope((scope) => {
@@ -140,15 +119,6 @@ export function PagePreviewToolbar({
     updatePageSettings({ [setting]: value });
   };
 
-  const handleDocxExport = () => {
-    setIsDocxWarningOpen(true);
-  };
-
-  const confirmDocxExport = () => {
-    setIsDocxWarningOpen(false);
-    onShare("docx");
-  };
-
   // Use useEffect to set initial values from pageSettings
   useEffect(() => {
     if (pageSettings?.paperSize) {
@@ -163,18 +133,7 @@ export function PagePreviewToolbar({
     if (pageSettings?.headingFont) {
       setHeadingFont(pageSettings.headingFont);
     }
-    if (pageSettings?.layout && setLayout && showLayoutSelector) {
-      setLayout(pageSettings.layout as CVLayout);
-    }
-  }, [
-    pageSettings,
-    setPaperSize,
-    setMarginSize,
-    setBodyFont,
-    setHeadingFont,
-    showLayoutSelector,
-    setLayout,
-  ]);
+  }, [pageSettings, setPaperSize, setMarginSize, setBodyFont, setHeadingFont]);
 
   return (
     <div className="flex flex-wrap items-end justify-between p-2 bg-card gap-2">
@@ -233,27 +192,6 @@ export function PagePreviewToolbar({
             items={Object.keys(marginSizes)}
           />
         </ToolbarItem>
-        {showLayoutSelector &&
-          multipleLayoutsFlagEnabled &&
-          layout &&
-          setLayout && (
-            <ToolbarItem label="Layout">
-              <ToolbarSelect
-                value={layout}
-                onValueChange={(value: string) => {
-                  setLayout(value as CVLayout);
-                  handleSettingChange("layout", value);
-                }}
-                placeholder="Select layout"
-                items={[
-                  { value: "Polished", label: "Polished" },
-                  { value: "Classic", label: "Classic" },
-                  { value: "Modern", label: "Modern" },
-                  { value: "Professional", label: "Professional" },
-                ]}
-              />
-            </ToolbarItem>
-          )}
         <ToolbarItem>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -275,9 +213,6 @@ export function PagePreviewToolbar({
               <DropdownMenuItem onClick={() => onShare("pdf")}>
                 Share as PDF
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleDocxExport}>
-                Share as DOCX
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onShare("link")}>
                 Share Link
               </DropdownMenuItem>
@@ -285,27 +220,6 @@ export function PagePreviewToolbar({
           </DropdownMenu>
         </ToolbarItem>
       </div>
-      <AlertDialog open={isDocxWarningOpen} onOpenChange={setIsDocxWarningOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>DOCX Export Warning</AlertDialogTitle>
-            <AlertDialogDescription>
-              Microsoft Word does not allow as much flexibility in presenting
-              styles of the document as a PDF. As a result, the design might
-              have minor differences. Additionally, the exported document might
-              not work in desktop Microsoft Word. If this occurs, you can open
-              it in Microsoft Word Online or Google Docs and export it from
-              there if you want to view it in the Word desktop app.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDocxExport}>
-              Proceed with Export
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
       {children}
     </div>
   );

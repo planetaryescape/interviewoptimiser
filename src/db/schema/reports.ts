@@ -1,6 +1,14 @@
 import { relations } from "drizzle-orm";
-import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  integer,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
 import { interviews } from "./interviews";
+import { pageSettings } from "./pageSettings";
 
 export const reports = pgTable("reports", {
   id: serial("id").primaryKey(),
@@ -25,6 +33,7 @@ export const reports = pgTable("reports", {
   areasOfStrength: text("areas_of_strength").notNull(),
   areasForImprovement: text("areas_for_improvement").notNull(),
   actionableNextSteps: text("actionable_next_steps").notNull(),
+  isPublic: boolean("is_public").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -33,6 +42,10 @@ export const reportRelations = relations(reports, ({ one }) => ({
   interview: one(interviews, {
     fields: [reports.interviewId],
     references: [interviews.id],
+  }),
+  pageSettings: one(pageSettings, {
+    fields: [reports.id],
+    references: [pageSettings.reportId],
   }),
 }));
 
