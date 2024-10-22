@@ -1,20 +1,16 @@
 import { getFontFamilyName, getFontFamilyString } from "@/lib/fontUtils";
 import { logger } from "@/lib/logger";
 
-export function prepareHtml(
-  htmlContent: string,
-  bodyFont: string,
-  headingFont: string
-): string {
+export function prepareHtml(htmlContent: string): string {
   if (!htmlContent) {
     logger.error({ event: "generate-docx" }, "HTML content is required");
     return "";
   }
 
-  const bodyFontFamilyString = getFontFamilyString(bodyFont);
-  const headingFontFamilyString = getFontFamilyString(headingFont);
-  const bodyFontFamilyName = getFontFamilyName(bodyFont);
-  const headingFontFamilyName = getFontFamilyName(headingFont);
+  const bodyFontFamilyString = getFontFamilyString("font-montserrat");
+  const headingFontFamilyString = getFontFamilyString("font-raleway");
+  const bodyFontFamilyName = getFontFamilyName("font-montserrat");
+  const headingFontFamilyName = getFontFamilyName("font-raleway");
 
   const fontsHeadContent = `
     <link rel="preconnect" href="https://fonts.googleapis.com">
