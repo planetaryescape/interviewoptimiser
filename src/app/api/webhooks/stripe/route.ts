@@ -6,7 +6,7 @@ import { logger } from "@/lib/logger";
 import { stripe } from "@/lib/stripe";
 import { formatEmptyEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
-import { eq, isNull, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
@@ -118,31 +118,6 @@ export async function POST(request: Request) {
       logger.info({ ...context, minutes, user }, "Minutes added");
 
       return NextResponse.json(formatEmptyEntity());
-    }
-
-    logger.info("Create stripe customer accounts for all users");
-
-    const allUsers = await db
-      .select()
-      .from(users)
-      .where(isNull(users.stripeCustomerId));
-
-    for (const user of allUsers) {
-      logger.info({ ...context, user }, "Creating stripe customer account");
-      const customer = await stripe.customers.create({
-        email: user.email,
-      });
-
-      logger.info({ ...context, customer }, "Stripe customer created");
-
-      await db
-        .update(users)
-        .set({
-          stripeCustomerId: customer.id,
-        })
-        .where(eq(users.id, user.id));
-
-      logger.info({ ...context, user }, "Stripe customer account created");
     }
 
     return NextResponse.json(formatEmptyEntity());
