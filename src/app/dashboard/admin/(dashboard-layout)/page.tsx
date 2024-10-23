@@ -31,6 +31,7 @@ export default function InterviewsSection() {
   } = useQuery({
     queryKey: ["interviews"],
     queryFn: fetchInterviews,
+    refetchInterval: 3000,
   });
 
   const interviews = useMemo(

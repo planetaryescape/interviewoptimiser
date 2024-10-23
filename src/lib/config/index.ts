@@ -7,10 +7,10 @@ export const config = {
   domain,
   supportEmail: `${domain.split(".")[0]}@bhekani.com`,
   maxTextLengths: {
-    cv: 18000,
-    jobDescription: 8000,
-    additionalInfo: 3000,
-    customisations: 3000,
+    cv: 15000,
+    jobDescription: 5000,
+    additionalInfo: 1000,
+    customisations: 1000,
   },
   startingFreeMinutes: 2,
   earlyBirdPromo: {

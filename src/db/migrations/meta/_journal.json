@@ -43,6 +43,13 @@
       "when": 1729631814310,
       "tag": "0005_bouncy_supernaut",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1729640602497,
+      "tag": "0006_warm_scourge",
+      "breakpoints": true
     }
   ]
 }

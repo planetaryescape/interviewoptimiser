@@ -60,7 +60,7 @@ export default function ClientComponent({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["interview", params.id] });
-      setShowTakeover(false);
+      // setShowTakeover(false);
       router.push(`/dashboard`);
     },
     onError: (error) => {

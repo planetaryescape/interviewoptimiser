@@ -28,6 +28,12 @@ const ExtendedReportSchema = ReportSchema.extend({
   overallScore: z
     .number()
     .describe("Overall score of the interview out of 100"),
+  fitnessForRole: z
+    .string()
+    .describe("Assessment of the candidate's fitness for the role"),
+  fitnessForRoleScore: z
+    .number()
+    .describe("Score for fitness for the role out of 100"),
   speakingSkills: z
     .string()
     .describe("Assessment of the candidate's speaking skills"),
@@ -113,7 +119,7 @@ export const handler = Sentry.AWSLambda.wrapHandler(async (event: SQSEvent) => {
 
         // System prompt for OpenAI
         const systemPrompt = `
-          You are an expert interview analyst and career coach. Your task is to provide comprehensive, candid, and constructive feedback on interview performances. Aim to be honest, direct, and constructively critical. Follow the principles of Radical Candor: "Care Personally, Challenge Directly." Deliver clear, respectful feedback aimed at empowering the candidate to improve. Use specific examples from the interview to support your points. If the interview information is limited, provide the most useful and actionable report possible with the available data, and recommend a longer mock interview for more comprehensive feedback. Stick to the information provided in the transcript. Provide scores out of 100 for each section and an overall score to help the candidate understand their performance.
+          You are an expert interview analyst and career coach. Your task is to provide comprehensive, candid, and constructive feedback on interview performances. Aim to be honest, direct, and constructively critical. Follow the principles of Radical Candor: "Care Personally, Challenge Directly." Do not be afraid to call out a bad performance as long as you can back it up with specific reasons or examples from the interview. Deliver clear, respectful feedback aimed at empowering the candidate to improve. Use specific examples from the interview to support your points. If the interview information is limited, provide the most useful and actionable report possible with the available data, and recommend a longer mock interview for more comprehensive feedback. Stick to the information provided in the transcript. Provide scores out of 100 for each section and an overall score to help the candidate understand their performance.
         `;
 
         // User prompt for OpenAI
@@ -139,6 +145,7 @@ export const handler = Sentry.AWSLambda.wrapHandler(async (event: SQSEvent) => {
             • Analysis of the candidate's emotional state throughout the interview based on prosody data
 
           2. Detailed Feedback
+            • Candidate's fitness for the role based on their experiences and responses. Including strengths and areas for improvement. This is very important for the report!!
             • Speaking skills assessment (fluency, clarity, confidence, hesitation, filler words)
             • Clarity, relevance, and depth of responses
             • Communication skills evaluation (elaboration, specific examples)
@@ -163,7 +170,7 @@ export const handler = Sentry.AWSLambda.wrapHandler(async (event: SQSEvent) => {
           Job Description: ${interview.jobDescriptionText}
           Additional Information: ${interview.additionalInfo}
 
-          Maintain a candid yet respectful tone throughout the report, adhering to Radical Candor principles. Base your analysis and feedback on both the interview transcript content and the prosody analysis provided for each message.
+          Maintain a candid yet respectful tone throughout the report, adhering to Radical Candor principles. Base your analysis and feedback on both the interview transcript content and the prosody analysis provided for each message. Do not be afraid to call out a bad performance as long as you can back it up with specific reasons or examples from the interview.
         `;
 
         // Generate report using OpenAI
