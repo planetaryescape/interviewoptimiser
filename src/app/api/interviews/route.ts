@@ -138,6 +138,9 @@ export async function GET(request: NextRequest) {
     const userInterviews = await db.query.interviews.findMany({
       where: eq(interviews.userId, userId),
       orderBy: desc(interviews.createdAt),
+      with: {
+        report: true,
+      },
     });
 
     logger.info(

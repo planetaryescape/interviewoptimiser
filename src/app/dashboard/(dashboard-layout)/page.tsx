@@ -36,7 +36,7 @@ async function fetchInterviews() {
   return repository.getAll();
 }
 
-export default function OptimisationsSection() {
+export default function InterviewsSection() {
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [currentPage, setCurrentPage] = useState(1);
   const [isOutOfMinutesDialogOpen, setIsOutOfMinutesDialogOpen] =
@@ -55,6 +55,7 @@ export default function OptimisationsSection() {
   } = useQuery({
     queryKey: ["interviews"],
     queryFn: fetchInterviews,
+    refetchInterval: 3000,
   });
 
   const interviews = useMemo(
@@ -102,7 +103,7 @@ export default function OptimisationsSection() {
     deleteInterviewMutation.mutate(id);
   };
 
-  const handleOptimizeNewCV = () => {
+  const handleCreateNewInterview = () => {
     if (user && user.minutes > 0) {
       router.push("/dashboard/create");
     } else {
@@ -128,7 +129,7 @@ export default function OptimisationsSection() {
       <div className="flex justify-between items-center mb-4 row-span-1">
         <h2 className="text-2xl font-semibold text-foreground">Interviews</h2>
         <div className="flex items-center space-x-2">
-          <Button size="sm" onClick={handleOptimizeNewCV}>
+          <Button size="sm" onClick={handleCreateNewInterview}>
             <span className="hidden md:inline">Create New Interview</span>
             <Plus className="w-4 h-4 md:hidden" />
           </Button>

@@ -18,6 +18,8 @@ export const reports = pgTable("reports", {
     .unique(),
   generalAssessment: text("general_assessment").notNull(),
   overallScore: integer("overall_score").notNull(),
+  fitnessForRole: text("fitness_for_role").notNull().default(""),
+  fitnessForRoleScore: integer("fitness_for_role_score").notNull().default(0),
   speakingSkills: text("speaking_skills").notNull(),
   speakingSkillsScore: integer("speaking_skills_score").notNull(),
   communicationSkills: text("communication_skills").notNull(),

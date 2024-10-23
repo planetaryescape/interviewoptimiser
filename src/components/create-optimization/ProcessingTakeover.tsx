@@ -15,20 +15,13 @@ export function ProcessingTakeover() {
         exit={{ scale: 0.9, opacity: 0 }}
         className="bg-card text-card-foreground p-6 rounded-lg shadow-lg text-center"
       >
-        <h2 className="text-2xl font-bold mb-4">Processing Your CV</h2>
+        <h2 className="text-2xl font-bold mb-4">Creating Your Interview</h2>
         <div className="mb-6 flex justify-center items-center">
           <ParticleSwarmLoader />
         </div>
         <p className="mb-4">
-          We&apos;re optimising your CV. This usually takes about a minute.
-          You&apos;ll be redirected to the dashboard in a moment.
-        </p>
-        <p className="text-sm text-muted-foreground">
-          Your CV optimisation will continue processing in the background.
-        </p>
-        <p className="text-sm text-muted-foreground">
-          You&apos;ll see a &quot;View CV&quot; button on your optimisation in
-          the dashboard when it&apos;s ready.
+          We&apos;re creating your interview. This usually takes a few seconds.
+          You&apos;ll be redirected shortly.
         </p>
       </motion.div>
     </motion.div>

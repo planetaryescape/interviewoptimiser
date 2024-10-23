@@ -103,6 +103,7 @@ export default function InterviewReportPage({
     },
   });
 
+  console.log("interview:", interview);
   const report = interview?.data.report;
 
   const { mutate: exportDocument, isPending: isExporting } = useMutation({
@@ -132,7 +133,10 @@ export default function InterviewReportPage({
       return response.blob();
     },
     onSuccess: (blob, format) => {
-      saveAs(blob, `Report.${format}`);
+      saveAs(
+        blob,
+        `Interview Optimiser Report - ${interview?.data.candidate} - ${interview?.data.role}.${format}`
+      );
       toast.success(`Report exported as ${format.toUpperCase()} successfully`, {
         description:
           format === "docx"
@@ -488,6 +492,11 @@ export default function InterviewReportPage({
             </h2>
             <div className="space-y-6">
               {[
+                {
+                  title: "Fitness for Role",
+                  content: report.fitnessForRole,
+                  score: report.fitnessForRoleScore,
+                },
                 {
                   title: "Speaking Skills",
                   content: report.speakingSkills,

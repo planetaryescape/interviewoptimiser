@@ -53,12 +53,12 @@ export const InterviewCard = ({
       <CardContent>
         <CardDescription>
           <div className="space-y-3">
-            <p className="text-sm font-medium">
+            <span className="text-sm font-medium">
               {"Candidate Name Not Available"}
-            </p>
-            <p className="text-sm">
-              `Date: ${new Date(interview.createdAt).toLocaleDateString()}`
-            </p>
+            </span>
+            <span className="text-sm">
+              Date: {new Date(interview.createdAt).toLocaleDateString()}
+            </span>
           </div>
         </CardDescription>
       </CardContent>
@@ -70,14 +70,15 @@ export const InterviewCard = ({
             size="sm"
             variant={"outline"}
           >
-            {!interview.report && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
             <Link
               href={`/dashboard/interview/${idHandler.encode(
                 interview.id ?? 0
               )}/report`}
+              className="flex items-center"
             >
+              {!interview.report && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               {interview.report ? "View Report" : "Generating Report"}
             </Link>
           </Button>
