@@ -3,6 +3,7 @@ import { config } from "@/lib/config";
 import { logger } from "@/lib/logger";
 import { stripe } from "@/lib/stripe";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
+import { isFomoDiscountActive } from "@/lib/utils/isFomoDiscountActive";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { NextRequest, NextResponse } from "next/server";
@@ -18,6 +19,10 @@ export async function POST(request: NextRequest) {
     const { stripeCustomerId } = await getUserFromClerkId(clerkUserId);
     const { priceId } = await request.json();
 
+    const offerActive = isFomoDiscountActive();
+
+    const isDev = process.env.NODE_ENV === "development";
+
     const session = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
       mode: "payment",
@@ -30,8 +35,22 @@ export async function POST(request: NextRequest) {
           },
         },
       ],
-      allow_promotion_codes: true,
-      success_url: `${config.baseUrl}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      automatic_tax: { enabled: true },
+      customer_update: {
+        address: "auto",
+      },
+      ...(offerActive
+        ? {
+            discounts: [
+              {
+                promotion_code: isDev
+                  ? "promo_1QDCT3AN8Y6xS9fBWYo0bIee"
+                  : "promo_1QDCsMAN8Y6xS9fBmew0u7jP",
+              },
+            ],
+          }
+        : { allow_promotion_codes: true }),
+      success_url: `${config.baseUrl}/dashboard/create`,
       cancel_url: `${config.baseUrl}/pricing`,
     });
 
