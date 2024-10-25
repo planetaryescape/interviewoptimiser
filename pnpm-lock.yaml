@@ -21,8 +21,8 @@ importers:
         specifier: ^5.7.5
         version: 5.7.5(next@14.2.15(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@humeai/voice-react':
-        specifier: ^0.1.16
-        version: 0.1.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@3.29.5)
+        specifier: ^0.1.17
+        version: 0.1.17(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@3.29.5)
       '@mdxeditor/editor':
         specifier: ^3.14.0
         version: 3.14.0(@codemirror/language@6.10.3)(@lezer/common@1.2.3)(@lezer/highlight@1.2.1)(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(yjs@13.6.20)
@@ -1842,8 +1842,8 @@ packages:
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
     deprecated: Use @eslint/object-schema instead
 
-  '@humeai/voice-react@0.1.16':
-    resolution: {integrity: sha512-Jf3yn9t31Mj7iT/2zM51iHb6m9KSyquXOzULhb3DiA3vZyyaZWljXQ6jIlSQdrAmIAYAawLcU3EPbVa7GoLgrg==}
+  '@humeai/voice-react@0.1.17':
+    resolution: {integrity: sha512-ABDbMl8GZaL+vDznoapiErydCju7uVwW9LzRq67PEkPdIVG8N7yShdetG3v2911of9xS9tx3o1N3E305pkHK9Q==}
     peerDependencies:
       react: '>=18.2.0'
       react-dom: '>=18.2.0'
@@ -10711,7 +10711,7 @@ snapshots:
 
   '@humanwhocodes/object-schema@2.0.3': {}
 
-  '@humeai/voice-react@0.1.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@3.29.5)':
+  '@humeai/voice-react@0.1.17(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@3.29.5)':
     dependencies:
       date-fns: 3.6.0
       hume: 0.9.1
