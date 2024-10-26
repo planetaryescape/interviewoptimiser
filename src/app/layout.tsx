@@ -3,7 +3,6 @@ import { ReactQueryProvider } from "@/components/react-query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
 import dynamic from "next/dynamic";
@@ -141,7 +140,6 @@ export default function RootLayout({
                 {children}
               </ThemeProvider>
               <SpeedInsights />
-              <Analytics />
 
               <script
                 async
