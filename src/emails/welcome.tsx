@@ -42,8 +42,8 @@ export const WelcomeEmail = ({ firstName }: { firstName?: string }) => {
         <Body className="bg-offwhite font-sans text-base text-brand">
           <Img
             src={`https://${config.domain}/logo.png`}
-            width="49"
-            height="63.6"
+            width={200}
+            height={200}
             alt={`${config.projectName} Logo`}
             className="mx-auto my-20"
           />
