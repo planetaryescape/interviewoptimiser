@@ -9,7 +9,7 @@ export function sanitiseUserInputText(
 ): string {
   logger.info({ text: text.slice(0, 60) }, "Sanitising user input text");
   // Remove leading/trailing whitespace
-  text = text.trim();
+  text = text?.trim();
 
   // Remove null characters
   text = text.replace(/\u0000/g, "");
@@ -36,14 +36,14 @@ export function sanitiseUserInputText(
 
   // Split text into lines, filter empty lines, and remove duplicates
   const lines = text.split("\n");
-  const filteredLines = lines.filter((line: string) => line.trim() !== "");
+  const filteredLines = lines.filter((line: string) => line?.trim() !== "");
   const deduplicatedLines = Array.from(new Set(filteredLines));
 
   // Join lines, replace multiple spaces with a single space, and trim
   const cleanedContent = deduplicatedLines
     .join(" ")
     .replace(/\s\s+/g, " ")
-    .trim();
+    ?.trim();
 
   if (options.truncate) {
     // Limit the length of the text

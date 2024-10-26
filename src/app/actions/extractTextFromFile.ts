@@ -23,10 +23,10 @@ export async function extractTextFromFile(formData: FormData): Promise<string> {
       const buffer = Buffer.from(uint8Array);
       const data = await pdf(buffer);
       logger.info(
-        { textLength: data.text.trim().length },
+        { textLength: data.text?.trim().length },
         "Extracted text from PDF"
       );
-      return data.text.trim();
+      return data.text?.trim();
     } else if (
       file.type ===
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
@@ -36,10 +36,10 @@ export async function extractTextFromFile(formData: FormData): Promise<string> {
       const buffer = Buffer.from(uint8Array);
       const result = await mammoth.extractRawText({ buffer });
       logger.info(
-        { textLength: result.value.trim().length },
+        { textLength: result.value?.trim().length },
         "Extracted text from word file"
       );
-      return result.value.trim();
+      return result.value?.trim();
     }
 
     throw new Error("Unsupported file type");

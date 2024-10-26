@@ -79,7 +79,7 @@ export function Step2JobDescription() {
         try {
           const extractedText = await extractTextFromFile(formData);
 
-          if (extractedText.trim()) {
+          if (extractedText?.trim()) {
             setJobDescriptionText(extractedText);
             setJobFile(file);
             setShowStep2Error(false);
@@ -147,7 +147,7 @@ export function Step2JobDescription() {
           maxLength={config.maxTextLengths.jobDescription}
           onChange={(e) => {
             setJobDescriptionText(e.target.value);
-            if (e.target.value.trim()) {
+            if (e.target.value?.trim()) {
               setShowStep2Error(false);
             }
           }}

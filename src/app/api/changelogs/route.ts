@@ -84,8 +84,8 @@ export async function POST(request: NextRequest) {
     const [newChangelog] = await db
       .insert(changelogs)
       .values({
-        title: title.trim(),
-        content: content.trim(),
+        title: title?.trim(),
+        content: content?.trim(),
       })
       .returning();
 

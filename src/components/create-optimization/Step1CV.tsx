@@ -40,7 +40,7 @@ export function Step1CV() {
         try {
           const extractedText = await extractTextFromFile(formData);
 
-          if (extractedText.trim()) {
+          if (extractedText?.trim()) {
             setCVText(extractedText);
             setCVFile(file);
             setShowStep1Error(false);
@@ -99,7 +99,7 @@ export function Step1CV() {
           maxLength={config.maxTextLengths.cv}
           onChange={(e) => {
             setCVText(e.target.value);
-            if (e.target.value.trim()) {
+            if (e.target.value?.trim()) {
               setShowStep1Error(false);
             }
           }}
