@@ -63,8 +63,8 @@ export default function CreateInterview() {
   const posthog = usePostHog();
   const { data: user } = useUser();
 
-  const canProceedToStep2 = cvText.trim().length > 0;
-  const canProceedToStep3 = jobDescriptionText.trim().length > 0;
+  const canProceedToStep2 = cvText?.trim().length > 0;
+  const canProceedToStep3 = jobDescriptionText?.trim().length > 0;
 
   const handleNextStep = (currentStep: number) => {
     if (currentStep === 1 && canProceedToStep2) {
@@ -159,7 +159,7 @@ export default function CreateInterview() {
         return;
       }
 
-      if (!cvText.trim() || !jobDescriptionText.trim()) {
+      if (!cvText?.trim() || !jobDescriptionText?.trim()) {
         toast.error("Please provide both CV and job description.");
         return;
       }

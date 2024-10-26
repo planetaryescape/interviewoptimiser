@@ -665,7 +665,7 @@ export default function InterviewReportPage({
                     const persona = message.role
                       .replace("assistant", "Interviewer")
                       .replace("user", "Candidate")
-                      .trim();
+                      ?.trim();
                     return (
                       <div key={index} className="mb-4 last:mb-0">
                         <span

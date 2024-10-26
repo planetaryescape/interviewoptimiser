@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
       .insert(featureRequests)
       .values({
         title: title?.trim(),
-        content: content.trim(),
+        content: content?.trim(),
         userId,
       })
       .returning();
