@@ -32,7 +32,7 @@ export function Step2JobDescription() {
         const extractedText = await extractTextFromUrl(
           debouncedJobDescriptionLink
         );
-        if (extractedText.trim()) {
+        if (extractedText?.trim()) {
           setJobDescriptionText(extractedText);
           setShowStep2Error(false);
         } else {
