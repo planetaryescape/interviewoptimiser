@@ -10,6 +10,10 @@ export async function getUserFromClerkId(clerkUserId: string): Promise<{
   firstName?: string;
   stripeCustomerId?: string;
 }> {
+  if (!clerkUserId) {
+    return {};
+  }
+
   const user = await db
     .select({
       id: users.id,
@@ -22,6 +26,10 @@ export async function getUserFromClerkId(clerkUserId: string): Promise<{
     .from(users)
     .where(eq(users.clerkUserId, clerkUserId))
     .limit(1);
+
+  if (!user.length) {
+    return {};
+  }
 
   return {
     id: user[0].id,
