@@ -6,10 +6,6 @@ import { stripe } from "@/lib/stripe";
 import { isFomoDiscountActive } from "@/lib/utils/isFomoDiscountActive";
 import Stripe from "stripe";
 
-const calculateDiscount = (original: number, discounted: number) => {
-  return Math.round(((original - discounted) / original) * 100);
-};
-
 type PlanIconKey = keyof typeof planIcons;
 
 const planIcons = {

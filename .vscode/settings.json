@@ -52,6 +52,7 @@
     "Sanitising",
     "simplemde",
     "tanstack",
+    "turbopack",
     "unformat",
     "wavtools",
     "zustand"

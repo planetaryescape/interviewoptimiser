@@ -6,11 +6,12 @@ import { cn } from "@/lib/utils";
 import { useVoice } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { Mic, MicOff } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { MotionDiv } from "./common/motion";
 import { MicFFT } from "./mic-fft";
 import { Button } from "./ui/button";
 import { Toggle } from "./ui/toggle";
@@ -80,7 +81,7 @@ export function Controls({
     >
       <AnimatePresence>
         {status.value === "connected" ? (
-          <motion.div
+          <MotionDiv
             initial={{
               y: "100%",
               opacity: 0,
@@ -145,7 +146,7 @@ export function Controls({
             >
               End Interview
             </Button>
-          </motion.div>
+          </MotionDiv>
         ) : null}
       </AnimatePresence>
     </div>

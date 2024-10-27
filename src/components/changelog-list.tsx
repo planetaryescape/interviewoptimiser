@@ -10,12 +10,11 @@ import { useUser } from "@clerk/nextjs";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ThumbsUp } from "lucide-react";
-import { Suspense } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 
-export default function ChangelogPage() {
+export default function ChangelogList() {
   const { user, isLoaded } = useUser();
   const queryClient = useQueryClient();
 
@@ -79,15 +78,13 @@ export default function ChangelogPage() {
                 <h3 className="text-xl font-semibold mb-2 text-foreground">
                   {changelog.data.title}
                 </h3>
-                <Suspense fallback={null}>
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={remarkMarkdownComponents}
-                    className="text-gray-800 dark:text-gray-200"
-                  >
-                    {changelog.data.content}
-                  </ReactMarkdown>
-                </Suspense>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={remarkMarkdownComponents}
+                  className="text-gray-800 dark:text-gray-200"
+                >
+                  {changelog.data.content}
+                </ReactMarkdown>
                 <div className="flex items-center justify-between mt-2">
                   <p className="text-gray-500 dark:text-gray-400">
                     Likes: {changelog.data.likes}

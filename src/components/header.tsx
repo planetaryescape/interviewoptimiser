@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@/hooks/useUser";
 import { config } from "@/lib/config";
 import { cn } from "@/lib/utils";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { ClerkProvider, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { CreditCard } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -153,10 +153,12 @@ export function Header({ className }: { className?: string }) {
           />
         </div>
       </div>
-      <FeedbackModal
-        isOpen={isFeedbackModalOpen}
-        onClose={() => setIsFeedbackModalOpen(false)}
-      />
+      <ClerkProvider dynamic>
+        <FeedbackModal
+          isOpen={isFeedbackModalOpen}
+          onClose={() => setIsFeedbackModalOpen(false)}
+        />
+      </ClerkProvider>
     </header>
   );
 }

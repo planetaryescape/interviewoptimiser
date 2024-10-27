@@ -1,11 +1,9 @@
+import Chat from "@/components/chat";
 import { getHumeAccessToken } from "@/utils/get-hume-access-token";
-import dynamic from "next/dynamic";
+import { Suspense } from "react";
 
-const Chat = dynamic(() => import("@/components/chat"), {
-  ssr: false,
-});
-
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const accessToken = await getHumeAccessToken();
 
   if (!accessToken) {
@@ -14,7 +12,9 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   return (
     <div className={"grow flex flex-col h-full overflow-auto"}>
-      <Chat accessToken={accessToken} id={params.id} />
+      <Suspense fallback={null}>
+        <Chat accessToken={accessToken} id={params.id} />
+      </Suspense>
     </div>
   );
 }

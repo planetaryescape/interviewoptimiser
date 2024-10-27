@@ -35,16 +35,17 @@ import {
   UserCircle,
 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 
-export default function InterviewReport({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function InterviewReport(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = use(props.params);
   const queryClient = useQueryClient();
   const {
     data: interview,
