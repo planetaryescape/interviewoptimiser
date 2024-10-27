@@ -4,6 +4,7 @@ import { BackgroundGradient as AnotherBackgroundGradient } from "@/components/ba
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useUser } from "@/hooks/useUser";
+import { ClerkProvider } from "@clerk/nextjs";
 import { MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { FeedbackModal } from "./feedback-modal";
@@ -48,10 +49,12 @@ export default function DashboardSidebar() {
           Give us feedback
         </Button>
       </div>
-      <FeedbackModal
-        isOpen={isFeedbackModalOpen}
-        onClose={() => setIsFeedbackModalOpen(false)}
-      />
+      <ClerkProvider dynamic>
+        <FeedbackModal
+          isOpen={isFeedbackModalOpen}
+          onClose={() => setIsFeedbackModalOpen(false)}
+        />
+      </ClerkProvider>
 
       <AnotherBackgroundGradient degrees={Math.random() * 360} />
     </aside>

@@ -9,6 +9,7 @@ import { FeatureRequest } from "@/db/schema";
 import { featureRequestStatusEnum } from "@/db/schema/featureRequests";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
+import { ClerkProvider } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
 import { FileText, Grid, List } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -121,15 +122,17 @@ export default function AdminFeatureRequestsPage() {
       {filteredFeatureRequests.length === 0 ? (
         <NoFeatureRequestsPlaceholder />
       ) : viewMode === "grid" ? (
-        <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(300px,1fr))] p-4 gap-6 overflow-y-auto bg-card">
-          {paginatedFeatureRequests.map((featureRequest) => (
-            <FeatureRequestCard
-              key={featureRequest.sys.id}
-              featureRequest={featureRequest.data}
-              isAdmin={true}
-            />
-          ))}
-        </div>
+        <ClerkProvider dynamic>
+          <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(300px,1fr))] p-4 gap-6 overflow-y-auto bg-card">
+            {paginatedFeatureRequests.map((featureRequest) => (
+              <FeatureRequestCard
+                key={featureRequest.sys.id}
+                featureRequest={featureRequest.data}
+                isAdmin={true}
+              />
+            ))}
+          </div>
+        </ClerkProvider>
       ) : (
         <div className="overflow-y-auto">
           {/* Implement a table view for feature requests here */}

@@ -10,17 +10,13 @@ import { useSimpleMDEOptions } from "@/config/simplemde-options";
 import { FeatureRequest, NewFeatureRequest } from "@/db/schema";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
-import { useAuth } from "@clerk/nextjs";
+import { ClerkProvider, useAuth } from "@clerk/nextjs";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import "easymde/dist/easymde.min.css";
-import dynamic from "next/dynamic";
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
+import SimpleMDE from "react-simplemde-editor";
 import { toast } from "sonner";
-
-const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
-  ssr: false,
-});
 
 const ITEMS_PER_PAGE = 6; // 2x3 grid for larger screens
 
@@ -146,17 +142,19 @@ export default function FeatureRequestsPage() {
                   placeholder="Enter feature request title (optional)"
                   className="mb-4"
                 />
-                <SimpleMDE
-                  value={newFeatureRequest.content}
-                  onChange={(value) =>
-                    setNewFeatureRequest({
-                      ...newFeatureRequest,
-                      content: value,
-                    })
-                  }
-                  options={simpleMDEOptions}
-                  className="mb-4"
-                />
+                <Suspense fallback={null}>
+                  <SimpleMDE
+                    value={newFeatureRequest.content}
+                    onChange={(value) =>
+                      setNewFeatureRequest({
+                        ...newFeatureRequest,
+                        content: value,
+                      })
+                    }
+                    options={simpleMDEOptions}
+                    className="mb-4"
+                  />
+                </Suspense>
                 <Button
                   onClick={() =>
                     addFeatureRequestMutation.mutate(newFeatureRequest)
@@ -179,16 +177,20 @@ export default function FeatureRequestsPage() {
             <TabsTrigger value="completed">Completed</TabsTrigger>
           </TabsList>
           <TabsContent value="active" className="bg-card">
-            <ScrollArea className="size-full row-span-1 bg-card text-card-foreground p-4">
-              <div className="size-full grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4 auto-rows-max">
-                {paginatedActiveRequests.map((featureRequest) => (
-                  <FeatureRequestCard
-                    key={featureRequest.sys.id}
-                    featureRequest={featureRequest.data}
-                  />
-                ))}
-              </div>
-            </ScrollArea>
+            <Suspense fallback={null}>
+              <ClerkProvider dynamic>
+                <ScrollArea className="size-full row-span-1 bg-card text-card-foreground p-4">
+                  <div className="size-full grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4 auto-rows-max">
+                    {paginatedActiveRequests.map((featureRequest) => (
+                      <FeatureRequestCard
+                        key={featureRequest.sys.id}
+                        featureRequest={featureRequest.data}
+                      />
+                    ))}
+                  </div>
+                </ScrollArea>
+              </ClerkProvider>
+            </Suspense>
             <div className="mt-4 flex justify-center">
               <div className="flex items-center space-x-2">
                 <Button
@@ -220,16 +222,20 @@ export default function FeatureRequestsPage() {
             </div>
           </TabsContent>
           <TabsContent value="completed" className="bg-card">
-            <ScrollArea className="size-full row-span-1 bg-card text-card-foreground p-4">
-              <div className="size-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-max">
-                {paginatedCompletedRequests.map((featureRequest) => (
-                  <FeatureRequestCard
-                    key={featureRequest.sys.id}
-                    featureRequest={featureRequest.data}
-                  />
-                ))}
-              </div>
-            </ScrollArea>
+            <Suspense fallback={null}>
+              <ClerkProvider dynamic>
+                <ScrollArea className="size-full row-span-1 bg-card text-card-foreground p-4">
+                  <div className="size-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-max">
+                    {paginatedCompletedRequests.map((featureRequest) => (
+                      <FeatureRequestCard
+                        key={featureRequest.sys.id}
+                        featureRequest={featureRequest.data}
+                      />
+                    ))}
+                  </div>
+                </ScrollArea>
+              </ClerkProvider>
+            </Suspense>
             <div className="mt-4 flex justify-center">
               <div className="flex items-center space-x-2">
                 <Button

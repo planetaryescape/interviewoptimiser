@@ -112,9 +112,9 @@ export default function ClientComponent({
 
           timeout.current = window.setTimeout(() => {
             if (ref.current) {
-              const scrollHeight = ref.current.scrollHeight;
+              const scrollHeight = (ref.current as Element).scrollHeight;
 
-              ref.current.scrollTo({
+              (ref.current as Element).scrollTo({
                 top: scrollHeight,
                 behavior: "smooth",
               });
