@@ -105,7 +105,9 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "no-key"}
+      publishableKey={
+        process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "pk_test_JA=="
+      }
     >
       <html
         className="size-screen overflow-hidden"

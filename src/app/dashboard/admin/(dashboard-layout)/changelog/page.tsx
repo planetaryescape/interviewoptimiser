@@ -6,18 +6,17 @@ import { Input } from "@/components/ui/input";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 import { useSimpleMDEOptions } from "@/config/simplemde-options";
 import { Changelog, NewChangelog } from "@/db/schema";
+import useMarkdownEditor from "@/hooks/useMarkdownEditor";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import "easymde/dist/easymde.min.css";
 import { useRouter } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import SimpleMDE from "react-simplemde-editor";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
-
-import "easymde/dist/easymde.min.css";
 
 export default function AdminChangelogPage() {
   const router = useRouter();
@@ -36,6 +35,7 @@ export default function AdminChangelogPage() {
   });
   const queryClient = useQueryClient();
   const simpleMDEOptions = useSimpleMDEOptions();
+  const SimpleMDEComponent = useMarkdownEditor();
 
   const { data: changelogs, isLoading } = useQuery({
     queryKey: ["changelogs"],
@@ -101,15 +101,15 @@ export default function AdminChangelogPage() {
           }
           placeholder="Enter changelog title"
         />
-        <Suspense fallback={null}>
-          <SimpleMDE
+        {SimpleMDEComponent && (
+          <SimpleMDEComponent
             value={newChangelog.content}
             onChange={(value) =>
               setNewChangelog({ ...newChangelog, content: value })
             }
             options={simpleMDEOptions}
           />
-        </Suspense>
+        )}
         <Button
           variant="outline"
           onClick={() => addChangelogMutation.mutate(newChangelog)}
