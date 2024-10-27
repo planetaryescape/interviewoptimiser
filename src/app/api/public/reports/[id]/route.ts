@@ -7,10 +7,8 @@ import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(
-  _: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(_: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   logger.info("GET request received at /api/public/reports/[id]");
 
   try {

@@ -5,18 +5,10 @@ import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
-import dynamic from "next/dynamic";
 import NextTopLoader from "nextjs-toploader";
 import { geistMono, geistSans, montserrat, oswald, raleway } from "./fonts";
 import "./globals.css";
 import "./markdown-editor.css"; // Add this line
-
-const PostHogPageView = dynamic(
-  () => import("../components/posthog-pageview"),
-  {
-    ssr: false,
-  }
-);
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -136,7 +128,6 @@ export default function RootLayout({
                 disableTransitionOnChange
               >
                 <NextTopLoader />
-                <PostHogPageView />
                 {children}
               </ThemeProvider>
               <SpeedInsights />
