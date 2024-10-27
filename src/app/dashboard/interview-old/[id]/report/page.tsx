@@ -1,4 +1,5 @@
-"use client";
+"use client";;
+import { use } from "react";
 
 import { remarkMarkdownComponents } from "@/components/remark-markdown-components";
 import { Button } from "@/components/ui/button";
@@ -25,11 +26,12 @@ import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-export default function InterviewReport({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function InterviewReport(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = use(props.params);
   const { data: interview, isLoading } = useQuery({
     queryKey: ["interview", params.id],
     queryFn: async () => {

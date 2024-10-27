@@ -17,10 +17,8 @@ const updateCustomisationSchema = createInsertSchema(customisations).omit({
   updatedAt: true,
 });
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   logger.info("PUT request received at /api/customisations/[id]");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {

@@ -6,7 +6,7 @@ import { SocialProofSection } from "@/components/landing/social-proof-section";
 import { auth } from "@clerk/nextjs/server";
 
 export default async function LandingPage() {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   return (
     <>

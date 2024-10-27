@@ -1,11 +1,11 @@
 import { headers } from "next/headers";
 
-export const createDefaultApiRouteContext = (
+export const createDefaultApiRouteContext = async (
   request: Request
-): Record<string, unknown> => {
+): Promise<Record<string, unknown>> => {
   return {
     route: new URL(request.url).pathname,
     method: request.method,
-    requestId: headers().get("request-id"),
+    requestId: (await headers()).get("request-id"),
   };
 };

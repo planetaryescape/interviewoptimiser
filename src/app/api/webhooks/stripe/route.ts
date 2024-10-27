@@ -13,11 +13,11 @@ import Stripe from "stripe";
 
 export async function POST(request: Request) {
   const context = {
-    ...createDefaultApiRouteContext(request),
+    ...(await createDefaultApiRouteContext(request)),
   };
 
   try {
-    const signature = headers().get("stripe-signature");
+    const signature = (await headers()).get("stripe-signature");
 
     if (!signature) {
       return NextResponse.json(
