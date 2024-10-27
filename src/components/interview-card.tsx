@@ -51,15 +51,13 @@ export const InterviewCard = ({
         </p>
       </CardHeader>
       <CardContent>
-        <CardDescription>
-          <div className="space-y-3">
-            <span className="text-sm font-medium">
-              {"Candidate Name Not Available"}
-            </span>
-            <span className="text-sm">
-              Date: {new Date(interview.createdAt).toLocaleDateString()}
-            </span>
-          </div>
+        <CardDescription className="space-y-3">
+          <span className="text-sm font-medium">
+            {"Candidate Name Not Available"}
+          </span>
+          <span className="text-sm">
+            Date: {new Date(interview.createdAt).toLocaleDateString()}
+          </span>
         </CardDescription>
       </CardContent>
       <div className="mt-auto p-4 bg-muted/50 border-t border-gray-300 dark:border-gray-700 flex justify-between items-center">
