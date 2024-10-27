@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
+import Link from "next/link";
 import { useEffect } from "react";
 
 export default function AuthError({
@@ -32,7 +33,7 @@ export default function AuthError({
           Try Again
         </Button>
         <Button asChild size="lg" variant="outline">
-          <a href="/sign-in">Go to Sign In</a>
+          <Link href="/sign-in">Go to Sign In</Link>
         </Button>
       </div>
       <p className="mt-8 text-sm text-muted-foreground text-center max-w-md">

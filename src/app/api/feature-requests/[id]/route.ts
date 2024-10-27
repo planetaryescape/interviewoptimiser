@@ -9,10 +9,8 @@ import * as Sentry from "@sentry/nextjs";
 import { and, eq, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   logger.info("POST request received at /api/feature-requests/[id]");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {

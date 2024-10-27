@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   const data = await request.json();
 
   const context = {
-    ...createDefaultApiRouteContext(request),
+    ...(await createDefaultApiRouteContext(request)),
   };
 
   logger.info({ ...context, event: data }, "Webhook received");

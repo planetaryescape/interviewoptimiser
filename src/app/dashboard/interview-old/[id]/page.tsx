@@ -14,7 +14,7 @@ import { AnimatePresence } from "framer-motion";
 import { Play, Square, Video, VideoOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { RealtimeClient, type FormattedItem } from "openai-realtime-api";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, use } from "react";
 import { toast } from "sonner";
 
 /**
@@ -30,11 +30,12 @@ import { toast } from "sonner";
 const LOCAL_RELAY_SERVER_URL: string =
   process.env.REACT_APP_LOCAL_RELAY_SERVER_URL || "";
 
-export default function InterviewScreen({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function InterviewScreen(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = use(props.params);
   const { data: interview } = useQuery({
     queryKey: ["interview", params.id],
     queryFn: async () => {

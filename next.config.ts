@@ -1,8 +1,8 @@
 import { withSentryConfig } from "@sentry/nextjs";
-/** @type {import('next').NextConfig} */
+import { NextConfig } from "next";
 import nextPWA from "next-pwa";
 
-const nextConfig = {
+const nextConfig: NextConfig = {
   output: "standalone",
   images: {
     remotePatterns: [
@@ -38,8 +38,34 @@ const nextConfig = {
   },
   // This is required to support PostHog trailing slash API requests
   skipTrailingSlashRedirect: true,
-  experimental: {
-    outputFileTracingRoot: process.cwd(),
+  outputFileTracingRoot: process.cwd(),
+  turbo: {
+    rules: {
+      "*.pdf": {
+        loaders: ["file-loader"],
+        as: "*.js",
+      },
+      "*.woff": {
+        loaders: ["file-loader"],
+        as: "*.js",
+      },
+      "*.woff2": {
+        loaders: ["file-loader"],
+        as: "*.js",
+      },
+      "*.eot": {
+        loaders: ["file-loader"],
+        as: "*.js",
+      },
+      "*.ttf": {
+        loaders: ["file-loader"],
+        as: "*.js",
+      },
+      "*.otf": {
+        loaders: ["file-loader"],
+        as: "*.js",
+      },
+    },
   },
   webpack: (config, { isServer }) => {
     config.module.rules.push({
@@ -83,7 +109,10 @@ const withPWA = nextPWA({
   disable: process.env.NODE_ENV === "development",
 });
 
-export default withSentryConfig(withPWA(nextConfig), {
+// Wrap nextConfig with withPWA first, then with withSentryConfig
+const wrappedConfig = withPWA(nextConfig as any) as NextConfig;
+
+export default withSentryConfig(wrappedConfig, {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
 

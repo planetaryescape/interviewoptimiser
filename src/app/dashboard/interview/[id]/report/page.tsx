@@ -76,16 +76,17 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, use } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 
-export default function InterviewReportPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function InterviewReportPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = use(props.params);
   const queryClient = useQueryClient();
   const {
     data: interview,

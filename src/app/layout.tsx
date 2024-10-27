@@ -1,3 +1,4 @@
+import PostHogPageView from "@/components/posthog-pageview";
 import { CSPostHogProvider } from "@/components/providers/posthog";
 import { ReactQueryProvider } from "@/components/react-query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -5,18 +6,11 @@ import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
-import dynamic from "next/dynamic";
 import NextTopLoader from "nextjs-toploader";
+import { Suspense } from "react";
 import { geistMono, geistSans, montserrat, oswald, raleway } from "./fonts";
 import "./globals.css";
 import "./markdown-editor.css"; // Add this line
-
-const PostHogPageView = dynamic(
-  () => import("../components/posthog-pageview"),
-  {
-    ssr: false,
-  }
-);
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -110,7 +104,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      publishableKey={
+        process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "pk_test_JA=="
+      }
+    >
       <html
         className="size-screen overflow-hidden"
         lang="en"
@@ -136,7 +134,11 @@ export default function RootLayout({
                 disableTransitionOnChange
               >
                 <NextTopLoader />
-                <PostHogPageView />
+                <Suspense fallback={null}>
+                  <ClerkProvider dynamic>
+                    <PostHogPageView />
+                  </ClerkProvider>
+                </Suspense>
                 {children}
               </ThemeProvider>
               <SpeedInsights />

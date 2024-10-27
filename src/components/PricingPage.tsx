@@ -7,7 +7,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { stripe } from "@/lib/stripe";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Check } from "lucide-react";
+import { Suspense } from "react";
 import Stripe from "stripe";
 
 export async function PricingPlans() {
@@ -72,7 +74,11 @@ export async function PricingPlans() {
               </ul>
             </CardContent>
             <CardFooter>
-              <PricingCardFooter priceId={price.id} />
+              <Suspense fallback={null}>
+                <ClerkProvider dynamic>
+                  <PricingCardFooter priceId={price.id} />
+                </ClerkProvider>
+              </Suspense>
             </CardFooter>
           </Card>
         );

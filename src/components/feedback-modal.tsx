@@ -71,6 +71,14 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
       toast.error("You must be signed in to submit feedback.");
       return;
     }
+    if (!newFeatureRequest.content) {
+      toast.error("Please enter feedback or feature request.");
+      return;
+    }
+    if (newFeatureRequest.title.length > 100) {
+      toast.error("Title must be less than 100 characters.");
+      return;
+    }
     addFeatureRequestMutation.mutate(newFeatureRequest);
   };
 

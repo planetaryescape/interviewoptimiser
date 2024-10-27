@@ -54,15 +54,16 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, use } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-export default function PublicInterviewReportPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function PublicInterviewReportPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = use(props.params);
   const {
     data: report,
     isLoading,
