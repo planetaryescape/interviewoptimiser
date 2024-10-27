@@ -15,11 +15,11 @@ const isPublicApiRoute = createRouteMatcher([
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
-    auth().protect();
+    await auth.protect();
   }
   if (isApiRoute(req)) {
     if (!isPublicApiRoute(req)) {
-      auth().protect();
+      await auth.protect();
     }
   }
 });

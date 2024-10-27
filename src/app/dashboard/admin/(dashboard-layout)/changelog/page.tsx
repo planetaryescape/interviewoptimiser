@@ -10,18 +10,14 @@ import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import SimpleMDE from "react-simplemde-editor";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 
 import "easymde/dist/easymde.min.css";
-
-const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
-  ssr: false,
-});
 
 export default function AdminChangelogPage() {
   const router = useRouter();
@@ -105,13 +101,15 @@ export default function AdminChangelogPage() {
           }
           placeholder="Enter changelog title"
         />
-        <SimpleMDE
-          value={newChangelog.content}
-          onChange={(value) =>
-            setNewChangelog({ ...newChangelog, content: value })
-          }
-          options={simpleMDEOptions}
-        />
+        <Suspense fallback={null}>
+          <SimpleMDE
+            value={newChangelog.content}
+            onChange={(value) =>
+              setNewChangelog({ ...newChangelog, content: value })
+            }
+            options={simpleMDEOptions}
+          />
+        </Suspense>
         <Button
           variant="outline"
           onClick={() => addChangelogMutation.mutate(newChangelog)}

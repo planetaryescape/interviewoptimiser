@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
+import Link from "next/link";
 import { useEffect } from "react";
 
 export default function MarketingError({
@@ -32,7 +33,7 @@ export default function MarketingError({
           Try Again
         </Button>
         <Button asChild size="lg" variant="outline">
-          <a href="/">Go to Homepage</a>
+          <Link href="/">Go to Homepage</Link>
         </Button>
       </div>
       <p className="mt-8 text-sm text-muted-foreground text-center max-w-md">
