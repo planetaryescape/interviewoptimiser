@@ -39,6 +39,34 @@ const nextConfig: NextConfig = {
   // This is required to support PostHog trailing slash API requests
   skipTrailingSlashRedirect: true,
   outputFileTracingRoot: process.cwd(),
+  turbo: {
+    rules: {
+      "*.pdf": {
+        loaders: ["file-loader"],
+        as: "*.js",
+      },
+      "*.woff": {
+        loaders: ["file-loader"],
+        as: "*.js",
+      },
+      "*.woff2": {
+        loaders: ["file-loader"],
+        as: "*.js",
+      },
+      "*.eot": {
+        loaders: ["file-loader"],
+        as: "*.js",
+      },
+      "*.ttf": {
+        loaders: ["file-loader"],
+        as: "*.js",
+      },
+      "*.otf": {
+        loaders: ["file-loader"],
+        as: "*.js",
+      },
+    },
+  },
   webpack: (config, { isServer }) => {
     config.module.rules.push({
       test: /\.pdf$/,
@@ -73,34 +101,6 @@ const nextConfig: NextConfig = {
       type: "asset/resource",
     });
     return config;
-  },
-  turbo: {
-    rules: {
-      "*.pdf": {
-        loaders: ["file-loader"],
-        as: "*.js",
-      },
-      "*.woff": {
-        loaders: ["file-loader"],
-        as: "*.js",
-      },
-      "*.woff2": {
-        loaders: ["file-loader"],
-        as: "*.js",
-      },
-      "*.eot": {
-        loaders: ["file-loader"],
-        as: "*.js",
-      },
-      "*.ttf": {
-        loaders: ["file-loader"],
-        as: "*.js",
-      },
-      "*.otf": {
-        loaders: ["file-loader"],
-        as: "*.js",
-      },
-    },
   },
 };
 
