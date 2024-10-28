@@ -123,7 +123,7 @@ export default function CreateInterview() {
       setTimeout(() => {
         router.push(`/dashboard`);
         setShowTakeover(false);
-        resetStore(); // Add this line to reset the store after successful submission
+        resetStore();
       }, 9000);
     },
     onError: (error) => {

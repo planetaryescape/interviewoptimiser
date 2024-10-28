@@ -126,7 +126,7 @@ export function Header({ className }: { className?: string }) {
                 asChild
                 variant="default"
               >
-                <Link href="/dashboard/create">Start Mock Interview</Link>
+                <Link href="/dashboard/create">New Mock Interview</Link>
               </Button>
             )}
           </SignedIn>
@@ -138,7 +138,11 @@ export function Header({ className }: { className?: string }) {
               asChild
               variant="default"
             >
-              <Link href="/sign-up">Start Mock Interview</Link>
+              {isLandingPage ? (
+                <Link href="/sign-up">Start Mock Interview</Link>
+              ) : (
+                <Link href="/sign-up">New Mock Interview</Link>
+              )}
             </Button>
           </SignedOut>
 

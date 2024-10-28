@@ -21,3 +21,8 @@ variable "OPENAI_API_KEY" {
   description = "OpenAI API Key"
   type        = string
 }
+
+variable "HELICONE_API_KEY" {
+  description = "Helicone API Key"
+  type        = string
+}
