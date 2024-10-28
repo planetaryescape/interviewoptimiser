@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { interviews } from "@/db/schema";
+import { interviews, reports } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
@@ -10,7 +10,10 @@ import { eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: NextRequest,
+  props: { params: Promise<{ id: string }> }
+) {
   const params = await props.params;
   logger.info("GET request received at /api/interviews/[id]");
   const { userId: clerkUserId } = getAuth(request);
@@ -80,7 +83,10 @@ const interviewSchema = createInsertSchema(interviews).omit({
   updatedAt: true,
 });
 
-export async function PUT(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+export async function PUT(
+  request: NextRequest,
+  props: { params: Promise<{ id: string }> }
+) {
   const params = await props.params;
   logger.info("PUT request received at /api/interviews/[id]");
   const { userId: clerkUserId } = getAuth(request);
@@ -158,7 +164,10 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
   }
 }
 
-export async function DELETE(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  request: NextRequest,
+  props: { params: Promise<{ id: string }> }
+) {
   const params = await props.params;
   logger.info("DELETE request received at /api/interviews/[id]");
   const { userId: clerkUserId } = getAuth(request);
@@ -181,15 +190,16 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
     const interviewId = idHandler.decode(params.id);
 
     await db.transaction(async (tx) => {
+      // Delete report
+      await tx.delete(reports).where(eq(reports.interviewId, interviewId));
+
       // Delete interview
       const result = await tx
         .delete(interviews)
         .where(eq(interviews.id, interviewId))
         .returning();
 
-      if (result.length === 0) {
-        throw new Error("Interview not found");
-      }
+      logger.info({ id: result[0].id }, "Successfully deleted interview");
     });
 
     logger.info(
