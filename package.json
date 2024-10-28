@@ -95,7 +95,7 @@
     "postgres": "^3.4.5",
     "posthog-js": "^1.177.0",
     "posthog-node": "^4.2.1",
-    "puppeteer-core": "^23.6.0",
+    "puppeteer-core": "^23.6.1",
     "react": "^19.0.0-rc-69d4b800-20241021",
     "react-dom": "^19.0.0-rc-69d4b800-20241021",
     "react-dropzone": "^14.2.10",
