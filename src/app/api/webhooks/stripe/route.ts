@@ -64,10 +64,15 @@ export async function POST(request: Request) {
         }
       );
 
-      logger.info({ ...context, lineItems }, "Checkout session completed");
+      logger.info(
+        { ...context, lineItems, checkoutSessionId },
+        "Checkout session completed"
+      );
 
       let customerId = event.data.object.customer as string;
       const email = event.data.object.customer_details?.email || "";
+
+      logger.info({ ...context, customerId, email }, "Customer details");
 
       if (!customerId) {
         const customer = await stripe.customers.create({
@@ -105,6 +110,8 @@ export async function POST(request: Request) {
         },
         "Products retrieved"
       );
+
+      logger.info({ ...context, minutes, customerId }, "Minutes to add");
 
       const [user] = await db
         .update(users)
