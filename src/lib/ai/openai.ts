@@ -6,5 +6,7 @@ export const openai = new OpenAI({
   defaultHeaders: {
     "Helicone-Auth": `Bearer ${process.env.HELICONE_API_KEY}`,
     "Helicone-Cache-Enabled": "true",
+    "Helicone-Posthog-Key": process.env.POSTHOG_KEY ?? "",
+    "Helicone-Posthog-Host": "https://eu.posthog.com",
   },
 });

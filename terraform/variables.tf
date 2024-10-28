@@ -26,3 +26,8 @@ variable "HELICONE_API_KEY" {
   description = "Helicone API Key"
   type        = string
 }
+
+variable "POSTHOG_KEY" {
+  description = "Posthog API Key"
+  type        = string
+}

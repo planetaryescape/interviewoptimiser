@@ -89,6 +89,7 @@ locals {
       DATABASE_URL      = var.DATABASE_URL
       OPENAI_API_KEY    = var.OPENAI_API_KEY
       HELICONE_API_KEY  = var.HELICONE_API_KEY
+      POSTHOG_KEY       = var.POSTHOG_KEY
       SQS_QUEUE_URL     = "${local.sqs_queue_base_url}/${local.project_name}-generate-report-queue"
       DLQ_URL           = "${local.sqs_queue_base_url}/${local.project_name}-generate-report-dlq"
       PINO_LOG_LEVEL    = "info"
