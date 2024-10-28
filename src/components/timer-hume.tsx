@@ -119,7 +119,6 @@ export function TimerHume({
 
       timeUpRef.current = true;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [callDurationTimestamp, totalTime, status.value, messages]);
 
   useEffect(() => {
@@ -249,7 +248,6 @@ export function TimerHume({
         });
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [decrementMutation, status.value, callDurationTimestamp, messages]);
 
   return (

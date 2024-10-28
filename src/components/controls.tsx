@@ -68,7 +68,6 @@ export function Controls({
     return () => {
       initialUserMessageSentRef.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status.value]);
 
   return (

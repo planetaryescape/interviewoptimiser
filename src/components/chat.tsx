@@ -84,7 +84,6 @@ export default function ClientComponent({
       setShowTakeover(true);
       generateReportMutation.mutate();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interviewEnded]);
 
   return (
