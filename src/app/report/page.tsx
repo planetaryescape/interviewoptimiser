@@ -54,15 +54,13 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, use } from "react";
+import { use, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-export default function PublicInterviewReportPage(
-  props: {
-    params: Promise<{ id: string }>;
-  }
-) {
+export default function PublicInterviewReportPage(props: {
+  params: Promise<{ id: string }>;
+}) {
   const params = use(props.params);
   const {
     data: report,
@@ -482,8 +480,8 @@ export default function PublicInterviewReportPage(
                         >
                           {persona}:
                         </span>
-                        <p className="text-gray-700 bg-white p-3 rounded-lg shadow-sm">
-                          <span className="block mb-2">{message.content}</span>
+                        <div className="text-gray-700 bg-white p-3 rounded-lg shadow-sm">
+                          <div className="block mb-2">{message.content}</div>
                           {persona === "Candidate" &&
                             Object.keys(message.prosody).length > 0 && (
                               <Expressions
@@ -491,7 +489,7 @@ export default function PublicInterviewReportPage(
                                 withScores={false}
                               />
                             )}
-                        </p>
+                        </div>
                       </div>
                     );
                   }
