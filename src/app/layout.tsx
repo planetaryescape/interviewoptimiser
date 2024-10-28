@@ -108,6 +108,7 @@ export default function RootLayout({
       publishableKey={
         process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "pk_test_JA=="
       }
+      dynamic
     >
       <html
         className="size-screen overflow-hidden"

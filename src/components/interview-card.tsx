@@ -26,6 +26,7 @@ import { idHandler } from "@/lib/utils/idHandler";
 import { Loader2, MoreVertical } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { Skeleton } from "./ui/skeleton";
 
 interface InterviewCardProps {
   interview: Interview & {
@@ -46,22 +47,42 @@ export const InterviewCard = ({
   return (
     <Card className={cn("transition-all duration-300 flex flex-col relative")}>
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-semibold mb-1">
-          {interview.role || "Role Not Specified"}
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          {interview.company || "Company Not Specified"}
-        </p>
+        {!interview.report ? (
+          <CardTitle className="text-lg font-semibold">
+            <Skeleton className="w-full h-6" />
+            <div className="text-sm text-muted-foreground">
+              <Skeleton className="w-1/2 h-4" />
+            </div>
+          </CardTitle>
+        ) : (
+          <CardTitle className="text-lg font-semibold">
+            {interview.role || "Role Not Specified"}
+            <p className="text-sm text-muted-foreground">
+              at {interview.company || "Company Not Specified"}
+            </p>
+          </CardTitle>
+        )}
       </CardHeader>
       <CardContent>
-        <CardDescription className="space-y-3">
-          <span className="text-sm font-medium">
-            {"Candidate Name Not Available"}
-          </span>
-          <span className="text-sm">
-            Date: {new Date(interview.createdAt).toLocaleDateString()}
-          </span>
-        </CardDescription>
+        {!interview.report ? (
+          <CardDescription className="space-y-3 flex flex-col">
+            <div className="text-sm font-medium">
+              <Skeleton className="w-1/2 h-4" />
+            </div>
+            <div className="text-sm">
+              <Skeleton className="w-1/2 h-4" />
+            </div>
+          </CardDescription>
+        ) : (
+          <CardDescription className="space-y-3 flex flex-col">
+            <span className="text-sm font-medium">
+              Candidate: {interview.candidate || "Candidate Name Not Available"}
+            </span>
+            <span className="text-sm">
+              Date: {new Date(interview.createdAt).toLocaleDateString()}
+            </span>
+          </CardDescription>
+        )}
       </CardContent>
       <div className="mt-auto p-4 bg-muted/50 border-t border-gray-300 dark:border-gray-700 flex justify-between items-center">
         <div className="flex gap-2 items-center justify-between w-full">
