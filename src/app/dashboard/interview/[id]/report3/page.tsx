@@ -35,16 +35,14 @@ import {
   UserCircle,
 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState, use } from "react";
+import { use, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 
-export default function InterviewReport(
-  props: {
-    params: Promise<{ id: string }>;
-  }
-) {
+export default function InterviewReport(props: {
+  params: Promise<{ id: string }>;
+}) {
   const params = use(props.params);
   const queryClient = useQueryClient();
   const {
@@ -491,10 +489,8 @@ export default function InterviewReport(
                           >
                             {persona}:
                           </span>
-                          <p className="text-gray-700 bg-white p-3 rounded-lg shadow-sm">
-                            <span className="block mb-2">
-                              {message.content}
-                            </span>
+                          <div className="text-gray-700 bg-white p-3 rounded-lg shadow-sm">
+                            <div className="block mb-2">{message.content}</div>
                             {persona === "Candidate" &&
                               Object.keys(message.prosody).length > 0 && (
                                 <Expressions
@@ -502,7 +498,7 @@ export default function InterviewReport(
                                   withScores={false}
                                 />
                               )}
-                          </p>
+                          </div>
                         </div>
                       );
                     }
