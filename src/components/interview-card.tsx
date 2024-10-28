@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { idHandler } from "@/lib/utils/idHandler";
 import { Loader2, MoreVertical } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 interface InterviewCardProps {
   interview: Interview & {
@@ -40,6 +41,8 @@ export const InterviewCard = ({
   onDelete,
   deletingId,
 }: InterviewCardProps) => {
+  const [open, setOpen] = useState(false);
+
   return (
     <Card className={cn("transition-all duration-300 flex flex-col relative")}>
       <CardHeader className="pb-2">
@@ -82,16 +85,25 @@ export const InterviewCard = ({
           </Button>
 
           {onDelete && (
-            <DropdownMenu>
+            <DropdownMenu open={open} onOpenChange={setOpen}>
               <DropdownMenuTrigger asChild>
-                <Button size="sm" variant="ghost">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="transition-all duration-300"
+                  onClick={() => setOpen(true)}
+                >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault();
+                      }}
+                    >
                       Delete
                     </DropdownMenuItem>
                   </AlertDialogTrigger>
@@ -108,7 +120,10 @@ export const InterviewCard = ({
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
-                        onClick={() => onDelete?.(interview.id)}
+                        onClick={() => {
+                          setOpen(false);
+                          onDelete?.(interview.id);
+                        }}
                         disabled={deletingId === interview.id}
                       >
                         {deletingId === interview.id ? (
