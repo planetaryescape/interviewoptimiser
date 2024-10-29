@@ -12,6 +12,7 @@ import { SQSEvent, SQSRecord } from "aws-lambda";
 import { eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { zodResponseFormat } from "openai/helpers/zod";
+import * as R from "remeda";
 import { z } from "zod";
 
 import { db } from "@/db";
@@ -83,6 +84,29 @@ const ExtendedReportSchema = ReportSchema.extend({
 
 // First get raw analysis from o1-review
 const getInitialAnalysis = async (interview: Interview, userEmail?: string) => {
+  if (!interview.transcript) {
+    throw new Error("No transcript found");
+  }
+
+  const transcript = JSON.parse(interview.transcript).map(
+    (message: {
+      role: "user" | "assistant";
+      content: string;
+      prosody: Record<string, number>;
+    }) => ({
+      ...message,
+      prosody: R.pipe(
+        message.prosody,
+        R.entries(),
+        R.sortBy(R.pathOr([1], 0)),
+        R.reverse(),
+        R.take(3)
+      ),
+    })
+  );
+
+  logger.info({ transcript }, "Transcript");
+
   const systemPrompt = `
     You are an expert interview analyst and career coach. Your task is to provide very detailed, comprehensive, candid, and constructive feedback on interview performances. Aim to be honest, direct, and constructively critical. Follow the principles of Radical Candor: "Care Personally, Challenge Directly." Do not be afraid to call out a bad performance as long as you can back it up with specific reasons or examples from the interview. Deliver clear, respectful feedback aimed at empowering the candidate to improve. Use specific examples from the interview to support your points. If the interview information is limited, provide the most useful and actionable report possible with the available data, **and recommend a longer mock interview for more comprehensive feedback.** Stick to the information provided in the transcript. Provide scores out of 100 for each section and an overall score to help the candidate understand their performance.
   `;
@@ -127,7 +151,7 @@ const getInitialAnalysis = async (interview: Interview, userEmail?: string) => {
     Provide a score out of 100 for each major section, including a separate score for emotional management based on the prosody analysis. Conclude with an overall performance score.
 
     Interview Transcript:
-    ${interview.transcript}
+    ${JSON.stringify(transcript)}
 
     Additional Context (for reference only, not for analysis):
     Submitted CV: ${interview.submittedCVText}
