@@ -83,7 +83,7 @@
     "lodash": "^4.17.21",
     "lucide-react": "^0.454.0",
     "mammoth": "^1.8.0",
-    "next": "15.0.1",
+    "next": "15.0.2",
     "next-themes": "^0.3.0",
     "nextjs-toploader": "^3.7.15",
     "openai": "^4.68.4",
