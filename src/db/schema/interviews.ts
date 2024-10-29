@@ -1,13 +1,5 @@
 import { relations } from "drizzle-orm";
-import {
-  boolean,
-  integer,
-  pgEnum,
-  pgTable,
-  serial,
-  text,
-  timestamp,
-} from "drizzle-orm/pg-core";
+import { index, pgEnum, pgTable } from "drizzle-orm/pg-core";
 import { reports } from "./reports";
 import { users } from "./users";
 
@@ -21,22 +13,28 @@ export const interviewTypeEnum = pgEnum("interview_type", [
   "cultural_fit",
 ]);
 
-export const interviews = pgTable("interviews", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id),
-  submittedCVText: text("submitted_cv_text").notNull(),
-  jobDescriptionText: text("job_description_text").notNull(),
-  additionalInfo: text("additional_info"),
-  transcript: text("transcript"),
-  duration: integer("duration").notNull().default(15),
-  type: interviewTypeEnum("type").notNull().default("behavioral"),
-  candidate: text("candidate"),
-  company: text("company"),
-  role: text("role"),
-  completed: boolean("completed").notNull().default(false),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export const interviews = pgTable(
+  "interviews",
+  (p) => ({
+    id: p.serial().primaryKey(),
+    userId: p.integer().references(() => users.id),
+    submittedCVText: p.text().notNull(),
+    jobDescriptionText: p.text().notNull(),
+    additionalInfo: p.text(),
+    transcript: p.text(),
+    duration: p.integer().notNull().default(15),
+    type: interviewTypeEnum().notNull().default("behavioral"),
+    candidate: p.text(),
+    company: p.text(),
+    role: p.text(),
+    completed: p.boolean().notNull().default(false),
+    createdAt: p.timestamp().defaultNow().notNull(),
+    updatedAt: p.timestamp().defaultNow().notNull(),
+  }),
+  (interviews) => ({
+    userIdIdx: index("interviews_user_id_idx").on(interviews.userId),
+  })
+);
 
 export const interviewRelations = relations(interviews, ({ one }) => ({
   user: one(users, {

@@ -1,27 +1,29 @@
 import { relations } from "drizzle-orm";
-import {
-  integer,
-  pgTable,
-  serial,
-  text,
-  timestamp,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { pgTable, uniqueIndex } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
-export const customisations = pgTable("customisations", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id")
-    .references(() => users.id)
-    .notNull(),
-  name: varchar("name", { length: 255 }).notNull(),
-  address: varchar("address", { length: 255 }).notNull(),
-  email: varchar("email", { length: 255 }).notNull(),
-  phone: varchar("phone", { length: 50 }).notNull(),
-  customInstructions: text("custom_instructions").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export const customisations = pgTable(
+  "customisations",
+  (p) => ({
+    id: p.serial().primaryKey(),
+    userId: p
+      .integer()
+      .references(() => users.id)
+      .notNull(),
+    name: p.varchar({ length: 255 }).notNull(),
+    address: p.varchar({ length: 255 }).notNull(),
+    email: p.varchar({ length: 255 }).notNull(),
+    phone: p.varchar({ length: 50 }).notNull(),
+    customInstructions: p.text().notNull(),
+    createdAt: p.timestamp().defaultNow().notNull(),
+    updatedAt: p.timestamp().defaultNow().notNull(),
+  }),
+  (customisations) => ({
+    userIdIdx: uniqueIndex("customisations_user_id_idx").on(
+      customisations.userId
+    ),
+  })
+);
 
 export const customisationsRelations = relations(customisations, ({ one }) => ({
   user: one(users, {

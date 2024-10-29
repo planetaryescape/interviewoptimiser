@@ -1,13 +1,19 @@
-import { pgTable, serial, timestamp, varchar } from "drizzle-orm/pg-core";
+import { pgTable, uniqueIndex } from "drizzle-orm/pg-core";
 
-export const countries = pgTable("countries", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  isoCode: varchar("iso_code", { length: 2 }).notNull().unique(),
-  continent: varchar("continent", { length: 255 }).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export const countries = pgTable(
+  "countries",
+  (p) => ({
+    id: p.serial().primaryKey(),
+    name: p.varchar({ length: 255 }).notNull(),
+    isoCode: p.varchar({ length: 2 }).notNull().unique(),
+    continent: p.varchar({ length: 255 }).notNull(),
+    createdAt: p.timestamp().defaultNow().notNull(),
+    updatedAt: p.timestamp().defaultNow().notNull(),
+  }),
+  (countries) => ({
+    isoCodeIdx: uniqueIndex("countries_iso_code_idx").on(countries.isoCode),
+  })
+);
 
 export type Country = typeof countries.$inferSelect;
 export type NewCountry = typeof countries.$inferInsert;

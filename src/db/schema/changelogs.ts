@@ -1,21 +1,20 @@
-import {
-  integer,
-  pgTable,
-  serial,
-  text,
-  timestamp,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { pgTable, uniqueIndex } from "drizzle-orm/pg-core";
 
-export const changelogs = pgTable("changelogs", {
-  id: serial("id").primaryKey(),
-  date: timestamp("date").defaultNow().notNull(),
-  title: varchar("title", { length: 255 }).notNull(),
-  content: text("content").notNull(),
-  likes: integer("likes").default(0).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export const changelogs = pgTable(
+  "changelogs",
+  (p) => ({
+    id: p.serial().primaryKey(),
+    date: p.timestamp().defaultNow().notNull(),
+    title: p.varchar({ length: 255 }).notNull(),
+    content: p.text().notNull(),
+    likes: p.integer().default(0).notNull(),
+    createdAt: p.timestamp().defaultNow().notNull(),
+    updatedAt: p.timestamp().defaultNow().notNull(),
+  }),
+  (changelogs) => ({
+    dateIdx: uniqueIndex("changelogs_date_idx").on(changelogs.date),
+  })
+);
 
 export type Changelog = typeof changelogs.$inferSelect;
 export type NewChangelog = typeof changelogs.$inferInsert;

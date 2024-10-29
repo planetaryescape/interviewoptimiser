@@ -1,14 +1,5 @@
 import { relations } from "drizzle-orm";
-import {
-  boolean,
-  integer,
-  pgEnum,
-  pgTable,
-  serial,
-  timestamp,
-  uniqueIndex,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, uniqueIndex } from "drizzle-orm/pg-core";
 import { customisations } from "./customisations";
 import { featureRequestLikes } from "./featureRequestLikes";
 
@@ -16,32 +7,40 @@ export const roleEnum = pgEnum("role", ["user", "admin"]);
 
 export const users = pgTable(
   "users",
-  {
-    id: serial("id").primaryKey(),
-    username: varchar("username").notNull().unique(),
-    firstname: varchar("firstname"),
-    lastname: varchar("lastname"),
-    role: roleEnum("role").notNull().default("user"),
-    stripeCustomerId: varchar("stripe_customer_id"),
-    stripeSubscriptionId: varchar("stripe_subscription_id"),
-    stripeSubscriptionInterval: varchar("stripe_subscription_interval"),
-    stripePriceId: varchar("stripe_price_id"),
-    stripePlanId: varchar("stripe_plan_id"),
-    trialUsed: boolean("trial_used").default(false),
-    isDeleted: boolean("is_deleted").default(false),
-    clerkUserId: varchar("clerk_user_id"),
-    email: varchar("email", {}).notNull().unique(),
-    createdAt: timestamp("created_at")
+  (p) => ({
+    id: p.serial().primaryKey(),
+    username: p.varchar({ length: 255 }).notNull().unique(),
+    firstname: p.varchar({ length: 255 }),
+    lastname: p.varchar({ length: 255 }),
+    role: roleEnum().notNull().default("user"),
+    stripeCustomerId: p.varchar({ length: 255 }),
+    stripeSubscriptionId: p.varchar({ length: 255 }),
+    stripeSubscriptionInterval: p.varchar({ length: 255 }),
+    stripePriceId: p.varchar({ length: 255 }),
+    stripePlanId: p.varchar({ length: 255 }),
+    trialUsed: p.boolean().default(false),
+    isDeleted: p.boolean().default(false),
+    clerkUserId: p.varchar({ length: 255 }),
+    email: p.varchar({ length: 255 }).notNull().unique(),
+    createdAt: p
+      .timestamp()
       .$default(() => new Date())
       .notNull(),
-    updatedAt: timestamp("updated_at", {})
+    updatedAt: p
+      .timestamp()
       .$default(() => new Date())
       .notNull(),
-    minutes: integer("minutes").notNull().default(2),
-  },
+    minutes: p.integer().notNull().default(2),
+  }),
   (users) => ({
-    usernameIndex: uniqueIndex("username_idx").on(users.username),
-    emailIndex: uniqueIndex("email_idx").on(users.email),
+    usernameIndex: uniqueIndex("users_username_idx").on(users.username),
+    stripeCustomerIdIndex: uniqueIndex("users_stripe_customer_id_idx").on(
+      users.stripeCustomerId
+    ),
+    emailIndex: uniqueIndex("users_email_idx").on(users.email),
+    clerkUserIdIndex: uniqueIndex("users_clerk_user_id_idx").on(
+      users.clerkUserId
+    ),
   })
 );
 

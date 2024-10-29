@@ -1,44 +1,46 @@
 import { relations } from "drizzle-orm";
-import {
-  boolean,
-  integer,
-  pgTable,
-  serial,
-  text,
-  timestamp,
-} from "drizzle-orm/pg-core";
+import { pgTable, uniqueIndex } from "drizzle-orm/pg-core";
 import { interviews } from "./interviews";
 import { pageSettings } from "./pageSettings";
 
-export const reports = pgTable("reports", {
-  id: serial("id").primaryKey(),
-  interviewId: integer("interview_id")
-    .references(() => interviews.id)
-    .notNull()
-    .unique(),
-  generalAssessment: text("general_assessment").notNull(),
-  overallScore: integer("overall_score").notNull(),
-  fitnessForRole: text("fitness_for_role").notNull().default(""),
-  fitnessForRoleScore: integer("fitness_for_role_score").notNull().default(0),
-  speakingSkills: text("speaking_skills").notNull(),
-  speakingSkillsScore: integer("speaking_skills_score").notNull(),
-  communicationSkills: text("communication_skills").notNull(),
-  communicationSkillsScore: integer("communication_skills_score").notNull(),
-  problemSolvingSkills: text("problem_solving_skills").notNull(),
-  problemSolvingSkillsScore: integer("problem_solving_skills_score").notNull(),
-  technicalKnowledge: text("technical_knowledge").notNull(),
-  technicalKnowledgeScore: integer("technical_knowledge_score").notNull(),
-  teamwork: text("teamwork").notNull(),
-  teamworkScore: integer("teamwork_score").notNull(),
-  adaptability: text("adaptability").notNull(),
-  adaptabilityScore: integer("adaptability_score").notNull(),
-  areasOfStrength: text("areas_of_strength").notNull(),
-  areasForImprovement: text("areas_for_improvement").notNull(),
-  actionableNextSteps: text("actionable_next_steps").notNull(),
-  isPublic: boolean("is_public").notNull().default(false),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export const reports = pgTable(
+  "reports",
+  (p) => ({
+    id: p.serial().primaryKey(),
+    interviewId: p
+      .integer()
+      .references(() => interviews.id)
+      .notNull()
+      .unique(),
+    generalAssessment: p.text().notNull(),
+    overallScore: p.integer().notNull(),
+    fitnessForRole: p.text().notNull().default(""),
+    fitnessForRoleScore: p.integer().notNull().default(0),
+    speakingSkills: p.text().notNull(),
+    speakingSkillsScore: p.integer().notNull(),
+    communicationSkills: p.text().notNull(),
+    communicationSkillsScore: p.integer().notNull(),
+    problemSolvingSkills: p.text().notNull(),
+    problemSolvingSkillsScore: p.integer().notNull(),
+    technicalKnowledge: p.text().notNull(),
+    technicalKnowledgeScore: p.integer().notNull(),
+    teamwork: p.text().notNull(),
+    teamworkScore: p.integer().notNull(),
+    adaptability: p.text().notNull(),
+    adaptabilityScore: p.integer().notNull(),
+    areasOfStrength: p.text().notNull(),
+    areasForImprovement: p.text().notNull(),
+    actionableNextSteps: p.text().notNull(),
+    isPublic: p.boolean().notNull().default(false),
+    createdAt: p.timestamp().defaultNow().notNull(),
+    updatedAt: p.timestamp().defaultNow().notNull(),
+  }),
+  (reports) => ({
+    interviewIdIdx: uniqueIndex("reports_interview_id_idx").on(
+      reports.interviewId
+    ),
+  })
+);
 
 export const reportRelations = relations(reports, ({ one }) => ({
   interview: one(interviews, {
