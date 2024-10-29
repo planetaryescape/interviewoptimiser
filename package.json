@@ -28,7 +28,7 @@
   "dependencies": {
     "@aws-sdk/client-lambda": "^3.682.0",
     "@aws-sdk/client-s3": "^3.682.0",
-    "@aws-sdk/client-sqs": "^3.679.0",
+    "@aws-sdk/client-sqs": "^3.682.0",
     "@clerk/nextjs": "^6.0.2",
     "@humeai/voice-react": "^0.1.17",
     "@mdxeditor/editor": "^3.14.0",
