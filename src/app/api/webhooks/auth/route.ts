@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { customisations, interviews, users } from "@/db/schema";
+import { customisations, interviews, statistics, users } from "@/db/schema";
 import AccountDeletedEmail from "@/emails/account-deleted";
 import WelcomeEmail from "@/emails/welcome";
 import { getUserFromClerkId } from "@/lib/auth";
@@ -10,7 +10,7 @@ import { resend } from "@/lib/resend";
 import { stripe } from "@/lib/stripe";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
-import { countDistinct, eq } from "drizzle-orm";
+import { countDistinct, eq, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { NextResponse } from "next/server";
 
@@ -77,6 +77,13 @@ export async function POST(request: Request) {
           target: users.email,
           set: userWithoutEmail,
         });
+
+      await db
+        .update(statistics)
+        .set({
+          usersCount: sql`${statistics.usersCount} + 1`,
+        })
+        .where(eq(statistics.id, 1));
 
       logger.info({ ...context, data, user }, "User created");
 
