@@ -48,13 +48,13 @@
       hsl(240, 15%, 20%)
     );
 
-    --background: 220 20% 10%; /* Dark background */
+    --background: 220 20% 23%; /* Dark background */
     --foreground: 0 0% 100%; /* White text for readability */
 
     --muted: 220 10% 15%; /* Dark muted gray */
     --muted-foreground: 0 0% 80%; /* Light gray text on muted */
 
-    --popover: 220 10% 10%; /* Very dark muted blue for popovers */
+    --popover: 220 10% 23%; /* Very dark muted blue for popovers */
     --popover-foreground: 0 0% 100%; /* White for readability */
 
     --card: 240 15% 20%; /* Dark blue-gray for cards */

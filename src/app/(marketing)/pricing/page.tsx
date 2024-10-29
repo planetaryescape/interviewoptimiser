@@ -121,7 +121,7 @@ export default async function PricingPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-tl from-[hsl(260,20%,90%)] to-[hsl(240,15%,98%)] dark:from-[hsl(240,15%,10%)] dark:to-[hsl(260,15%,20%)] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-extrabold text-foreground sm:text-5xl sm:tracking-tight lg:text-6xl">
