@@ -1,5 +1,5 @@
 import { Interview, interviews, reports } from "@/db/schema";
-import { openai } from "@/lib/ai/openai";
+import { getOpenAiClient } from "@/lib/ai/openai";
 import {
   ChangeMessageVisibilityCommand,
   DeleteMessageCommand,
@@ -15,6 +15,7 @@ import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 
 import { db } from "@/db";
+import { getUserFromId } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 
 const sqs = new SQSClient({ region: process.env.LAMBDA_AWS_REGION });
@@ -81,7 +82,7 @@ const ExtendedReportSchema = ReportSchema.extend({
 }).omit({ id: true, interviewId: true, createdAt: true, updatedAt: true });
 
 // First get raw analysis from o1-review
-const getInitialAnalysis = async (interview: Interview) => {
+const getInitialAnalysis = async (interview: Interview, userEmail?: string) => {
   const systemPrompt = `
     You are an expert interview analyst and career coach. Your task is to provide very detailed, comprehensive, candid, and constructive feedback on interview performances. Aim to be honest, direct, and constructively critical. Follow the principles of Radical Candor: "Care Personally, Challenge Directly." Do not be afraid to call out a bad performance as long as you can back it up with specific reasons or examples from the interview. Deliver clear, respectful feedback aimed at empowering the candidate to improve. Use specific examples from the interview to support your points. If the interview information is limited, provide the most useful and actionable report possible with the available data, **and recommend a longer mock interview for more comprehensive feedback.** Stick to the information provided in the transcript. Provide scores out of 100 for each section and an overall score to help the candidate understand their performance.
   `;
@@ -136,7 +137,9 @@ const getInitialAnalysis = async (interview: Interview) => {
     Maintain a candid yet respectful tone throughout the report, adhering to Radical Candor principles. Base your analysis and feedback on both the interview transcript content and the prosody analysis provided for each message. Do not be afraid to call out a bad performance as long as you can back it up with specific reasons or examples from the interview.
   `;
 
-  const initialCompletion = await openai.beta.chat.completions.parse({
+  const initialCompletion = await getOpenAiClient(
+    userEmail
+  ).beta.chat.completions.parse({
     model: "gpt-4o",
     messages: [
       {
@@ -153,7 +156,11 @@ const getInitialAnalysis = async (interview: Interview) => {
 };
 
 // Then format with gpt-4o
-const formatAnalysis = async (rawAnalysis: string, interview: Interview) => {
+const formatAnalysis = async (
+  rawAnalysis: string,
+  interview: Interview,
+  userEmail?: string
+) => {
   const formattingPrompt = `
     Take the following interview analysis and format it according to the schema requirements.
     Extract all the necessary information and scores, ensuring the output matches the required format.
@@ -167,7 +174,9 @@ const formatAnalysis = async (rawAnalysis: string, interview: Interview) => {
     Additional Information: ${interview.additionalInfo}
   `;
 
-  const completion = await openai.beta.chat.completions.parse({
+  const completion = await getOpenAiClient(
+    userEmail
+  ).beta.chat.completions.parse({
     model: "gpt-4o",
     messages: [
       {
@@ -204,6 +213,9 @@ export const handler = Sentry.AWSLambda.wrapHandler(async (event: SQSEvent) => {
       try {
         const message = JSON.parse(record.body);
         interviewId = message.interviewId;
+        const userId = message.userId;
+
+        const user = await getUserFromId(userId);
 
         logger.info({ interviewId }, "Processing interview report request");
 
@@ -222,7 +234,10 @@ export const handler = Sentry.AWSLambda.wrapHandler(async (event: SQSEvent) => {
         }
 
         // First, get the detailed analysis from o1-review
-        const generatedReport = await getInitialAnalysis(interview);
+        const generatedReport = await getInitialAnalysis(
+          interview,
+          user?.email
+        );
 
         if (!generatedReport) {
           logger.error("No interview report returned");
@@ -235,7 +250,7 @@ export const handler = Sentry.AWSLambda.wrapHandler(async (event: SQSEvent) => {
         logger.info({ generatedReport }, "Generate Report");
 
         // Then, format the analysis using gpt-4o
-        // const generatedReport = await formatAnalysis(rawAnalysis, interview);
+        // const generatedReport = await formatAnalysis(rawAnalysis, interview, userEmail);
 
         if (!generatedReport) {
           logger.error("No interview report returned");

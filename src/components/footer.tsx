@@ -10,7 +10,7 @@ export function Footer() {
         <Link
           href="/"
           className={cn(
-            "font-oswald flex gap-2 flex-col md:flex-row items-start text-2xl font-bold"
+            "font-oswald flex gap-2 flex-col md:flex-row items-center text-2xl font-bold"
           )}
         >
           <Image
