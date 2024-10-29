@@ -100,7 +100,7 @@ const getInitialAnalysis = async (interview: Interview, userEmail?: string) => {
         R.entries(),
         R.sortBy(R.pathOr([1], 0)),
         R.reverse(),
-        R.take(3)
+        R.take(5)
       ),
     })
   );
