@@ -170,8 +170,8 @@ export default function InterviewsSection() {
         />
       )}
       {interviews.length > 0 && (
-        <div className="mt-4 flex justify-center row-span-1 border-t border-gray-400 dark:border-gray-600">
-          <div className="flex items-center space-x-2">
+        <div className="mt-4 flex justify-center row-span-1 border-t border-primary/50">
+          <div className="flex items-center space-x-2 mt-4">
             <Button
               variant="outline"
               size="sm"

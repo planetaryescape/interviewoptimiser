@@ -3,14 +3,16 @@
 import { config } from "@/lib/config";
 import { useEffect, useState } from "react";
 
-export default function EarlyBirdPromoDiscountBanner() {
+export const EarlyBirdPromoDiscountBanner = () => {
   const durationInMilliseconds =
     config.fomoDiscountPromoLengthInDays * 24 * 60 * 60 * 1000;
   const [timeLeft, setTimeLeft] = useState(durationInMilliseconds);
   const [offerActive, setOfferActive] = useState(false);
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    let animationFrameId: number;
+
+    const updateTimer = () => {
       const now = new Date();
       const elapsed =
         now.getTime() - config.fomoDiscountPromoStartDate.getTime();
@@ -19,20 +21,25 @@ export default function EarlyBirdPromoDiscountBanner() {
         // Offer hasn't started yet
         setOfferActive(false);
         setTimeLeft(durationInMilliseconds);
-        clearInterval(timer);
       } else if (elapsed > durationInMilliseconds) {
         // Offer has ended
         setOfferActive(false);
         setTimeLeft(0);
-        clearInterval(timer);
       } else {
         // Offer is active
         setOfferActive(true);
         setTimeLeft(durationInMilliseconds - elapsed);
+        animationFrameId = requestAnimationFrame(updateTimer);
       }
-    }, 1000);
+    };
 
-    return () => clearInterval(timer);
+    animationFrameId = requestAnimationFrame(updateTimer);
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
   }, [durationInMilliseconds]);
 
   const formatTime = (time: number) => {
@@ -40,7 +47,7 @@ export default function EarlyBirdPromoDiscountBanner() {
     const hours = Math.floor((time % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
     const minutes = Math.floor((time % (60 * 60 * 1000)) / (60 * 1000));
     const seconds = Math.floor((time % (60 * 1000)) / 1000);
-    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    return `${days} days ${hours} hours ${minutes} minutes ${seconds} seconds`;
   };
 
   if (!offerActive) {
@@ -48,16 +55,16 @@ export default function EarlyBirdPromoDiscountBanner() {
   }
 
   return (
-    <div className="bg-primary/80 rounded-lg shadow-sm p-4 mb-12 text-center">
-      <h3 className="text-lg font-semibold text-foreground mb-2">
+    <div className="bg-accent rounded-lg shadow-sm p-4 mb-12 text-center bg-gradient-to-r from-accent/10 via-accent/5 to-accent/10 border border-accent/50">
+      <h3 className="text-lg font-semibold text-accent-foreground mb-2">
         Limited-Time Offer: 20% Off!
       </h3>
-      <p className="text-sm text-foreground mb-2">
+      <p className="text-sm text-accent-foreground mb-2">
         Don&apos;t miss out on these savings. Offer expires in:
       </p>
-      <p className="text-2xl font-bold text-foreground">
+      <p className="text-2xl font-bold text-accent-foreground">
         {formatTime(timeLeft)}
       </p>
     </div>
   );
-}
+};

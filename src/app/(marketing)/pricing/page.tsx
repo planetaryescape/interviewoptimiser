@@ -1,4 +1,4 @@
-import EarlyBirdPromoDiscountBanner from "@/components/early-bird-promo-discount-banner";
+import { EarlyBirdPromoDiscountBanner } from "@/components/early-bird-promo-discount-banner";
 import PricingPageFaq from "@/components/pricing-page-faq";
 import { PricingPlanButton } from "@/components/pricing-plan-button";
 import { config } from "@/lib/config";

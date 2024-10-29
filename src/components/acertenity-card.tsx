@@ -14,7 +14,7 @@ export const Card = ({
   return (
     <div
       className={cn(
-        "max-w-sm w-full relative mx-auto p-4 rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 dark:from-secondary/10 dark:via-secondary/5 dark:to-secondary/10 shadow-[2px_4px_16px_0px_rgba(248,248,248,0.06)_inset] group border dark:border-gray-500 border-gray-400",
+        "max-w-sm w-full relative mx-auto p-4 rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 dark:from-secondary/10 dark:via-secondary/5 dark:to-secondary/10 shadow-[2px_4px_16px_0px_rgba(248,248,248,0.06)_inset] group border border-accent/30",
         className
       )}
     >
