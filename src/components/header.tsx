@@ -33,7 +33,7 @@ export function Header({ className }: { className?: string }) {
   return (
     <header
       className={cn(
-        "shadow-sm text-foreground relative z-[100] border-b border-gray-400 dark:border-gray-600",
+        "shadow-sm text-foreground relative z-[100] border-b border-primary/50",
         pathname.startsWith("/dashboard")
           ? "bg-card text-card-foreground"
           : "bg-background text-foreground",
@@ -44,7 +44,7 @@ export function Header({ className }: { className?: string }) {
         <Link
           href="/"
           className={cn(
-            "font-oswald flex space-x-4 items-center text-2xl font-bold"
+            "font-sans flex space-x-4 items-center text-2xl font-bold lowercase"
           )}
         >
           <Image
@@ -55,8 +55,11 @@ export function Header({ className }: { className?: string }) {
           />
           <span>{config.projectName}</span>
         </Link>
-        <div className="flex items-center space-x-2 md:space-x-4">
+        <div className="flex items-center space-x-2 md:space-x-4 uppercase">
           <nav className="hidden md:flex space-x-8 items-center">
+            <Link className={cn(pathname === "/" && "font-bold")} href="/">
+              Home
+            </Link>
             <SignedOut>
               <Link
                 className={cn(pathname === "/pricing" && "font-bold")}

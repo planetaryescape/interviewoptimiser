@@ -6,76 +6,76 @@
   :root {
     --gradient: linear-gradient(
       to top left,
-      hsl(260, 20%, 90%),
-      hsl(240, 15%, 98%)
+      hsl(30, 20%, 96%),
+      /* soft warm beige */ hsl(25, 30%, 98%) /* light warm cream */
     );
 
     --background: 0 0% 100%; /* Pure white for a clean light background */
-    --foreground: 240 20% 10%; /* Dark gray for primary text on light background */
+    --foreground: 220 15% 15%; /* Darker gray for primary text on light background */
 
-    --muted: 240 10% 95%; /* Very light gray for muted backgrounds */
-    --muted-foreground: 240 20% 25%; /* Medium gray for readability on muted */
+    --muted: 30 10% 97%; /* Very light warm gray for muted backgrounds */
+    --muted-foreground: 220 10% 30%; /* Soft gray for readability on muted */
 
     --popover: 0 0% 100%; /* Pure white for popovers */
-    --popover-foreground: 240 20% 10%; /* Dark gray for contrast */
+    --popover-foreground: 220 15% 15%; /* Dark gray for contrast */
 
-    --card: 240 10% 98%; /* Almost white, slightly gray card background */
-    --card-foreground: 240 20% 10%; /* Dark gray text on card */
+    --card: 30 15% 98%; /* Almost white, slightly warm gray card background */
+    --card-foreground: 220 15% 15%; /* Dark gray text on card */
 
-    --border: 240 10% 90%; /* Light gray border for subtle separation */
+    --border: 220 10% 90%; /* Light gray border for subtle separation */
     --input: 0 0% 100%; /* White for input fields */
 
-    --primary: 340 65% 45%; /* Deep crimson red for primary color */
+    --primary: 20 70% 50%; /* Warm salmon pink for primary color */
     --primary-foreground: 0 0% 100%; /* White for text on primary */
 
-    --secondary: 240 5% 35%; /* Medium gray for secondary accents */
+    --secondary: 220 5% 50%; /* Medium gray for secondary accents */
     --secondary-foreground: 0 0% 100%; /* White text on secondary */
 
-    --accent: 280 30% 45%; /* Subtle purple for accents */
+    --accent: 280 30% 60%; /* Soft purple for accents */
     --accent-foreground: 0 0% 100%; /* White on accent */
 
-    --destructive: 0 70% 45%; /* Crimson red for destructive actions */
+    --destructive: 0 70% 50%; /* Deep red for destructive actions */
     --destructive-foreground: 0 0% 100%; /* White text on red */
 
-    --ring: 340 65% 45%; /* Crimson red for focus rings */
+    --ring: 20 70% 50%; /* Salmon pink for focus rings */
 
     --radius: 0.5rem; /* Slightly rounded for modern look */
   }
   .dark {
     --gradient: linear-gradient(
       to top left,
-      hsl(240, 15%, 10%),
-      hsl(260, 15%, 20%)
+      hsl(220, 15%, 10%),
+      hsl(240, 15%, 20%)
     );
 
-    --background: 240 20% 10%; /* Dark background */
+    --background: 220 20% 10%; /* Dark background */
     --foreground: 0 0% 100%; /* White text for readability */
 
-    --muted: 240 10% 15%; /* Dark muted gray */
+    --muted: 220 10% 15%; /* Dark muted gray */
     --muted-foreground: 0 0% 80%; /* Light gray text on muted */
 
-    --popover: 240 10% 10%; /* Very dark muted purple for popovers */
+    --popover: 220 10% 10%; /* Very dark muted blue for popovers */
     --popover-foreground: 0 0% 100%; /* White for readability */
 
-    --card: 260 15% 20%; /* Dark purple for cards */
+    --card: 240 15% 20%; /* Dark blue-gray for cards */
     --card-foreground: 0 0% 100%; /* White text on card */
 
-    --border: 240 20% 25%; /* Dark gray for subtle borders */
-    --input: 240 15% 15%; /* Darker input background */
+    --border: 220 20% 25%; /* Dark gray for subtle borders */
+    --input: 220 15% 15%; /* Darker input background */
 
-    --primary: 340 65% 45%; /* Deep crimson red as primary */
+    --primary: 20 70% 50%; /* Warm salmon pink as primary */
     --primary-foreground: 0 0% 100%; /* White text on primary */
 
-    --secondary: 240 5% 35%; /* Medium muted gray as secondary */
+    --secondary: 220 5% 50%; /* Medium muted gray as secondary */
     --secondary-foreground: 0 0% 100%; /* White on secondary */
 
-    --accent: 280 25% 40%; /* Muted purple accent */
+    --accent: 280 25% 50%; /* Muted purple accent */
     --accent-foreground: 0 0% 100%; /* White on accent */
 
-    --destructive: 0 70% 50%; /* Brighter red for destructive */
+    --destructive: 0 70% 55%; /* Bright red for destructive */
     --destructive-foreground: 0 0% 100%; /* White text on red */
 
-    --ring: 340 65% 45%; /* Crimson red ring */
+    --ring: 20 70% 50%; /* Salmon pink ring */
 
     --radius: 0.5rem;
   }
