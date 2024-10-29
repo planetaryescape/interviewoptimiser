@@ -5,6 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -12,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { PageSettings } from "@/db/schema";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -74,6 +76,8 @@ interface PagePreviewToolbarProps {
   children?: React.ReactNode;
   onSettingsChange: (settings: Partial<PageSettings>) => Promise<unknown>;
   pageSettings: PageSettings;
+  includeTranscript: boolean;
+  setIncludeTranscript: (value: boolean) => void;
 }
 
 export function PagePreviewToolbar({
@@ -90,6 +94,8 @@ export function PagePreviewToolbar({
   children,
   onSettingsChange,
   pageSettings,
+  includeTranscript,
+  setIncludeTranscript,
 }: PagePreviewToolbarProps) {
   const queryClient = useQueryClient();
 
@@ -191,6 +197,18 @@ export function PagePreviewToolbar({
             placeholder="Margin"
             items={Object.keys(marginSizes)}
           />
+        </ToolbarItem>
+        <ToolbarItem label="Include Transcript">
+          <div className="flex items-center space-x-2 h-8">
+            <Switch
+              id="transcript-toggle"
+              checked={includeTranscript}
+              onCheckedChange={setIncludeTranscript}
+            />
+            <Label htmlFor="transcript-toggle" className="text-xs">
+              {includeTranscript ? "On" : "Off"}
+            </Label>
+          </div>
         </ToolbarItem>
         <ToolbarItem>
           <DropdownMenu>
