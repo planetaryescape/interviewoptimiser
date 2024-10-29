@@ -10,32 +10,32 @@
       /* soft warm beige */ hsl(25, 30%, 98%) /* light warm cream */
     );
 
-    --background: 0 0% 100%; /* Pure white for a clean light background */
+    --background: 31, 100%, 95.5%;
     --foreground: 220 15% 15%; /* Darker gray for primary text on light background */
 
     --muted: 30 10% 97%; /* Very light warm gray for muted backgrounds */
     --muted-foreground: 220 10% 30%; /* Soft gray for readability on muted */
 
-    --popover: 0 0% 100%; /* Pure white for popovers */
+    --popover: 31, 100%, 95.5%; /* Pure white for popovers */
     --popover-foreground: 220 15% 15%; /* Dark gray for contrast */
 
     --card: 30 15% 98%; /* Almost white, slightly warm gray card background */
     --card-foreground: 220 15% 15%; /* Dark gray text on card */
 
     --border: 220 10% 90%; /* Light gray border for subtle separation */
-    --input: 0 0% 100%; /* White for input fields */
+    --input: 31, 100%, 95.5%; /* White for input fields */
 
     --primary: 20 70% 50%; /* Warm salmon pink for primary color */
-    --primary-foreground: 0 0% 100%; /* White for text on primary */
+    --primary-foreground: 31, 100%, 95.5%; /* White for text on primary */
 
     --secondary: 220 5% 50%; /* Medium gray for secondary accents */
-    --secondary-foreground: 0 0% 100%; /* White text on secondary */
+    --secondary-foreground: 31, 100%, 95.5%; /* White text on secondary */
 
     --accent: 280 30% 60%; /* Soft purple for accents */
-    --accent-foreground: 0 0% 100%; /* White on accent */
+    --accent-foreground: 31, 100%, 95.5%; /* White on accent */
 
     --destructive: 0 70% 50%; /* Deep red for destructive actions */
-    --destructive-foreground: 0 0% 100%; /* White text on red */
+    --destructive-foreground: 31, 100%, 95.5%; /* White text on red */
 
     --ring: 20 70% 50%; /* Salmon pink for focus rings */
 
@@ -92,6 +92,7 @@ body {
   padding: env(safe-area-inset-top, 20px) env(safe-area-inset-right, 20px)
     env(safe-area-inset-bottom, 20px) env(safe-area-inset-left, 20px);
   font-family: var(--font-montserrat), sans-serif;
+  background-color: hsl(var(--gradient));
 }
 
 h1,

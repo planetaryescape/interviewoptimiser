@@ -32,7 +32,7 @@ export function HowItWorksSection() {
           {steps.map((step, index) => (
             <div
               key={index}
-              className="relative row-span-2 grid grid-rows-subgrid items-start text-center border border-primary/30 bg-gradient-to-b from-accent/10 to-primary/10 rounded-lg p-8 pb-12 overflow-hidden"
+              className="relative row-span-2 grid grid-rows-subgrid items-start text-center border border-primary/30 bg-gradient-to-b from-accent/20 to-primary/20 rounded-lg p-8 pb-12 overflow-hidden"
             >
               <div className="row-span-1 grid grid-cols-[auto_1fr] gap-4 items-start justify-center text-left">
                 <div className="mt-2 w-10 h-10 border border-foreground text-foreground rounded-full flex items-center justify-center text-xl font-bold mb-4">
