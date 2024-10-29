@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         interviewId,
+        userId,
         queueType: "generate-report",
       }),
     });
