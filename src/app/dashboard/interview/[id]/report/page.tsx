@@ -352,6 +352,8 @@ export default function InterviewReportPage(props: {
         isSharing={isExporting || isToggling}
         onSettingsChange={handleSettingsChange}
         pageSettings={report?.pageSettings}
+        includeTranscript={includeTranscript}
+        setIncludeTranscript={setIncludeTranscript}
       />
       <div
         className={cn(
