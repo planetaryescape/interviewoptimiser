@@ -1,12 +1,5 @@
 import { relations } from "drizzle-orm";
-import {
-  integer,
-  pgEnum,
-  pgTable,
-  serial,
-  text,
-  timestamp,
-} from "drizzle-orm/pg-core";
+import { pgEnum, pgTable } from "drizzle-orm/pg-core";
 import { featureRequestLikes } from "./featureRequestLikes";
 import { users } from "./users";
 
@@ -18,17 +11,18 @@ export const featureRequestStatusEnum = pgEnum("feature_request_status", [
   "declined",
 ]);
 
-export const featureRequests = pgTable("feature_requests", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  content: text("content").notNull(),
-  status: featureRequestStatusEnum("status").default("submitted").notNull(),
-  userId: integer("user_id")
+export const featureRequests = pgTable("feature_requests", (p) => ({
+  id: p.serial().primaryKey(),
+  title: p.text().notNull(),
+  content: p.text().notNull(),
+  status: featureRequestStatusEnum().default("submitted").notNull(),
+  userId: p
+    .integer()
     .references(() => users.id)
     .notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+  createdAt: p.timestamp().defaultNow().notNull(),
+  updatedAt: p.timestamp().defaultNow().notNull(),
+}));
 
 export const featureRequestRelations = relations(
   featureRequests,

@@ -50,6 +50,13 @@
       "when": 1729640602497,
       "tag": "0006_warm_scourge",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1730206664770,
+      "tag": "0007_fresh_mystique",
+      "breakpoints": true
     }
   ]
 }

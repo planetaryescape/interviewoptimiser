@@ -1,18 +1,31 @@
 import { relations } from "drizzle-orm";
-import { integer, pgTable, serial, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uniqueIndex } from "drizzle-orm/pg-core";
 import { featureRequests } from "./featureRequests";
 import { users } from "./users";
 
-export const featureRequestLikes = pgTable("feature_request_likes", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id")
-    .references(() => users.id)
-    .notNull(),
-  featureRequestId: integer("feature_request_id")
-    .references(() => featureRequests.id)
-    .notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+export const featureRequestLikes = pgTable(
+  "feature_request_likes",
+  (p) => ({
+    id: p.serial().primaryKey(),
+    userId: p
+      .integer()
+      .references(() => users.id)
+      .notNull(),
+    featureRequestId: p
+      .integer()
+      .references(() => featureRequests.id)
+      .notNull(),
+    createdAt: p.timestamp().defaultNow().notNull(),
+  }),
+  (featureRequestLikes) => ({
+    userIdIdx: uniqueIndex("feature_request_likes_user_id_idx").on(
+      featureRequestLikes.userId
+    ),
+    featureRequestIdIdx: uniqueIndex(
+      "feature_request_likes_feature_request_id_idx"
+    ).on(featureRequestLikes.featureRequestId),
+  })
+);
 
 export const featureRequestLikesRelations = relations(
   featureRequestLikes,
