@@ -1,4 +1,4 @@
-import { Interview, interviews, reports } from "@/db/schema";
+import { Interview, interviews, reports, statistics } from "@/db/schema";
 import { getOpenAiClient } from "@/lib/ai/openai";
 import {
   ChangeMessageVisibilityCommand,
@@ -9,7 +9,7 @@ import {
 } from "@aws-sdk/client-sqs";
 import * as Sentry from "@sentry/serverless";
 import { SQSEvent, SQSRecord } from "aws-lambda";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { zodResponseFormat } from "openai/helpers/zod";
 import * as R from "remeda";
@@ -323,6 +323,13 @@ export const handler = Sentry.AWSLambda.wrapHandler(async (event: SQSEvent) => {
               completed: true,
             })
             .where(eq(interviews.id, interviewId));
+
+          await tx
+            .update(statistics)
+            .set({
+              interviewsCount: sql`${statistics.interviewsCount} + 1`,
+            })
+            .where(eq(statistics.id, 1));
         });
 
         logger.info(

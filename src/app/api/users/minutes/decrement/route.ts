@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { statistics, users } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
@@ -36,6 +36,13 @@ export async function PUT(request: NextRequest) {
       })
       .where(eq(users.id, userId))
       .returning();
+
+    await db
+      .update(statistics)
+      .set({
+        minutesCount: sql`${statistics.minutesCount} + 1`,
+      })
+      .where(eq(statistics.id, 1));
 
     if (!updatedUser) {
       logger.warn({ userId }, "Failed to decrement user minutes");
