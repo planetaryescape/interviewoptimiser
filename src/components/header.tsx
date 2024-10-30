@@ -53,7 +53,7 @@ export function Header({ className }: { className?: string }) {
             width={60}
             height={60}
           />
-          <span>{config.projectName}</span>
+          <span className="hidden md:block">{config.projectName}</span>
         </Link>
         <div className="flex items-center space-x-2 md:space-x-4 uppercase">
           <nav className="hidden md:flex space-x-8 items-center">
