@@ -20,38 +20,38 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Interview Optimiser – AI-Powered Interview Practice for Job Success",
+  title:
+    "Interview Optimiser – The AI-Powered, Real-Time Interview Practice Tool",
   description:
-    "Prepare for interviews with AI-driven mock sessions tailored to your role and industry. Build confidence and sharpen your skills with personalized, conversational practice. Start with a free trial!",
+    "Experience real, voice-to-voice interview practice with AI that adapts to your responses. Build confidence, enhance your delivery, and refine your skills with real-time feedback on prosody, confidence, and clarity. Start your journey with a free trial today!",
   keywords: [
     "Interview Optimiser",
-    "mock interview",
+    "real-time mock interview",
     "AI interview practice",
-    "AI interview prep",
-    "interview preparation tool",
-    "AI interview simulator",
-    "mock interviews",
-    "interview skills",
-    "job interview practice",
-    "personalized interview practice",
-    "conversational interview practice",
-    "behavioral interview",
-    "situational interview",
-    "AI mock interview",
-    "career development tool",
-    "interview feedback",
-    "AI-driven interview prep",
+    "AI interview prep tool",
+    "adaptive interview simulator",
+    "interview preparation",
+    "prosody analysis",
+    "AI-driven interview tool",
+    "mock interview platform",
+    "personalized interview feedback",
+    "interactive interview practice",
+    "emotional analysis interview",
+    "behavioral interview prep",
+    "voice-to-voice interview practice",
+    "career growth tools",
+    "interview coaching",
   ],
   openGraph: {
     title:
-      "Interview Optimiser – AI-Powered Interview Practice for Job Success",
+      "Interview Optimiser – The AI-Powered, Real-Time Interview Practice Tool",
     description:
-      "Boost your interview skills with Interview Optimiser, the AI-powered mock interview tool designed to build your confidence. Get personalized practice tailored to your job and industry.",
-    url: "https://www.interviewoptimiser.com", // Replace with your actual domain
+      "Elevate your interview skills with Interview Optimiser, the only mock interview tool offering real-time, voice-to-voice interaction. Experience adaptive, conversational AI that provides instant feedback on delivery, confidence, and vocal tone.",
+    url: "https://www.interviewoptimiser.com",
     siteName: "Interview Optimiser",
     images: [
       {
-        url: "https://interviewoptimiser.com/api/og", // Update with your OG image URL
+        url: "https://interviewoptimiser.com/api/og",
         width: 1200,
         height: 630,
         alt: "Interview Optimiser App",
@@ -63,9 +63,9 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title:
-      "Interview Optimiser – AI-Powered Interview Practice for Job Success",
+      "Interview Optimiser – The AI-Powered, Real-Time Interview Practice Tool",
     description:
-      "Get AI-powered, conversational interview practice tailored to your career goals. Interview Optimiser helps you prepare for success!",
+      "Gain confidence and skills with real-time, voice-based AI interview practice that adjusts to your responses. Perfect for anyone aiming for job interview success.",
     images: ["https://interviewoptimiser.com/api/og"],
     site: "@bhekanik",
   },
