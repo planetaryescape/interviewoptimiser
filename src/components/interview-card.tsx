@@ -66,12 +66,8 @@ export const InterviewCard = ({
       <CardContent>
         {!interview.report ? (
           <CardDescription className="space-y-3 flex flex-col">
-            <div className="text-sm font-medium">
-              <Skeleton className="w-1/2 h-4" />
-            </div>
-            <div className="text-sm">
-              <Skeleton className="w-1/2 h-4" />
-            </div>
+            <Skeleton className="w-1/2 h-4" />
+            <Skeleton className="w-1/2 h-4" />
           </CardDescription>
         ) : (
           <CardDescription className="space-y-3 flex flex-col">
