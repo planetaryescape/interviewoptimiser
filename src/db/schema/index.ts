@@ -7,5 +7,6 @@ export * from "./images";
 export * from "./interviews";
 export * from "./pageSettings";
 export * from "./reports";
+export * from "./reviews";
 export * from "./statistics";
 export * from "./users";

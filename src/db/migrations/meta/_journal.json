@@ -64,6 +64,13 @@
       "when": 1730208629755,
       "tag": "0008_great_mathemanic",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1730255014188,
+      "tag": "0009_fixed_energizer",
+      "breakpoints": true
     }
   ]
 }

@@ -7,6 +7,7 @@ export type EntityType =
   | "cover-letter"
   | "generic"
   | "feature-request"
+  | "review"
   | "user"
   | "cv"
   | "interview"

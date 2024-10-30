@@ -4,6 +4,7 @@ import { DifferentiatorsSection } from "@/components/landing/differentiators-sec
 import { FAQSection } from "@/components/landing/faq-section";
 import { HowItWorksSection } from "@/components/landing/how-it-works-section";
 import { SocialProofSection } from "@/components/landing/social-proof-section";
+import { TestimonialsSection } from "@/components/landing/testimonials-section";
 import { ClerkProvider } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { Suspense } from "react";
@@ -19,9 +20,9 @@ export default async function LandingPage() {
         </ClerkProvider>
       </Suspense>
       <SocialProofSection />
-      <DifferentiatorsSection />
       <HowItWorksSection />
-      {/* <WhoIsItForSection /> */}
+      <DifferentiatorsSection />
+      <TestimonialsSection />
       <FAQSection />
       {!userId && <CTASection />}
     </>
