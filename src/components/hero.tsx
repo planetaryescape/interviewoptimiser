@@ -15,7 +15,12 @@ const SocialProofContent = () => {
   const { data: response, isLoading } = useQuery({
     queryKey: ["statistics"],
     queryFn: async () => {
-      const res = await fetch("/api/public/statistics");
+      const res = await fetch("/api/public/statistics", {
+        cache: "force-cache",
+        next: {
+          revalidate: 60 * 60, // 1 hour
+        },
+      });
       if (!res.ok) {
         throw new Error("Failed to fetch statistics");
       }
@@ -40,8 +45,14 @@ const SocialProofContent = () => {
         ))}
       </div>
       <p className="text-sm">
-        Join {statistics?.usersCount?.toLocaleString() ?? "our"} users who spent
-        over {statistics?.minutesCount?.toLocaleString() ?? "many"} minutes
+        Join{" "}
+        <span className="font-bold">
+          {statistics?.usersCount?.toLocaleString() ?? "our"} users
+        </span>{" "}
+        who have spent over{" "}
+        <span className="font-bold">
+          {statistics?.minutesCount?.toLocaleString() ?? "many"} minutes
+        </span>{" "}
         mastering their interview skills
       </p>
     </div>
