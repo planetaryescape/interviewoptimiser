@@ -18,7 +18,7 @@ export function Hero() {
   }, [theme]);
 
   return (
-    <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-48">
+    <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
       <div className="grid md:grid-cols-2 gap-12 items-center">
         <div className="space-y-6 z-50">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
