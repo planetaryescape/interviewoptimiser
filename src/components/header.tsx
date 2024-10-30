@@ -14,7 +14,6 @@ import { FeedbackModal } from "./feedback-modal";
 import { MobileMenu } from "./mobile-menu";
 import { ThemeToggle } from "./theme-toggle";
 import { Badge } from "./ui/badge";
-import { Separator } from "./ui/separator";
 
 export function Header({ className }: { className?: string }) {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
@@ -33,133 +32,159 @@ export function Header({ className }: { className?: string }) {
   return (
     <header
       className={cn(
-        "shadow-sm text-foreground relative z-[100] border-b border-primary/50",
-        pathname.startsWith("/dashboard")
-          ? "bg-card text-card-foreground"
-          : "bg-background text-foreground",
+        "sticky top-0 w-full border-b backdrop-blur-sm transition-all",
+        isDashboard
+          ? "bg-card/80 border-border"
+          : "bg-background/80 border-border/40",
         className
       )}
     >
-      <div className="relative w-full px-4 flex justify-between items-center py-4">
-        <Link
-          href="/"
-          className={cn(
-            "font-sans flex space-x-4 items-center text-2xl font-bold lowercase"
-          )}
-        >
-          <Image
-            src="/logo.png"
-            alt={`${config.projectName} Logo`}
-            width={60}
-            height={60}
-          />
-          <span className="hidden md:block">{config.projectName}</span>
-        </Link>
-        <div className="flex items-center space-x-2 md:space-x-4 uppercase">
-          <nav className="hidden md:flex space-x-8 items-center">
-            <Link className={cn(pathname === "/" && "font-bold")} href="/">
+      <div className="mx-auto px-4">
+        <div className="relative flex h-16 items-center justify-between">
+          <Link
+            href="/"
+            className="flex items-center space-x-3 transition-opacity hover:opacity-90"
+          >
+            <Image
+              src="/logo.png"
+              alt={`${config.projectName} Logo`}
+              width={36}
+              height={36}
+              className="rounded-lg"
+            />
+            <span className="hidden font-display text-xl font-bold md:block">
+              {config.projectName}
+            </span>
+          </Link>
+
+          <nav className="hidden md:flex items-center space-x-1">
+            <Link
+              className={cn(
+                "px-3 py-2 text-sm rounded-md transition-colors",
+                pathname === "/"
+                  ? "text-primary font-medium"
+                  : "text-muted-foreground hover:text-primary hover:bg-muted"
+              )}
+              href="/"
+            >
               Home
             </Link>
+
             <SignedOut>
               <Link
-                className={cn(pathname === "/pricing" && "font-bold")}
+                className={cn(
+                  "px-3 py-2 text-sm rounded-md transition-colors",
+                  pathname === "/pricing"
+                    ? "text-primary font-medium"
+                    : "text-muted-foreground hover:text-primary hover:bg-muted"
+                )}
                 href="/pricing"
               >
                 Pricing
               </Link>
             </SignedOut>
+
             <Link
-              className={cn(pathname === "/changelog" && "font-bold")}
+              className={cn(
+                "px-3 py-2 text-sm rounded-md transition-colors",
+                pathname === "/changelog"
+                  ? "text-primary font-medium"
+                  : "text-muted-foreground hover:text-primary hover:bg-muted"
+              )}
               href="/changelog"
             >
               Changelog
             </Link>
+
             <Link
-              className={cn(pathname === "/feature-requests" && "font-bold")}
+              className={cn(
+                "px-3 py-2 text-sm rounded-md transition-colors",
+                pathname === "/feature-requests"
+                  ? "text-primary font-medium"
+                  : "text-muted-foreground hover:text-primary hover:bg-muted"
+              )}
               href="/feature-requests"
             >
               Feature Requests
             </Link>
-            <SignedOut>
-              <Button size="sm" asChild variant="ghost">
-                <Link
-                  className={cn(pathname === "/sign-in" && "font-bold")}
-                  href="/sign-in"
-                >
-                  Sign In
-                </Link>
-              </Button>
-            </SignedOut>
+
             <SignedIn>
               <Link
-                className={cn(pathname === "/dashboard" && "font-bold")}
+                className={cn(
+                  "px-3 py-2 text-sm rounded-md transition-colors",
+                  pathname === "/dashboard"
+                    ? "text-primary font-medium"
+                    : "text-muted-foreground hover:text-primary hover:bg-muted"
+                )}
                 href="/dashboard"
               >
                 Dashboard
               </Link>
             </SignedIn>
-            <SignedIn>
-              <Link
-                className={cn(pathname === "/pricing" && "font-bold")}
-                href="/pricing"
-              >
-                Buy Minutes
-              </Link>
-            </SignedIn>
           </nav>
-          <Separator
-            orientation="vertical"
-            className="hidden md:block h-6 dark:bg-gray-400"
-          />
-          <SignedIn>
-            {user ? (
-              <div className="flex items-center gap-2">
-                <CreditCard className="hidden md:block h-4 w-4" />
-                <span className="font-medium hidden md:block">Minutes:</span>
-                <Badge variant="secondary" className="">
-                  {user?.minutes}
-                </Badge>
-              </div>
-            ) : null}
 
-            {showOptimiseButton && (
-              <Button
-                className="hidden md:flex"
-                size="sm"
-                asChild
-                variant="default"
-              >
-                <Link href="/dashboard/create">New Mock Interview</Link>
-              </Button>
-            )}
-          </SignedIn>
-
-          <SignedOut>
-            <Button
-              className="hidden md:flex"
-              size="sm"
-              asChild
-              variant="default"
-            >
-              {isLandingPage ? (
-                <Link href="/sign-up">Start Mock Interview</Link>
-              ) : (
-                <Link href="/sign-up">New Mock Interview</Link>
+          <div className="flex items-center space-x-4">
+            <SignedIn>
+              {user && (
+                <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted rounded-md">
+                  <CreditCard className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">
+                    Minutes:
+                  </span>
+                  <Badge variant="secondary" className="font-medium">
+                    {user.minutes}
+                  </Badge>
+                </div>
               )}
-            </Button>
-          </SignedOut>
 
-          <ThemeToggle />
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
+              {showOptimiseButton && (
+                <Button
+                  className="hidden md:flex"
+                  size="sm"
+                  variant="default"
+                  asChild
+                >
+                  <Link href="/dashboard/create">New Mock Interview</Link>
+                </Button>
+              )}
+            </SignedIn>
 
-          <MobileMenu
-            isDashboard={isDashboard}
-            onFeedbackClick={() => setIsFeedbackModalOpen(true)}
-          />
+            <SignedOut>
+              <div className="hidden md:flex items-center space-x-2">
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/sign-in">Sign In</Link>
+                </Button>
+                <Button size="sm" asChild>
+                  <Link href="/sign-up">
+                    {isLandingPage
+                      ? "Start Mock Interview"
+                      : "New Mock Interview"}
+                  </Link>
+                </Button>
+              </div>
+            </SignedOut>
+
+            <div className="flex items-center space-x-2">
+              <ThemeToggle />
+              <SignedIn>
+                <UserButton
+                  afterSignOutUrl="/"
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-8 h-8",
+                    },
+                  }}
+                />
+              </SignedIn>
+              <MobileMenu
+                isDashboard={isDashboard}
+                onFeedbackClick={() => setIsFeedbackModalOpen(true)}
+              />
+            </div>
+          </div>
         </div>
       </div>
+
       <ClerkProvider dynamic>
         <FeedbackModal
           isOpen={isFeedbackModalOpen}
