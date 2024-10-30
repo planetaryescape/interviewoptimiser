@@ -201,8 +201,8 @@ importers:
         specifier: ^3.7.15
         version: 3.7.15(next@15.0.2(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@19.0.0-beta-6fc168f-20241025)(react-dom@19.0.0-rc-69d4b800-20241021(react@19.0.0-rc-69d4b800-20241021))(react@19.0.0-rc-69d4b800-20241021))(react-dom@19.0.0-rc-69d4b800-20241021(react@19.0.0-rc-69d4b800-20241021))(react@19.0.0-rc-69d4b800-20241021)
       openai:
-        specifier: ^4.68.4
-        version: 4.68.4(zod@3.23.8)
+        specifier: ^4.69.0
+        version: 4.69.0(zod@3.23.8)
       openai-realtime-api:
         specifier: ^1.0.6
         version: 1.0.6
@@ -6838,8 +6838,8 @@ packages:
     resolution: {integrity: sha512-3WLYsbFZrsLXe4wRZtC1j5GdMi1XhnyZBUBGBFAM6XCzsqFiClphPY7IGBgCRo5rvt5iDuEB5Ui6gywNUAH05w==}
     engines: {node: '>=18'}
 
-  openai@4.68.4:
-    resolution: {integrity: sha512-LRinV8iU9VQplkr25oZlyrsYGPGasIwYN8KFMAAFTHHLHjHhejtJ5BALuLFrkGzY4wfbKhOhuT+7lcHZ+F3iEA==}
+  openai@4.69.0:
+    resolution: {integrity: sha512-S3hOHSkk609KqwgH+7dwFrSvO3Gm3Nk0YWGyPHNscoMH/Y2tH1qunMi7gtZnLbUv4/N1elqCp6bDior2401kCQ==}
     hasBin: true
     peerDependencies:
       zod: ^3.23.8
@@ -16492,7 +16492,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  openai@4.68.4(zod@3.23.8):
+  openai@4.69.0(zod@3.23.8):
     dependencies:
       '@types/node': 18.19.59
       '@types/node-fetch': 2.6.11
