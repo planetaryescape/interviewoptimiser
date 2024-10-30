@@ -215,112 +215,122 @@ export function PagePreviewToolbar({
   }, [user, isReviewDialogOpen]);
 
   return (
-    <div className="flex flex-wrap items-end justify-between p-2 bg-card gap-2">
-      <div className="flex flex-wrap items-end gap-2">
-        <ToolbarItem label="Paper Size">
-          <ToolbarSelect
-            value={paperSize}
-            onValueChange={(value: string) => {
-              setPaperSize(value as keyof typeof paperSizes);
-              handleSettingChange("paperSize", value);
-            }}
-            icon={<FileText className="h-4 w-4" />}
-            placeholder="Paper size"
-            items={Object.keys(paperSizes)}
-          />
-        </ToolbarItem>
-        <ToolbarItem label="Heading Font">
-          <ToolbarSelect
-            value={headingFont}
-            onValueChange={(value: string) => {
-              setHeadingFont(value);
-              handleSettingChange("headingFont", value);
-            }}
-            icon={<Type className="h-4 w-4" />}
-            placeholder="Heading Font"
-            items={fonts.map((font) => ({
-              value: font.value,
-              label: font.label,
-            }))}
-          />
-        </ToolbarItem>
-        <ToolbarItem label="Body Font">
-          <ToolbarSelect
-            value={bodyFont}
-            onValueChange={(value: string) => {
-              setBodyFont(value);
-              handleSettingChange("bodyFont", value);
-            }}
-            icon={<Type className="h-4 w-4" />}
-            placeholder="Body Font"
-            items={fonts.map((font) => ({
-              value: font.value,
-              label: font.label,
-            }))}
-          />
-        </ToolbarItem>
-        <ToolbarItem label="Margin Size">
-          <ToolbarSelect
-            value={marginSize}
-            onValueChange={(value: string) => {
-              setMarginSize(value as keyof typeof marginSizes);
-              handleSettingChange("marginSize", value);
-            }}
-            icon={<Maximize className="h-4 w-4" />}
-            placeholder="Margin"
-            items={Object.keys(marginSizes)}
-          />
-        </ToolbarItem>
-        <ToolbarItem label="Include Transcript">
-          <div className="flex items-center space-x-2 h-8">
-            <Switch
-              id="transcript-toggle"
-              checked={includeTranscript}
-              onCheckedChange={setIncludeTranscript}
+    <div className="flex flex-wrap items-end justify-center p-4 bg-gradient-to-b from-background/80 to-background border-b backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex flex-wrap items-end gap-3 justify-center max-w-5xl w-full">
+        <div className="flex flex-wrap items-end gap-3 justify-center">
+          <ToolbarItem label="Paper Size">
+            <ToolbarSelect
+              value={paperSize}
+              onValueChange={(value: string) => {
+                setPaperSize(value as keyof typeof paperSizes);
+                handleSettingChange("paperSize", value);
+              }}
+              icon={<FileText className="h-4 w-4 text-muted-foreground" />}
+              placeholder="Paper size"
+              items={Object.keys(paperSizes)}
             />
-            <Label htmlFor="transcript-toggle" className="text-xs">
-              {includeTranscript ? "On" : "Off"}
-            </Label>
-          </div>
-        </ToolbarItem>
-        <ToolbarItem>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={isSharing}
-                className="h-8"
+          </ToolbarItem>
+          <ToolbarItem label="Heading Font">
+            <ToolbarSelect
+              value={headingFont}
+              onValueChange={(value: string) => {
+                setHeadingFont(value);
+                handleSettingChange("headingFont", value);
+              }}
+              icon={<Type className="h-4 w-4" />}
+              placeholder="Heading Font"
+              items={fonts.map((font) => ({
+                value: font.value,
+                label: font.label,
+              }))}
+            />
+          </ToolbarItem>
+          <ToolbarItem label="Body Font">
+            <ToolbarSelect
+              value={bodyFont}
+              onValueChange={(value: string) => {
+                setBodyFont(value);
+                handleSettingChange("bodyFont", value);
+              }}
+              icon={<Type className="h-4 w-4" />}
+              placeholder="Body Font"
+              items={fonts.map((font) => ({
+                value: font.value,
+                label: font.label,
+              }))}
+            />
+          </ToolbarItem>
+          <ToolbarItem label="Margin Size">
+            <ToolbarSelect
+              value={marginSize}
+              onValueChange={(value: string) => {
+                setMarginSize(value as keyof typeof marginSizes);
+                handleSettingChange("marginSize", value);
+              }}
+              icon={<Maximize className="h-4 w-4" />}
+              placeholder="Margin"
+              items={Object.keys(marginSizes)}
+            />
+          </ToolbarItem>
+          <ToolbarItem label="Include Transcript">
+            <div className="flex items-center space-x-2 h-9">
+              <Switch
+                id="transcript-toggle"
+                checked={includeTranscript}
+                onCheckedChange={setIncludeTranscript}
+                className="data-[state=checked]:bg-primary"
+              />
+              <Label
+                htmlFor="transcript-toggle"
+                className="text-xs font-medium"
               >
-                {isSharing ? (
-                  <Loader2 className="h-4 w-4 animate-spin md:mr-2" />
-                ) : (
-                  <Share className="h-4 w-4 md:mr-2" />
-                )}
-                <span className="hidden sm:inline">Share</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => onShare("pdf")}>
-                Share as PDF
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onShare("link")}>
-                Share Link
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </ToolbarItem>
-        <ToolbarItem>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsReviewDialogOpen(true)}
-            className="h-8"
-          >
-            <StarIcon className="h-4 w-4 md:mr-2" />
-            <span className="hidden sm:inline">Review</span>
-          </Button>
-        </ToolbarItem>
+                {includeTranscript ? "On" : "Off"}
+              </Label>
+            </div>
+          </ToolbarItem>
+        </div>
+
+        <div className="flex gap-3 ml-auto">
+          <ToolbarItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  disabled={isSharing}
+                  className="h-9 px-4 shadow-sm transition-colors hover:bg-secondary/80"
+                >
+                  {isSharing ? (
+                    <Loader2 className="h-4 w-4 animate-spin md:mr-2" />
+                  ) : (
+                    <Share className="h-4 w-4 md:mr-2" />
+                  )}
+                  <span className="hidden sm:inline">Share</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="min-w-[160px]">
+                <DropdownMenuItem onClick={() => onShare("pdf")}>
+                  Share as PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onShare("link")}>
+                  Share Link
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </ToolbarItem>
+
+          <ToolbarItem>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setIsReviewDialogOpen(true)}
+              className="h-9 px-4 shadow-sm transition-colors hover:bg-secondary/80"
+            >
+              <StarIcon className="h-4 w-4 md:mr-2 text-yellow-500" />
+              <span className="hidden sm:inline">Review</span>
+            </Button>
+          </ToolbarItem>
+        </div>
       </div>
 
       <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
@@ -357,9 +367,11 @@ interface ToolbarItemProps {
 
 function ToolbarItem({ label, children }: ToolbarItemProps) {
   return (
-    <div className="flex flex-col items-start">
+    <div className="flex flex-col items-start space-y-1.5">
       {label && (
-        <label className="text-xs text-muted-foreground mb-1">{label}</label>
+        <label className="text-xs font-medium text-muted-foreground">
+          {label}
+        </label>
       )}
       {children}
     </div>
@@ -383,15 +395,16 @@ function ToolbarSelect({
 }: ToolbarSelectProps) {
   return (
     <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger className="h-8 w-[120px] text-xs">
+      <SelectTrigger className="h-9 w-[140px] text-sm bg-background border shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground">
         {icon && <span className="mr-2">{icon}</span>}
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="max-h-[300px]">
         {items.map((item) => (
           <SelectItem
             key={typeof item === "string" ? item : item.value}
             value={typeof item === "string" ? item : item.value}
+            className="text-sm"
           >
             {typeof item === "string" ? item : item.label}
           </SelectItem>

@@ -111,7 +111,7 @@ export function FeatureRequestCard({
       <div className="absolute top-2 right-2">
         <div className="text-xs">
           <Badge
-            variant="outline"
+            variant="secondary"
             className={cn("capitalize", getStatusColor(featureRequest.status))}
           >
             {featureRequest.status.replace("_", " ")}

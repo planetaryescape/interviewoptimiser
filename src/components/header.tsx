@@ -10,10 +10,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { Badge } from "./badge";
 import { FeedbackModal } from "./feedback-modal";
 import { MobileMenu } from "./mobile-menu";
 import { ThemeToggle } from "./theme-toggle";
-import { Badge } from "./ui/badge";
 
 export function Header({ className }: { className?: string }) {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
@@ -144,7 +144,7 @@ export function Header({ className }: { className?: string }) {
                   <span className="text-sm text-muted-foreground">
                     Minutes:
                   </span>
-                  <Badge variant="secondary" className="font-medium">
+                  <Badge variant="warning" className="font-medium">
                     {user.minutes}
                   </Badge>
                 </div>
