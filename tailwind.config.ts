@@ -43,6 +43,7 @@ const config: Config = {
         workSans: ["var(--font-work-sans)", "sans-serif"],
         geistSans: ["var(--font-geist-sans)", "sans-serif"],
         geistMono: ["var(--font-geist-mono)", "monospace"],
+        display: ["var(--font-display)", "system-ui", "sans-serif"],
       },
       colors: {
         background: "hsl(var(--background))",

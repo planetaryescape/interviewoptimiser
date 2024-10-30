@@ -9,13 +9,13 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useUser } from "@/hooks/useUser";
+import { cn } from "@/lib/utils";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { CreditCard, Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Badge } from "./ui/badge";
-import { Separator } from "./ui/separator";
 
 interface MobileMenuProps {
   isDashboard: boolean;
@@ -29,106 +29,122 @@ export function MobileMenu({ isDashboard, onFeedbackClick }: MobileMenuProps) {
 
   const closeMenu = () => setIsOpen(false);
 
+  const NavLink = ({
+    href,
+    children,
+  }: {
+    href: string;
+    children: React.ReactNode;
+  }) => (
+    <Link
+      href={href}
+      onClick={closeMenu}
+      className={cn(
+        "px-3 py-2.5 rounded-md transition-colors text-base",
+        pathname === href
+          ? "bg-primary/10 text-primary font-medium"
+          : "text-muted-foreground hover:text-primary hover:bg-muted"
+      )}
+    >
+      {children}
+    </Link>
+  );
+
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button className="md:hidden" variant="ghost" size="sm">
-          <Menu size={24} className="text-neutral-700 dark:text-neutral-300" />
+        <Button
+          className="md:hidden relative"
+          variant="ghost"
+          size="sm"
+          aria-label="Open menu"
+        >
+          <Menu className="w-5 h-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent
-        side="right"
-        className="text-neutral-700 border-gray-300 dark:border-gray-700 dark:text-neutral-300 z-[500]"
-      >
-        <SheetHeader>
-          <SheetTitle className="text-neutral-700 dark:text-neutral-300 border-b pb-4 border-gray-400 dark:border-gray-600">
-            Menu
-          </SheetTitle>
+      <SheetContent side="right" className="w-full max-w-[300px] p-0">
+        <SheetHeader className="p-6 border-b border-border/50">
+          <SheetTitle className="text-lg font-display">Navigation</SheetTitle>
         </SheetHeader>
-        <nav className="flex flex-col h-full mt-4 text-lg font-medium text-neutral-700 dark:text-neutral-300">
-          <div className="flex flex-col space-y-4 gap-4 text-center">
-            {isDashboard && (
-              <>
-                <Link href="/dashboard" onClick={closeMenu}>
-                  Optimisations
-                </Link>
-                {user?.role === "admin" && (
-                  <>
-                    <Link href="/dashboard/admin" onClick={closeMenu}>
-                      Optimisations (Admin)
-                    </Link>
-                    <Link
-                      href="/dashboard/admin/feature-requests"
-                      onClick={closeMenu}
-                    >
-                      Feature Requests (Admin)
-                    </Link>
-                    <Link href="/dashboard/admin/changelog" onClick={closeMenu}>
-                      Changelog (Admin)
-                    </Link>
-                  </>
-                )}
-                <Link href="/dashboard/settings" onClick={closeMenu}>
-                  Settings
-                </Link>
-              </>
-            )}
-            <Link href="/changelog" onClick={closeMenu}>
-              Changelog
-            </Link>
-            <Link href="/feature-requests" onClick={closeMenu}>
-              Feature Requests
-            </Link>
-            <SignedOut>
-              <Button
-                className="w-full"
-                size="sm"
-                asChild
-                variant="default"
-                onClick={closeMenu}
-              >
-                <Link href="/sign-up">Optimise Your CV Now</Link>
-              </Button>
-              <Button
-                className="w-full"
-                size="sm"
-                asChild
-                variant="ghost"
-                onClick={closeMenu}
-              >
-                <Link href="/sign-in">Sign In</Link>
-              </Button>
-            </SignedOut>
-            <SignedIn>
-              <Link href="/dashboard" onClick={closeMenu}>
-                Dashboard
-              </Link>
-            </SignedIn>
+
+        <div className="flex flex-col h-[calc(100vh-5rem)] overflow-y-auto">
+          <div className="flex-1 p-6">
+            <nav className="flex flex-col space-y-1">
+              <NavLink href="/">Home</NavLink>
+
+              {isDashboard && (
+                <>
+                  <NavLink href="/dashboard">Optimisations</NavLink>
+                  {user?.role === "admin" && (
+                    <>
+                      <NavLink href="/dashboard/admin">
+                        Optimisations (Admin)
+                      </NavLink>
+                      <NavLink href="/dashboard/admin/feature-requests">
+                        Feature Requests (Admin)
+                      </NavLink>
+                      <NavLink href="/dashboard/admin/changelog">
+                        Changelog (Admin)
+                      </NavLink>
+                    </>
+                  )}
+                  <NavLink href="/dashboard/settings">Settings</NavLink>
+                </>
+              )}
+
+              <NavLink href="/changelog">Changelog</NavLink>
+              <NavLink href="/feature-requests">Feature Requests</NavLink>
+
+              {!isDashboard && (
+                <SignedIn>
+                  <NavLink href="/dashboard">Dashboard</NavLink>
+                </SignedIn>
+              )}
+            </nav>
           </div>
-          <div className="flex flex-col space-y-4 gap-4 mt-8 text-center">
-            <SignedIn>
-              <Separator className="dark:bg-gray-400" />
+
+          <div className="p-6 border-t border-border/50 bg-muted/50">
+            <div className="flex flex-col space-y-4">
               <SignedIn>
-                <div className="flex items-center justify-center gap-2 w-full">
-                  <CreditCard className="h-4 w-4" />
-                  <span className="font-medium">Minutes:</span>
-                  <Badge variant="secondary" className="">
-                    {user?.minutes}
-                  </Badge>
-                </div>
+                {user && (
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-background/80">
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        Minutes
+                      </span>
+                    </div>
+                    <Badge variant="secondary" className="font-medium">
+                      {user.minutes}
+                    </Badge>
+                  </div>
+                )}
+
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    onFeedbackClick();
+                    setIsOpen(false);
+                  }}
+                >
+                  Give Feedback
+                </Button>
               </SignedIn>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  onFeedbackClick();
-                  setIsOpen(false);
-                }}
-              >
-                Give us feedback
-              </Button>
-            </SignedIn>
+
+              <SignedOut>
+                <div className="flex flex-col gap-2">
+                  <Button asChild variant="default" className="w-full">
+                    <Link href="/sign-up">Start Mock Interview</Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link href="/sign-in">Sign In</Link>
+                  </Button>
+                </div>
+              </SignedOut>
+            </div>
           </div>
-        </nav>
+        </div>
       </SheetContent>
     </Sheet>
   );
