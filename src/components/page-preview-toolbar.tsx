@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -15,11 +21,20 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { PageSettings } from "@/db/schema";
+import { useUser } from "@clerk/nextjs";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { FileText, Loader2, Maximize, Share, Type } from "lucide-react";
-import { useEffect } from "react";
+import {
+  FileText,
+  Loader2,
+  Maximize,
+  Share,
+  StarIcon,
+  Type,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { ReviewForm, ReviewFormData } from "./review-form";
 
 export const paperSizes = {
   A4: { width: 210, height: 297 },
@@ -97,7 +112,17 @@ export function PagePreviewToolbar({
   includeTranscript,
   setIncludeTranscript,
 }: PagePreviewToolbarProps) {
+  const { user } = useUser();
   const queryClient = useQueryClient();
+  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
+  const [reviewForm, setReviewForm] = useState<ReviewFormData>({
+    name: "",
+    comment: "",
+    twitterUsername: "",
+    linkedinUrl: "",
+    showOnLanding: false,
+    rating: 5,
+  });
 
   const { mutate: updatePageSettings } = useMutation({
     mutationFn: onSettingsChange,
@@ -118,11 +143,47 @@ export function PagePreviewToolbar({
     },
   });
 
+  const { mutate: submitReview, isPending: isSubmitting } = useMutation({
+    mutationFn: async (data: ReviewFormData) => {
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to submit review");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast.success("Thank you for your review!");
+      setIsReviewDialogOpen(false);
+      setReviewForm({
+        name: "",
+        comment: "",
+        twitterUsername: "",
+        linkedinUrl: "",
+        showOnLanding: false,
+        rating: 5,
+      });
+    },
+    onError: (error) => {
+      toast.error("Failed to submit review. Please try again later.");
+      console.error("Error submitting review:", error);
+    },
+  });
+
   const handleSettingChange = (
     setting: keyof PageSettings,
     value: PageSettings[keyof PageSettings]
   ) => {
     updatePageSettings({ [setting]: value });
+  };
+
+  const handleReviewSubmit = () => {
+    submitReview(reviewForm);
   };
 
   // Use useEffect to set initial values from pageSettings
@@ -140,6 +201,18 @@ export function PagePreviewToolbar({
       setHeadingFont(pageSettings.headingFont);
     }
   }, [pageSettings, setPaperSize, setMarginSize, setBodyFont, setHeadingFont]);
+
+  // Add effect to prefill name when user data is available
+  useEffect(() => {
+    if ((user?.firstName || user?.lastName) && isReviewDialogOpen) {
+      setReviewForm((prev) => ({
+        ...prev,
+        name:
+          [user.firstName, user.lastName].filter(Boolean).join(" ") ||
+          prev.name,
+      }));
+    }
+  }, [user, isReviewDialogOpen]);
 
   return (
     <div className="flex flex-wrap items-end justify-between p-2 bg-card gap-2">
@@ -237,7 +310,41 @@ export function PagePreviewToolbar({
             </DropdownMenuContent>
           </DropdownMenu>
         </ToolbarItem>
+        <ToolbarItem>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsReviewDialogOpen(true)}
+            className="h-8"
+          >
+            <StarIcon className="h-4 w-4 md:mr-2" />
+            <span className="hidden sm:inline">Review</span>
+          </Button>
+        </ToolbarItem>
       </div>
+
+      <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
+        <DialogContent className="max-w-full h-full sm:h-[90vh] sm:max-w-[90vw] sm:max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">Leave a Review</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col h-full overflow-hidden">
+            <div className="flex-1 overflow-y-auto space-y-6 py-4 px-2">
+              <div className="max-w-2xl mx-auto">
+                <ReviewForm
+                  formData={reviewForm}
+                  onFormChange={(data) =>
+                    setReviewForm((prev) => ({ ...prev, ...data }))
+                  }
+                  onSubmit={handleReviewSubmit}
+                  isSubmitting={isSubmitting}
+                  autoFocus
+                />
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
       {children}
     </div>
   );

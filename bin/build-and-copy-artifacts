@@ -9,7 +9,18 @@ mkdir -p terraform/artifacts/$1
 
 pnpm install
 rimraf functions/dist/$1
-esbuild functions/$1.ts --bundle --platform=node --target=node20 --sourcemap --minify --outfile=functions/dist/$1/index.js
+esbuild functions/$1.ts \
+  --bundle \
+  --platform=node \
+  --target=node20 \
+  --sourcemap \
+  --minify \
+  --external:@aws-sdk/* \
+  --external:aws-lambda \
+  --inject:./scripts/react-shim.js \
+  --loader:.tsx=tsx \
+  --loader:.ts=tsx \
+  --outfile=functions/dist/$1/index.js
 cp -r functions/dist/$1/* terraform/artifacts/$1/
 if [ "$1" = "generate-pdf" ]; then
   cp -r node_modules/@sparticuz/chromium/bin terraform/artifacts/$1/

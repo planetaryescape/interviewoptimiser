@@ -31,3 +31,8 @@ variable "POSTHOG_KEY" {
   description = "Posthog API Key"
   type        = string
 }
+
+variable "RESEND_API_KEY" {
+  description = "Resend API Key"
+  type        = string
+}

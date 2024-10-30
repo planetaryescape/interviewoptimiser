@@ -1,0 +1,93 @@
+import { db } from "@/db";
+import { reviews } from "@/db/schema";
+import ReviewNotificationEmail from "@/emails/review-notification";
+import { getUserFromClerkId } from "@/lib/auth";
+import { config } from "@/lib/config";
+import { logger } from "@/lib/logger";
+import { resend } from "@/lib/resend";
+import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
+import { getAuth } from "@clerk/nextjs/server";
+import * as Sentry from "@sentry/nextjs";
+import { NextRequest, NextResponse } from "next/server";
+
+export async function POST(request: NextRequest) {
+  logger.info("POST request received at /api/reviews");
+  const { userId: clerkUserId } = getAuth(request);
+  if (!clerkUserId) {
+    logger.warn("Unauthorized access attempt to POST /api/reviews");
+    return NextResponse.json(formatErrorEntity("Unauthorized"), {
+      status: 401,
+    });
+  }
+
+  try {
+    const { id: userId } = await getUserFromClerkId(clerkUserId);
+    if (!userId) {
+      logger.warn({ clerkUserId }, "User not found in database");
+      return NextResponse.json(formatErrorEntity("User not found"), {
+        status: 404,
+      });
+    }
+
+    const body = await request.json();
+    logger.info("Received review data");
+
+    const [newReview] = await db
+      .insert(reviews)
+      .values({
+        userId,
+        name: body.name,
+        rating: body.rating,
+        comment: body.comment,
+        twitterUsername: body.twitterUsername,
+        linkedinUrl: body.linkedinUrl,
+        showOnLanding: body.showOnLanding,
+      })
+      .returning();
+
+    // Send email notification
+    try {
+      await resend.emails.send({
+        from: `${config.projectName} Team <notifications@${config.domain}>`,
+        to: config.supportEmail,
+        subject: `New Review Submitted - ${body.name}`,
+        react: ReviewNotificationEmail({
+          name: body.name,
+          rating: body.rating,
+          comment: body.comment,
+          twitterUsername: body.twitterUsername,
+          linkedinUrl: body.linkedinUrl,
+          showOnLanding: body.showOnLanding,
+        }),
+      });
+      logger.info("Review notification email sent successfully");
+    } catch (emailError) {
+      logger.error(
+        { error: emailError },
+        "Failed to send review notification email"
+      );
+      // Don't fail the request if email sending fails
+    }
+
+    logger.info({ reviewId: newReview.id }, "Successfully created new review");
+    return NextResponse.json(formatEntity(newReview, "review"), {
+      status: 201,
+    });
+  } catch (error) {
+    Sentry.withScope((scope) => {
+      scope.setExtra("context", "POST /api/reviews");
+      scope.setExtra("error", error);
+      Sentry.captureException(error);
+    });
+    logger.error(
+      {
+        message: error instanceof Error ? error.message : "Unknown error",
+        error,
+      },
+      "Error in POST /api/reviews"
+    );
+    return NextResponse.json(formatErrorEntity("Internal server error"), {
+      status: 500,
+    });
+  }
+}

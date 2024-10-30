@@ -55,6 +55,11 @@ locals {
       name       = "add-to-queue"
       sentry_dsn = "https://432e24ad8d4c63144ab026e372ea0cdb@o1198116.ingest.us.sentry.io/4507218555961344"
     }
+
+    vet_review = {
+      name       = "vet-review"
+      sentry_dsn = "https://432e24ad8d4c63144ab026e372ea0cdb@o1198116.ingest.us.sentry.io/4507218555961344"
+    }
   }
 
   lambda_details = { for k, v in local.lambdas :
@@ -104,6 +109,14 @@ locals {
       GENERATE_REPORT_QUEUE_URL = aws_sqs_queue.generate_report_queue.url
       PINO_LOG_LEVEL            = "info"
       LAMBDA_AWS_REGION         = local.region
+    }
+
+    vet_review = {
+      DATABASE_URL      = var.DATABASE_URL
+      OPENAI_API_KEY    = var.OPENAI_API_KEY
+      RESEND_API_KEY    = var.RESEND_API_KEY
+      PINO_LOG_LEVEL    = "info"
+      LAMBDA_AWS_REGION = local.region
     }
   }
 }
