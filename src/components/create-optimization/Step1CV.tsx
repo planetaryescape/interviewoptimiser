@@ -3,6 +3,7 @@ import { FileUpload } from "@/components/ui/file-upload";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { config } from "@/lib/config";
+import { cn } from "@/lib/utils";
 import {
   useCreateInterviewActions,
   useCreateInterviewCVText,
@@ -74,25 +75,42 @@ export function Step1CV() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="w-full max-w-4xl mx-auto min-h-96 border border-dashed bg-white dark:bg-black border-neutral-200 dark:border-neutral-800 rounded-lg">
-        <FileUpload
-          files={[cvFile].filter(Boolean) as File[]}
-          label="Upload your CV (PDF or Word)"
-          description="Drag or drop your file here or click to upload"
-          accept=".pdf,.doc,.docx"
-          onChange={handleFileChange}
-          loading={isLoading}
-        />
+    <div className="space-y-6">
+      <div className="bg-muted/50 rounded-lg p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+          <p className="text-sm font-medium">
+            Upload your CV or paste its content below - this helps us understand
+            your background
+          </p>
+        </div>
+        <div className="w-full border-2 border-dashed border-muted-foreground/25 rounded-lg bg-white dark:bg-black">
+          <FileUpload
+            files={[cvFile].filter(Boolean) as File[]}
+            label="Upload your CV (PDF or Word)"
+            description="Drag and drop your file here or click to upload"
+            accept=".pdf,.doc,.docx"
+            onChange={handleFileChange}
+            loading={isLoading}
+          />
+        </div>
+        <p className="text-sm text-muted-foreground mt-4">
+          Note: Sometimes we may not be able to parse text from uploaded PDFs.
+          If the textbox doesn&apos;t populate shortly after uploading your
+          document, please try copying the text from your document and pasting
+          it below.
+        </p>
       </div>
-      <p className="text-sm text-muted-foreground mt-2">
-        Note: Sometimes we may not be able to parse text from uploaded PDFs. If
-        the textbox doesn&apos;t populate shortly after uploading your document,
-        please try copying the text from your document and pasting it in the
-        textbox below.
-      </p>
-      <div className="space-y-4">
-        <Label htmlFor="cv-paste">Or paste your CV</Label>
+
+      <div className="space-y-3">
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="cv-paste" className="text-base">
+            Or paste your CV
+          </Label>
+          <span className="text-sm text-muted-foreground">
+            Include work experience, education, and skills
+          </span>
+        </div>
         <Textarea
           id="cv-paste"
           value={cvText}
@@ -103,10 +121,14 @@ export function Step1CV() {
               setShowStep1Error(false);
             }
           }}
-          className={`min-h-[200px] ${showStep1Error ? "border-red-500" : ""}`}
+          className={cn(
+            "min-h-[400px] h-full resize-none",
+            showStep1Error && "border-destructive"
+          )}
+          placeholder="Paste your CV content here..."
         />
         {showStep1Error && (
-          <p className="text-red-500 text-sm mt-1">
+          <p className="text-destructive text-sm">
             Please upload or paste your CV before proceeding.
           </p>
         )}

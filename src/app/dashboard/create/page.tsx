@@ -8,14 +8,14 @@ import { ScheduleErrorModal } from "@/components/create-optimization/ScheduleErr
 import { Step1CV } from "@/components/create-optimization/Step1CV";
 import { Step2JobDescription } from "@/components/create-optimization/Step2JobDescription";
 import { Step3AdditionalInfo } from "@/components/create-optimization/Step3AdditionalInfo";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { NewInterview } from "@/db/schema";
 import { useUser } from "@/hooks/useUser";
 import { config } from "@/lib/config";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { sanitiseUserInputText } from "@/lib/sanitiseUserInputText";
+import { cn } from "@/lib/utils";
 import { idHandler } from "@/lib/utils/idHandler";
 import {
   useCreateInterviewActions,
@@ -33,7 +33,6 @@ import {
 import * as Sentry from "@sentry/nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
-import { CreditCard } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { usePostHog } from "posthog-js/react";
 import { toast } from "sonner";
@@ -212,59 +211,109 @@ export default function CreateInterview() {
 
   const title =
     step === 1
-      ? "Give us your CV"
+      ? "Let's start with your CV"
       : step === 2
-      ? "Give us the Job Description"
-      : "Is there anything else we should know?";
+      ? "Now, tell us about the job"
+      : "Final details";
+
+  const subtitle =
+    step === 1
+      ? "We'll use your CV to understand your experience and tailor the interview questions."
+      : step === 2
+      ? "Share the job description to help us create relevant interview questions."
+      : "Help us customize your interview experience.";
 
   return (
-    <div className="relative pt-4 flex flex-col overflow-y-auto h-full pb-[calc(5em+env(safe-area-inset-bottom))] md:pb-0">
-      <Card className="mx-auto max-w-2xl w-full">
-        <CardHeader>
-          <CardTitle>{title}</CardTitle>
-        </CardHeader>
-        <CardContent className="">
-          {step === 1 && <Step1CV />}
-          {step === 2 && <Step2JobDescription />}
-          {step === 3 && <Step3AdditionalInfo />}
-        </CardContent>
-      </Card>
+    <div className="relative flex flex-col h-full overflow-y-auto pb-[env(safe-area-inset-bottom)]">
+      <div className="sticky top-0 z-50 bg-background border-b">
+        <div className="max-w-2xl mx-auto w-full px-4 py-4">
+          <div className="flex items-center justify-between">
+            <Button
+              variant="outline"
+              disabled={step === 1}
+              onClick={handleBack}
+              size="sm"
+            >
+              Back
+            </Button>
 
-      <div className="flex-1" />
+            <div className="flex items-center justify-center gap-2">
+              <div
+                className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
+                  step === 1
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                )}
+              >
+                1
+              </div>
+              <div
+                className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
+                  step === 2
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                )}
+              >
+                2
+              </div>
+              <div
+                className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
+                  step === 3
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                )}
+              >
+                3
+              </div>
+            </div>
 
-      <div className="sticky bottom-0 bg-white dark:bg-black p-[1em_1em_calc(1em+env(safe-area-inset-bottom))]">
-        <div className="flex items-center justify-between mx-auto max-w-2xl">
-          <Button variant="outline" disabled={step === 1} onClick={handleBack}>
-            Back
-          </Button>
-          <div className="flex items-center space-x-2">
-            <CreditCard className="h-4 w-4" />
-            <span className="font-medium">Minutes:</span>
-            <Badge variant="secondary">{user?.minutes}</Badge>
-          </div>
-          <Button
-            disabled={
-              createInterviewMutation.isPending ||
-              submitInterviewMutation.isPending ||
-              (step === 2 && !canProceedToStep3) ||
-              (step === 1 && !canProceedToStep2)
-            }
-            onClick={() => {
-              if (step !== 3) {
-                handleNextStep(step);
-              } else {
-                handleSubmit();
+            <Button
+              size="sm"
+              disabled={
+                createInterviewMutation.isPending ||
+                submitInterviewMutation.isPending ||
+                (step === 2 && !canProceedToStep3) ||
+                (step === 1 && !canProceedToStep2)
               }
-            }}
-          >
-            {createInterviewMutation.isPending ||
-            submitInterviewMutation.isPending
-              ? "Submitting..."
-              : step === 3
-              ? "Submit"
-              : "Next"}
-          </Button>
+              onClick={() => {
+                if (step !== 3) {
+                  handleNextStep(step);
+                } else {
+                  handleSubmit();
+                }
+              }}
+            >
+              {createInterviewMutation.isPending ||
+              submitInterviewMutation.isPending
+                ? "Submitting..."
+                : step === 3
+                ? "Submit"
+                : "Next"}
+            </Button>
+          </div>
         </div>
+      </div>
+
+      <div className="flex-1 container max-w-2xl mx-auto px-4 py-6 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <div className="mb-8">
+          <div className="text-center space-y-1">
+            <h1 className="text-2xl font-semibold">{title}</h1>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+              {subtitle}
+            </p>
+          </div>
+        </div>
+
+        <Card>
+          <CardContent className="p-6">
+            {step === 1 && <Step1CV />}
+            {step === 2 && <Step2JobDescription />}
+            {step === 3 && <Step3AdditionalInfo />}
+          </CardContent>
+        </Card>
       </div>
 
       <ConfirmationModal
