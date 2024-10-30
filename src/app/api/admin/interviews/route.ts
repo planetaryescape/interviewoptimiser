@@ -39,6 +39,9 @@ export async function GET(request: NextRequest) {
 
     const userInterviews = await db.query.interviews.findMany({
       orderBy: desc(interviews.createdAt),
+      with: {
+        report: true,
+      },
     });
 
     logger.info(
