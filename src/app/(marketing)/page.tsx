@@ -19,9 +19,9 @@ export default async function LandingPage() {
           <Hero />
         </ClerkProvider>
       </Suspense>
-      <SocialProofSection />
-      <HowItWorksSection />
       <DifferentiatorsSection />
+      <HowItWorksSection />
+      <SocialProofSection />
       <TestimonialsSection />
       <FAQSection />
       {!userId && <CTASection />}
