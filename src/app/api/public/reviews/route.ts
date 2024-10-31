@@ -15,9 +15,10 @@ export async function GET() {
         eq(reviews.showOnLanding, true),
         eq(reviews.isPublished, true)
       ),
-      orderBy: [desc(reviews.rating), desc(reviews.createdAt)],
-      limit: 6,
+      orderBy: [desc(reviews.createdAt)],
     });
+
+    console.log("publicReviews:", publicReviews);
 
     logger.info(
       { count: publicReviews.length },
