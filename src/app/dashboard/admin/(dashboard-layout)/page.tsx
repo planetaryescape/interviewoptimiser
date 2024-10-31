@@ -29,10 +29,11 @@ export default function InterviewsSection() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["interviews"],
+    queryKey: ["interviews-admin"],
     queryFn: fetchInterviews,
     refetchInterval: 3000,
   });
+  console.log("interviewsData:", interviewsData);
 
   const interviews = useMemo(
     () => interviewsData?.data || [],

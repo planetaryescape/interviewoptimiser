@@ -47,6 +47,7 @@ export function TestimonialsSection() {
     queryKey: ["testimonials"],
     queryFn: getTestimonials,
   });
+  console.log("testimonials:", testimonials);
 
   if (error) {
     console.error("Failed to load testimonials:", error);
