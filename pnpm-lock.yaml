@@ -177,8 +177,8 @@ importers:
         specifier: ^1.8.0
         version: 1.8.0
       hume:
-        specifier: ^0.9.3
-        version: 0.9.3
+        specifier: ^0.9.4
+        version: 0.9.4
       import-in-the-middle:
         specifier: ^1.11.2
         version: 1.11.2
@@ -5749,8 +5749,8 @@ packages:
   hume@0.9.1:
     resolution: {integrity: sha512-5Rb6qnmMNBIM4jNkHp7zk+cKae0wnrbArGTrHnrIQhxLjXaZoy6VJXcgdq8THVJFbpWrRIg5a3uFgXXzkSHgWQ==}
 
-  hume@0.9.3:
-    resolution: {integrity: sha512-9a0LC2398TUpSyFoSx8nnRrGVMsXvl1EJnD79DwuYX+raKrHqmWa9YPMtbekPSB1AgSJr6tbpeNCXeoLujFJsQ==}
+  hume@0.9.4:
+    resolution: {integrity: sha512-O6zVxzRrclukwGvG6CT97n9m0Agiz35FdkyHDd83b5ru3EipC94IoZxQmc6bhla1afcEL+NYXnHrrBmks9zFiQ==}
 
   husky@9.1.6:
     resolution: {integrity: sha512-sqbjZKK7kf44hfdE94EoX8MZNk0n7HeW37O4YrVGCF4wzgQjp+akPAkfUK5LZ6KuR/6sqeAVuXHji+RzQgOn5A==}
@@ -15094,7 +15094,7 @@ snapshots:
       - encoding
       - utf-8-validate
 
-  hume@0.9.3:
+  hume@0.9.4:
     dependencies:
       form-data: 4.0.1
       form-data-encoder: 4.0.2
