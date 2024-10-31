@@ -13,6 +13,7 @@ export const reviews = pgTable(
     name: p.varchar({ length: 255 }).notNull(),
     rating: p.integer().notNull(),
     comment: p.text().notNull(),
+    imageUrl: p.varchar({ length: 255 }),
     twitterUsername: p.varchar({ length: 255 }),
     linkedinUrl: p.varchar({ length: 255 }),
     showOnLanding: p.boolean().default(false).notNull(),

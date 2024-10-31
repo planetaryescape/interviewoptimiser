@@ -85,7 +85,10 @@ export function TestimonialsSection() {
                     <div className="flex items-center gap-4">
                       <div className="relative h-12 w-12 overflow-hidden rounded-full bg-gray-100">
                         <Image
-                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${testimonial.data.name}`}
+                          src={
+                            testimonial.data.imageUrl ??
+                            `https://api.dicebear.com/7.x/avataaars/svg?seed=${testimonial.data.name}`
+                          }
                           alt={testimonial.data.name}
                           fill
                           className="object-cover"
