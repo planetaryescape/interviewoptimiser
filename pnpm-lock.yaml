@@ -207,8 +207,8 @@ importers:
         specifier: ^4.70.2
         version: 4.70.2(zod@3.23.8)
       openai-realtime-api:
-        specifier: ^1.0.6
-        version: 1.0.6
+        specifier: ^1.0.7
+        version: 1.0.7
       oxlint:
         specifier: ^0.10.2
         version: 0.10.3
@@ -6665,8 +6665,8 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  nanoid@5.0.7:
-    resolution: {integrity: sha512-oLxFY2gd2IqnjcYyOXD8XGCftpGtZP2AbHbOkthDkvRywH5ayNtPVy9YlOPcHckXzbLTCHpkb7FB+yuxKV13pQ==}
+  nanoid@5.0.8:
+    resolution: {integrity: sha512-TcJPw+9RV9dibz1hHUzlLVy8N4X9TnwirAjrU08Juo6BNKggzVfP2ZJ/3ZUSq15Xl5i85i+Z89XBO90pB2PghQ==}
     engines: {node: ^18 || >=20}
     hasBin: true
 
@@ -6862,8 +6862,8 @@ packages:
     resolution: {integrity: sha512-VXJjc87FScF88uafS3JllDgvAm+c/Slfz06lorj2uAY34rlUu0Nt+v8wreiImcrgAjjIHp1rXpTDlLOGw29WwQ==}
     engines: {node: '>=18'}
 
-  openai-realtime-api@1.0.6:
-    resolution: {integrity: sha512-3WLYsbFZrsLXe4wRZtC1j5GdMi1XhnyZBUBGBFAM6XCzsqFiClphPY7IGBgCRo5rvt5iDuEB5Ui6gywNUAH05w==}
+  openai-realtime-api@1.0.7:
+    resolution: {integrity: sha512-mA5Ha0Ut1A2QB/2rNO0jedTeC/PJ6EJndXEv5N8I8SQKgpRAqhT0z2sshYAZMNMXN0gOJrVdykdVa+p1pXsAag==}
     engines: {node: '>=18'}
 
   openai@4.70.2:
@@ -16332,7 +16332,7 @@ snapshots:
 
   nanoid@3.3.7: {}
 
-  nanoid@5.0.7: {}
+  nanoid@5.0.8: {}
 
   natural-compare@1.4.0: {}
 
@@ -16547,9 +16547,9 @@ snapshots:
     dependencies:
       mimic-function: 5.0.1
 
-  openai-realtime-api@1.0.6:
+  openai-realtime-api@1.0.7:
     dependencies:
-      nanoid: 5.0.7
+      nanoid: 5.0.8
       ws: 8.18.0
     transitivePeerDependencies:
       - bufferutil
