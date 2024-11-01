@@ -10,7 +10,7 @@ import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { EntityList } from "@/lib/utils/formatEntity";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, FileText, RefreshCw } from "lucide-react";
+import { ChevronRight, FileText, Home, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { usePostHog } from "posthog-js/react";
@@ -100,15 +100,18 @@ export default function InterviewReportsPage(props: {
 
   return (
     <div className="container max-w-7xl mx-auto py-8 px-4">
-      <div className="flex flex-col gap-4 mb-8">
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Back to Interviews
-            </Link>
-          </Button>
+      <div className="flex flex-col gap-6">
+        <div className="flex items-center text-sm text-muted-foreground">
+          <Link
+            href="/dashboard"
+            className="flex items-center hover:text-foreground transition-colors"
+          >
+            <Home className="h-4 w-4" />
+          </Link>
+          <ChevronRight className="h-4 w-4 mx-2" />
+          <span className="text-foreground">Interview Reports</span>
         </div>
+
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">Interview Reports</h1>
           <Button onClick={handleRetakeInterview}>
@@ -128,7 +131,7 @@ export default function InterviewReportsPage(props: {
           <Button onClick={handleRetakeInterview}>Start Interview</Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
           {reports.map((report) => (
             <ReportCard
               key={report.sys.id}
