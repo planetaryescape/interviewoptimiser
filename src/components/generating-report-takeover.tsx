@@ -117,7 +117,7 @@ export function GeneratingReportTakeover() {
           transition={{ delay: 1 }}
           className="text-center text-sm text-muted-foreground mt-8"
         >
-          You'll be redirected automatically when your report is ready
+          You&apos;ll be redirected automatically when your report is ready
         </motion.p>
       </motion.div>
     </motion.div>
