@@ -38,12 +38,17 @@ export function Controls({
   const { mutate: updateInterview } = useMutation({
     mutationFn: async (interview: Partial<NewInterview>) => {
       const interviewRepo = await getRepository<Interview>("interviews");
-      return await interviewRepo.update(params.id as string, interview);
+      return await interviewRepo.update(
+        params.interviewId as string,
+        interview
+      );
     },
     onSuccess: () => {
       sendAssistantInput("hang_up");
       disconnect();
-      queryClient.invalidateQueries({ queryKey: ["interview", params.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["interview", params.interviewId],
+      });
       setInterviewEnded(true);
     },
     onError: (error) => {

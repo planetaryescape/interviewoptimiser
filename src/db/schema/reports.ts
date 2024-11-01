@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, uniqueIndex } from "drizzle-orm/pg-core";
+import { index, pgTable } from "drizzle-orm/pg-core";
 import { interviews } from "./interviews";
 import { pageSettings } from "./pageSettings";
 
@@ -36,9 +36,7 @@ export const reports = pgTable(
     updatedAt: p.timestamp().defaultNow().notNull(),
   }),
   (reports) => ({
-    interviewIdIdx: uniqueIndex("reports_interview_id_idx").on(
-      reports.interviewId
-    ),
+    interviewIdIdx: index("reports_interview_id_idx").on(reports.interviewId),
   })
 );
 
