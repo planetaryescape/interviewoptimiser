@@ -1,19 +1,31 @@
 "use client";
 
+import { ConfirmationModal } from "@/components/create-optimization/ConfirmationModal";
+import { OutOfMinutesModal } from "@/components/create-optimization/OutOfMinutesModal";
 import { ReportCard } from "@/components/report-card";
 import { Button } from "@/components/ui/button";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
-import { Report } from "@/db/schema";
+import { Interview, Report } from "@/db/schema";
+import { useUser } from "@/hooks/useUser";
+import { getRepository } from "@/lib/data/repositoryFactory";
 import { EntityList } from "@/lib/utils/formatEntity";
 import { useQuery } from "@tanstack/react-query";
-import { FileText, RefreshCw } from "lucide-react";
+import { ArrowLeft, FileText, RefreshCw } from "lucide-react";
 import Link from "next/link";
-import { use } from "react";
+import { useRouter } from "next/navigation";
+import { usePostHog } from "posthog-js/react";
+import { use, useState } from "react";
 
 export default function InterviewReportsPage(props: {
   params: Promise<{ interviewId: string }>;
 }) {
   const params = use(props.params);
+  const router = useRouter();
+  const posthog = usePostHog();
+  const { data: user } = useUser();
+  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
+  const [isOutOfMinutesDialogOpen, setIsOutOfMinutesDialogOpen] =
+    useState(false);
 
   const {
     data: reportsData,
@@ -30,9 +42,39 @@ export default function InterviewReportsPage(props: {
       }
       return response.json();
     },
+    refetchInterval: 3000,
   });
 
-  if (isLoading) {
+  const {
+    data: interview,
+    isLoading: interviewIsLoading,
+    error: interviewError,
+  } = useQuery({
+    queryKey: ["interview", params.interviewId],
+    queryFn: async () => {
+      const interviewRepo = await getRepository<Interview>("interviews");
+      return await interviewRepo.getById(params.interviewId);
+    },
+  });
+
+  const handleRetakeInterview = () => {
+    if (!user || user.minutes <= 0 || user.minutes < 30) {
+      // Assuming 30 minutes for an interview
+      posthog.capture("out_of_minutes", {
+        userId: user?.id,
+      });
+      setIsOutOfMinutesDialogOpen(true);
+    } else {
+      setIsAlertDialogOpen(true);
+    }
+  };
+
+  const handleConfirmRetake = () => {
+    setIsAlertDialogOpen(false);
+    router.push(`/dashboard/interview/${params.interviewId}`);
+  };
+
+  if (isLoading || interviewIsLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <ParticleSwarmLoader />
@@ -40,7 +82,7 @@ export default function InterviewReportsPage(props: {
     );
   }
 
-  if (error) {
+  if (error || interviewError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h1 className="text-2xl font-bold mb-4">Error Loading Reports</h1>
@@ -58,17 +100,22 @@ export default function InterviewReportsPage(props: {
 
   return (
     <div className="container max-w-7xl mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Interview Reports</h1>
-        <Button asChild>
-          <Link
-            href={`/dashboard/interview/${params.interviewId}`}
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className="w-4 h-4" />
+      <div className="flex flex-col gap-4 mb-8">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard" className="flex items-center gap-2">
+              <ArrowLeft className="w-4 h-4" />
+              Back to Interviews
+            </Link>
+          </Button>
+        </div>
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Interview Reports</h1>
+          <Button onClick={handleRetakeInterview}>
+            <RefreshCw className="w-4 h-4 mr-2" />
             Retake Interview
-          </Link>
-        </Button>
+          </Button>
+        </div>
       </div>
 
       {reports.length === 0 ? (
@@ -78,11 +125,7 @@ export default function InterviewReportsPage(props: {
           <p className="text-gray-600 mb-6">
             Take the interview to generate your first report.
           </p>
-          <Button asChild>
-            <Link href={`/dashboard/interview/${params.interviewId}`}>
-              Start Interview
-            </Link>
-          </Button>
+          <Button onClick={handleRetakeInterview}>Start Interview</Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -95,6 +138,20 @@ export default function InterviewReportsPage(props: {
           ))}
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={isAlertDialogOpen}
+        onClose={() => setIsAlertDialogOpen(false)}
+        onConfirm={handleConfirmRetake}
+        userMinutes={user?.minutes || 0}
+        interview={interview?.data}
+      />
+
+      <OutOfMinutesModal
+        isOpen={isOutOfMinutesDialogOpen}
+        onClose={() => setIsOutOfMinutesDialogOpen(false)}
+        onBuyMinutes={() => router.push("/pricing")}
+      />
     </div>
   );
 }

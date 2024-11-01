@@ -17,13 +17,33 @@ export const handler = Sentry.AWSLambda.wrapHandler(
         };
       }
 
-      const { interviewId, queueType, userId } = JSON.parse(event.body);
+      const { interviewId, queueType, userId, reportId } = JSON.parse(
+        event.body
+      );
 
-      if (!interviewId || !queueType) {
+      if (!interviewId) {
         return {
           statusCode: 400,
           body: JSON.stringify({
-            error: "Missing interviewId or queueType",
+            error: "Missing interviewId",
+          }),
+        };
+      }
+
+      if (!queueType) {
+        return {
+          statusCode: 400,
+          body: JSON.stringify({
+            error: "Missing queueType",
+          }),
+        };
+      }
+
+      if (!reportId) {
+        return {
+          statusCode: 400,
+          body: JSON.stringify({
+            error: "Missing reportId",
           }),
         };
       }
@@ -45,6 +65,7 @@ export const handler = Sentry.AWSLambda.wrapHandler(
       const message = {
         interviewId: interviewId,
         userId: userId,
+        reportId: reportId,
       };
 
       logger.info({ message, queueUrl }, "Sending message to queue");
