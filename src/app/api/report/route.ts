@@ -1,3 +1,5 @@
+import { db } from "@/db";
+import { reports } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
@@ -30,6 +32,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    const report = await db
+      .insert(reports)
+      .values({
+        interviewId,
+        generalAssessment: "",
+        overallScore: 0,
+        speakingSkills: "",
+        speakingSkillsScore: 0,
+        areasOfStrength: "",
+        areasForImprovement: "",
+        actionableNextSteps: "",
+        communicationSkills: "",
+        communicationSkillsScore: 0,
+        problemSolvingSkills: "",
+        problemSolvingSkillsScore: 0,
+        technicalKnowledge: "",
+        technicalKnowledgeScore: 0,
+        teamwork: "",
+        teamworkScore: 0,
+        adaptability: "",
+        adaptabilityScore: 0,
+      })
+      .returning();
+
     logger.info(
       { interviewId, url: API_GATEWAY_URL },
       "Sending message to API Gateway"
@@ -42,6 +68,7 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         interviewId,
+        reportId: report[0].id,
         userId,
         queueType: "generate-report",
       }),

@@ -31,6 +31,7 @@ export const reports = pgTable(
     areasForImprovement: p.text().notNull(),
     actionableNextSteps: p.text().notNull(),
     isPublic: p.boolean().notNull().default(false),
+    isCompleted: p.boolean().notNull().default(false),
     createdAt: p.timestamp().defaultNow().notNull(),
     updatedAt: p.timestamp().defaultNow().notNull(),
   }),
