@@ -144,7 +144,7 @@ export async function PUT(
     return NextResponse.json(formatEntity(updatedResult, "interview"));
   } catch (error) {
     Sentry.withScope((scope) => {
-      scope.setExtra("context", "PUT /api/interviews/[id]");
+      scope.setExtra("context", "PUT /api/interviews/[interviewId]");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
@@ -153,7 +153,7 @@ export async function PUT(
         message: error instanceof Error ? error.message : "Unknown error",
         error,
       },
-      "Error in PUT /api/interviews/[id]"
+      "Error in PUT /api/interviews/[interviewId]"
     );
     return NextResponse.json(formatErrorEntity("Internal server error"), {
       status: 500,
