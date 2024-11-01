@@ -1,11 +1,18 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { useVoice } from "@humeai/voice-react";
 import { motion } from "framer-motion";
-import { ArrowLeft, MessageCircle } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import {
+  ChevronRight,
+  Home,
+  MessageCircle,
+  Mic,
+  Sparkles,
+  Target,
+} from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
 export default function InterviewPlaceholder({
   interviewEnded,
@@ -17,129 +24,147 @@ export default function InterviewPlaceholder({
   const params = useParams();
   const interviewId = params.interviewId;
   const { connect, status } = useVoice();
-  const router = useRouter();
-  const dummyMessages = [
+
+  const features = [
     {
-      role: "assistant",
-      content: "Hello! Welcome to your interview. How are you feeling today?",
+      icon: Mic,
+      title: "Real-time Voice Interaction",
+      description: "Natural conversation with AI-powered responses",
     },
     {
-      role: "user",
-      content: "I'm feeling a bit nervous, but excited for the opportunity.",
+      icon: Target,
+      title: "Personalized Feedback",
+      description: "Get instant insights on your performance",
     },
     {
-      role: "assistant",
-      content:
-        "That's perfectly normal. Take a deep breath, and we'll start with some easy questions.",
+      icon: Sparkles,
+      title: "AI-Powered Analysis",
+      description: "Comprehensive evaluation of your interview skills",
     },
   ];
 
   return (
-    <div className="h-full flex flex-col items-center justify-center bg-blue-50 dark:bg-blue-950 p-4 relative">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() =>
-          router.push(`/dashboard/interview/${interviewId}/reports`)
-        }
-        className="absolute top-4 left-4 text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Reports
-      </Button>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-center mb-8"
-      >
-        <h2 className="text-2xl font-bold mb-4">Welcome to Your Interview</h2>
-        <p className="text-lg mb-4">
-          Click the &quot;Start Interview&quot; button below to begin.
-        </p>
-        <p className="text-sm opacity-75">
-          Your messages will appear here once the interview starts.
-        </p>
-      </motion.div>
-
-      <div className="w-full max-w-2xl mx-auto space-y-4 border-2 border-gray-500 rounded-lg p-4">
-        {dummyMessages.map((msg, index, arr) => {
-          const isLatest = index === arr.length - 1;
-          const fadeAmount = isLatest ? 1 : 1 - (arr.length - index - 1) * 0.3;
-
-          return (
-            <motion.div
-              key={index}
-              className={cn(
-                "w-full max-w-lg mx-auto",
-                "bg-transparent",
-                "rounded-lg text-center",
-                isLatest ? "mb-16" : "mb-4",
-                isLatest
-                  ? "z-10"
-                  : index === arr.length - 2
-                  ? "z-5 transform opacity-50"
-                  : "z-0 transform opacity-25",
-                msg.role === "assistant"
-                  ? "text-yellow-900 dark:text-yellow-200"
-                  : "text-red-900 dark:text-red-200"
-              )}
-              initial={{
-                opacity: 0,
-                y: 50,
-                scale: 0.9,
-              }}
-              animate={{
-                opacity: fadeAmount,
-                y: 0,
-                scale: isLatest ? 1 : 0.9,
-              }}
-              exit={{
-                opacity: 0,
-                y: -50,
-                scale: 0.9,
-              }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              style={{
-                fontSize: isLatest ? "1.5rem" : `1rem`,
-                transition: "all 0.3s ease-in-out",
-              }}
-            >
-              <div className="text-xs capitalize font-medium leading-none opacity-50 mb-2">
-                {msg.role}
-              </div>
-              <div className="mb-2">{msg.content}</div>
-            </motion.div>
-          );
-        })}
+    <div className="h-full flex flex-col">
+      {/* Breadcrumbs */}
+      <div className="px-4 py-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex items-center text-sm text-muted-foreground">
+          <Link
+            href="/dashboard"
+            className="flex items-center hover:text-foreground transition-colors"
+          >
+            <Home className="h-4 w-4" />
+          </Link>
+          <ChevronRight className="h-4 w-4 mx-2" />
+          <Link
+            href={`/dashboard/interview/${interviewId}/reports`}
+            className="hover:text-foreground transition-colors"
+          >
+            Reports
+          </Link>
+          <ChevronRight className="h-4 w-4 mx-2" />
+          <span className="text-foreground">Interview</span>
+        </div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.8 }}
-        className="mt-8"
-      >
-        <Button
-          size="lg"
-          disabled={interviewEnded}
-          className={"z-50"}
-          onClick={() => {
-            if (status.value !== "connected") {
-              connect()
-                .then(() => {
-                  setInterviewStarted(true);
-                })
-                .catch(() => {})
-                .finally(() => {});
-            }
-          }}
-        >
-          <MessageCircle className="mr-2 h-4 w-4" />
-          Start Interview
-        </Button>
-      </motion.div>
+      {/* Main Content - Using grid for perfect centering and spacing */}
+      <div className="flex-1 grid place-items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
+          {Array.from({ length: 6 }).map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full bg-primary/10 blur-3xl"
+              style={{
+                width: Math.random() * 400 + 200,
+                height: Math.random() * 400 + 200,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                x: [0, 30, 0],
+                y: [0, 30, 0],
+                opacity: [0.1, 0.2, 0.1],
+              }}
+              transition={{
+                duration: 10,
+                repeat: Infinity,
+                delay: i * 0.5,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Content Container */}
+        <div className="relative z-10 max-w-5xl w-full mx-auto px-4 flex flex-col items-center justify-center gap-12">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center space-y-4"
+          >
+            <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+              Ready for Your Interview
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Experience a realistic interview simulation powered by advanced AI
+            </p>
+          </motion.div>
+
+          {/* Features Grid */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="grid md:grid-cols-3 gap-6 w-full"
+          >
+            {features.map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
+                className="group relative overflow-hidden rounded-2xl bg-gradient-to-b from-background to-primary/5 p-6 border border-primary/10 hover:border-primary/20 transition-colors"
+              >
+                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <feature.icon className="h-8 w-8 text-primary mb-4 relative z-10" />
+                <h3 className="font-semibold mb-2 relative z-10">
+                  {feature.title}
+                </h3>
+                <p className="text-sm text-muted-foreground relative z-10">
+                  {feature.description}
+                </p>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Start Button */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.8 }}
+          >
+            <Button
+              size="lg"
+              disabled={interviewEnded}
+              onClick={() => {
+                if (status.value !== "connected") {
+                  connect()
+                    .then(() => setInterviewStarted(true))
+                    .catch(() => {})
+                    .finally(() => {});
+                }
+              }}
+              className="relative group px-8 py-6 text-lg hover:scale-105 transition-transform"
+            >
+              <div className="absolute inset-0 bg-primary opacity-20 group-hover:opacity-30 blur-xl transition-all rounded-lg" />
+              <MessageCircle className="mr-2 h-5 w-5" />
+              Start Interview
+            </Button>
+          </motion.div>
+        </div>
+      </div>
     </div>
   );
 }

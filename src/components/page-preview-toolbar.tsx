@@ -25,14 +25,16 @@ import { useUser } from "@clerk/nextjs";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeft,
+  ChevronRight,
   FileText,
+  Home,
   Loader2,
   Maximize,
   Share,
   StarIcon,
   Type,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -220,136 +222,154 @@ export function PagePreviewToolbar({
   }, [user, isReviewDialogOpen]);
 
   return (
-    <div className="flex flex-wrap items-end justify-center p-4 bg-gradient-to-b from-background/80 to-background border-b backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex flex-wrap items-end gap-3 justify-center max-w-5xl w-full">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() =>
-            router.push(`/dashboard/interview/${interviewId}/reports`)
-          }
-          className="mr-auto h-9 px-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Reports
-        </Button>
-
-        <div className="flex flex-wrap items-end gap-3 justify-center">
-          <ToolbarItem label="Paper Size">
-            <ToolbarSelect
-              value={paperSize}
-              onValueChange={(value: string) => {
-                setPaperSize(value as keyof typeof paperSizes);
-                handleSettingChange("paperSize", value);
-              }}
-              icon={<FileText className="h-4 w-4 text-muted-foreground" />}
-              placeholder="Paper size"
-              items={Object.keys(paperSizes)}
-            />
-          </ToolbarItem>
-          <ToolbarItem label="Heading Font">
-            <ToolbarSelect
-              value={headingFont}
-              onValueChange={(value: string) => {
-                setHeadingFont(value);
-                handleSettingChange("headingFont", value);
-              }}
-              icon={<Type className="h-4 w-4" />}
-              placeholder="Heading Font"
-              items={fonts.map((font) => ({
-                value: font.value,
-                label: font.label,
-              }))}
-            />
-          </ToolbarItem>
-          <ToolbarItem label="Body Font">
-            <ToolbarSelect
-              value={bodyFont}
-              onValueChange={(value: string) => {
-                setBodyFont(value);
-                handleSettingChange("bodyFont", value);
-              }}
-              icon={<Type className="h-4 w-4" />}
-              placeholder="Body Font"
-              items={fonts.map((font) => ({
-                value: font.value,
-                label: font.label,
-              }))}
-            />
-          </ToolbarItem>
-          <ToolbarItem label="Margin Size">
-            <ToolbarSelect
-              value={marginSize}
-              onValueChange={(value: string) => {
-                setMarginSize(value as keyof typeof marginSizes);
-                handleSettingChange("marginSize", value);
-              }}
-              icon={<Maximize className="h-4 w-4" />}
-              placeholder="Margin"
-              items={Object.keys(marginSizes)}
-            />
-          </ToolbarItem>
-          <ToolbarItem label="Include Transcript">
-            <div className="flex items-center space-x-2 h-9">
-              <Switch
-                id="transcript-toggle"
-                checked={includeTranscript}
-                onCheckedChange={setIncludeTranscript}
-                className="data-[state=checked]:bg-primary"
-              />
-              <Label
-                htmlFor="transcript-toggle"
-                className="text-xs font-medium"
-              >
-                {includeTranscript ? "On" : "Off"}
-              </Label>
-            </div>
-          </ToolbarItem>
-        </div>
-
-        <div className="flex gap-3 ml-auto">
-          <ToolbarItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  disabled={isSharing}
-                  className="h-9 px-4 shadow-sm transition-colors hover:bg-secondary/80"
-                >
-                  {isSharing ? (
-                    <Loader2 className="h-4 w-4 animate-spin md:mr-2" />
-                  ) : (
-                    <Share className="h-4 w-4 md:mr-2" />
-                  )}
-                  <span className="hidden sm:inline">Share</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="min-w-[160px]">
-                <DropdownMenuItem onClick={() => onShare("pdf")}>
-                  Share as PDF
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onShare("link")}>
-                  Share Link
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </ToolbarItem>
-
-          <ToolbarItem>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setIsReviewDialogOpen(true)}
-              className="h-9 px-4 shadow-sm transition-colors hover:bg-secondary/80"
-            >
-              <StarIcon className="h-4 w-4 md:mr-2 text-yellow-500" />
-              <span className="hidden sm:inline">Review</span>
-            </Button>
-          </ToolbarItem>
+    <div className="flex flex-col w-full">
+      {/* Breadcrumbs */}
+      <div className="px-4 py-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex items-center text-sm text-muted-foreground max-w-5xl mx-auto w-full">
+          <Link
+            href="/dashboard"
+            className="flex items-center hover:text-foreground transition-colors"
+          >
+            <Home className="h-4 w-4" />
+          </Link>
+          <ChevronRight className="h-4 w-4 mx-2" />
+          <Link
+            href={`/dashboard/interview/${interviewId}/reports`}
+            className="hover:text-foreground transition-colors"
+          >
+            Reports
+          </Link>
+          <ChevronRight className="h-4 w-4 mx-2" />
+          <span className="text-foreground">Report Preview</span>
         </div>
       </div>
 
+      {/* Toolbar */}
+      <div className="px-4 py-3 bg-gradient-to-b from-background/80 to-background border-b backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex flex-wrap gap-4 items-center justify-between max-w-5xl mx-auto w-full">
+          {/* Document Settings Group */}
+          <div className="flex flex-wrap items-center gap-3">
+            <ToolbarItem label="Paper Size">
+              <ToolbarSelect
+                value={paperSize}
+                onValueChange={(value: string) => {
+                  setPaperSize(value as keyof typeof paperSizes);
+                  handleSettingChange("paperSize", value);
+                }}
+                icon={<FileText className="h-4 w-4 text-muted-foreground" />}
+                placeholder="Paper size"
+                items={Object.keys(paperSizes)}
+              />
+            </ToolbarItem>
+            <ToolbarItem label="Margin Size">
+              <ToolbarSelect
+                value={marginSize}
+                onValueChange={(value: string) => {
+                  setMarginSize(value as keyof typeof marginSizes);
+                  handleSettingChange("marginSize", value);
+                }}
+                icon={<Maximize className="h-4 w-4" />}
+                placeholder="Margin"
+                items={Object.keys(marginSizes)}
+              />
+            </ToolbarItem>
+          </div>
+
+          {/* Typography Settings Group */}
+          <div className="flex flex-wrap items-center gap-3">
+            <ToolbarItem label="Heading Font">
+              <ToolbarSelect
+                value={headingFont}
+                onValueChange={(value: string) => {
+                  setHeadingFont(value);
+                  handleSettingChange("headingFont", value);
+                }}
+                icon={<Type className="h-4 w-4" />}
+                placeholder="Heading Font"
+                items={fonts.map((font) => ({
+                  value: font.value,
+                  label: font.label,
+                }))}
+              />
+            </ToolbarItem>
+            <ToolbarItem label="Body Font">
+              <ToolbarSelect
+                value={bodyFont}
+                onValueChange={(value: string) => {
+                  setBodyFont(value);
+                  handleSettingChange("bodyFont", value);
+                }}
+                icon={<Type className="h-4 w-4" />}
+                placeholder="Body Font"
+                items={fonts.map((font) => ({
+                  value: font.value,
+                  label: font.label,
+                }))}
+              />
+            </ToolbarItem>
+          </div>
+
+          {/* Actions Group */}
+          <div className="flex items-center gap-3">
+            <ToolbarItem label="Include Transcript">
+              <div className="flex items-center space-x-2 h-9">
+                <Switch
+                  id="transcript-toggle"
+                  checked={includeTranscript}
+                  onCheckedChange={setIncludeTranscript}
+                  className="data-[state=checked]:bg-primary"
+                />
+                <Label
+                  htmlFor="transcript-toggle"
+                  className="text-xs font-medium"
+                >
+                  {includeTranscript ? "On" : "Off"}
+                </Label>
+              </div>
+            </ToolbarItem>
+
+            <div className="flex gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={isSharing}
+                    className="h-9 px-4 shadow-sm transition-colors hover:bg-secondary/80"
+                  >
+                    {isSharing ? (
+                      <Loader2 className="h-4 w-4 animate-spin md:mr-2" />
+                    ) : (
+                      <Share className="h-4 w-4 md:mr-2" />
+                    )}
+                    <span className="hidden sm:inline">Share</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-[160px]">
+                  <DropdownMenuItem onClick={() => onShare("pdf")}>
+                    Share as PDF
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onShare("link")}>
+                    Share Link
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setIsReviewDialogOpen(true)}
+                className="h-9 px-4 shadow-sm transition-colors hover:bg-secondary/80"
+              >
+                <StarIcon className="h-4 w-4 md:mr-2 text-yellow-500" />
+                <span className="hidden sm:inline">Review</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Keep existing Dialog component */}
       <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
         <DialogContent className="max-w-full h-full sm:h-[90vh] sm:max-w-[90vw] sm:max-h-[90vh]">
           <DialogHeader>
@@ -372,6 +392,7 @@ export function PagePreviewToolbar({
           </div>
         </DialogContent>
       </Dialog>
+
       {children}
     </div>
   );

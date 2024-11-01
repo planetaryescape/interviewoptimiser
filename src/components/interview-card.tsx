@@ -23,7 +23,13 @@ import {
 import { Interview, Report } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { idHandler } from "@/lib/utils/idHandler";
-import { Loader2, MoreVertical } from "lucide-react";
+import {
+  Building2,
+  Calendar,
+  Loader2,
+  MoreVertical,
+  User2,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Skeleton } from "./ui/skeleton";
@@ -43,11 +49,18 @@ export const InterviewCard = ({
   deletingId,
 }: InterviewCardProps) => {
   const [open, setOpen] = useState(false);
+  const hasReport = Boolean(interview.report);
 
   return (
-    <Card className={cn("transition-all duration-300 flex flex-col relative")}>
+    <Card
+      className={cn(
+        "transition-all duration-300 flex flex-col relative overflow-hidden",
+        "hover:shadow-lg hover:border-primary/50",
+        "group"
+      )}
+    >
       <CardHeader className="pb-2">
-        {!interview.report ? (
+        {!hasReport ? (
           <CardTitle className="text-lg font-semibold">
             <Skeleton className="w-full h-6" />
             <div className="text-sm text-muted-foreground">
@@ -55,110 +68,110 @@ export const InterviewCard = ({
             </div>
           </CardTitle>
         ) : (
-          <CardTitle className="text-lg font-semibold">
-            {interview.role || "Role Not Specified"}
-            <p className="text-sm text-muted-foreground">
-              at {interview.company || "Company Not Specified"}
-            </p>
+          <CardTitle className="space-y-1">
+            <h3 className="text-xl font-semibold tracking-tight">
+              {interview.role || "Role Not Specified"}
+            </h3>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Building2 className="h-4 w-4" />
+              <span>{interview.company || "Company Not Specified"}</span>
+            </div>
           </CardTitle>
         )}
       </CardHeader>
-      <CardContent>
-        {!interview.report ? (
+
+      <CardContent className="flex-1">
+        {!hasReport ? (
           <CardDescription className="space-y-3 flex flex-col">
             <Skeleton className="w-1/2 h-4" />
             <Skeleton className="w-1/2 h-4" />
           </CardDescription>
         ) : (
-          <CardDescription className="space-y-3 flex flex-col">
-            <span className="text-sm font-medium">
-              Candidate: {interview.candidate || "Candidate Name Not Available"}
-            </span>
-            <span className="text-sm">
-              Date: {new Date(interview.createdAt).toLocaleDateString()}
-            </span>
+          <CardDescription className="space-y-4">
+            <div className="flex items-center gap-2 text-sm">
+              <User2 className="h-4 w-4 text-muted-foreground" />
+              <span>
+                {interview.candidate || "Candidate Name Not Available"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span>{new Date(interview.createdAt).toLocaleDateString()}</span>
+            </div>
           </CardDescription>
         )}
       </CardContent>
-      <div className="mt-auto p-4 border-t border-gray-300 dark:border-gray-700 flex justify-between items-center">
-        <div className="flex gap-2 items-center justify-between w-full">
-          <Button
-            disabled={!interview.report}
-            asChild
-            size="sm"
-            variant={"outline"}
-          >
-            <Link
-              href={`/dashboard/interview/${idHandler.encode(
-                interview.id ?? 0
-              )}/reports`}
-              className="flex items-center"
-            >
-              {!interview.report && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              {interview.report ? "View Reports" : "Generating Report"}
-            </Link>
-          </Button>
 
-          {onDelete && (
-            <DropdownMenu open={open} onOpenChange={setOpen}>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="transition-all duration-300"
-                  onClick={() => setOpen(true)}
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <DropdownMenuItem
-                      onSelect={(e) => {
-                        e.preventDefault();
+      <div className="p-4 border-t border-gray-200 dark:border-gray-800 flex justify-between items-center bg-muted/50">
+        <Button
+          disabled={!hasReport}
+          asChild
+          size="sm"
+          variant="secondary"
+          className="w-full"
+        >
+          <Link
+            href={`/dashboard/interview/${idHandler.encode(
+              interview.id ?? 0
+            )}/reports`}
+            className="flex items-center justify-center gap-2"
+          >
+            {!hasReport && <Loader2 className="h-4 w-4 animate-spin" />}
+            {hasReport ? "View Reports" : "Generating Report"}
+          </Link>
+        </Button>
+
+        {onDelete && (
+          <DropdownMenu open={open} onOpenChange={setOpen}>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" variant="ghost" className="ml-2">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem
+                    onSelect={(e) => e.preventDefault()}
+                    className="text-destructive"
+                  >
+                    Delete
+                  </DropdownMenuItem>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      the interview and all associated data.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        setOpen(false);
+                        onDelete?.(interview.id);
                       }}
+                      disabled={deletingId === interview.id}
                     >
-                      Delete
-                    </DropdownMenuItem>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Are you absolutely sure?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently
-                        delete the interview and all associated data.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => {
-                          setOpen(false);
-                          onDelete?.(interview.id);
-                        }}
-                        disabled={deletingId === interview.id}
-                      >
-                        {deletingId === interview.id ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Deleting...
-                          </>
-                        ) : (
-                          "Delete"
-                        )}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
+                      {deletingId === interview.id ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Deleting...
+                        </>
+                      ) : (
+                        "Delete"
+                      )}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </Card>
   );

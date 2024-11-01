@@ -58,6 +58,8 @@ export default function InterviewsSection() {
     refetchInterval: 3000,
   });
 
+  console.log("interviewsData:", interviewsData);
+
   const interviews = useMemo(
     () => interviewsData?.data || [],
     [interviewsData]
