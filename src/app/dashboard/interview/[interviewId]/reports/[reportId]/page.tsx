@@ -89,7 +89,7 @@ import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 
 export default function InterviewReportPage(props: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ interviewId: string; reportId: string }>;
 }) {
   const params = use(props.params);
   const queryClient = useQueryClient();
@@ -98,19 +98,26 @@ export default function InterviewReportPage(props: {
     isLoading,
     isPending: interviewIsPending,
   } = useQuery({
-    queryKey: ["interview", params.id],
+    queryKey: ["interview", params.interviewId],
     queryFn: async () => {
-      const interviewRepo = await getRepository<
-        Interview & {
-          report: Report & { pageSettings: PageSettings };
-        }
-      >("interviews");
-      return await interviewRepo.getById(params.id);
+      const interviewRepo = await getRepository<Interview>("interviews");
+      return await interviewRepo.getById(params.interviewId);
     },
   });
 
-  console.log("interview:", interview);
-  const report = interview?.data.report;
+  const {
+    data: report,
+    isLoading: reportIsLoading,
+    isPending: reportIsPending,
+  } = useQuery({
+    queryKey: ["report", params.reportId],
+    queryFn: async () => {
+      const reportRepo = await getRepository<
+        Report & { pageSettings: PageSettings }
+      >(`interviews/${params.interviewId}/reports`);
+      return await reportRepo.getById(params.reportId);
+    },
+  });
 
   const { mutate: exportDocument, isPending: isExporting } = useMutation({
     mutationFn: async (format: "pdf" | "docx") => {
@@ -169,19 +176,20 @@ export default function InterviewReportPage(props: {
   const [includeTranscript, setIncludeTranscript] = useState(true);
 
   const [paperSize, setPaperSize] = useState<keyof typeof paperSizes>(
-    (report?.pageSettings?.paperSize as keyof typeof paperSizes) || "A4"
+    (report?.data.pageSettings?.paperSize as keyof typeof paperSizes) || "A4"
   );
   const [marginSize, setMarginSize] = useState<keyof typeof marginSizes>(
-    (report?.pageSettings?.marginSize as keyof typeof marginSizes) || "Normal"
+    (report?.data.pageSettings?.marginSize as keyof typeof marginSizes) ||
+      "Normal"
   );
   const [bodyFont, setBodyFont] = useState(
-    report?.pageSettings?.bodyFont || "font-raleway"
+    report?.data.pageSettings?.bodyFont || "font-raleway"
   );
   const [headingFont, setHeadingFont] = useState(
-    report?.pageSettings?.headingFont || "font-roboto"
+    report?.data.pageSettings?.headingFont || "font-roboto"
   );
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
-  const [isPublic, setIsPublic] = useState(report?.isPublic);
+  const [isPublic, setIsPublic] = useState(report?.data.isPublic);
 
   const [containerRef, { width: containerWidth }] =
     useMeasure<HTMLDivElement>();
@@ -195,14 +203,16 @@ export default function InterviewReportPage(props: {
   const { mutate: toggleReportPublicStatus, isPending: isToggling } =
     useMutation({
       mutationFn: async (newPublicStatus: boolean) => {
-        const reportRepo = await getRepository<Report>("reports");
-        return reportRepo.update(idHandler.encode(report?.id ?? 0), {
+        const reportRepo = await getRepository<
+          Report & { pageSettings: PageSettings }
+        >(`interviews/${params.interviewId}/reports`);
+        return reportRepo.update(idHandler.encode(report?.sys.id ?? 0), {
           isPublic: newPublicStatus,
         });
       },
       onSuccess: (_, newPublicStatus) => {
         queryClient.invalidateQueries({
-          queryKey: ["report", params.id],
+          queryKey: ["report", params.reportId],
         });
         setIsPublic(newPublicStatus);
         toast.success(
@@ -234,13 +244,13 @@ export default function InterviewReportPage(props: {
         "page-settings"
       );
       return pageSettingsRepo.update(
-        idHandler.encode(report?.pageSettings.id ?? 0),
+        idHandler.encode(report?.data.pageSettings?.id ?? 0),
         settings
       );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["interview", params.id],
+        queryKey: ["interview", params.interviewId],
       });
       toast.success("Page settings updated successfully");
     },
@@ -289,7 +299,7 @@ export default function InterviewReportPage(props: {
     updatePageSettings(settings);
   };
 
-  if (isLoading || interviewIsPending)
+  if (isLoading || interviewIsPending || reportIsLoading || reportIsPending)
     return (
       <div className="size-full flex items-center justify-center">
         <ParticleSwarmLoader />
@@ -358,9 +368,10 @@ export default function InterviewReportPage(props: {
         onShare={handleShare}
         isSharing={isExporting || isToggling}
         onSettingsChange={handleSettingsChange}
-        pageSettings={report?.pageSettings}
+        pageSettings={report?.data.pageSettings}
         includeTranscript={includeTranscript}
         setIncludeTranscript={setIncludeTranscript}
+        interviewId={idHandler.encode(interview?.sys.id ?? 0)}
       />
       <div
         className={cn(
@@ -437,22 +448,22 @@ export default function InterviewReportPage(props: {
                   components={remarkMarkdownComponents}
                   className="text-gray-700 leading-relaxed"
                 >
-                  {report.generalAssessment}
+                  {report.data.generalAssessment}
                 </ReactMarkdown>
               </div>
               <div className="flex flex-col items-center bg-blue-50 p-6 rounded-2xl min-w-[200px]">
                 <div className="text-5xl font-bold text-blue-600 mb-2">
-                  {report.overallScore}%
+                  {report.data.overallScore}%
                 </div>
                 <div className="text-sm text-gray-600 text-center">
                   Overall Performance Score
                 </div>
                 <div className="mt-4">
-                  {report.overallScore >= 80 ? (
+                  {report.data.overallScore >= 80 ? (
                     <Badge variant="success" className="font-medium">
                       Excellent
                     </Badge>
-                  ) : report.overallScore >= 60 ? (
+                  ) : report.data.overallScore >= 60 ? (
                     <Badge variant="warning" className="font-medium">
                       Good
                     </Badge>
@@ -521,26 +532,26 @@ export default function InterviewReportPage(props: {
               {[
                 {
                   title: "Technical Knowledge",
-                  content: report.technicalKnowledge,
-                  score: report.technicalKnowledgeScore,
+                  content: report.data.technicalKnowledge,
+                  score: report.data.technicalKnowledgeScore,
                   icon: Code,
                 },
                 {
                   title: "Problem-Solving Skills",
-                  content: report.problemSolvingSkills,
-                  score: report.problemSolvingSkillsScore,
+                  content: report.data.problemSolvingSkills,
+                  score: report.data.problemSolvingSkillsScore,
                   icon: Puzzle,
                 },
                 {
                   title: "Communication Skills",
-                  content: report.communicationSkills,
-                  score: report.communicationSkillsScore,
+                  content: report.data.communicationSkills,
+                  score: report.data.communicationSkillsScore,
                   icon: MessageCircle,
                 },
                 {
                   title: "Teamwork & Collaboration",
-                  content: report.teamwork,
-                  score: report.teamworkScore,
+                  content: report.data.teamwork,
+                  score: report.data.teamworkScore,
                   icon: Users,
                 },
               ].map((item, index) => (
@@ -615,7 +626,7 @@ export default function InterviewReportPage(props: {
                   Areas of Strength
                 </h3>
                 <ul className="space-y-3">
-                  {JSON.parse(report.areasOfStrength).map(
+                  {JSON.parse(report.data.areasOfStrength).map(
                     (strength: string, index: number) => (
                       <li
                         key={index}
@@ -639,7 +650,7 @@ export default function InterviewReportPage(props: {
                   Areas for Improvement
                 </h3>
                 <ul className="space-y-3">
-                  {JSON.parse(report.areasForImprovement).map(
+                  {JSON.parse(report.data.areasForImprovement).map(
                     (area: string, index: number) => (
                       <li
                         key={index}
@@ -667,7 +678,7 @@ export default function InterviewReportPage(props: {
             </h2>
             <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
               <ol className="space-y-4">
-                {JSON.parse(report.actionableNextSteps).map(
+                {JSON.parse(report.data.actionableNextSteps).map(
                   (step: string, index: number) => (
                     <li key={index} className="flex items-start gap-4">
                       <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-medium">
@@ -795,7 +806,7 @@ export default function InterviewReportPage(props: {
           <div className="flex items-center space-x-2">
             <Input
               value={`${window.location.origin}/report/${idHandler.encode(
-                report?.id ?? 0
+                report?.sys.id ?? 0
               )}`}
               readOnly
               onClick={(e) => e.currentTarget.select()}

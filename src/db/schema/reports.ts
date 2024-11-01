@@ -10,8 +10,7 @@ export const reports = pgTable(
     interviewId: p
       .integer()
       .references(() => interviews.id)
-      .notNull()
-      .unique(),
+      .notNull(),
     generalAssessment: p.text().notNull(),
     overallScore: p.integer().notNull(),
     fitnessForRole: p.text().notNull().default(""),

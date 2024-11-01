@@ -91,13 +91,13 @@ export const InterviewCard = ({
             <Link
               href={`/dashboard/interview/${idHandler.encode(
                 interview.id ?? 0
-              )}/report`}
+              )}/reports`}
               className="flex items-center"
             >
               {!interview.report && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              {interview.report ? "View Report" : "Generating Report"}
+              {interview.report ? "View Reports" : "Generating Report"}
             </Link>
           </Button>
 

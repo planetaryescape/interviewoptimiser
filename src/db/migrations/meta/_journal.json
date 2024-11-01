@@ -85,6 +85,13 @@
       "when": 1730376776751,
       "tag": "0011_early_ultimo",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1730417523191,
+      "tag": "0012_abandoned_blizzard",
+      "breakpoints": true
     }
   ]
 }

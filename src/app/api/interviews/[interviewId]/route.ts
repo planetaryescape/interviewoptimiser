@@ -12,13 +12,15 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  props: { params: Promise<{ id: string }> }
+  props: { params: Promise<{ interviewId: string }> }
 ) {
   const params = await props.params;
-  logger.info("GET request received at /api/interviews/[id]");
+  logger.info("GET request received at /api/interviews/[interviewId]");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to GET /api/interviews/[id]");
+    logger.warn(
+      "Unauthorized access attempt to GET /api/interviews/[interviewId]"
+    );
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -33,17 +35,10 @@ export async function GET(
       });
     }
 
-    const interviewId = idHandler.decode(params.id);
+    const interviewId = idHandler.decode(params.interviewId);
 
     const userInterview = await db.query.interviews.findFirst({
       where: eq(interviews.id, interviewId),
-      with: {
-        report: {
-          with: {
-            pageSettings: true,
-          },
-        },
-      },
     });
 
     if (!userInterview) {
@@ -85,13 +80,15 @@ const interviewSchema = createInsertSchema(interviews).omit({
 
 export async function PUT(
   request: NextRequest,
-  props: { params: Promise<{ id: string }> }
+  props: { params: Promise<{ interviewId: string }> }
 ) {
   const params = await props.params;
-  logger.info("PUT request received at /api/interviews/[id]");
+  logger.info("PUT request received at /api/interviews/[interviewId]");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to PUT /api/interviews/[id]");
+    logger.warn(
+      "Unauthorized access attempt to PUT /api/interviews/[interviewId]"
+    );
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -106,7 +103,7 @@ export async function PUT(
       });
     }
 
-    const interviewId = idHandler.decode(params.id);
+    const interviewId = idHandler.decode(params.interviewId);
     const body = await request.json();
     const inputInterview = interviewSchema.partial().parse(body);
     logger.info({ interviewId }, "Parsed interview input");
@@ -166,13 +163,15 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  props: { params: Promise<{ id: string }> }
+  props: { params: Promise<{ interviewId: string }> }
 ) {
   const params = await props.params;
-  logger.info("DELETE request received at /api/interviews/[id]");
+  logger.info("DELETE request received at /api/interviews/[interviewId]");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to DELETE /api/interviews/[id]");
+    logger.warn(
+      "Unauthorized access attempt to DELETE /api/interviews/[interviewId]"
+    );
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -187,7 +186,7 @@ export async function DELETE(
       });
     }
 
-    const interviewId = idHandler.decode(params.id);
+    const interviewId = idHandler.decode(params.interviewId);
 
     await db.transaction(async (tx) => {
       // Delete report

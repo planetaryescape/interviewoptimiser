@@ -25,6 +25,7 @@ import { useUser } from "@clerk/nextjs";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  ArrowLeft,
   FileText,
   Loader2,
   Maximize,
@@ -32,6 +33,7 @@ import {
   StarIcon,
   Type,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ReviewForm, ReviewFormData } from "./review-form";
@@ -93,6 +95,7 @@ interface PagePreviewToolbarProps {
   pageSettings: PageSettings;
   includeTranscript: boolean;
   setIncludeTranscript: (value: boolean) => void;
+  interviewId: string;
 }
 
 export function PagePreviewToolbar({
@@ -111,6 +114,7 @@ export function PagePreviewToolbar({
   pageSettings,
   includeTranscript,
   setIncludeTranscript,
+  interviewId,
 }: PagePreviewToolbarProps) {
   const { user } = useUser();
   const queryClient = useQueryClient();
@@ -123,6 +127,7 @@ export function PagePreviewToolbar({
     showOnLanding: false,
     rating: 5,
   });
+  const router = useRouter();
 
   const { mutate: updatePageSettings } = useMutation({
     mutationFn: onSettingsChange,
@@ -217,6 +222,18 @@ export function PagePreviewToolbar({
   return (
     <div className="flex flex-wrap items-end justify-center p-4 bg-gradient-to-b from-background/80 to-background border-b backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex flex-wrap items-end gap-3 justify-center max-w-5xl w-full">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() =>
+            router.push(`/dashboard/interview/${interviewId}/reports`)
+          }
+          className="mr-auto h-9 px-4"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Reports
+        </Button>
+
         <div className="flex flex-wrap items-end gap-3 justify-center">
           <ToolbarItem label="Paper Size">
             <ToolbarSelect

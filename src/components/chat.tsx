@@ -29,18 +29,10 @@ export default function ClientComponent({
   const { data: interview } = useQuery({
     queryKey: ["interview", id],
     queryFn: async () => {
-      const interviewRepo = await getRepository<
-        Interview & {
-          report: Report;
-        }
-      >("interviews");
+      const interviewRepo = await getRepository<Interview>("interviews");
       return await interviewRepo.getById(id);
     },
   });
-
-  if (interview?.data.report) {
-    router.push(`/dashboard/interview/${id}/report`);
-  }
 
   const generateReportMutation = useMutation({
     mutationFn: async () => {
@@ -49,7 +41,7 @@ export default function ClientComponent({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ interviewId: params.id }),
+        body: JSON.stringify({ interviewId: params.interviewId }),
       });
 
       if (!response.ok) {
@@ -59,9 +51,11 @@ export default function ClientComponent({
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["interview", params.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["interview", params.interviewId],
+      });
       // setShowTakeover(false);
-      router.push(`/dashboard`);
+      router.push(`/dashboard/interview/${params.interviewId}/reports`);
     },
     onError: (error) => {
       console.error("Error generating report:", error);

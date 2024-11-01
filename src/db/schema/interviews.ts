@@ -36,15 +36,12 @@ export const interviews = pgTable(
   })
 );
 
-export const interviewRelations = relations(interviews, ({ one }) => ({
+export const interviewRelations = relations(interviews, ({ one, many }) => ({
   user: one(users, {
     fields: [interviews.userId],
     references: [users.id],
   }),
-  report: one(reports, {
-    fields: [interviews.id],
-    references: [reports.interviewId],
-  }),
+  report: many(reports),
 }));
 
 export type Interview = typeof interviews.$inferSelect;
