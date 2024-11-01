@@ -261,14 +261,51 @@ export function TimerHume({
   }, [decrementMutation, status.value, callDurationTimestamp, messages]);
 
   return (
-    <canvas
-      ref={timerCanvasRef}
-      width={120}
-      height={120}
-      className={cn(
-        "absolute top-4 right-4 shadow-lg rounded-full",
-        status.value === "connected" ? "opacity-100" : "opacity-50"
-      )}
-    />
+    <div className="absolute top-4 right-4 flex items-center gap-4 z-50">
+      <div
+        className={cn(
+          "px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 transition-colors",
+          status.value === "connected"
+            ? "bg-green-500/10 text-green-500 border border-green-500/20"
+            : "bg-yellow-500/10 text-yellow-500 border border-yellow-500/20"
+        )}
+      >
+        <span
+          className={cn(
+            "h-2 w-2 rounded-full",
+            status.value === "connected" ? "bg-green-500" : "bg-yellow-500",
+            status.value === "connected" ? "animate-pulse" : ""
+          )}
+        />
+        {status.value === "connected" ? "Live" : "Ready"}
+      </div>
+
+      {/* Timer Display */}
+      <div className="relative flex items-center justify-center">
+        <canvas
+          ref={timerCanvasRef}
+          width={100}
+          height={100}
+          className={cn(
+            "transition-opacity duration-300",
+            status.value === "connected" ? "opacity-100" : "opacity-50"
+          )}
+        />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-xs text-muted-foreground font-medium mb-1">
+              Time Left
+            </div>
+            <div className="text-lg font-bold font-mono">
+              {callDurationTimestamp
+                ? formatTime(
+                    Math.max(0, totalTime - unformatTime(callDurationTimestamp))
+                  )
+                : "--:--"}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
