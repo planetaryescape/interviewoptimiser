@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useVoice } from "@humeai/voice-react";
 import { motion } from "framer-motion";
-import { MessageCircle } from "lucide-react";
+import { ArrowLeft, MessageCircle } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 
 export default function InterviewPlaceholder({
   interviewEnded,
@@ -13,7 +14,10 @@ export default function InterviewPlaceholder({
   interviewEnded: boolean;
   setInterviewStarted: (value: boolean) => void;
 }) {
+  const params = useParams();
+  const interviewId = params.interviewId;
   const { connect, status } = useVoice();
+  const router = useRouter();
   const dummyMessages = [
     {
       role: "assistant",
@@ -31,7 +35,19 @@ export default function InterviewPlaceholder({
   ];
 
   return (
-    <div className="h-full flex flex-col items-center justify-center bg-blue-50 dark:bg-blue-950 p-4">
+    <div className="h-full flex flex-col items-center justify-center bg-blue-50 dark:bg-blue-950 p-4 relative">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() =>
+          router.push(`/dashboard/interview/${interviewId}/reports`)
+        }
+        className="absolute top-4 left-4 text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Reports
+      </Button>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
