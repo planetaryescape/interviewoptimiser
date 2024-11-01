@@ -8,6 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Interview } from "@/db/schema";
 import { useCreateInterviewDuration } from "@/stores/createInterviewStore";
 
 interface ConfirmationModalProps {
@@ -15,6 +16,7 @@ interface ConfirmationModalProps {
   onClose: () => void;
   onConfirm: () => void;
   userMinutes: number;
+  interview?: Interview;
 }
 
 export function ConfirmationModal({
@@ -22,8 +24,11 @@ export function ConfirmationModal({
   onClose,
   onConfirm,
   userMinutes,
+  interview,
 }: ConfirmationModalProps) {
-  const duration = useCreateInterviewDuration();
+  const storedDuration = useCreateInterviewDuration();
+  const duration = interview ? interview.duration : storedDuration;
+
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
