@@ -88,6 +88,190 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 
+function aggregateProsodyData(transcript: string) {
+  const messages = JSON.parse(transcript || "[]");
+  const prosodyTotals: { [key: string]: number } = {};
+  let totalMessages = 0;
+
+  messages.forEach(
+    (message: { role: string; prosody: Record<string, number> }) => {
+      if (message.role === "user" && message.prosody) {
+        totalMessages++;
+        Object.entries(message.prosody).forEach(([key, value]) => {
+          prosodyTotals[key] = (prosodyTotals[key] || 0) + value;
+        });
+      }
+    }
+  );
+
+  return Object.entries(prosodyTotals)
+    .map(([name, value]) => ({
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      value: Math.round((value / totalMessages) * 100),
+    }))
+    .filter((item) => item.value > 1)
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 6);
+}
+
+function RadialProsodyChart({
+  data,
+}: {
+  data: { name: string; value: number }[];
+}) {
+  const size = 500;
+  const centerX = size / 2;
+  const centerY = size / 2;
+  const radius = size * 0.35;
+  const labelRadius = radius * 1.2;
+  const angleStep = (2 * Math.PI) / data.length;
+
+  // Calculate max value and set scale with 20% padding
+  const maxValue = Math.max(...data.map((d) => d.value));
+  const scalePadding = 0.2; // 20% padding
+  const scaleMax = Math.ceil((maxValue * (1 + scalePadding)) / 10) * 10; // Round to next 10
+  const scaleSteps = 5; // Number of circular grid lines
+  const stepSize = scaleMax / scaleSteps;
+
+  // Generate points for the radar chart
+  const points = data.map((_, i) => {
+    const angle = i * angleStep - Math.PI / 2;
+    return {
+      x: centerX + Math.cos(angle) * radius,
+      y: centerY + Math.sin(angle) * radius,
+      labelX: centerX + Math.cos(angle) * labelRadius,
+      labelY: centerY + Math.sin(angle) * labelRadius,
+      angle: angle * (180 / Math.PI),
+    };
+  });
+
+  // Generate data points scaled by values
+  const dataPoints = data.map((item, i) => {
+    const angle = i * angleStep - Math.PI / 2;
+    const scaledRadius = (radius * item.value) / scaleMax;
+    return {
+      x: centerX + Math.cos(angle) * scaledRadius,
+      y: centerY + Math.sin(angle) * scaledRadius,
+      value: item.value,
+    };
+  });
+
+  // Create the path for the data line
+  const dataPath =
+    dataPoints
+      .map((point, i) => `${i === 0 ? "M" : "L"} ${point.x},${point.y}`)
+      .join(" ") + "Z";
+
+  return (
+    <svg
+      viewBox={`0 0 ${size} ${size}`}
+      className="w-full h-full max-w-[600px] mx-auto"
+    >
+      {/* Background circles with percentage labels */}
+      {Array.from({ length: scaleSteps }, (_, i) => {
+        const scale = (i + 1) / scaleSteps;
+        return (
+          <g key={scale}>
+            <circle
+              cx={centerX}
+              cy={centerY}
+              r={radius * scale}
+              fill="none"
+              stroke="#e5e7eb"
+              strokeWidth="1"
+              className="opacity-50"
+            />
+            <text
+              x={centerX}
+              y={centerY - radius * scale}
+              textAnchor="middle"
+              alignmentBaseline="middle"
+              className="text-[10px] fill-gray-400"
+            >
+              {Math.round(scale * scaleMax)}%
+            </text>
+          </g>
+        );
+      })}
+
+      {/* Axis lines */}
+      {points.map((point, i) => (
+        <line
+          key={i}
+          x1={centerX}
+          y1={centerY}
+          x2={point.x}
+          y2={point.y}
+          stroke="#e5e7eb"
+          strokeWidth="1"
+          className="opacity-50"
+        />
+      ))}
+
+      {/* Data area */}
+      <path
+        d={dataPath}
+        fill="rgba(59, 130, 246, 0.2)"
+        stroke="#3b82f6"
+        strokeWidth="2"
+        className="transition-all duration-500"
+      />
+
+      {/* Data points with values */}
+      {dataPoints.map((point, i) => (
+        <g key={i}>
+          <circle
+            cx={point.x}
+            cy={point.y}
+            r="4"
+            fill="#3b82f6"
+            className="transition-all duration-500"
+          />
+          <text
+            x={point.x}
+            y={point.y - 15}
+            textAnchor="middle"
+            className="text-xs font-medium fill-gray-700"
+          >
+            {data[i].value}%
+          </text>
+        </g>
+      ))}
+
+      {/* Labels on the circumference */}
+      {points.map((point, i) => {
+        const textAnchor =
+          Math.abs(point.angle) < 20
+            ? "middle"
+            : point.angle < 0
+            ? "end"
+            : "start";
+
+        const labelOffset = 20;
+        const adjustedLabelX =
+          textAnchor === "middle"
+            ? point.labelX
+            : textAnchor === "end"
+            ? point.labelX - labelOffset
+            : point.labelX + labelOffset;
+
+        return (
+          <text
+            key={i}
+            x={adjustedLabelX}
+            y={point.labelY}
+            textAnchor={textAnchor}
+            alignmentBaseline="middle"
+            className="text-sm font-medium fill-gray-600"
+          >
+            {data[i].name}
+          </text>
+        );
+      })}
+    </svg>
+  );
+}
+
 export default function InterviewReportPage(props: {
   params: Promise<{ interviewId: string; reportId: string }>;
 }) {
@@ -693,6 +877,42 @@ export default function InterviewReportPage(props: {
               </ol>
             </div>
           </section>
+
+          {/* Prosody Analysis */}
+          {includeTranscript && (
+            <section className="mb-12">
+              <h2
+                className={cn(
+                  "text-2xl font-semibold mb-6 text-gray-800 border-b pb-2",
+                  headingFont
+                )}
+              >
+                Voice Characteristics Analysis
+              </h2>
+              <div className="bg-white p-6 rounded-xl border border-gray-100">
+                <p className="text-gray-600 mb-6 text-center max-w-2xl mx-auto">
+                  This analysis shows the top emotional and tonal patterns
+                  detected in your responses during the interview. The further a
+                  point extends from the center, the more prevalent that
+                  characteristic was in your speech.
+                </p>
+                <div className="h-[600px] w-full">
+                  <RadialProsodyChart
+                    data={aggregateProsodyData(
+                      interview?.data.transcript ?? "[]"
+                    )}
+                  />
+                </div>
+                <div className="mt-6 text-sm text-gray-500 text-center">
+                  <p>
+                    Values represent the percentage of responses where each
+                    characteristic was significantly detected. Only the top 10
+                    most prevalent characteristics are shown.
+                  </p>
+                </div>
+              </div>
+            </section>
+          )}
 
           {/* Interview Transcript (if included) */}
           {includeTranscript && (
