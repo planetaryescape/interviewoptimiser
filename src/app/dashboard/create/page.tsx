@@ -181,11 +181,10 @@ export default function CreateInterview() {
         type: interviewType,
       };
 
-      // posthog.capture("submit_optimization", {
-      //   userId: user?.id,
-      // });
+      posthog.capture("create_interview", {
+        userId: user?.id,
+      });
 
-      console.log("interview:", interview);
       const createdInterview = await createInterviewMutation.mutateAsync(
         interview
       );

@@ -1,5 +1,4 @@
 import { Interview, reports } from "@/db/schema";
-import { logger } from "@/lib/logger";
 import { createInsertSchema } from "drizzle-zod";
 import { zodResponseFormat } from "openai/helpers/zod";
 import * as R from "remeda";
@@ -123,13 +122,14 @@ const USER_PROMPT = `
 
 export async function generateInterviewAnalysis(
   interview: Interview,
+  transcriptString: string,
   userEmail?: string
 ) {
-  if (!interview.transcript) {
+  if (!transcriptString) {
     throw new Error("No transcript found");
   }
 
-  const transcript = JSON.parse(interview.transcript).map(
+  const transcript = JSON.parse(transcriptString).map(
     (message: {
       role: "user" | "assistant";
       content: string;
@@ -145,8 +145,6 @@ export async function generateInterviewAnalysis(
       ),
     })
   );
-
-  logger.info({ transcript }, "Transcript");
 
   const userPrompt = USER_PROMPT.replace(
     "{{TRANSCRIPT}}",

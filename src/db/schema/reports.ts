@@ -28,6 +28,7 @@ export const reports = pgTable(
     adaptability: p.text().notNull(),
     adaptabilityScore: p.integer().notNull(),
     areasOfStrength: p.text().notNull(),
+    transcript: p.text(),
     areasForImprovement: p.text().notNull(),
     actionableNextSteps: p.text().notNull(),
     isPublic: p.boolean().notNull().default(false),

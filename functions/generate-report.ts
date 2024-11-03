@@ -41,10 +41,19 @@ export const handler = Sentry.AWSLambda.wrapHandler(async (event: SQSEvent) => {
         const user = await getUserFromId(userId);
         logger.info({ interviewId }, "Processing interview report request");
 
-        const [interview] = await db
+        const interview = await db
           .select()
           .from(interviews)
-          .where(eq(interviews.id, interviewId));
+          .where(eq(interviews.id, interviewId))
+          .then(([interview]) => interview);
+
+        const report = await db
+          .select({
+            transcript: reports.transcript,
+          })
+          .from(reports)
+          .where(eq(reports.id, reportId))
+          .then(([report]) => report);
 
         if (!interview) {
           logger.error({ interviewId }, "Interview not found");
@@ -54,8 +63,17 @@ export const handler = Sentry.AWSLambda.wrapHandler(async (event: SQSEvent) => {
           };
         }
 
+        if (!report) {
+          logger.error({ reportId }, "Report not found");
+          return {
+            statusCode: 404,
+            body: JSON.stringify({ error: "Report not found" }),
+          };
+        }
+
         const generatedReport = await generateInterviewAnalysis(
           interview,
+          report.transcript ?? "",
           user?.email
         );
 
