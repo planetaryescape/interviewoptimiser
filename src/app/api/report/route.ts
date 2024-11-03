@@ -1,11 +1,12 @@
 import { db } from "@/db";
-import { reports } from "@/db/schema";
+import { interviews, reports } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
+import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 const API_GATEWAY_URL =
@@ -32,29 +33,50 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const report = await db
-      .insert(reports)
-      .values({
-        interviewId,
-        generalAssessment: "",
-        overallScore: 0,
-        speakingSkills: "",
-        speakingSkillsScore: 0,
-        areasOfStrength: "",
-        areasForImprovement: "",
-        actionableNextSteps: "",
-        communicationSkills: "",
-        communicationSkillsScore: 0,
-        problemSolvingSkills: "",
-        problemSolvingSkillsScore: 0,
-        technicalKnowledge: "",
-        technicalKnowledgeScore: 0,
-        teamwork: "",
-        teamworkScore: 0,
-        adaptability: "",
-        adaptabilityScore: 0,
-      })
-      .returning();
+    const reportId = await db.transaction(async (tx) => {
+      const interview = await tx
+        .select({
+          transcript: interviews.transcript,
+        })
+        .from(interviews)
+        .where(eq(interviews.id, interviewId))
+        .then(([interview]) => interview);
+
+      const report = await tx
+        .insert(reports)
+        .values({
+          interviewId,
+          generalAssessment: "",
+          overallScore: 0,
+          speakingSkills: "",
+          speakingSkillsScore: 0,
+          transcript: interview?.transcript || "",
+          areasOfStrength: "",
+          areasForImprovement: "",
+          actionableNextSteps: "",
+          communicationSkills: "",
+          communicationSkillsScore: 0,
+          problemSolvingSkills: "",
+          problemSolvingSkillsScore: 0,
+          technicalKnowledge: "",
+          technicalKnowledgeScore: 0,
+          teamwork: "",
+          teamworkScore: 0,
+          adaptability: "",
+          adaptabilityScore: 0,
+        })
+        .returning();
+
+      return report[0].id;
+    });
+
+    if (!reportId) {
+      logger.error("Failed to generate report ID");
+      return NextResponse.json(
+        { error: "Failed to generate report ID" },
+        { status: 500 }
+      );
+    }
 
     logger.info(
       { interviewId, url: API_GATEWAY_URL },
@@ -68,7 +90,7 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         interviewId,
-        reportId: report[0].id,
+        reportId,
         userId,
         queueType: "generate-report",
       }),

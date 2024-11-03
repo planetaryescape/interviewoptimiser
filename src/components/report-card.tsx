@@ -34,19 +34,15 @@ export function ReportCard({ report, interviewId }: ReportCardProps) {
     return (
       <Card className="hover:shadow-lg transition-all duration-200 group">
         <CardContent className="p-6">
-          {/* Header Section */}
           <div className="flex justify-between items-start mb-6">
             <div className="w-full">
               <div className="flex items-center gap-2 mb-2">
                 <Skeleton className="h-6 w-32" />
                 <Skeleton className="h-6 w-40" />
               </div>
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-3/4 mt-2" />
             </div>
           </div>
 
-          {/* Skills Grid */}
           <div className="grid grid-cols-2 gap-4 mb-6">
             {[...Array(4)].map((_, idx) => (
               <div key={idx} className="space-y-2">
@@ -60,22 +56,6 @@ export function ReportCard({ report, interviewId }: ReportCardProps) {
             ))}
           </div>
 
-          {/* Key Findings */}
-          <div className="space-y-4 mb-6">
-            <div className="grid grid-cols-2 gap-4">
-              {[...Array(2)].map((_, idx) => (
-                <div key={idx}>
-                  <Skeleton className="h-5 w-24 mb-2" />
-                  <div className="space-y-1">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Action Button */}
           <Button variant="outline" className="w-full" disabled>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             Generating Report
@@ -88,34 +68,27 @@ export function ReportCard({ report, interviewId }: ReportCardProps) {
   return (
     <Card className="hover:shadow-lg transition-all duration-200 group">
       <CardContent className="p-6">
-        {/* Header Section */}
         <div className="flex justify-between items-start mb-6">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Badge
-                variant={
-                  report.data.overallScore >= 80
-                    ? "success"
-                    : report.data.overallScore >= 65
-                    ? "warning"
-                    : "destructive"
-                }
-                className="px-2 py-0.5"
-              >
-                {report.data.overallScore}% Overall Score
-              </Badge>
-              <span className="text-sm text-muted-foreground">
-                <Calendar className="w-4 h-4 inline mr-1" />
-                {new Date(report.data.createdAt).toLocaleDateString()}
-              </span>
-            </div>
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {report.data.generalAssessment}
-            </p>
+          <div className="flex items-center gap-2">
+            <Badge
+              variant={
+                report.data.overallScore >= 80
+                  ? "success"
+                  : report.data.overallScore >= 65
+                  ? "warning"
+                  : "destructive"
+              }
+              className="px-2 py-0.5"
+            >
+              {report.data.overallScore}% Overall Score
+            </Badge>
+            <span className="text-sm text-muted-foreground">
+              <Calendar className="w-4 h-4 inline mr-1" />
+              {new Date(report.data.createdAt).toLocaleDateString()}
+            </span>
           </div>
         </div>
 
-        {/* Skills Grid */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <TooltipProvider>
             {[
@@ -175,51 +148,10 @@ export function ReportCard({ report, interviewId }: ReportCardProps) {
           </TooltipProvider>
         </div>
 
-        {/* Key Findings */}
-        <div className="space-y-4 mb-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <h4 className="text-sm font-medium mb-2 text-green-600">
-                Strengths
-              </h4>
-              <ul className="text-sm space-y-1">
-                {JSON.parse(report.data.areasOfStrength)
-                  .slice(0, 2)
-                  .map((strength: string, idx: number) => (
-                    <li
-                      key={idx}
-                      className="text-muted-foreground line-clamp-1"
-                    >
-                      • {strength}
-                    </li>
-                  ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-sm font-medium mb-2 text-amber-600">
-                Areas for Growth
-              </h4>
-              <ul className="text-sm space-y-1">
-                {JSON.parse(report.data.areasForImprovement)
-                  .slice(0, 2)
-                  .map((area: string, idx: number) => (
-                    <li
-                      key={idx}
-                      className="text-muted-foreground line-clamp-1"
-                    >
-                      • {area}
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        {/* Action Button */}
         <Button
           asChild
           variant="outline"
-          className="w-full group-hover:border-primary group-hover:text-primary transition-colors"
+          className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
         >
           <Link
             href={`/dashboard/interview/${interviewId}/reports/${idHandler.encode(

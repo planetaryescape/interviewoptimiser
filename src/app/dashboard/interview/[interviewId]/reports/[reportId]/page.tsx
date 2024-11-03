@@ -743,9 +743,7 @@ export default function InterviewReportPage(props: {
                 </p>
                 <div className="w-full">
                   <RadialProsodyChart
-                    data={aggregateProsodyData(
-                      interview?.data.transcript ?? "[]"
-                    )}
+                    data={aggregateProsodyData(report?.data.transcript ?? "[]")}
                   />
                 </div>
                 <div className="mt-6 text-sm text-gray-500 text-center">
@@ -771,7 +769,7 @@ export default function InterviewReportPage(props: {
                 Interview Transcript
               </h2>
               <div className="bg-gray-50 p-6 rounded-xl space-y-4">
-                {JSON.parse(interview?.data.transcript ?? "[]").map(
+                {JSON.parse(report?.data.transcript ?? "[]").map(
                   (
                     message: {
                       role: string;
