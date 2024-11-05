@@ -3,7 +3,8 @@ import { config } from "@/lib/config";
 import { logger } from "@/lib/logger";
 import { resend } from "@/lib/resend";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import * as Sentry from "@sentry/serverless";
+import * as Sentry from "@sentry/aws-serverless";
+import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import { spawn } from "child_process";
 import { format } from "date-fns";
 import fs from "fs";
@@ -11,6 +12,16 @@ import path from "path";
 import { Transform } from "stream";
 
 const s3Client = new S3Client({ region: process.env.LAMBDA_AWS_REGION });
+
+Sentry.init({
+  dsn: "https://ac1da005fbc6900ac345791d50395035@o4508119114514432.ingest.de.sentry.io/4508248026972240",
+  integrations: [nodeProfilingIntegration()],
+  // Tracing
+  tracesSampleRate: 1.0, //  Capture 100% of the transactions
+
+  // Set sampling rate for profiling - this is relative to tracesSampleRate
+  profilesSampleRate: 1.0,
+});
 
 function spawnPgDump(
   pgDumpDir: string,
@@ -102,7 +113,7 @@ async function performBackup(plain = false) {
   );
 }
 
-export const handler = Sentry.AWSLambda.wrapHandler(async () => {
+export const handler = Sentry.wrapHandler(async () => {
   try {
     logger.info("Starting database backup process");
 

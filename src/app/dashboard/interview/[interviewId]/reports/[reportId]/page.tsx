@@ -169,6 +169,17 @@ export default function InterviewReportPage(props: {
       });
 
       if (!response.ok) {
+        Sentry.withScope(async (scope) => {
+          scope.setExtra("context", "exportDocument");
+          scope.setExtra("format", format);
+          scope.setExtra("error", response.statusText);
+          scope.setExtra("status", response.status);
+          scope.setExtra("response", response);
+          scope.setExtra("response", await response.text());
+          Sentry.captureException(
+            new Error(`Failed to generate ${format.toUpperCase()}`)
+          );
+        });
         throw new Error(`Failed to generate ${format.toUpperCase()}`);
       }
 

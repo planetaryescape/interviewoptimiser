@@ -45,15 +45,15 @@ locals {
   lambdas = {
     generate_report = {
       name       = "generate-report"
-      sentry_dsn = "https://102d902545d2f76114e6c3886a531799@o4508119114514432.ingest.de.sentry.io/4508119116480592"
+      sentry_dsn = "https://a1c3a134e74ec680a4cc42024dee1a08@o4508119114514432.ingest.de.sentry.io/4508248038572112"
     }
     generate_pdf = {
       name       = "generate-pdf"
-      sentry_dsn = "https://102d902545d2f76114e6c3886a531799@o4508119114514432.ingest.de.sentry.io/4508119116480592"
+      sentry_dsn = "https://42eebd0e5ad4ed9e80f6d6d2b2978842@o4508119114514432.ingest.de.sentry.io/4508248033001552"
     }
     add_to_queue = {
       name       = "add-to-queue"
-      sentry_dsn = "https://102d902545d2f76114e6c3886a531799@o4508119114514432.ingest.de.sentry.io/4508119116480592"
+      sentry_dsn = "https://41ab3356fbe3426d1b12f4e58a128415@o4508119114514432.ingest.de.sentry.io/4508248020615248"
     }
     vet_review = {
       name       = "vet-review"
@@ -61,7 +61,7 @@ locals {
     }
     backup_database = {
       name       = "backup-database"
-      sentry_dsn = "https://102d902545d2f76114e6c3886a531799@o4508119114514432.ingest.de.sentry.io/4508119116480592"
+      sentry_dsn = "https://ac1da005fbc6900ac345791d50395035@o4508119114514432.ingest.de.sentry.io/4508248026972240"
     }
   }
 

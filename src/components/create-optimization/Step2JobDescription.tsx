@@ -44,6 +44,7 @@ export function Step2JobDescription() {
       } catch (error) {
         Sentry.withScope((scope) => {
           scope.setExtra("context", "getJobDescriptionText");
+          scope.setExtra("url", debouncedJobDescriptionLink);
           scope.setExtra("error", error);
           Sentry.captureException(error);
         });

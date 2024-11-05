@@ -1,4 +1,8 @@
+import { db } from "@/db";
 import { interviews, reports, statistics } from "@/db/schema";
+import { generateInterviewAnalysis } from "@/lib/ai/interview-analysis";
+import { getUserFromId } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import {
   ChangeMessageVisibilityCommand,
   DeleteMessageCommand,
@@ -6,18 +10,24 @@ import {
   SendMessageCommand,
   SQSClient,
 } from "@aws-sdk/client-sqs";
-import * as Sentry from "@sentry/serverless";
+import * as Sentry from "@sentry/aws-serverless";
 import { SQSEvent, SQSRecord } from "aws-lambda";
 import { eq, sql } from "drizzle-orm";
 
-import { db } from "@/db";
-import { generateInterviewAnalysis } from "@/lib/ai/interview-analysis";
-import { getUserFromId } from "@/lib/auth";
-import { logger } from "@/lib/logger";
+import { nodeProfilingIntegration } from "@sentry/profiling-node";
+Sentry.init({
+  dsn: "https://a1c3a134e74ec680a4cc42024dee1a08@o4508119114514432.ingest.de.sentry.io/4508248038572112",
+  integrations: [nodeProfilingIntegration()],
+  // Tracing
+  tracesSampleRate: 1.0, //  Capture 100% of the transactions
+
+  // Set sampling rate for profiling - this is relative to tracesSampleRate
+  profilesSampleRate: 1.0,
+});
 
 const sqs = new SQSClient({ region: process.env.LAMBDA_AWS_REGION });
 
-export const handler = Sentry.AWSLambda.wrapHandler(async (event: SQSEvent) => {
+export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
   try {
     logger.info({ event }, "Received event");
 

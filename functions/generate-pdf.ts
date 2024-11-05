@@ -1,6 +1,7 @@
 import { logger } from "@/lib/logger";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import * as Sentry from "@sentry/serverless";
+import * as Sentry from "@sentry/aws-serverless";
+import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import chromium from "@sparticuz/chromium";
 import { APIGatewayProxyEvent } from "aws-lambda";
 import postcss from "postcss";
@@ -11,6 +12,16 @@ import { tailwindPreflightCss } from "../static/tailwind.css";
 import config from "../tailwind.config";
 
 const s3Client = new S3Client({ region: process.env.LAMBDA_AWS_REGION });
+
+Sentry.init({
+  dsn: "https://42eebd0e5ad4ed9e80f6d6d2b2978842@o4508119114514432.ingest.de.sentry.io/4508248033001552",
+  integrations: [nodeProfilingIntegration()],
+  // Tracing
+  tracesSampleRate: 1.0, //  Capture 100% of the transactions
+
+  // Set sampling rate for profiling - this is relative to tracesSampleRate
+  profilesSampleRate: 1.0,
+});
 
 async function compileTailwindFromHtml(htmlContent: string): Promise<string> {
   const css = `@tailwind base; @tailwind components; @tailwind utilities;
@@ -44,7 +55,7 @@ async function compileTailwindFromHtml(htmlContent: string): Promise<string> {
   }
 }
 
-export const handler = Sentry.AWSLambda.wrapHandler(
+export const handler = Sentry.wrapHandler(
   async (event: APIGatewayProxyEvent) => {
     let browser: Browser | null = null;
     try {
