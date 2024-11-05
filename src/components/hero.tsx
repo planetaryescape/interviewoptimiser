@@ -15,7 +15,9 @@ const SocialProofContent = () => {
   const { data: response, isLoading } = useQuery({
     queryKey: ["statistics"],
     queryFn: async () => {
-      const res = await fetch("/api/public/statistics", {});
+      const res = await fetch("/api/public/statistics", {
+        cache: "no-store",
+      });
       if (!res.ok) {
         throw new Error("Failed to fetch statistics");
       }
