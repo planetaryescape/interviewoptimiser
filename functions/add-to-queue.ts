@@ -1,11 +1,22 @@
 import { logger } from "@/lib/logger";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
-import * as Sentry from "@sentry/serverless";
+import * as Sentry from "@sentry/aws-serverless";
+import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import { APIGatewayProxyEvent } from "aws-lambda";
 
 const sqs = new SQSClient({ region: process.env.LAMBDA_AWS_REGION });
 
-export const handler = Sentry.AWSLambda.wrapHandler(
+Sentry.init({
+  dsn: "https://41ab3356fbe3426d1b12f4e58a128415@o4508119114514432.ingest.de.sentry.io/4508248020615248",
+  integrations: [nodeProfilingIntegration()],
+  // Tracing
+  tracesSampleRate: 1.0, //  Capture 100% of the transactions
+
+  // Set sampling rate for profiling - this is relative to tracesSampleRate
+  profilesSampleRate: 1.0,
+});
+
+export const handler = Sentry.wrapHandler(
   async (event: APIGatewayProxyEvent) => {
     try {
       logger.info({ event }, "Received request to add to queue");

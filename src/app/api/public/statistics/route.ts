@@ -23,9 +23,9 @@ export async function GET() {
 
     logger.info(
       {
-        usersCount: stats.usersCount,
-        interviewsCount: stats.interviewsCount,
-        minutesCount: stats.minutesCount,
+        usersCount: stats?.usersCount,
+        interviewsCount: stats?.interviewsCount,
+        minutesCount: stats?.minutesCount,
       },
       "Successfully retrieved statistics"
     );

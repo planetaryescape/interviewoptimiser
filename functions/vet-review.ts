@@ -5,18 +5,29 @@ import { getOpenAiClient } from "@/lib/ai/openai";
 import { config } from "@/lib/config";
 import { logger } from "@/lib/logger";
 import { resend } from "@/lib/resend";
-import * as Sentry from "@sentry/serverless";
+import * as Sentry from "@sentry/aws-serverless";
+import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import { format } from "date-fns";
 import { eq } from "drizzle-orm";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
+
+Sentry.init({
+  dsn: "https://6c0af4af9084afc6ecc6166ade3c37c4@o4508119114514432.ingest.de.sentry.io/4508248043814992",
+  integrations: [nodeProfilingIntegration()],
+  // Tracing
+  tracesSampleRate: 1.0, //  Capture 100% of the transactions
+
+  // Set sampling rate for profiling - this is relative to tracesSampleRate
+  profilesSampleRate: 1.0,
+});
 
 const ReviewVettingResponseSchema = z.object({
   isAppropriate: z.boolean(),
   reason: z.string(),
 });
 
-export const handler = Sentry.AWSLambda.wrapHandler(async () => {
+export const handler = Sentry.wrapHandler(async () => {
   try {
     logger.info("Starting review vetting process");
 
