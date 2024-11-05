@@ -45,20 +45,23 @@ locals {
   lambdas = {
     generate_report = {
       name       = "generate-report"
-      sentry_dsn = "https://432e24ad8d4c63144ab026e372ea0cdb@o1198116.ingest.us.sentry.io/4507218555961344"
+      sentry_dsn = "https://102d902545d2f76114e6c3886a531799@o4508119114514432.ingest.de.sentry.io/4508119116480592"
     }
     generate_pdf = {
       name       = "generate-pdf"
-      sentry_dsn = "https://432e24ad8d4c63144ab026e372ea0cdb@o1198116.ingest.us.sentry.io/4507218555961344"
+      sentry_dsn = "https://102d902545d2f76114e6c3886a531799@o4508119114514432.ingest.de.sentry.io/4508119116480592"
     }
     add_to_queue = {
       name       = "add-to-queue"
-      sentry_dsn = "https://432e24ad8d4c63144ab026e372ea0cdb@o1198116.ingest.us.sentry.io/4507218555961344"
+      sentry_dsn = "https://102d902545d2f76114e6c3886a531799@o4508119114514432.ingest.de.sentry.io/4508119116480592"
     }
-
     vet_review = {
       name       = "vet-review"
-      sentry_dsn = "https://432e24ad8d4c63144ab026e372ea0cdb@o1198116.ingest.us.sentry.io/4507218555961344"
+      sentry_dsn = "https://102d902545d2f76114e6c3886a531799@o4508119114514432.ingest.de.sentry.io/4508119116480592"
+    }
+    backup_database = {
+      name       = "backup-database"
+      sentry_dsn = "https://102d902545d2f76114e6c3886a531799@o4508119114514432.ingest.de.sentry.io/4508119116480592"
     }
   }
 
@@ -117,6 +120,14 @@ locals {
       RESEND_API_KEY    = var.RESEND_API_KEY
       PINO_LOG_LEVEL    = "info"
       LAMBDA_AWS_REGION = local.region
+    }
+
+    backup_database = {
+      DATABASE_URL       = var.DATABASE_URL
+      LAMBDA_BUCKET_NAME = local.s3_bucket_name
+      RESEND_API_KEY     = var.RESEND_API_KEY
+      PINO_LOG_LEVEL     = "info"
+      LAMBDA_AWS_REGION  = local.region
     }
   }
 }
