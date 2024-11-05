@@ -24,7 +24,7 @@ export const AccountDeletedEmail = ({ firstName }: { firstName?: string }) => {
           theme: {
             extend: {
               colors: {
-                brand: "hsl(228 73% 13%)",
+                brand: "hsl(340, 65%, 45%)",
                 offwhite: "hsl(210, 36%, 96%)",
               },
               spacing: {

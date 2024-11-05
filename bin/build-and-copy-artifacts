@@ -25,3 +25,7 @@ cp -r functions/dist/$1/* terraform/artifacts/$1/
 if [ "$1" = "generate-pdf" ]; then
   cp -r node_modules/@sparticuz/chromium/bin terraform/artifacts/$1/
 fi
+if [ "$1" = "backup-database" ]; then
+  mkdir -p terraform/artifacts/$1/bin
+  cp -r functions/bin/* terraform/artifacts/$1/bin/
+fi

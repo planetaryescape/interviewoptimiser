@@ -19,3 +19,25 @@ resource "aws_lambda_permission" "allow_cloudwatch_to_call_vet_review" {
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.daily_review_vetting.arn
 }
+
+# CloudWatch Event Rule for database backup Lambda
+resource "aws_cloudwatch_event_rule" "daily_database_backup" {
+  name                = "daily-database-backup"
+  description         = "Trigger database backup Lambda function daily"
+  schedule_expression = "cron(0 1 * * ? *)" # Run at 1am UTC daily
+}
+
+resource "aws_cloudwatch_event_target" "backup_database_target" {
+  rule      = aws_cloudwatch_event_rule.daily_database_backup.name
+  target_id = "BackupDatabaseLambda"
+  arn       = aws_lambda_function.lambdas["backup_database"].arn
+}
+
+# Lambda permission for CloudWatch Events
+resource "aws_lambda_permission" "allow_cloudwatch_to_call_backup_database" {
+  statement_id  = "AllowCloudWatchToInvokeBackupDatabase"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambdas["backup_database"].function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.daily_database_backup.arn
+}

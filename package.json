@@ -19,9 +19,10 @@
     "terraform:generate-report": "bin/build-and-copy-artifacts generate-report",
     "terraform:add-to-queue": "bin/build-and-copy-artifacts add-to-queue",
     "terraform:generate-pdf": "bin/build-and-copy-artifacts generate-pdf",
+    "terraform:backup-database": "./bin/build-and-copy-artifacts backup-database",
     "terraform:vet-review": "bin/build-and-copy-artifacts vet-review",
-    "tfa-local": "pnpm terraform:generate-report && pnpm terraform:add-to-queue && pnpm terraform:generate-pdf && pnpm terraform:vet-review && bin/terraform-apply-local",
-    "tfa": "pnpm terraform:generate-report && pnpm terraform:add-to-queue && pnpm terraform:generate-pdf && bin/terraform-apply",
+    "tfa-local": "pnpm terraform:generate-report && pnpm terraform:add-to-queue && pnpm terraform:generate-pdf && pnpm terraform:vet-review && pnpm terraform:backup-database && bin/terraform-apply-local",
+    "tfa": "pnpm terraform:generate-report && pnpm terraform:add-to-queue && pnpm terraform:generate-pdf && pnpm terraform:vet-review && pnpm terraform:backup-database && bin/terraform-apply",
     "lint": "oxlint -c .eslintrc.json",
     "lint:fix": "oxlint --fix -c .eslintrc.json",
     "prepare": "husky"

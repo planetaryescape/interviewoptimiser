@@ -33,7 +33,7 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
           {/* Quote Content */}
           <blockquote className="relative">
             <div className="font-serif text-6xl text-primary/20 absolute -top-6 -left-3 select-none">
-              "
+              {'"'}
             </div>
             <p className="text-base text-foreground/90 leading-relaxed pl-3">
               {testimonial.data.comment}
