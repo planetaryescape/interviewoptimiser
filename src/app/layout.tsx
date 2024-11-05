@@ -104,30 +104,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider
-      publishableKey={
-        process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "pk_test_JA=="
-      }
-      dynamic
+    <html
+      className="size-screen overflow-hidden"
+      lang="en"
+      suppressHydrationWarning
     >
-      <html
-        className="size-screen overflow-hidden"
-        lang="en"
-        suppressHydrationWarning
+      <ClerkProvider
+        publishableKey={
+          process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "pk_test_JA=="
+        }
+        dynamic
       >
-        <ReactQueryProvider>
-          <CSPostHogProvider>
-            <body
-              suppressHydrationWarning
-              className={cn(
-                `antialiased size-screen bg-background text-foreground overflow-auto`,
-                geistMono.variable,
-                geistSans.variable,
-                oswald.variable,
-                montserrat.variable,
-                raleway.variable
-              )}
-            >
+        <body
+          suppressHydrationWarning
+          className={cn(
+            `antialiased size-screen bg-background text-foreground overflow-auto`,
+            geistMono.variable,
+            geistSans.variable,
+            oswald.variable,
+            montserrat.variable,
+            raleway.variable
+          )}
+        >
+          <ReactQueryProvider>
+            <CSPostHogProvider>
               <ThemeProvider
                 attribute="class"
                 defaultTheme="system"
@@ -143,15 +143,10 @@ export default function RootLayout({
                 {children}
               </ThemeProvider>
               <SpeedInsights />
-
-              <script
-                async
-                src="https://js.stripe.com/v3/pricing-table.js"
-              ></script>
-            </body>
-          </CSPostHogProvider>
-        </ReactQueryProvider>
-      </html>
-    </ClerkProvider>
+            </CSPostHogProvider>
+          </ReactQueryProvider>
+        </body>
+      </ClerkProvider>
+    </html>
   );
 }

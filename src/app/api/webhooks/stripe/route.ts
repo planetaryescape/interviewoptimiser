@@ -1,8 +1,10 @@
 import { db } from "@/db";
 import { users } from "@/db/schema";
+import PurchaseNotificationEmail from "@/emails/purchase-notification";
 import { config } from "@/lib/config";
 import { createDefaultApiRouteContext } from "@/lib/createDefaultApiRouteContext";
 import { logger } from "@/lib/logger";
+import { resend } from "@/lib/resend";
 import { stripe } from "@/lib/stripe";
 import { formatEmptyEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
@@ -71,6 +73,8 @@ export async function POST(request: Request) {
 
       let customerId = event.data.object.customer as string;
       const email = event.data.object.customer_details?.email || "";
+      const customerName =
+        event.data.object.customer_details?.name || "Customer";
 
       logger.info({ ...context, customerId, email }, "Customer details");
 
@@ -98,20 +102,9 @@ export async function POST(request: Request) {
         return acc + minutes * quantity;
       }, 0);
 
-      logger.info(
-        {
-          ...context,
-          products: lineItems.data.map(
-            (lineItem) => (lineItem.price?.product as Stripe.Product)?.name
-          ),
-          customerId,
-          email,
-          minutes,
-        },
-        "Products retrieved"
-      );
-
-      logger.info({ ...context, minutes, customerId }, "Minutes to add");
+      const amountPaid = event.data.object.amount_total
+        ? event.data.object.amount_total / 100
+        : 0; // Convert from cents to dollars
 
       const [user] = await db
         .update(users)
@@ -123,6 +116,28 @@ export async function POST(request: Request) {
         .returning();
 
       logger.info({ ...context, minutes, user }, "Minutes added");
+
+      try {
+        await resend.emails.send({
+          from: `${config.projectName} Team <notifications@${config.domain}>`,
+          to: config.supportEmail,
+          subject: `New Purchase - ${customerName} bought ${minutes} minutes`,
+          react: PurchaseNotificationEmail({
+            customerName,
+            minutesPurchased: minutes,
+            amountPaid,
+            currency: event.data.object.currency?.toUpperCase() || "USD",
+            purchaseDate: new Date().toLocaleString(),
+          }),
+        });
+        logger.info("Purchase notification email sent successfully");
+      } catch (emailError) {
+        logger.error(
+          { error: emailError },
+          "Failed to send purchase notification email"
+        );
+        // Don't fail the webhook if email sending fails
+      }
 
       return NextResponse.json(formatEmptyEntity());
     }

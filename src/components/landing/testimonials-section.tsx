@@ -7,10 +7,10 @@ import { EntityList } from "@/lib/utils/formatEntity";
 import { useQuery } from "@tanstack/react-query";
 import Autoplay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight, StarIcon, TwitterIcon } from "lucide-react";
-import Image from "next/image";
+import { ChevronLeft, ChevronRight, StarIcon } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { TestimonialCard } from "./testimonial-card";
 
 async function getTestimonials() {
   const res = await fetch("/api/public/reviews");
@@ -81,69 +81,7 @@ export function TestimonialsSection() {
                   key={testimonial.data.id}
                   className="flex-[0_0_100%] min-w-0 sm:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
                 >
-                  <div className="relative flex h-full flex-col gap-4 rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800/50 dark:shadow-gray-900/50">
-                    <div className="flex items-center gap-4">
-                      <div className="relative h-12 w-12 overflow-hidden rounded-full bg-gray-100">
-                        <Image
-                          src={
-                            testimonial.data.imageUrl ??
-                            `https://api.dicebear.com/7.x/avataaars/svg?seed=${testimonial.data.name}`
-                          }
-                          alt={testimonial.data.name}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">
-                          {testimonial.data.name}
-                        </h3>
-                        <div className="flex items-center gap-0.5">
-                          {Array.from({ length: testimonial.data.rating }).map(
-                            (_, i) => (
-                              <StarIcon
-                                key={i}
-                                className="h-4 w-4 fill-yellow-400 text-yellow-400"
-                              />
-                            )
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <blockquote className="text-gray-600 dark:text-gray-300">
-                      &quot;{testimonial.data.comment}&quot;
-                    </blockquote>
-                    <div className="mt-auto flex items-center gap-4">
-                      {testimonial.data.twitterUsername && (
-                        <Link
-                          href={`https://twitter.com/${testimonial.data.twitterUsername}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                        >
-                          <TwitterIcon className="h-4 w-4" />
-                          <span>@{testimonial.data.twitterUsername}</span>
-                        </Link>
-                      )}
-                      {testimonial.data.linkedinUrl && (
-                        <Link
-                          href={testimonial.data.linkedinUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                        >
-                          <svg
-                            className="h-4 w-4"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-                          </svg>
-                          <span>LinkedIn</span>
-                        </Link>
-                      )}
-                    </div>
-                  </div>
+                  <TestimonialCard testimonial={testimonial} />
                 </div>
               ))}
             </div>
