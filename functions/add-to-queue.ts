@@ -21,10 +21,7 @@ export const handler = Sentry.wrapHandler(
       logger.info({ event }, "Received request to add to queue");
 
       if (!event.body) {
-        return {
-          statusCode: 400,
-          body: JSON.stringify({ error: "Missing request body" }),
-        };
+        throw new Error("Missing request body");
       }
 
       const { interviewId, queueType, userId, reportId } = JSON.parse(
@@ -32,30 +29,18 @@ export const handler = Sentry.wrapHandler(
       );
 
       if (!interviewId) {
-        return {
-          statusCode: 400,
-          body: JSON.stringify({
-            error: "Missing interviewId",
-          }),
-        };
+        logger.error({ event }, "Missing interviewId");
+        throw new Error("Missing interviewId");
       }
 
       if (!queueType) {
-        return {
-          statusCode: 400,
-          body: JSON.stringify({
-            error: "Missing queueType",
-          }),
-        };
+        logger.error({ event }, "Missing queueType");
+        throw new Error("Missing queueType");
       }
 
       if (!reportId) {
-        return {
-          statusCode: 400,
-          body: JSON.stringify({
-            error: "Missing reportId",
-          }),
-        };
+        logger.error({ event }, "Missing reportId");
+        throw new Error("Missing reportId");
       }
 
       let queueUrl: string;
@@ -66,10 +51,7 @@ export const handler = Sentry.wrapHandler(
           break;
         default:
           logger.error({ queueType }, "Invalid queueType");
-          return {
-            statusCode: 400,
-            body: JSON.stringify({ error: "Invalid queueType" }),
-          };
+          throw new Error("Invalid queueType");
       }
 
       const message = {
@@ -104,6 +86,7 @@ export const handler = Sentry.wrapHandler(
       Sentry.withScope((scope) => {
         scope.setExtra("context", "handler");
         scope.setExtra("error", error);
+        scope.setExtra("event", event);
         scope.setExtra(
           "message",
           error instanceof Error ? error.message : error
@@ -117,12 +100,7 @@ export const handler = Sentry.wrapHandler(
         },
         "Error adding message to queue"
       );
-      return {
-        statusCode: 500,
-        body: JSON.stringify({
-          error: error instanceof Error ? error.message : error,
-        }),
-      };
+      throw error;
     }
   }
 );

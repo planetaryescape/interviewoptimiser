@@ -144,6 +144,7 @@ export const handler = Sentry.wrapHandler(async () => {
     Sentry.withScope((scope) => {
       scope.setExtra("context", "vet-review");
       scope.setExtra("error", error);
+      scope.setExtra("message", error instanceof Error ? error.message : error);
       Sentry.captureException(error);
     });
 

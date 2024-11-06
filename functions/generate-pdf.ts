@@ -63,10 +63,7 @@ export const handler = Sentry.wrapHandler(
 
       if (!htmlContent) {
         logger.error("HTML content is required");
-        return {
-          statusCode: 400,
-          body: JSON.stringify({ error: "HTML content is required" }),
-        };
+        throw new Error("HTML content is required");
       }
 
       // Compile Tailwind CSS
@@ -161,14 +158,12 @@ export const handler = Sentry.wrapHandler(
         }
       }
 
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: "Error generating PDF" }),
-      };
+      throw new Error("Error generating PDF");
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "handler");
         scope.setExtra("error", error);
+        scope.setExtra("event", event);
         scope.setExtra(
           "message",
           error instanceof Error ? error.message : error
@@ -182,10 +177,7 @@ export const handler = Sentry.wrapHandler(
         },
         "Error generating PDF"
       );
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: "Error generating PDF" }),
-      };
+      throw error;
     } finally {
       if (browser) {
         await browser.close();
