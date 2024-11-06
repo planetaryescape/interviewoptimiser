@@ -28,9 +28,9 @@ const SocialProofContent = () => {
   if (isLoading) {
     return <SocialProofSkeleton />;
   }
-  console.log("response:", response);
 
   const statistics = response?.data;
+  console.log("statistics:", statistics);
 
   return (
     <div className="flex items-center gap-4 text-muted-foreground">

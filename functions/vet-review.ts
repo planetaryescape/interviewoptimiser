@@ -6,7 +6,6 @@ import { config } from "@/lib/config";
 import { logger } from "@/lib/logger";
 import { resend } from "@/lib/resend";
 import * as Sentry from "@sentry/aws-serverless";
-import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import { format } from "date-fns";
 import { eq } from "drizzle-orm";
 import { zodResponseFormat } from "openai/helpers/zod";
@@ -14,7 +13,7 @@ import { z } from "zod";
 
 Sentry.init({
   dsn: "https://6c0af4af9084afc6ecc6166ade3c37c4@o4508119114514432.ingest.de.sentry.io/4508248043814992",
-  integrations: [nodeProfilingIntegration()],
+  // integrations: [nodeProfilingIntegration()],
   // Tracing
   tracesSampleRate: 1.0, //  Capture 100% of the transactions
 

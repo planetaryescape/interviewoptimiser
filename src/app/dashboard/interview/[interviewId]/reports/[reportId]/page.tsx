@@ -820,7 +820,9 @@ export default function InterviewReportPage(props: {
                             {persona}
                           </span>
                         </div>
-                        <p className="text-gray-700">{message.content}</p>
+                        <p className="text-gray-700">
+                          {message.content?.split("{")?.[0] ?? ""}
+                        </p>
                         {persona === "Candidate" &&
                           Object.keys(message.prosody).length > 0 && (
                             <div className="mt-2 pt-2 border-t border-gray-200">

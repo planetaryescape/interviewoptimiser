@@ -1,14 +1,13 @@
 import { logger } from "@/lib/logger";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 import * as Sentry from "@sentry/aws-serverless";
-import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import { APIGatewayProxyEvent } from "aws-lambda";
 
 const sqs = new SQSClient({ region: process.env.LAMBDA_AWS_REGION });
 
 Sentry.init({
   dsn: "https://41ab3356fbe3426d1b12f4e58a128415@o4508119114514432.ingest.de.sentry.io/4508248020615248",
-  integrations: [nodeProfilingIntegration()],
+  // integrations: [nodeProfilingIntegration()],
   // Tracing
   tracesSampleRate: 1.0, //  Capture 100% of the transactions
 

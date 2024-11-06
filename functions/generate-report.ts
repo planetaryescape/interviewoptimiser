@@ -14,10 +14,9 @@ import * as Sentry from "@sentry/aws-serverless";
 import { SQSEvent, SQSRecord } from "aws-lambda";
 import { eq, sql } from "drizzle-orm";
 
-import { nodeProfilingIntegration } from "@sentry/profiling-node";
 Sentry.init({
   dsn: "https://a1c3a134e74ec680a4cc42024dee1a08@o4508119114514432.ingest.de.sentry.io/4508248038572112",
-  integrations: [nodeProfilingIntegration()],
+  // integrations: [nodeProfilingIntegration()],
   // Tracing
   tracesSampleRate: 1.0, //  Capture 100% of the transactions
 
@@ -99,8 +98,22 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           await tx
             .update(reports)
             .set({
-              interviewId,
-              ...generatedReport,
+              generalAssessment: generatedReport.generalAssessment,
+              overallScore: generatedReport.overallScore,
+              speakingSkills: generatedReport.speakingSkills,
+              speakingSkillsScore: generatedReport.speakingSkillsScore,
+              communicationSkills: generatedReport.communicationSkills,
+              communicationSkillsScore:
+                generatedReport.communicationSkillsScore,
+              problemSolvingSkills: generatedReport.problemSolvingSkills,
+              problemSolvingSkillsScore:
+                generatedReport.problemSolvingSkillsScore,
+              technicalKnowledge: generatedReport.technicalKnowledge,
+              technicalKnowledgeScore: generatedReport.technicalKnowledgeScore,
+              teamwork: generatedReport.teamwork,
+              teamworkScore: generatedReport.teamworkScore,
+              adaptability: generatedReport.adaptability,
+              adaptabilityScore: generatedReport.adaptabilityScore,
               areasOfStrength: JSON.stringify(generatedReport.areasOfStrength),
               areasForImprovement: JSON.stringify(
                 generatedReport.areasForImprovement
