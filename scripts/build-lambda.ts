@@ -15,7 +15,7 @@ async function build() {
       platform: "node",
       target: "node20",
       sourcemap: true,
-      minify: true,
+      minify: false,
       external: ["@aws-sdk/*", "aws-lambda"],
       inject: ["./scripts/react-shim.js"],
       loader: {
@@ -26,7 +26,7 @@ async function build() {
       outfile: `functions/dist/${functionName}/index.js`,
       plugins: [
         sentryEsbuildPlugin({
-          org: "cv-optimiser",
+          org: "interviewoptimiser",
           project: functionName,
           authToken: process.env.SENTRY_AUTH_TOKEN,
         }),

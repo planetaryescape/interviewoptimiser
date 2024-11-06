@@ -136,7 +136,13 @@ export function Controls({
                         ) {
                           return {
                             role: msg.message.role,
-                            content: msg.message.content,
+                            content:
+                              msg.message.content
+                                ?.replace(
+                                  "<One minute left>Tell the candidate how much time is left and start wrapping up the interview and tell the candidate that a report will be generated</One minute left>.",
+                                  ""
+                                )
+                                ?.split("{")?.[0] ?? "",
                             prosody: msg.models.prosody?.scores ?? {},
                           };
                         }

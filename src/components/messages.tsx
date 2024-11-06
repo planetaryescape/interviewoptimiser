@@ -119,7 +119,7 @@ export const Messages = forwardRef<
                       isLatest ? "font-medium" : "font-normal"
                     )}
                   >
-                    {msg.message.content}
+                    {msg.message.content?.split("{")?.[0] ?? ""}
                   </div>
 
                   {/* Prosody Indicators */}

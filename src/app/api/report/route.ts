@@ -42,6 +42,20 @@ export async function POST(req: NextRequest) {
         .where(eq(interviews.id, interviewId))
         .then(([interview]) => interview);
 
+      if (!interview) {
+        logger.error("Interview not found");
+        Sentry.withScope((scope) => {
+          scope.setExtra("interviewId", interviewId);
+          Sentry.captureException(new Error("Interview not found"));
+        });
+        return NextResponse.json(
+          { error: "Interview not found" },
+          { status: 404 }
+        );
+      }
+
+      logger.info({ interview }, "Interview found");
+
       const report = await tx
         .insert(reports)
         .values({

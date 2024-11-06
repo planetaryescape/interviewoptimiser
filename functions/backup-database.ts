@@ -4,7 +4,6 @@ import { logger } from "@/lib/logger";
 import { resend } from "@/lib/resend";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import * as Sentry from "@sentry/aws-serverless";
-import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import { spawn } from "child_process";
 import { format } from "date-fns";
 import fs from "fs";
@@ -15,7 +14,7 @@ const s3Client = new S3Client({ region: process.env.LAMBDA_AWS_REGION });
 
 Sentry.init({
   dsn: "https://ac1da005fbc6900ac345791d50395035@o4508119114514432.ingest.de.sentry.io/4508248026972240",
-  integrations: [nodeProfilingIntegration()],
+  // integrations: [nodeProfilingIntegration()],
   // Tracing
   tracesSampleRate: 1.0, //  Capture 100% of the transactions
 
