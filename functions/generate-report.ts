@@ -35,10 +35,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         { event },
         "Invalid event structure: Records is not an array"
       );
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Invalid event structure" }),
-      };
+      throw new Error("Invalid event structure");
     }
 
     for (const record of event.Records) {
@@ -56,6 +53,11 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           .where(eq(interviews.id, interviewId))
           .then(([interview]) => interview);
 
+        if (!interview) {
+          logger.error({ interviewId }, "Interview not found");
+          throw new Error("Interview not found");
+        }
+
         const report = await db
           .select({
             transcript: reports.transcript,
@@ -64,20 +66,9 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           .where(eq(reports.id, reportId))
           .then(([report]) => report);
 
-        if (!interview) {
-          logger.error({ interviewId }, "Interview not found");
-          return {
-            statusCode: 404,
-            body: JSON.stringify({ error: "Interview not found" }),
-          };
-        }
-
         if (!report) {
           logger.error({ reportId }, "Report not found");
-          return {
-            statusCode: 404,
-            body: JSON.stringify({ error: "Report not found" }),
-          };
+          throw new Error("Report not found");
         }
 
         const generatedReport = await generateInterviewAnalysis(
@@ -88,10 +79,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
 
         if (!generatedReport) {
           logger.error("No interview report returned");
-          return {
-            statusCode: 500,
-            body: JSON.stringify({ error: "Failed to generate report" }),
-          };
+          throw new Error("Failed to generate report");
         }
 
         await db.transaction(async (tx) => {
@@ -160,6 +148,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         Sentry.withScope((scope) => {
           scope.setExtra("context", "handler");
           scope.setExtra("error", error);
+          scope.setExtra("event", event);
           scope.setExtra(
             "message",
             error instanceof Error ? error.message : error
@@ -224,6 +213,13 @@ async function handleError(
       { interviewId, receiveCount },
       "Max retries reached, sending to DLQ"
     );
+
+    Sentry.withScope((scope) => {
+      scope.setExtra("context", "handler");
+      scope.setExtra("error", error);
+      scope.setExtra("record", record);
+      Sentry.captureException(error);
+    });
 
     await db
       .update(interviews)
