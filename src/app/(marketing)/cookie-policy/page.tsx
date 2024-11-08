@@ -1,3 +1,5 @@
+export const dynamic = "force-static";
+
 export default function CookiePolicy() {
   return (
     <main className="policy min-h-screen">
@@ -63,39 +65,6 @@ export default function CookiePolicy() {
         services, such as google, which makes it easy to sign up and start using
         our application.
       </p>
-
-      <h2 className="mt-12 text-4xl">Cookie Preferences</h2>
-      <p>You can change your cookie settings below</p>
-      <div className="mb-4 flex items-center">
-        <input
-          id="allow-cookies"
-          type="radio"
-          name="default-radio"
-          className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
-          checked={true}
-        />
-        <label
-          htmlFor="allow-cookies"
-          className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-        >
-          Allow all cookies
-        </label>
-      </div>
-      <div className="flex items-center">
-        <input
-          id="deny-cookies"
-          type="radio"
-          name="default-radio"
-          className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
-          checked={false}
-        />
-        <label
-          htmlFor="deny-cookies"
-          className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-        >
-          Reject all cookies
-        </label>
-      </div>
     </main>
   );
 }
