@@ -45,7 +45,14 @@ function spawnPgDump(
 }
 
 function buildArgs(plain: boolean = false) {
-  return plain ? ["--no-owner", "--no-acl"] : ["-Fc", "-Z1"];
+  return [
+    "-Fc", // Custom format for pg_restore
+    "-Z9", // Maximum compression
+    "--no-owner", // Skip ownership
+    "--no-acl", // Skip access privileges
+    "--verbose", // Verbose output
+    "--no-comments", // Skip comments
+  ];
 }
 
 async function cleanupOldBackups() {
@@ -64,7 +71,7 @@ async function cleanupOldBackups() {
   }
 
   const oldBackups = response.Contents.filter((obj) => {
-    if (!obj.Key?.endsWith(".sql")) return false;
+    if (!obj.Key?.endsWith(".dump")) return false;
 
     const match = obj.Key.match(/(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2})/);
     if (!match) return false;
@@ -89,7 +96,7 @@ async function cleanupOldBackups() {
       try {
         await s3Client.send(
           new DeleteObjectCommand({
-            Bucket: process.env.LAMBDA_BUCKET_NAME!,
+            Bucket: process.env.LAMBDA_BUCKET_NAME,
             Key: backup.Key,
           })
         );
@@ -110,24 +117,19 @@ async function cleanupOldBackups() {
 }
 
 async function performBackup(plain = false) {
-  // Parse DATABASE_URL to get components
   const dbUrl = new URL(process.env.DATABASE_URL!);
 
-  // Set file name
   const timestamp = format(new Date(), "yyyy-MM-dd-HH-mm-ss");
-  const fileFormat = plain ? ".sql" : ".backup";
-  const fileName = `${dbUrl.pathname.slice(1)}-${timestamp}${fileFormat}`;
+  const fileName = `${dbUrl.pathname.slice(1)}-${timestamp}.dump`;
 
   return new Promise<{ fileName: string; stream: Transform; stderr: string }>(
     (resolve, reject) => {
       let headerChecked = false;
       let stderr = "";
 
-      // Get path to pg_dump binary and bin directory
       const binPath = path.join(process.env.LAMBDA_TASK_ROOT!, "bin");
 
-      // Spawn pg_dump process
-      const args = buildArgs(plain);
+      const args = buildArgs();
       const env = {
         NODE_ENV: process.env.NODE_ENV,
         LD_LIBRARY_PATH: binPath,
@@ -140,7 +142,6 @@ async function performBackup(plain = false) {
 
       const pgDumpProcess = spawnPgDump(binPath, args, env);
 
-      // Collect error output
       pgDumpProcess.stderr.on("data", (data) => {
         stderr += data.toString("utf8");
       });
@@ -159,7 +160,6 @@ async function performBackup(plain = false) {
         return null;
       });
 
-      // Create transform stream to verify backup content
       const transformer = new Transform({
         transform(chunk, enc, callback) {
           this.push(chunk);
@@ -176,7 +176,6 @@ async function performBackup(plain = false) {
         },
       });
 
-      // Pipe pg_dump to transformer
       pgDumpProcess.stdout.pipe(transformer);
     }
   );
@@ -186,24 +185,20 @@ export const handler = Sentry.wrapHandler(async () => {
   try {
     logger.info("Starting database backup process");
 
-    const { fileName, stream, stderr } = await performBackup(true);
+    const { fileName, stream, stderr } = await performBackup();
 
     if (stderr) {
       logger.warn({ stderr }, "Warnings during pg_dump");
     }
 
-    // Create an array to store chunks
     const chunks: Buffer[] = [];
 
-    // Collect chunks from the stream
     for await (const chunk of stream) {
       chunks.push(Buffer.from(chunk));
     }
 
-    // Concatenate all chunks
     const fileContent = Buffer.concat(chunks);
 
-    // Upload to S3
     const backupKey = `backups/database/${format(new Date(), "yyyy")}/${format(
       new Date(),
       "MM"
@@ -214,7 +209,7 @@ export const handler = Sentry.wrapHandler(async () => {
         Bucket: process.env.LAMBDA_BUCKET_NAME,
         Key: backupKey,
         Body: fileContent,
-        ContentType: "application/sql",
+        ContentType: "application/octet-stream",
       })
     );
 
@@ -228,7 +223,6 @@ export const handler = Sentry.wrapHandler(async () => {
       Key: backupKey,
     });
 
-    // Generate a URL that expires in 24 hours (86400 seconds)
     const presignedUrl = await getSignedUrl(s3Client, s3Command, {
       expiresIn: 86400,
     });
@@ -239,7 +233,6 @@ export const handler = Sentry.wrapHandler(async () => {
       } bytes\nTimestamp: ${new Date().toISOString()}\nURL (valid for 24h): ${presignedUrl}`
     );
 
-    // Clean up old backups after successful backup
     logger.info("Starting cleanup of old backups");
     await cleanupOldBackups();
     logger.info("Cleanup completed");
@@ -265,7 +258,6 @@ export const handler = Sentry.wrapHandler(async () => {
       "Error during database backup"
     );
 
-    // Send email notification about the failure
     try {
       await resend.emails.send({
         from: `${config.projectName} <notifications@${config.domain}>`,
@@ -279,7 +271,6 @@ export const handler = Sentry.wrapHandler(async () => {
 
       logger.info("Backup failure notification email sent");
 
-      // Add Discord notification for backup failure
       await sendDiscordDM(
         `❌ Database backup failed\n\nError: ${
           error instanceof Error ? error.message : String(error)
