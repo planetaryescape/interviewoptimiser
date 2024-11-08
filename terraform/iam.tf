@@ -70,6 +70,7 @@ resource "aws_iam_policy" "lambda_s3_write_policy" {
           "s3:ListObjectsV2"
         ],
         Resource = [
+          aws_s3_bucket.lambda_bucket.arn,
           "${aws_s3_bucket.lambda_bucket.arn}/*",
           "${aws_s3_bucket.lambda_bucket.arn}/pdfs/*",
           "${aws_s3_bucket.lambda_bucket.arn}/backups/database/*",
