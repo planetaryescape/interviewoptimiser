@@ -6,6 +6,7 @@ export const config = {
   baseUrl: `http://${domain}`,
   domain,
   supportEmail: `${domain.split(".")[0]}@bhekani.com`,
+  discordUserId: "549143313257725969",
   maxTextLengths: {
     cv: 15000,
     jobDescription: 5000,

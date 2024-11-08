@@ -2,6 +2,7 @@ import { db } from "@/db";
 import { interviews, reports, statistics } from "@/db/schema";
 import { generateInterviewAnalysis } from "@/lib/ai/interview-analysis";
 import { getUserFromId } from "@/lib/auth";
+import { sendDiscordDM } from "@/lib/discord";
 import { logger } from "@/lib/logger";
 import {
   ChangeMessageVisibilityCommand,
@@ -136,6 +137,15 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           "Successfully generated and saved interview report"
         );
 
+        // Add Discord notification for successful reports
+        await sendDiscordDM(
+          `✅ Interview Report Generated\n\n` +
+            `Interview ID: ${interviewId}\n` +
+            `Company: ${generatedReport.companyName}\n` +
+            `Role: ${generatedReport.roleName}\n` +
+            `Overall Score: ${generatedReport.overallScore}`
+        );
+
         await deleteMessage(record);
 
         return {
@@ -212,6 +222,14 @@ async function handleError(
     logger.error(
       { interviewId, receiveCount },
       "Max retries reached, sending to DLQ"
+    );
+
+    // Add Discord notification for failed reports
+    await sendDiscordDM(
+      `❌ Interview Report Generation Failed\n\n` +
+        `Interview ID: ${interviewId}\n` +
+        `Retries: ${receiveCount}\n` +
+        `Error: ${error.message}`
     );
 
     Sentry.withScope((scope) => {

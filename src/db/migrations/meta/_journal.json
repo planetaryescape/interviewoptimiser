@@ -113,6 +113,13 @@
       "when": 1730599848427,
       "tag": "0015_old_purple_man",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1731024530279,
+      "tag": "0016_tan_malice",
+      "breakpoints": true
     }
   ]
 }

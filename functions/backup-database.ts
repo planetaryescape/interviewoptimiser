@@ -1,16 +1,22 @@
 import BackupFailedEmail from "@/emails/backup-failed";
 import { config } from "@/lib/config";
+import { sendDiscordDM } from "@/lib/discord";
 import { logger } from "@/lib/logger";
 import { resend } from "@/lib/resend";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  ListObjectsV2Command,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import * as Sentry from "@sentry/aws-serverless";
 import { spawn } from "child_process";
-import { format } from "date-fns";
+import { format, isValid, parseISO, subDays } from "date-fns";
 import fs from "fs";
 import path from "path";
 import { Transform } from "stream";
-
-const s3Client = new S3Client({ region: process.env.LAMBDA_AWS_REGION });
 
 Sentry.init({
   dsn: "https://ac1da005fbc6900ac345791d50395035@o4508119114514432.ingest.de.sentry.io/4508248026972240",
@@ -21,6 +27,9 @@ Sentry.init({
   // Set sampling rate for profiling - this is relative to tracesSampleRate
   profilesSampleRate: 1.0,
 });
+
+const s3Client = new S3Client({ region: process.env.LAMBDA_AWS_REGION });
+const BACKUP_RETENTION_DAYS = 14;
 
 function spawnPgDump(
   pgDumpDir: string,
@@ -37,6 +46,67 @@ function spawnPgDump(
 
 function buildArgs(plain: boolean = false) {
   return plain ? ["--no-owner", "--no-acl"] : ["-Fc", "-Z1"];
+}
+
+async function cleanupOldBackups() {
+  const prefix = "backups/database/";
+  const cutoffDate = subDays(new Date(), BACKUP_RETENTION_DAYS);
+
+  const listCommand = new ListObjectsV2Command({
+    Bucket: process.env.LAMBDA_BUCKET_NAME!,
+    Prefix: prefix,
+  });
+
+  const response = await s3Client.send(listCommand);
+
+  if (!response.Contents) {
+    return;
+  }
+
+  const oldBackups = response.Contents.filter((obj) => {
+    if (!obj.Key?.endsWith(".sql")) return false;
+
+    const match = obj.Key.match(/(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2})/);
+    if (!match) return false;
+
+    const backupDate = parseISO(`${match[1].replace(/-/g, "T")}Z`);
+    return isValid(backupDate) && backupDate < cutoffDate;
+  });
+
+  logger.info(
+    { count: oldBackups.length, cutoffDate },
+    "Found old backups to delete"
+  );
+
+  if (oldBackups.length === 0) {
+    return;
+  }
+
+  await Promise.all(
+    oldBackups.map(async (backup) => {
+      if (!backup.Key) return;
+
+      try {
+        await s3Client.send(
+          new DeleteObjectCommand({
+            Bucket: process.env.LAMBDA_BUCKET_NAME!,
+            Key: backup.Key,
+          })
+        );
+        logger.info({ backupKey: backup.Key }, "Deleted old backup");
+      } catch (error) {
+        logger.error(
+          { error, backupKey: backup.Key },
+          "Failed to delete old backup"
+        );
+      }
+    })
+  );
+
+  logger.info(
+    { deletedCount: oldBackups.length },
+    "Completed parallel deletion of old backups"
+  );
 }
 
 async function performBackup(plain = false) {
@@ -153,6 +223,27 @@ export const handler = Sentry.wrapHandler(async () => {
       "Database backup completed successfully"
     );
 
+    const s3Command = new GetObjectCommand({
+      Bucket: process.env.LAMBDA_BUCKET_NAME,
+      Key: backupKey,
+    });
+
+    // Generate a URL that expires in 24 hours (86400 seconds)
+    const presignedUrl = await getSignedUrl(s3Client, s3Command, {
+      expiresIn: 86400,
+    });
+
+    await sendDiscordDM(
+      `📄 Database backup completed successfully\n\nBackup Key: ${backupKey}\nSize: ${
+        fileContent.length
+      } bytes\nTimestamp: ${new Date().toISOString()}\nURL (valid for 24h): ${presignedUrl}`
+    );
+
+    // Clean up old backups after successful backup
+    logger.info("Starting cleanup of old backups");
+    await cleanupOldBackups();
+    logger.info("Cleanup completed");
+
     return {
       statusCode: 200,
       body: JSON.stringify({
@@ -187,6 +278,13 @@ export const handler = Sentry.wrapHandler(async () => {
       });
 
       logger.info("Backup failure notification email sent");
+
+      // Add Discord notification for backup failure
+      await sendDiscordDM(
+        `❌ Database backup failed\n\nError: ${
+          error instanceof Error ? error.message : String(error)
+        }\nTimestamp: ${format(new Date(), "PPpp")}`
+      );
     } catch (emailError) {
       logger.error(
         { error: emailError },

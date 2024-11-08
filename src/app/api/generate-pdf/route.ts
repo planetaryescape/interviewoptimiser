@@ -1,5 +1,7 @@
+import { getUserFromClerkId } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
+import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -7,6 +9,18 @@ const API_KEY = process.env.INTERVIEWOPTIMISER_API_KEY;
 
 export async function POST(req: NextRequest) {
   try {
+    const { userId: clerkUserId } = getAuth(req);
+    if (!clerkUserId) {
+      logger.error("Unauthorized");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id: userId } = await getUserFromClerkId(clerkUserId);
+    if (!userId) {
+      logger.error("User not found");
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     logger.info({ event: "generate-pdf" }, "Calling PDF generation Lambda");
     const { htmlContent, paperSize, margin } = await req.json();
 
@@ -18,7 +32,7 @@ export async function POST(req: NextRequest) {
           "Content-Type": "application/json",
           "x-api-key": API_KEY || "",
         },
-        body: JSON.stringify({ htmlContent, paperSize, margin }),
+        body: JSON.stringify({ htmlContent, paperSize, margin, userId }),
       }
     );
 

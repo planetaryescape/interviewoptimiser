@@ -36,3 +36,8 @@ variable "RESEND_API_KEY" {
   description = "Resend API Key"
   type        = string
 }
+
+variable "DISCORD_BOT_TOKEN" {
+  description = "Discord bot token"
+  type        = string
+}

@@ -18,6 +18,7 @@ export const reviews = pgTable(
     linkedinUrl: p.varchar({ length: 255 }),
     showOnLanding: p.boolean().default(false).notNull(),
     isPublished: p.boolean().default(false).notNull(),
+    processedAt: p.timestamp(),
     createdAt: p.timestamp().defaultNow().notNull(),
     updatedAt: p.timestamp().defaultNow().notNull(),
   }),

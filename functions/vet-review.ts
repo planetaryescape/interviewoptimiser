@@ -3,11 +3,12 @@ import { reviews } from "@/db/schema";
 import ReviewReportEmail from "@/emails/review-report";
 import { getOpenAiClient } from "@/lib/ai/openai";
 import { config } from "@/lib/config";
+import { sendDiscordDM } from "@/lib/discord";
 import { logger } from "@/lib/logger";
 import { resend } from "@/lib/resend";
 import * as Sentry from "@sentry/aws-serverless";
 import { format } from "date-fns";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 
@@ -32,7 +33,7 @@ export const handler = Sentry.wrapHandler(async () => {
 
     // Get all unpublished reviews
     const unpublishedReviews = await db.query.reviews.findMany({
-      where: eq(reviews.isPublished, false),
+      where: and(eq(reviews.isPublished, false), isNull(reviews.processedAt)),
     });
 
     logger.info(
@@ -85,7 +86,7 @@ export const handler = Sentry.wrapHandler(async () => {
       if (response.isAppropriate) {
         await db
           .update(reviews)
-          .set({ isPublished: true })
+          .set({ isPublished: true, processedAt: new Date() })
           .where(eq(reviews.id, review.id));
         publishedReviews.push({
           id: review.id,
@@ -94,6 +95,10 @@ export const handler = Sentry.wrapHandler(async () => {
           author: review.name,
         });
       } else {
+        await db
+          .update(reviews)
+          .set({ isPublished: false, processedAt: new Date() })
+          .where(eq(reviews.id, review.id));
         rejectedReviews.push({
           id: review.id,
           content: review.comment,
@@ -129,7 +134,17 @@ export const handler = Sentry.wrapHandler(async () => {
         }),
       });
 
-      logger.info("Sent review report email");
+      // Add Discord notification
+      await sendDiscordDM(
+        `📋 Review Moderation Report - ${format(
+          new Date(),
+          "MMMM d, yyyy"
+        )}\n\n` +
+          `Published: ${publishedReviews.length}\n` +
+          `Rejected: ${rejectedReviews.length}`
+      );
+
+      logger.info("Sent review report email and Discord notification");
     }
 
     return {

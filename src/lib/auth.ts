@@ -8,6 +8,7 @@ export async function getUserFromClerkId(clerkUserId: string): Promise<{
   role?: string;
   email?: string;
   firstName?: string;
+  lastName?: string;
   stripeCustomerId?: string;
 }> {
   if (!clerkUserId) {
@@ -21,6 +22,7 @@ export async function getUserFromClerkId(clerkUserId: string): Promise<{
       role: users.role,
       email: users.email,
       firstName: users.firstname,
+      lastName: users.lastname,
       stripeCustomerId: users.stripeCustomerId,
     })
     .from(users)
@@ -37,6 +39,7 @@ export async function getUserFromClerkId(clerkUserId: string): Promise<{
     role: user[0].role,
     email: user[0].email,
     firstName: user[0].firstName ?? undefined,
+    lastName: user[0].lastName ?? undefined,
     stripeCustomerId: user[0].stripeCustomerId ?? undefined,
   };
 }
