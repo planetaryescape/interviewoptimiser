@@ -65,20 +65,24 @@ async function getLatestBackupKey(): Promise<string> {
   return sortedBackups[0].Key;
 }
 
-function spawnPsql(binDir: string, args: string[], env: NodeJS.ProcessEnv) {
-  const psqlPath = path.join(binDir, "psql");
-  if (!fs.existsSync(psqlPath)) {
-    throw new Error("psql not found at " + psqlPath);
+function spawnPgRestore(
+  binDir: string,
+  args: string[],
+  env: NodeJS.ProcessEnv
+) {
+  const pgRestorePath = path.join(binDir, "pg_restore");
+  if (!fs.existsSync(pgRestorePath)) {
+    throw new Error("pg_restore not found at " + pgRestorePath);
   }
 
-  return spawn(psqlPath, args, { env });
+  return spawn(pgRestorePath, args, { env });
 }
 
 async function performRestore(backupKey: string, databaseUrl?: string) {
   // Use provided database URL or fall back to environment variable
   const dbUrl = new URL(databaseUrl || process.env.DATABASE_URL!);
 
-  // Get path to psql binary and bin directory
+  // Get path to pg_restore binary and bin directory
   const binPath = path.join(process.env.LAMBDA_TASK_ROOT!, "bin");
 
   // Download backup file from S3
@@ -98,7 +102,7 @@ async function performRestore(backupKey: string, databaseUrl?: string) {
   return new Promise<string>((resolve, reject) => {
     let stderr = "";
 
-    // Set up psql environment
+    // Set up pg_restore environment
     const env = {
       NODE_ENV: process.env.NODE_ENV,
       LD_LIBRARY_PATH: binPath,
@@ -109,27 +113,36 @@ async function performRestore(backupKey: string, databaseUrl?: string) {
       PGPORT: dbUrl.port,
     };
 
-    // Spawn psql process
-    const psqlProcess = spawnPsql(binPath, [], env);
+    // Spawn pg_restore process with additional options
+    const pgRestoreArgs = [
+      "--clean", // Clean (drop) database objects before recreating
+      "--if-exists", // Add IF EXISTS to drop commands
+      "--no-owner", // Skip restoration of object ownership
+      "--no-privileges", // Skip restoration of access privileges (grant/revoke)
+      "--no-comments", // Do not restore comments
+      "--verbose", // Verbose mode
+    ];
+
+    const pgRestoreProcess = spawnPgRestore(binPath, pgRestoreArgs, env);
 
     // Collect error output
-    psqlProcess.stderr.on("data", (data) => {
+    pgRestoreProcess.stderr.on("data", (data) => {
       stderr += data.toString("utf8");
     });
 
-    psqlProcess.on("error", (err) => {
-      reject(new Error(`Failed to start psql: ${err.message}`));
+    pgRestoreProcess.on("error", (err) => {
+      reject(new Error(`Failed to start pg_restore: ${err.message}`));
     });
 
-    psqlProcess.on("close", (code) => {
+    pgRestoreProcess.on("close", (code) => {
       if (code !== 0) {
-        return reject(new Error(`psql process failed: ${stderr}`));
+        return reject(new Error(`pg_restore process failed: ${stderr}`));
       }
       resolve(stderr);
     });
 
-    // Pipe backup data to psql
-    backupStream.pipe(psqlProcess.stdin);
+    // Pipe backup data to pg_restore
+    backupStream.pipe(pgRestoreProcess.stdin);
   });
 }
 
