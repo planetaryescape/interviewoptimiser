@@ -5,12 +5,9 @@ import { FAQSection } from "@/components/landing/faq-section";
 import { HowItWorksSection } from "@/components/landing/how-it-works-section";
 import { SocialProofSection } from "@/components/landing/social-proof-section";
 import { TestimonialsSection } from "@/components/landing/testimonials-section";
-import { auth } from "@clerk/nextjs/server";
 import { Suspense } from "react";
 
 export default async function LandingPage() {
-  const { userId } = await auth();
-
   return (
     <>
       <Suspense fallback={null}>
@@ -21,7 +18,7 @@ export default async function LandingPage() {
       <SocialProofSection />
       <TestimonialsSection />
       <FAQSection />
-      {!userId && <CTASection />}
+      <CTASection />
     </>
   );
 }

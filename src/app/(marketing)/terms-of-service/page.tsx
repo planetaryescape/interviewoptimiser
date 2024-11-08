@@ -1,5 +1,7 @@
 import { config } from "@/lib/config";
 
+export const dynamic = "force-static";
+
 export default function TermsOfService() {
   return (
     <div className="mx-auto w-full container px-4 lg:px-20 pt-12 flex justify-center">
@@ -93,7 +95,7 @@ export default function TermsOfService() {
           <strong>Account Data:</strong> You can delete your account and all the
           associated data we store in our system at any time by going to your{" "}
           <a
-            href="https://accounts.interviewoptimiser.com/user"
+            href={`https://accounts.${config.baseUrl}/user`}
             className="dark:text-white"
           >
             account settings

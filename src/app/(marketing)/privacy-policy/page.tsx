@@ -1,5 +1,7 @@
 import { config } from "@/lib/config";
 
+export const dynamic = "force-static";
+
 export default function PrivacyPolicy() {
   return (
     <div className="mx-auto w-full container px-4 lg:px-20 pt-12 flex justify-center">

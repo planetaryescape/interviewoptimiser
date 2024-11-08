@@ -84,7 +84,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { use, useState } from "react";
+import { cache, use, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
@@ -117,6 +117,15 @@ function aggregateProsodyData(transcript: string) {
   return result;
 }
 
+const cachedInterviewReport = cache(
+  async (interviewId: string, reportId: string) => {
+    const reportRepo = await getRepository<
+      Report & { pageSettings: PageSettings }
+    >(`interviews/${interviewId}/reports`);
+    return await reportRepo.getById(reportId);
+  }
+);
+
 export default function InterviewReportPage(props: {
   params: Promise<{ interviewId: string; reportId: string }>;
 }) {
@@ -141,10 +150,11 @@ export default function InterviewReportPage(props: {
   } = useQuery({
     queryKey: ["report", params.reportId],
     queryFn: async () => {
-      const reportRepo = await getRepository<
-        Report & { pageSettings: PageSettings }
-      >(`interviews/${params.interviewId}/reports`);
-      return await reportRepo.getById(params.reportId);
+      const report = await cachedInterviewReport(
+        params.interviewId,
+        params.reportId
+      );
+      return report;
     },
   });
 
