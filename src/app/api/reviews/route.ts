@@ -3,6 +3,7 @@ import { reviews } from "@/db/schema";
 import ReviewNotificationEmail from "@/emails/review-notification";
 import { getUserFromClerkId } from "@/lib/auth";
 import { config } from "@/lib/config";
+import { sendDiscordDM } from "@/lib/discord";
 import { logger } from "@/lib/logger";
 import { resend } from "@/lib/resend";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
@@ -67,6 +68,23 @@ export async function POST(request: NextRequest) {
         "Failed to send review notification email"
       );
       // Don't fail the request if email sending fails
+    }
+
+    // Send Discord notification
+    try {
+      await sendDiscordDM(
+        `⭐ New Review Submitted\n\n` +
+          `Name: ${body.name}\n` +
+          `Rating: ${"★".repeat(body.rating)}${"☆".repeat(5 - body.rating)}\n` +
+          `Comment: ${body.comment}\n` +
+          `Show on Landing: ${body.showOnLanding ? "Yes" : "No"}`
+      );
+    } catch (discordError) {
+      logger.error(
+        { error: discordError },
+        "Failed to send review notification Discord"
+      );
+      // Don't fail the request if Discord sending fails
     }
 
     logger.info({ reviewId: newReview.id }, "Successfully created new review");

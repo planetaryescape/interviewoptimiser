@@ -1,3 +1,4 @@
+import { sendDiscordDM } from "@/lib/discord";
 import { logger } from "@/lib/logger";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 import * as Sentry from "@sentry/aws-serverless";
@@ -71,6 +72,11 @@ export const handler = Sentry.wrapHandler(
 
       await sqs.send(sendMessageCommand);
 
+      // Add Discord notification for successful queue addition
+      await sendDiscordDM(
+        `📥 Added to ${queueType} queue\n\nInterview ID: ${interviewId}\nReport ID: ${reportId}\nUser ID: ${userId}\nTimestamp: ${new Date().toISOString()}`
+      );
+
       logger.info(
         { interviewId, queueType },
         "Message added to queue successfully"
@@ -94,6 +100,16 @@ export const handler = Sentry.wrapHandler(
 
         Sentry.captureException(error);
       });
+
+      // Add Discord notification for failed queue addition
+      await sendDiscordDM(
+        `❌ Failed to add to queue\n\nQueue Type: ${
+          JSON.parse(event.body || "{}").queueType
+        }\nError: ${
+          error instanceof Error ? error.message : String(error)
+        }\nTimestamp: ${new Date().toISOString()}`
+      );
+
       logger.error(
         {
           error: error instanceof Error ? error.message : error,

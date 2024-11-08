@@ -64,7 +64,10 @@ resource "aws_iam_policy" "lambda_s3_write_policy" {
         Effect = "Allow",
         Action = [
           "s3:PutObject",
-          "s3:PutObjectAcl"
+          "s3:GetObject",
+          "s3:PutObjectAcl",
+          "s3:ListBucket",
+          "s3:ListObjectsV2"
         ],
         Resource = [
           "${aws_s3_bucket.lambda_bucket.arn}/pdfs/*",

@@ -1,8 +1,15 @@
+import { sendDiscordDM } from "@/lib/discord";
 import { logger } from "@/lib/logger";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import * as Sentry from "@sentry/aws-serverless";
 import chromium from "@sparticuz/chromium";
 import { APIGatewayProxyEvent } from "aws-lambda";
+import { format } from "date-fns";
 import postcss from "postcss";
 import puppeteer, { Browser } from "puppeteer-core";
 import tailwindcss from "tailwindcss";
@@ -59,7 +66,9 @@ export const handler = Sentry.wrapHandler(
     let browser: Browser | null = null;
     try {
       logger.info("Generating PDF");
-      const { htmlContent, paperSize, margin } = JSON.parse(event.body ?? "{}");
+      const { htmlContent, paperSize, margin, userId } = JSON.parse(
+        event.body ?? "{}"
+      );
 
       if (!htmlContent) {
         logger.error("HTML content is required");
@@ -129,7 +138,7 @@ export const handler = Sentry.wrapHandler(
           const year = currentDate.getFullYear();
           const month = String(currentDate.getMonth() + 1).padStart(2, "0");
           const day = String(currentDate.getDate()).padStart(2, "0");
-          const pdfKey = `pdfs/${year}/${month}/${day}/${uuidv4()}.pdf`;
+          const pdfKey = `pdfs/${userId}/${year}/${month}/${day}/${uuidv4()}.pdf`;
           s3Client.send(
             new PutObjectCommand({
               Bucket: process.env.LAMBDA_BUCKET_NAME,
@@ -140,6 +149,22 @@ export const handler = Sentry.wrapHandler(
           );
 
           logger.info({ event: "generate-pdf" }, "PDF saved to S3");
+
+          const s3Command = new GetObjectCommand({
+            Bucket: process.env.LAMBDA_BUCKET_NAME,
+            Key: pdfKey,
+          });
+
+          // Generate a URL that expires in 24 hours (86400 seconds)
+          const presignedUrl = await getSignedUrl(s3Client, s3Command, {
+            expiresIn: 86400,
+          });
+
+          await sendDiscordDM(
+            `📄 PDF generated successfully\n\nUser ID: ${userId}\nPDF URL (valid for 24h): ${presignedUrl}\nSize: ${
+              pdfBuffer.length
+            } bytes\nTimestamp: ${new Date().toISOString()}`
+          );
 
           // Return S3 key of the saved PDF
           return {
@@ -168,15 +193,17 @@ export const handler = Sentry.wrapHandler(
           "message",
           error instanceof Error ? error.message : error
         );
-
         Sentry.captureException(error);
       });
-      logger.error(
-        {
-          error: (error as Error).message,
-        },
-        "Error generating PDF"
+
+      // Add Discord notification for PDF generation failures
+      await sendDiscordDM(
+        `📄 PDF Generation Failed\n\n` +
+          `Time: ${format(new Date(), "PPpp")}\n` +
+          `Error: ${error instanceof Error ? error.message : String(error)}`
       );
+
+      logger.error({ error: (error as Error).message }, "Error generating PDF");
       throw error;
     } finally {
       if (browser) {

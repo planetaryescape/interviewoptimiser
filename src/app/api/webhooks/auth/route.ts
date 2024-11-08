@@ -1,10 +1,12 @@
 import { db } from "@/db";
 import { customisations, interviews, statistics, users } from "@/db/schema";
 import AccountDeletedEmail from "@/emails/account-deleted";
+import AdminNotificationEmail from "@/emails/admin-notification";
 import WelcomeEmail from "@/emails/welcome";
 import { getUserFromClerkId } from "@/lib/auth";
 import { config } from "@/lib/config";
 import { createDefaultApiRouteContext } from "@/lib/createDefaultApiRouteContext";
+import { sendDiscordDM } from "@/lib/discord";
 import { logger } from "@/lib/logger";
 import { resend } from "@/lib/resend";
 import { stripe } from "@/lib/stripe";
@@ -96,6 +98,31 @@ export async function POST(request: Request) {
       });
       logger.info({ ...context, emailResponse }, "Welcome email sent");
 
+      // Send admin notification
+      await resend.emails.send({
+        from: `${config.projectName} Notifications <notifications@${config.domain}>`,
+        to: config.supportEmail,
+        subject: `New User Signup - ${data.data.email_addresses[0].email_address}`,
+        react: AdminNotificationEmail({
+          eventType: "signup",
+          userData: {
+            email: data.data.email_addresses[0].email_address,
+            firstName: data.data.first_name,
+            lastName: data.data.last_name,
+            timestamp: new Date().toISOString(),
+          },
+        }),
+      });
+
+      // Send Discord notification
+      await sendDiscordDM(
+        `🎉 New user signup!\n\nEmail: ${
+          data.data.email_addresses[0].email_address
+        }\nName: ${data.data.first_name} ${
+          data.data.last_name
+        }\nTimestamp: ${new Date().toISOString()}`
+      );
+
       return NextResponse.json(null, { status: 200 });
     } catch (error) {
       Sentry.withScope((scope) => {
@@ -136,7 +163,7 @@ export async function POST(request: Request) {
       //   react: UserDetailsUpdateEmail({ firstName: data.data.first_name }),
       // });
 
-      return NextResponse.json(null, { status: 204 });
+      return NextResponse.json(null, { status: 200 });
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "POST /api/webhooks/auth");
@@ -174,6 +201,7 @@ export async function POST(request: Request) {
       const userId = user.id;
       const email = user.email;
       const firstName = user.firstName;
+      const lastName = user.lastName;
 
       await db.transaction(async (tx) => {
         logger.info({}, "Deleting CV-related data");
@@ -211,6 +239,27 @@ export async function POST(request: Request) {
           "Account deleted email sent"
         );
       }
+
+      // Send admin notification
+      await resend.emails.send({
+        from: `${config.projectName} Notifications <notifications@${config.domain}>`,
+        to: config.supportEmail,
+        subject: `User Account Deleted - ${email}`,
+        react: AdminNotificationEmail({
+          eventType: "deletion",
+          userData: {
+            email: email || "Unknown",
+            firstName,
+            lastName,
+            timestamp: new Date().toISOString(),
+          },
+        }),
+      });
+
+      // Send Discord notification
+      await sendDiscordDM(
+        `👋 User account deleted\n\nEmail: ${email}\nName: ${firstName} ${lastName}\nTimestamp: ${new Date().toISOString()}`
+      );
 
       return NextResponse.json(null, { status: 200 });
     } catch (error) {

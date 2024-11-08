@@ -63,6 +63,10 @@ locals {
       name       = "backup-database"
       sentry_dsn = "https://ac1da005fbc6900ac345791d50395035@o4508119114514432.ingest.de.sentry.io/4508248026972240"
     }
+    restore_database = {
+      name       = "restore-database"
+      sentry_dsn = "https://092e9d97482b5fab7398da0485d93bfd@o4508119114514432.ingest.de.sentry.io/4508260008591440"
+    }
   }
 
   lambda_details = { for k, v in local.lambdas :
@@ -102,16 +106,19 @@ locals {
       DLQ_URL           = "${local.sqs_queue_base_url}/${local.project_name}-generate-report-dlq"
       PINO_LOG_LEVEL    = "info"
       LAMBDA_AWS_REGION = local.region
+      DISCORD_BOT_TOKEN = var.DISCORD_BOT_TOKEN
     }
     generate_pdf = {
       LAMBDA_BUCKET_NAME = local.s3_bucket_name
       PINO_LOG_LEVEL     = "info"
       LAMBDA_AWS_REGION  = local.region
+      DISCORD_BOT_TOKEN  = var.DISCORD_BOT_TOKEN
     }
     add_to_queue = {
       GENERATE_REPORT_QUEUE_URL = aws_sqs_queue.generate_report_queue.url
       PINO_LOG_LEVEL            = "info"
       LAMBDA_AWS_REGION         = local.region
+      DISCORD_BOT_TOKEN         = var.DISCORD_BOT_TOKEN
     }
 
     vet_review = {
@@ -120,6 +127,7 @@ locals {
       RESEND_API_KEY    = var.RESEND_API_KEY
       PINO_LOG_LEVEL    = "info"
       LAMBDA_AWS_REGION = local.region
+      DISCORD_BOT_TOKEN = var.DISCORD_BOT_TOKEN
     }
 
     backup_database = {
@@ -128,6 +136,16 @@ locals {
       RESEND_API_KEY     = var.RESEND_API_KEY
       PINO_LOG_LEVEL     = "info"
       LAMBDA_AWS_REGION  = local.region
+      DISCORD_BOT_TOKEN  = var.DISCORD_BOT_TOKEN
+    }
+
+    restore_database = {
+      DATABASE_URL       = var.DATABASE_URL
+      LAMBDA_BUCKET_NAME = local.s3_bucket_name
+      RESEND_API_KEY     = var.RESEND_API_KEY
+      PINO_LOG_LEVEL     = "info"
+      LAMBDA_AWS_REGION  = local.region
+      DISCORD_BOT_TOKEN  = var.DISCORD_BOT_TOKEN
     }
   }
 }
