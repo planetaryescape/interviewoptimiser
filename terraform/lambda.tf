@@ -90,15 +90,6 @@ resource "aws_lambda_permission" "allow_sqs_to_call_generate_report" {
   principal     = "sqs.amazonaws.com"
   source_arn    = aws_sqs_queue.generate_report_queue.arn
 }
-# Lambda permission for API Gateway v2
-resource "aws_lambda_permission" "api_gateway_lambda" {
-  statement_id  = "AllowAPIGatewayInvoke"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.lambdas["add_to_queue"].function_name
-  principal     = "apigateway.amazonaws.com"
-
-  source_arn = "${aws_apigatewayv2_api.main.execution_arn}/*/*"
-}
 
 # Lambda permission for API Gateway v2 to invoke generate-pdf
 resource "aws_lambda_permission" "api_gateway_generate_pdf" {

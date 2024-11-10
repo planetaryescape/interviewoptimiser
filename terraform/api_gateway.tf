@@ -28,22 +28,6 @@ resource "aws_apigatewayv2_stage" "main" {
   }
 }
 
-# Create API Gateway v2 route for add-to-queue
-resource "aws_apigatewayv2_route" "add_to_queue" {
-  api_id    = aws_apigatewayv2_api.main.id
-  route_key = "POST /add-to-queue"
-  target    = "integrations/${aws_apigatewayv2_integration.add_to_queue.id}"
-}
-
-# Create API Gateway v2 integration for add-to-queue
-resource "aws_apigatewayv2_integration" "add_to_queue" {
-  api_id = aws_apigatewayv2_api.main.id
-
-  integration_uri    = aws_lambda_function.lambdas["add_to_queue"].invoke_arn
-  integration_type   = "AWS_PROXY"
-  integration_method = "POST"
-}
-
 # API Gateway v1 (REST API) for generate-pdf
 resource "aws_api_gateway_rest_api" "generate_pdf" {
   name = "${local.project_name}-generate-pdf-api"
