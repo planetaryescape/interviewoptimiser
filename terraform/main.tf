@@ -46,9 +46,6 @@ locals {
     generate_report = {
       name = "generate-report"
     }
-    generate_pdf = {
-      name = "generate-pdf"
-    }
     vet_review = {
       name = "vet-review"
     }
@@ -98,12 +95,6 @@ locals {
       PINO_LOG_LEVEL    = "info"
       LAMBDA_AWS_REGION = local.region
       DISCORD_BOT_TOKEN = var.DISCORD_BOT_TOKEN
-    }
-    generate_pdf = {
-      LAMBDA_BUCKET_NAME = local.s3_bucket_name
-      PINO_LOG_LEVEL     = "info"
-      LAMBDA_AWS_REGION  = local.region
-      DISCORD_BOT_TOKEN  = var.DISCORD_BOT_TOKEN
     }
     vet_review = {
       DATABASE_URL      = var.DATABASE_URL
