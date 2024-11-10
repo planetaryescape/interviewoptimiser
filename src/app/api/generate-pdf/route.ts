@@ -6,7 +6,6 @@ import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import Case from "case";
 import { NextRequest, NextResponse } from "next/server";
-import tailwindConfig from "../../../../tailwind.config.js";
 
 const API_KEY = process.env.INTERVIEWOPTIMISER_API_KEY;
 
@@ -38,7 +37,6 @@ export async function POST(req: NextRequest) {
         paperSize,
         margin,
         userId,
-        tailwindConfig,
         projectName: Case.kebab(config.projectName).toLowerCase(),
       }),
     });
