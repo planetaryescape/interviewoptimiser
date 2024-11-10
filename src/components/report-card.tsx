@@ -154,7 +154,7 @@ export function ReportCard({ report, interviewId }: ReportCardProps) {
           className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
         >
           <Link
-            href={`/dashboard/interview/${interviewId}/reports/${idHandler.encode(
+            href={`/dashboard/interviews/${interviewId}/reports/${idHandler.encode(
               report.sys.id ?? 0
             )}`}
             className="flex items-center justify-center gap-2"

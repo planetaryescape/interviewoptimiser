@@ -56,7 +56,7 @@ export default function InterviewPlaceholder({
           </Link>
           <ChevronRight className="h-4 w-4 mx-2" />
           <Link
-            href={`/dashboard/interview/${interviewId}/reports`}
+            href={`/dashboard/interviews/${interviewId}/reports`}
             className="hover:text-foreground transition-colors"
           >
             Reports

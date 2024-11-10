@@ -111,7 +111,7 @@ export const InterviewCard = ({
           className="w-full"
         >
           <Link
-            href={`/dashboard/interview/${idHandler.encode(
+            href={`/dashboard/interviews/${idHandler.encode(
               interview.id ?? 0
             )}/reports`}
             className="flex items-center justify-center gap-2"

@@ -55,7 +55,7 @@ export default function ClientComponent({
         queryKey: ["interview", params.interviewId],
       });
       // setShowTakeover(false);
-      router.push(`/dashboard/interview/${params.interviewId}/reports`);
+      router.push(`/dashboard/interviews/${params.interviewId}/reports`);
     },
     onError: (error) => {
       console.error("Error generating report:", error);
@@ -66,7 +66,7 @@ export default function ClientComponent({
         queryKey: ["interview", params.interviewId],
       });
       // setShowTakeover(false);
-      router.push(`/dashboard/interview/${params.interviewId}/reports`);
+      router.push(`/dashboard/interviews/${params.interviewId}/reports`);
     },
   });
 

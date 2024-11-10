@@ -81,7 +81,7 @@ export const InterviewsTable = ({
                 <div className="flex justify-end items-center space-x-2">
                   <Button asChild size="sm" variant="outline">
                     <Link
-                      href={`/dashboard/interview/${idHandler.encode(
+                      href={`/dashboard/interviews/${idHandler.encode(
                         interview.id ?? 0
                       )}`}
                     >

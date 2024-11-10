@@ -24,7 +24,8 @@ export function Header({ className }: { className?: string }) {
   const isLandingPage = pathname === "/";
   const isCreatePage = pathname === "/dashboard/create";
   const isInterviewPage =
-    pathname.startsWith("/dashboard/interview") && !pathname.endsWith("report");
+    pathname.startsWith("/dashboard/interviews") &&
+    !pathname.endsWith("report");
 
   const showOptimiseButton =
     !isDashboardLanding && !isLandingPage && !isCreatePage && !isInterviewPage;
