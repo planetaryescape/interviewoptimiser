@@ -25,23 +25,11 @@ export const handler = Sentry.wrapHandler(
         throw new Error("Missing request body");
       }
 
-      const { interviewId, queueType, userId, reportId } = JSON.parse(
-        event.body
-      );
-
-      if (!interviewId) {
-        logger.error({ event }, "Missing interviewId");
-        throw new Error("Missing interviewId");
-      }
+      const { data, userId, queueType } = JSON.parse(event.body);
 
       if (!queueType) {
         logger.error({ event }, "Missing queueType");
         throw new Error("Missing queueType");
-      }
-
-      if (!reportId) {
-        logger.error({ event }, "Missing reportId");
-        throw new Error("Missing reportId");
       }
 
       let queueUrl: string;
@@ -56,9 +44,8 @@ export const handler = Sentry.wrapHandler(
       }
 
       const message = {
-        interviewId: interviewId,
-        userId: userId,
-        reportId: reportId,
+        data,
+        userId,
       };
 
       logger.info({ message, queueUrl }, "Sending message to queue");
@@ -74,11 +61,13 @@ export const handler = Sentry.wrapHandler(
 
       // Add Discord notification for successful queue addition
       await sendDiscordDM(
-        `📥 Added to ${queueType} queue\n\nInterview ID: ${interviewId}\nReport ID: ${reportId}\nUser ID: ${userId}\nTimestamp: ${new Date().toISOString()}`
+        `📥 Added to ${queueType} queue\n\nUser ID: ${userId}\nData: ${JSON.stringify(
+          data
+        )}\nTimestamp: ${new Date().toISOString()}`
       );
 
       logger.info(
-        { interviewId, queueType },
+        { queueType, message },
         "Message added to queue successfully"
       );
 

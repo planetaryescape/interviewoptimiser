@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { interviews, reports } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
+import { config } from "@/lib/config";
 import { logger } from "@/lib/logger";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
@@ -9,8 +10,7 @@ import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
-const API_GATEWAY_URL =
-  "https://u9e5mrk1j8.execute-api.eu-west-2.amazonaws.com/prod/add-to-queue";
+const API_GATEWAY_URL = config.apiGatewayUrlAddToQueue;
 
 const API_KEY = process.env.INTERVIEWOPTIMISER_API_KEY;
 
@@ -103,8 +103,10 @@ export async function POST(req: NextRequest) {
         "x-api-key": API_KEY || "",
       },
       body: JSON.stringify({
-        interviewId,
-        reportId,
+        data: {
+          interviewId,
+          reportId,
+        },
         userId,
         queueType: "generate-report",
       }),

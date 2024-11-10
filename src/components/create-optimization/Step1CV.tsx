@@ -1,4 +1,4 @@
-import { extractTextFromFile } from "@/app/actions/extractTextFromFile";
+import { extractTextFromFile } from "@/actions/extractTextFromFile";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
