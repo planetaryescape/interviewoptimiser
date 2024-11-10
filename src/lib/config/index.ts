@@ -7,6 +7,8 @@ export const config = {
   domain,
   supportEmail: `${domain.split(".")[0]}@bhekani.com`,
   discordUserId: "549143313257725969",
+  apiGatewayUrlAddToQueue:
+    "https://9kvubyn276.execute-api.eu-west-2.amazonaws.com/prod/add-to-queue",
   maxTextLengths: {
     cv: 15000,
     jobDescription: 5000,

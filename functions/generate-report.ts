@@ -42,7 +42,10 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
     for (const record of event.Records) {
       let interviewId: number = 0;
       try {
-        const { interviewId: id, reportId, userId } = JSON.parse(record.body);
+        const {
+          data: { interviewId: id, reportId },
+          userId,
+        } = JSON.parse(record.body);
         interviewId = id;
 
         const user = await getUserFromId(userId);

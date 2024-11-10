@@ -1,5 +1,5 @@
-import { extractTextFromFile } from "@/app/actions/extractTextFromFile";
-import { extractTextFromUrl } from "@/app/actions/extractTextFromUrl";
+import { extractTextFromFile } from "@/actions/extractTextFromFile";
+import { extractTextFromUrl } from "@/actions/extractTextFromUrl";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
