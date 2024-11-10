@@ -1,9 +1,12 @@
 import { getUserFromClerkId } from "@/lib/auth";
+import { config } from "@/lib/config";
 import { logger } from "@/lib/logger";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
+import Case from "case";
 import { NextRequest, NextResponse } from "next/server";
+import tailwindConfig from "../../../../tailwind.config.js";
 
 const API_KEY = process.env.INTERVIEWOPTIMISER_API_KEY;
 
@@ -24,17 +27,21 @@ export async function POST(req: NextRequest) {
     logger.info({ event: "generate-pdf" }, "Calling PDF generation Lambda");
     const { htmlContent, paperSize, margin } = await req.json();
 
-    const response = await fetch(
-      "https://ex0jrlkyi3.execute-api.eu-west-2.amazonaws.com/prod/generate-pdf",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": API_KEY || "",
-        },
-        body: JSON.stringify({ htmlContent, paperSize, margin, userId }),
-      }
-    );
+    const response = await fetch(config.apiGatewayUrlGeneratePdf, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": API_KEY || "",
+      },
+      body: JSON.stringify({
+        htmlContent,
+        paperSize,
+        margin,
+        userId,
+        tailwindConfig,
+        projectName: Case.kebab(config.projectName).toLowerCase(),
+      }),
+    });
 
     if (!response.ok) {
       const errorResponse = await response.json();

@@ -9,6 +9,8 @@ export const config = {
   discordUserId: "549143313257725969",
   apiGatewayUrlAddToQueue:
     "https://9kvubyn276.execute-api.eu-west-2.amazonaws.com/prod/add-to-queue",
+  apiGatewayUrlGeneratePdf:
+    "https://csu6ft5h9i.execute-api.eu-west-2.amazonaws.com/prod/generate-pdf",
   maxTextLengths: {
     cv: 15000,
     jobDescription: 5000,

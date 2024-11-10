@@ -44,28 +44,19 @@ locals {
 
   lambdas = {
     generate_report = {
-      name       = "generate-report"
-      sentry_dsn = "https://a1c3a134e74ec680a4cc42024dee1a08@o4508119114514432.ingest.de.sentry.io/4508248038572112"
+      name = "generate-report"
     }
     generate_pdf = {
-      name       = "generate-pdf"
-      sentry_dsn = "https://42eebd0e5ad4ed9e80f6d6d2b2978842@o4508119114514432.ingest.de.sentry.io/4508248033001552"
-    }
-    add_to_queue = {
-      name       = "add-to-queue"
-      sentry_dsn = "https://41ab3356fbe3426d1b12f4e58a128415@o4508119114514432.ingest.de.sentry.io/4508248020615248"
+      name = "generate-pdf"
     }
     vet_review = {
-      name       = "vet-review"
-      sentry_dsn = "https://102d902545d2f76114e6c3886a531799@o4508119114514432.ingest.de.sentry.io/4508119116480592"
+      name = "vet-review"
     }
     backup_database = {
-      name       = "backup-database"
-      sentry_dsn = "https://ac1da005fbc6900ac345791d50395035@o4508119114514432.ingest.de.sentry.io/4508248026972240"
+      name = "backup-database"
     }
     restore_database = {
-      name       = "restore-database"
-      sentry_dsn = "https://092e9d97482b5fab7398da0485d93bfd@o4508119114514432.ingest.de.sentry.io/4508260008591440"
+      name = "restore-database"
     }
   }
 
@@ -114,13 +105,6 @@ locals {
       LAMBDA_AWS_REGION  = local.region
       DISCORD_BOT_TOKEN  = var.DISCORD_BOT_TOKEN
     }
-    add_to_queue = {
-      GENERATE_REPORT_QUEUE_URL = aws_sqs_queue.generate_report_queue.url
-      PINO_LOG_LEVEL            = "info"
-      LAMBDA_AWS_REGION         = local.region
-      DISCORD_BOT_TOKEN         = var.DISCORD_BOT_TOKEN
-    }
-
     vet_review = {
       DATABASE_URL      = var.DATABASE_URL
       OPENAI_API_KEY    = var.OPENAI_API_KEY
@@ -129,7 +113,6 @@ locals {
       LAMBDA_AWS_REGION = local.region
       DISCORD_BOT_TOKEN = var.DISCORD_BOT_TOKEN
     }
-
     backup_database = {
       DATABASE_URL       = var.DATABASE_URL
       LAMBDA_BUCKET_NAME = local.s3_bucket_name
@@ -138,7 +121,6 @@ locals {
       LAMBDA_AWS_REGION  = local.region
       DISCORD_BOT_TOKEN  = var.DISCORD_BOT_TOKEN
     }
-
     restore_database = {
       DATABASE_URL       = var.DATABASE_URL
       LAMBDA_BUCKET_NAME = local.s3_bucket_name
