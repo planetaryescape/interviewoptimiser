@@ -30,12 +30,13 @@ import {
   Home,
   Loader2,
   Maximize,
+  RefreshCw,
   Share,
   StarIcon,
   Type,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useFeatureFlagEnabled } from "posthog-js/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ReviewForm, ReviewFormData } from "./review-form";
@@ -98,6 +99,7 @@ interface PagePreviewToolbarProps {
   includeTranscript: boolean;
   setIncludeTranscript: (value: boolean) => void;
   interviewId: string;
+  onRegenerate?: () => Promise<void>;
 }
 
 export function PagePreviewToolbar({
@@ -117,6 +119,7 @@ export function PagePreviewToolbar({
   includeTranscript,
   setIncludeTranscript,
   interviewId,
+  onRegenerate,
 }: PagePreviewToolbarProps) {
   const { user } = useUser();
   const queryClient = useQueryClient();
@@ -129,7 +132,8 @@ export function PagePreviewToolbar({
     showOnLanding: false,
     rating: 5,
   });
-  const router = useRouter();
+
+  const regenerateButtonEnabled = useFeatureFlagEnabled("regenerate_button");
 
   const { mutate: updatePageSettings } = useMutation({
     mutationFn: onSettingsChange,
@@ -364,6 +368,18 @@ export function PagePreviewToolbar({
                 <StarIcon className="h-4 w-4 md:mr-2 text-yellow-500" />
                 <span className="hidden sm:inline">Review</span>
               </Button>
+
+              {regenerateButtonEnabled && onRegenerate && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={onRegenerate}
+                  className="h-8"
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Regenerate
+                </Button>
+              )}
             </div>
           </div>
         </div>

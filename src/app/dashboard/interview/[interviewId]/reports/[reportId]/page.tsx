@@ -339,6 +339,44 @@ export default function InterviewReportPage(props: {
     updatePageSettings(settings);
   };
 
+  const generateReportMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch("/api/report", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ interviewId: params.interviewId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate report");
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["interview", params.interviewId],
+      });
+      toast.success("Report regeneration queued successfully", {
+        description: "Your report will be regenerated shortly.",
+      });
+    },
+    onError: (error) => {
+      console.error("Error regenerating report:", error);
+      toast.error("Failed to regenerate report. Please try again.");
+
+      queryClient.invalidateQueries({
+        queryKey: ["interview", params.interviewId],
+      });
+    },
+  });
+
+  const handleRegenerate = async () => {
+    generateReportMutation.mutate();
+  };
+
   if (isLoading || interviewIsPending || reportIsLoading || reportIsPending)
     return (
       <div className="size-full flex items-center justify-center">
@@ -412,6 +450,7 @@ export default function InterviewReportPage(props: {
         includeTranscript={includeTranscript}
         setIncludeTranscript={setIncludeTranscript}
         interviewId={idHandler.encode(interview?.sys.id ?? 0)}
+        onRegenerate={handleRegenerate}
       />
       <div
         className={cn(
