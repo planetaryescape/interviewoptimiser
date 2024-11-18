@@ -114,14 +114,14 @@ export async function POST(request: Request) {
         }),
       });
 
-      // Send Discord notification
-      await sendDiscordDM(
-        `🎉 New user signup!\n\nEmail: ${
-          data.data.email_addresses[0].email_address
-        }\nName: ${data.data.first_name} ${
-          data.data.last_name
-        }\nTimestamp: ${new Date().toISOString()}`
-      );
+      await sendDiscordDM({
+        title: "🎉 New user signup",
+        metadata: {
+          Email: data.data.email_addresses[0].email_address,
+          Name: `${data.data.first_name} ${data.data.last_name}`,
+          Timestamp: new Date().toISOString(),
+        },
+      });
 
       return NextResponse.json(null, { status: 200 });
     } catch (error) {
@@ -256,10 +256,14 @@ export async function POST(request: Request) {
         }),
       });
 
-      // Send Discord notification
-      await sendDiscordDM(
-        `👋 User account deleted\n\nEmail: ${email}\nName: ${firstName} ${lastName}\nTimestamp: ${new Date().toISOString()}`
-      );
+      await sendDiscordDM({
+        title: "👋 User account deleted",
+        metadata: {
+          Email: email || "Unknown",
+          Name: `${firstName} ${lastName}`,
+          Timestamp: new Date().toISOString(),
+        },
+      });
 
       return NextResponse.json(null, { status: 200 });
     } catch (error) {

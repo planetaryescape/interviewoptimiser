@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { id: userId } = await getUserFromClerkId(clerkUserId);
+    const { id: userId, email } = await getUserFromClerkId(clerkUserId);
     if (!userId) {
       logger.warn({ clerkUserId }, "User not found in database");
       return NextResponse.json(formatErrorEntity("User not found"), {
@@ -72,13 +72,18 @@ export async function POST(request: NextRequest) {
 
     // Send Discord notification
     try {
-      await sendDiscordDM(
-        `⭐ New Review Submitted\n\n` +
-          `Name: ${body.name}\n` +
-          `Rating: ${"★".repeat(body.rating)}${"☆".repeat(5 - body.rating)}\n` +
-          `Comment: ${body.comment}\n` +
-          `Show on Landing: ${body.showOnLanding ? "Yes" : "No"}`
-      );
+      await sendDiscordDM({
+        title: "⭐ New Review Submitted",
+        metadata: {
+          User: userId,
+          Referer: request.referrer,
+          Email: email || "Unknown",
+          Name: body.name,
+          Rating: "★".repeat(body.rating) + "☆".repeat(5 - body.rating),
+          Comment: body.comment,
+          "Show on Landing": body.showOnLanding ? "Yes" : "No",
+        },
+      });
     } catch (discordError) {
       logger.error(
         { error: discordError },

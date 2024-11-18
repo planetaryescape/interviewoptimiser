@@ -227,11 +227,15 @@ export const handler = Sentry.wrapHandler(async () => {
       expiresIn: 86400,
     });
 
-    await sendDiscordDM(
-      `📄 Database backup completed successfully\n\nBackup Key: ${backupKey}\nSize: ${
-        fileContent.length
-      } bytes\nTimestamp: ${new Date().toISOString()}\nURL (valid for 24h): ${presignedUrl}`
-    );
+    await sendDiscordDM({
+      title: "📄 Database backup completed successfully",
+      metadata: {
+        "Backup Key": backupKey,
+        Size: fileContent.length,
+        Timestamp: new Date().toISOString(),
+        "URL (valid for 24h)": presignedUrl,
+      },
+    });
 
     logger.info("Starting cleanup of old backups");
     await cleanupOldBackups();
@@ -271,11 +275,13 @@ export const handler = Sentry.wrapHandler(async () => {
 
       logger.info("Backup failure notification email sent");
 
-      await sendDiscordDM(
-        `❌ Database backup failed\n\nError: ${
-          error instanceof Error ? error.message : String(error)
-        }\nTimestamp: ${format(new Date(), "PPpp")}`
-      );
+      await sendDiscordDM({
+        title: "❌ Database backup failed",
+        metadata: {
+          Error: error instanceof Error ? error.message : String(error),
+          Timestamp: format(new Date(), "PPpp"),
+        },
+      });
     } catch (emailError) {
       logger.error(
         { error: emailError },

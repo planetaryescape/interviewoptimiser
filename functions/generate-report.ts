@@ -2,8 +2,10 @@ import { db } from "@/db";
 import { interviews, reports, statistics } from "@/db/schema";
 import { generateInterviewAnalysis } from "@/lib/ai/interview-analysis";
 import { getUserFromId } from "@/lib/auth";
+import { config } from "@/lib/config";
 import { sendDiscordDM } from "@/lib/discord";
 import { logger } from "@/lib/logger";
+import { idHandler } from "@/lib/utils/idHandler";
 import {
   ChangeMessageVisibilityCommand,
   DeleteMessageCommand,
@@ -140,14 +142,18 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           "Successfully generated and saved interview report"
         );
 
-        // Add Discord notification for successful reports
-        await sendDiscordDM(
-          `✅ Interview Report Generated\n\n` +
-            `Interview ID: ${interviewId}\n` +
-            `Company: ${generatedReport.companyName}\n` +
-            `Role: ${generatedReport.roleName}\n` +
-            `Overall Score: ${generatedReport.overallScore}`
-        );
+        await sendDiscordDM({
+          title: "✅ Interview Report Generated",
+          metadata: {
+            "Interview ID": interviewId,
+            "Interview URL": `${
+              config.domain
+            }/dashboard/interviews/${idHandler.encode(interviewId)}`,
+            Company: generatedReport.companyName,
+            Role: generatedReport.roleName,
+            "Overall Score": generatedReport.overallScore,
+          },
+        });
 
         await deleteMessage(record);
 
@@ -227,13 +233,17 @@ async function handleError(
       "Max retries reached, sending to DLQ"
     );
 
-    // Add Discord notification for failed reports
-    await sendDiscordDM(
-      `❌ Interview Report Generation Failed\n\n` +
-        `Interview ID: ${interviewId}\n` +
-        `Retries: ${receiveCount}\n` +
-        `Error: ${error.message}`
-    );
+    await sendDiscordDM({
+      title: "❌ Interview Report Generation Failed",
+      metadata: {
+        "Interview ID": interviewId,
+        "Interview URL": `${
+          config.domain
+        }/dashboard/interviews/${idHandler.encode(interviewId)}`,
+        Retries: receiveCount,
+        Error: error.message,
+      },
+    });
 
     Sentry.withScope((scope) => {
       scope.setExtra("context", "handler");
