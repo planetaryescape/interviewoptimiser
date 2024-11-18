@@ -8,7 +8,11 @@ const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const rest = new REST({ version: "10" }).setToken(DISCORD_BOT_TOKEN!);
 
-export async function sendDiscordDM(content: string) {
+export async function sendDiscordDM(content: {
+  title: string;
+  description?: string;
+  metadata?: Record<string, string | number>;
+}) {
   if (!DISCORD_BOT_TOKEN) {
     logger.warn("Discord bot token not found, skipping Discord notification");
     return;
@@ -25,7 +29,15 @@ export async function sendDiscordDM(content: string) {
     // Send message to DM channel
     await rest.post(Routes.channelMessages(channel.id), {
       body: {
-        content,
+        content: `${config.projectName}\n\n${content.title}${
+          content.description ? `\n${content.description}` : ""
+        }${
+          content.metadata
+            ? `\n\nMetadata:\n${Object.entries(content.metadata ?? {})
+                .map(([key, value]) => `- ${key}: ${value}`)
+                .join("\n")}`
+            : ""
+        }`,
       },
     });
     logger.info("Discord notification sent successfully");

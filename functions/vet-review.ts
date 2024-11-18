@@ -134,15 +134,14 @@ export const handler = Sentry.wrapHandler(async () => {
         }),
       });
 
-      // Add Discord notification
-      await sendDiscordDM(
-        `📋 Review Moderation Report - ${format(
-          new Date(),
-          "MMMM d, yyyy"
-        )}\n\n` +
-          `Published: ${publishedReviews.length}\n` +
-          `Rejected: ${rejectedReviews.length}`
-      );
+      await sendDiscordDM({
+        title: "📋 Review Moderation Report",
+        metadata: {
+          Date: format(new Date(), "MMMM d, yyyy"),
+          Published: publishedReviews.length,
+          Rejected: rejectedReviews.length,
+        },
+      });
 
       logger.info("Sent review report email and Discord notification");
     }

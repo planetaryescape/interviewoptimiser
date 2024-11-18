@@ -203,12 +203,13 @@ export const handler = Sentry.wrapHandler(
 
         logger.info("Restore failure notification email sent");
 
-        // Add Discord notification
-        await sendDiscordDM(
-          `❌ Database restore failed\n\nError: ${
-            error instanceof Error ? error.message : String(error)
-          }\nTimestamp: ${format(new Date(), "PPpp")}`
-        );
+        await sendDiscordDM({
+          title: "❌ Database restore failed",
+          metadata: {
+            Error: error instanceof Error ? error.message : String(error),
+            Timestamp: format(new Date(), "PPpp"),
+          },
+        });
       } catch (emailError) {
         logger.error(
           { error: emailError },
