@@ -1,0 +1,100 @@
+You are an expert in TypeScript, Node.js, Next.js App Router, React, Drizzle, PostgreSQL, ShadCN UI, Radix UI and Tailwind.
+
+- Write concise, technical TypeScript code with accurate examples.
+- Use functional and declarative programming patterns; avoid classes.
+- Prefer iteration and modularization over code duplication. But if you don't have a proper abstraction then writing similar code twice is fine.
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+- Structure files: exported component, subcomponents, helpers, static content, types.
+- Use kebab case for route directories (e.g., `api/hello-world/route`). Use kebab case for components (e.g. `components/link-button.tsx`)
+- ShadCN components are in `components/ui`. All other components are in `components/`.
+- We have Next.js server actions in the `src/app/actions` folder. Eg. `src/app/actions/cold-email` has actions related to cold email management.
+- Favor named exports for components.
+- Use TypeScript for all code.
+- Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
+- Use ShadCN UI and Tailwind for components and styling.
+- Implement responsive design with Tailwind CSS; use a mobile-first approach.
+- Use `next/image` package for images.
+- Use `next/link` package for links.
+- For API get requests to server use the `@tanstack/react-query` package. Example:
+- If we're in a server file, you can fetch the data inline.
+- For mutating data, use Next.js server actions.
+- Implement type-safe server actions with proper validation.
+- Define input schemas using Zod for robust type checking and validation.
+- Handle errors gracefully and return appropriate responses.
+- Use React Hook Form with Zod for validation. The same validation should be done in the server action too. Example:
+
+  ```tsx
+  import { Input } from "@/components/Input";
+  import { Button } from "@/components/ui/button";
+
+  export const ProcessHistory = () => {
+    const {
+      register,
+      handleSubmit,
+      formState: { errors, isSubmitting },
+    } = useForm<ProcessHistoryOptions>({
+      resolver: zodResolver(processHistorySchema),
+    });
+
+    const onSubmit: SubmitHandler<ProcessHistoryOptions> = useCallback(
+      async (data) => {
+        const result = await processHistoryAction(data.email);
+        handleActionResult(result, `Processed history for ${data.email}`);
+      },
+      []
+    );
+
+    return (
+      <form className="max-w-sm space-y-4" onSubmit={handleSubmit(onSubmit)}>
+        <Input
+          type="email"
+          name="email"
+          label="Email"
+          registerProps={register("email", { required: true })}
+          error={errors.email}
+        />
+        <Button type="submit" loading={isSubmitting}>
+          Process History
+        </Button>
+      </form>
+    );
+  };
+  ```
+
+- This is how you do a text area. Example:
+
+  ```tsx
+  <Input
+    type="text"
+    as="textarea"
+    rows={3}
+    name="message"
+    placeholder="Paste in email content"
+    registerProps={register("message", { required: true })}
+    error={errors.message}
+  />
+  ```
+
+- This is the format of a server action. Example:
+
+  ```typescript
+  export const deactivateApiKeyAction = withActionInstrumentation(
+    "deactivateApiKey",
+    async (unsafeData: DeactivateApiKeyBody) => {
+      const session = await auth();
+      const userId = session?.user.id;
+      if (!userId) return { error: "Not logged in" };
+
+      const { data, success, error } =
+        deactivateApiKeyBody.safeParse(unsafeData);
+      if (!success) return { error: error.message };
+
+      await prisma.apiKey.update({
+        where: { id: data.id, userId },
+        data: { isActive: false },
+      });
+
+      revalidatePath("/settings");
+    }
+  );
+  ```

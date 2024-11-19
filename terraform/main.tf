@@ -52,6 +52,9 @@ locals {
     restore_database = {
       name = "restore-database"
     }
+    regenerate_incomplete_reports = {
+      name = "regenerate-incomplete-reports"
+    }
   }
 
   lambda_details = { for k, v in local.lambdas :
@@ -107,6 +110,16 @@ locals {
       RESEND_API_KEY     = var.RESEND_API_KEY
       PINO_LOG_LEVEL     = "info"
       LAMBDA_AWS_REGION  = local.region
+      DISCORD_BOT_TOKEN  = var.DISCORD_BOT_TOKEN
+    }
+
+    regenerate_incomplete_reports = {
+      DATABASE_URL       = var.DATABASE_URL
+      OPENAI_API_KEY     = var.OPENAI_API_KEY
+      REPORT_LAMBDA_NAME = local.lambda_details["generate_report"].function_name
+      SQS_QUEUE_URL      = aws_sqs_queue.generate_report_queue.url
+      PINO_LOG_LEVEL     = "info"
+      LAMBDA_AWS_REGION  = data.aws_region.current.name
       DISCORD_BOT_TOKEN  = var.DISCORD_BOT_TOKEN
     }
   }
