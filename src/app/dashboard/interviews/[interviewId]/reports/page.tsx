@@ -143,8 +143,8 @@ export default function InterviewReportsPage(props: {
   });
 
   const handleRetakeInterview = () => {
-    if (!user || user.minutes <= 0 || user.minutes < 30) {
-      // Assuming 30 minutes for an interview
+    if (!user || user.minutes <= (interview?.data.duration || 3)) {
+      // Assuming 3 minutes for the shortest interview
       posthog.capture("out_of_minutes", {
         userId: user?.id,
       });
@@ -156,13 +156,11 @@ export default function InterviewReportsPage(props: {
 
   const handleConfirmRetake = () => {
     setIsAlertDialogOpen(false);
-    router.push(`/dashboard/interview/${params.interviewId}`);
+    router.push(`/dashboard/interviews/${params.interviewId}`);
   };
 
   // Add this function to prepare chart data
   const chartData = useMemo(() => {
-    console.log("Raw reports data:", reportsData?.data);
-
     if (!reportsData?.data.length) return [];
 
     const prepared = reportsData.data
@@ -186,16 +184,12 @@ export default function InterviewReportsPage(props: {
     return prepared;
   }, [reportsData]);
 
-  // Add this console log before the render
-  console.log("Final chart data being used:", chartData);
-
   // Update the prosodyChartData useMemo
   const prosodyChartData = useMemo(() => {
-    console.log("Calculating prosody chart data...");
     if (!reportsData?.data.length) return { data: [], prosodies: [] };
 
     // First, get all prosody data from all reports to determine top prosodies
-    const allProsodyData = reportsData.data.flatMap(report =>
+    const allProsodyData = reportsData.data.flatMap((report) =>
       aggregateProsodyData(report.data.transcript || "[]")
     );
 
@@ -211,27 +205,31 @@ export default function InterviewReportsPage(props: {
       .slice(0, 6)
       .map(([name]) => name);
 
-    console.log("Top prosodies found:", topProsodies);
-
     // Prepare the data points for each report
     const data = reportsData.data
-      .sort((a, b) =>
-        new Date(a.data.createdAt!).getTime() - new Date(b.data.createdAt!).getTime()
+      .sort(
+        (a, b) =>
+          new Date(a.data.createdAt!).getTime() -
+          new Date(b.data.createdAt!).getTime()
       )
-      .map(report => {
-        const prosodyData = aggregateProsodyData(report.data.transcript || "[]");
-        console.log("Prosody data for report:", prosodyData);
+      .map((report) => {
+        const prosodyData = aggregateProsodyData(
+          report.data.transcript || "[]"
+        );
 
         return {
           date: new Date(report.data.createdAt).toLocaleDateString(),
-          ...topProsodies.reduce((acc, prosodyName) => ({
-            ...acc,
-            [prosodyName]: prosodyData.find(p => p.name === prosodyName)?.value || 0,
-          }), {})
+          ...topProsodies.reduce(
+            (acc, prosodyName) => ({
+              ...acc,
+              [prosodyName]:
+                prosodyData.find((p) => p.name === prosodyName)?.value || 0,
+            }),
+            {}
+          ),
         };
       });
 
-    console.log("Final prosody chart data:", { data, prosodies: topProsodies });
     return { data, prosodies: topProsodies };
   }, [reportsData]);
 
