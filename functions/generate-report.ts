@@ -147,8 +147,8 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           metadata: {
             "Interview ID": interviewId,
             "Interview URL": `${
-              config.domain
-            }/dashboard/interviews/${idHandler.encode(interviewId)}`,
+              config.baseUrl
+            }/dashboard/interviews/${idHandler.encode(interviewId)}/reports`,
             Company: generatedReport.companyName,
             Role: generatedReport.roleName,
             "Overall Score": generatedReport.overallScore,
