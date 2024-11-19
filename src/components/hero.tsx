@@ -6,18 +6,18 @@ import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useTheme } from "next-themes";
+import { unstable_noStore as noStore } from "next/cache";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Particles from "./magicui/particles";
 
 // Create a new component for the social proof part
 const SocialProofContent = () => {
+  noStore();
   const { data: response, isLoading } = useQuery({
     queryKey: ["statistics"],
     queryFn: async () => {
-      const res = await fetch("/api/public/statistics", {
-        cache: "no-store",
-      });
+      const res = await fetch("/api/public/statistics");
       if (!res.ok) {
         throw new Error("Failed to fetch statistics");
       }
