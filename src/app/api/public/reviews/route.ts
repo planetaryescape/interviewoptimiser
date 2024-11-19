@@ -18,8 +18,6 @@ export async function GET() {
       orderBy: [desc(reviews.createdAt)],
     });
 
-    console.log("publicReviews:", publicReviews);
-
     logger.info(
       { count: publicReviews.length },
       "Successfully retrieved public reviews"

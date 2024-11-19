@@ -84,11 +84,6 @@ export function TimerHume({
       unformatTime(callDurationTimestamp) === totalTime - 60 &&
       !wrapUpRef.current
     ) {
-      console.log(
-        "unformatTime(callDurationTimestamp):",
-        unformatTime(callDurationTimestamp)
-      );
-      console.log("totalTime:", totalTime);
       sendUserInput(
         "<One minute left>Tell the candidate how much time is left and start wrapping up the interview and tell the candidate that a report will be generated</One minute left>"
       );

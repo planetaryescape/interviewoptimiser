@@ -33,7 +33,6 @@ export default function InterviewsSection() {
     queryFn: fetchInterviews,
     refetchInterval: 3000,
   });
-  console.log("interviewsData:", interviewsData);
 
   const interviews = useMemo(
     () => interviewsData?.data || [],

@@ -1,5 +1,6 @@
 "use client";
 
+import { InterviewStartModal } from "@/components/interview-start-modal";
 import { Button } from "@/components/ui/button";
 import { useVoice } from "@humeai/voice-react";
 import { motion } from "framer-motion";
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useState } from "react";
 
 export default function InterviewPlaceholder({
   interviewEnded,
@@ -21,6 +23,7 @@ export default function InterviewPlaceholder({
   interviewEnded: boolean;
   setInterviewStarted: (value: boolean) => void;
 }) {
+  const [showModal, setShowModal] = useState(false);
   const params = useParams();
   const interviewId = params.interviewId;
   const { connect, status } = useVoice();
@@ -42,6 +45,17 @@ export default function InterviewPlaceholder({
       description: "Comprehensive evaluation of your interview skills",
     },
   ];
+
+  const handleStartInterview = async () => {
+    if (status.value !== "connected") {
+      try {
+        await connect();
+        setInterviewStarted(true);
+      } catch (error) {
+        console.error("Failed to connect:", error);
+      }
+    }
+  };
 
   return (
     <div className="h-full flex flex-col">
@@ -148,14 +162,7 @@ export default function InterviewPlaceholder({
             <Button
               size="lg"
               disabled={interviewEnded}
-              onClick={() => {
-                if (status.value !== "connected") {
-                  connect()
-                    .then(() => setInterviewStarted(true))
-                    .catch(() => {})
-                    .finally(() => {});
-                }
-              }}
+              onClick={() => setShowModal(true)}
               className="relative group px-8 py-6 text-lg hover:scale-105 transition-transform"
             >
               <div className="absolute inset-0 bg-primary opacity-20 group-hover:opacity-30 blur-xl transition-all rounded-lg" />
@@ -165,6 +172,15 @@ export default function InterviewPlaceholder({
           </motion.div>
         </div>
       </div>
+
+      <InterviewStartModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onStart={() => {
+          setShowModal(false);
+          handleStartInterview();
+        }}
+      />
     </div>
   );
 }

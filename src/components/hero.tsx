@@ -30,7 +30,6 @@ const SocialProofContent = () => {
   }
 
   const statistics = response?.data;
-  console.log("statistics:", statistics);
 
   return (
     <div className="flex items-center gap-4 text-muted-foreground">

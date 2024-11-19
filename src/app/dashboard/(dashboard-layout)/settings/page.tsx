@@ -44,7 +44,6 @@ export default function CustomisationSettingsSection() {
       });
     }
   }, [user]);
-  console.log("user:", user);
 
   const handleCustomisationChange = (
     field: keyof Customisation,
