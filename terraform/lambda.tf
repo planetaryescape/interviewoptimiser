@@ -32,7 +32,8 @@ resource "aws_lambda_function" "lambdas" {
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes        = [last_modified, version, qualified_arn]
+    # Remove the non-configurable attributes
+    ignore_changes = []
   }
 }
 

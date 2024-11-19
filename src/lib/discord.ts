@@ -29,15 +29,17 @@ export async function sendDiscordDM(content: {
     // Send message to DM channel
     await rest.post(Routes.channelMessages(channel.id), {
       body: {
-        content: `${config.projectName}\n\n${content.title}${
-          content.description ? `\n${content.description}` : ""
-        }${
-          content.metadata
-            ? `\n\nMetadata:\n${Object.entries(content.metadata ?? {})
-                .map(([key, value]) => `- ${key}: ${value}`)
-                .join("\n")}`
-            : ""
-        }`,
+        content:
+          `**${config.projectName}**\n\n` +
+          `### ${content.title}` +
+          `${content.description ? `\n${content.description}` : ""}` +
+          `${
+            content.metadata
+              ? `\n\n**Metadata**\n${Object.entries(content.metadata ?? {})
+                  .map(([key, value]) => `> \`${key}\`: ${value}`)
+                  .join("\n")}`
+              : ""
+          }`,
       },
     });
     logger.info("Discord notification sent successfully");

@@ -30,7 +30,7 @@ locals {
   project_name          = "interviewoptimiser"
   account_id            = data.aws_caller_identity.current.account_id
   current_region        = data.aws_region.current.name
-  s3_bucket_name        = "${local.project_name}-lambdas"
+  s3_bucket_name        = "${local.project_name}-artifacts"
   lambda_execution_role = "${local.project_name}-lambda_execution_role"
   lambda_runtime        = "nodejs20.x"
   artifacts_dir         = "${path.module}/artifacts"
@@ -48,9 +48,6 @@ locals {
     }
     vet_review = {
       name = "vet-review"
-    }
-    backup_database = {
-      name = "backup-database"
     }
     restore_database = {
       name = "restore-database"
@@ -103,14 +100,6 @@ locals {
       PINO_LOG_LEVEL    = "info"
       LAMBDA_AWS_REGION = local.region
       DISCORD_BOT_TOKEN = var.DISCORD_BOT_TOKEN
-    }
-    backup_database = {
-      DATABASE_URL       = var.DATABASE_URL
-      LAMBDA_BUCKET_NAME = local.s3_bucket_name
-      RESEND_API_KEY     = var.RESEND_API_KEY
-      PINO_LOG_LEVEL     = "info"
-      LAMBDA_AWS_REGION  = local.region
-      DISCORD_BOT_TOKEN  = var.DISCORD_BOT_TOKEN
     }
     restore_database = {
       DATABASE_URL       = var.DATABASE_URL
