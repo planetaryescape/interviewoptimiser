@@ -42,3 +42,10 @@ terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Serwist
+**/public/serwist**
+**/public/sw**
+**/public/worker**
+**/public/fallback**
+**/public/precache**
