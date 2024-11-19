@@ -36,7 +36,7 @@ resource "aws_cloudwatch_event_target" "backup_database_target" {
     projectName = local.project_name
     databaseUrl = var.DATABASE_URL
     bucketName  = local.s3_bucket_name
-    backupKey   = "backups/database/${formatdate("YYYY", timestamp())}/${formatdate("MM", timestamp())}"
+    backupKey   = "backups/database"
   })
 }
 
