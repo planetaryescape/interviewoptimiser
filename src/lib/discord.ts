@@ -30,7 +30,7 @@ export async function sendDiscordDM(content: {
     await rest.post(Routes.channelMessages(channel.id), {
       body: {
         content:
-          `**${config.projectName}**\n\n` +
+          `\n\n**${config.projectName}**\n` +
           `### ${content.title}` +
           `${content.description ? `\n${content.description}` : ""}` +
           `${

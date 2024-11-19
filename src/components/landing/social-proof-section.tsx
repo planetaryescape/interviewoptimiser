@@ -5,6 +5,7 @@ import NumberTicker from "@/components/ui/number-ticker";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
+import { unstable_noStore as noStore } from "next/cache";
 
 const StatisticItem = ({
   value,
@@ -52,15 +53,11 @@ const StatisticsContentSkeleton = () => (
 );
 
 const StatisticsContent = () => {
+  noStore();
   const { data: response, isLoading } = useQuery({
     queryKey: ["statistics"],
     queryFn: async () => {
-      const res = await fetch("/api/public/statistics", {
-        cache: "force-cache",
-        next: {
-          revalidate: 60 * 60, // 1 hour
-        },
-      });
+      const res = await fetch("/api/public/statistics");
       if (!res.ok) {
         throw new Error("Failed to fetch statistics");
       }
