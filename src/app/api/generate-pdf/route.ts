@@ -7,6 +7,8 @@ import * as Sentry from "@sentry/nextjs";
 import Case from "case";
 import { NextRequest, NextResponse } from "next/server";
 
+export const maxDuration = 60;
+
 const API_KEY = process.env.INTERVIEWOPTIMISER_API_KEY;
 
 export async function POST(req: NextRequest) {
