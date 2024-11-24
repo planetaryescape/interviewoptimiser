@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      logger.info({ interview }, "Interview found");
+      logger.info("Interview found");
 
       const report = await tx
         .insert(reports)

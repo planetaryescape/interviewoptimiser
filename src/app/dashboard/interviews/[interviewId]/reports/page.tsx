@@ -350,13 +350,19 @@ export default function InterviewReportsPage(props: {
             >
               <ScrollArea className="h-full">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pr-4">
-                  {reports.map((report) => (
-                    <ReportCard
-                      key={report.sys.id}
-                      report={report}
-                      interviewId={params.interviewId}
-                    />
-                  ))}
+                  {reports
+                    .sort(
+                      (a, b) =>
+                        new Date(b.data.createdAt).getTime() -
+                        new Date(a.data.createdAt).getTime()
+                    )
+                    .map((report) => (
+                      <ReportCard
+                        key={report.sys.id}
+                        report={report}
+                        interviewId={params.interviewId}
+                      />
+                    ))}
                 </div>
               </ScrollArea>
               <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-background to-transparent" />

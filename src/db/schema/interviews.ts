@@ -23,6 +23,7 @@ export const interviews = pgTable(
     additionalInfo: p.text(),
     transcript: p.text(),
     duration: p.integer().notNull().default(15),
+    actualTime: p.integer(),
     type: interviewTypeEnum().notNull().default("behavioral"),
     candidate: p.text(),
     company: p.text(),
