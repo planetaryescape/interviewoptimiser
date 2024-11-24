@@ -145,6 +145,8 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         await sendDiscordDM({
           title: "✅ Interview Report Generated",
           metadata: {
+            "User ID": userId,
+            "User Email": user?.email ?? "Unknown",
             "Interview ID": interviewId,
             "Interview URL": `${
               config.baseUrl
