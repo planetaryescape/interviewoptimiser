@@ -3,7 +3,7 @@ import { pgEnum, pgTable, uniqueIndex } from "drizzle-orm/pg-core";
 import { customisations } from "./customisations";
 import { featureRequestLikes } from "./featureRequestLikes";
 
-export const roleEnum = pgEnum("role", ["user", "admin"]);
+export const roleEnum = pgEnum("role", ["user", "admin", "recruiter"]);
 
 export const users = pgTable(
   "users",
