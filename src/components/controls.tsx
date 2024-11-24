@@ -3,6 +3,8 @@
 import { Interview, NewInterview } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
+import { formatMessage } from "@/lib/utils/messageUtils";
+import { unformatTime } from "@/lib/utils/unformatTime";
 import { useVoice } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -29,6 +31,7 @@ export function Controls({
     unmute,
     mute,
     micFft,
+    callDurationTimestamp,
     sendUserInput,
     sendAssistantInput,
   } = useVoice();
@@ -127,6 +130,9 @@ export function Controls({
               className={"flex items-center gap-1"}
               onClick={async () => {
                 await updateInterview({
+                  actualTime: Math.floor(
+                    unformatTime(callDurationTimestamp) / 60
+                  ),
                   transcript: JSON.stringify(
                     messages
                       .map((msg) => {
@@ -136,13 +142,7 @@ export function Controls({
                         ) {
                           return {
                             role: msg.message.role,
-                            content:
-                              msg.message.content
-                                ?.replace(
-                                  "<One minute left>Tell the candidate how much time is left and start wrapping up the interview and tell the candidate that a report will be generated</One minute left>.",
-                                  ""
-                                )
-                                ?.split("{")?.[0] ?? "",
+                            content: formatMessage(msg.message.content),
                             prosody: msg.models.prosody?.scores ?? {},
                           };
                         }

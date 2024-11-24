@@ -3,6 +3,12 @@
 import { Interview, NewInterview, User } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
+import { formatTime } from "@/lib/utils/formatTime";
+import {
+  formatMessage,
+  ONE_MINUTE_LEFT_MESSAGE,
+} from "@/lib/utils/messageUtils";
+import { unformatTime } from "@/lib/utils/unformatTime";
 import { useVoice } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -61,21 +67,6 @@ export function TimerHume({
     },
   });
 
-  // Format time - number to HH:MM:SS
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
-      .toString()
-      .padStart(2, "0")}`;
-  };
-
-  // Unformat time - HH:MM:SS to number
-  const unformatTime = (time: string) => {
-    const [hours, minutes, seconds] = time.split(":").map(Number);
-    return hours * 3600 + minutes * 60 + seconds;
-  };
-
   useEffect(() => {
     if (status.value !== "connected") return;
     if (!callDurationTimestamp) return;
@@ -84,9 +75,7 @@ export function TimerHume({
       unformatTime(callDurationTimestamp) === totalTime - 60 &&
       !wrapUpRef.current
     ) {
-      sendUserInput(
-        "<One minute left>Tell the candidate how much time is left and start wrapping up the interview and tell the candidate that a report will be generated</One minute left>"
-      );
+      sendUserInput(ONE_MINUTE_LEFT_MESSAGE);
       wrapUpRef.current = true;
     }
 
@@ -95,6 +84,7 @@ export function TimerHume({
       !timeUpRef.current
     ) {
       updateInterview({
+        actualTime: Math.floor(unformatTime(callDurationTimestamp) / 60),
         transcript: JSON.stringify(
           messages
             .map((msg) => {
@@ -104,13 +94,7 @@ export function TimerHume({
               ) {
                 return {
                   role: msg.message.role,
-                  content:
-                    msg.message.content
-                      ?.replace(
-                        "<One minute left>Tell the candidate how much time is left and start wrapping up the interview and tell the candidate that a report will be generated</One minute left>.",
-                        ""
-                      )
-                      ?.split("{")?.[0] ?? "",
+                  content: formatMessage(msg.message.content),
                   prosody: msg.models.prosody?.scores ?? {},
                 };
               }
@@ -233,6 +217,7 @@ export function TimerHume({
         lastDecrementTimeRef.current = unformatTime(callDurationTimestamp);
 
         partialTranscriptMutation.mutate({
+          actualTime: Math.floor(unformatTime(callDurationTimestamp) / 60),
           transcript: JSON.stringify(
             messages
               .map((msg) => {
@@ -242,13 +227,7 @@ export function TimerHume({
                 ) {
                   return {
                     role: msg.message.role,
-                    content:
-                      msg.message.content
-                        ?.replace(
-                          "<One minute left>Tell the candidate how much time is left and start wrapping up the interview and tell the candidate that a report will be generated</One minute left>.",
-                          ""
-                        )
-                        ?.split("{")?.[0] ?? "",
+                    content: formatMessage(msg.message.content),
                     prosody: msg.models.prosody?.scores ?? {},
                   };
                 }

@@ -11,6 +11,7 @@ import {
 import { Report } from "@/db/schema";
 import { Entity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
+import { format } from "date-fns";
 import {
   Brain,
   Calendar,
@@ -84,7 +85,10 @@ export function ReportCard({ report, interviewId }: ReportCardProps) {
             </Badge>
             <span className="text-sm text-muted-foreground">
               <Calendar className="w-4 h-4 inline mr-1" />
-              {new Date(report.data.createdAt).toLocaleDateString()}
+              {format(
+                new Date(report.data.createdAt),
+                "MMM d, yyyy 'at' h:mm a"
+              )}
             </span>
           </div>
         </div>

@@ -500,7 +500,7 @@ export default function InterviewReportPage(props: {
                 </div>
                 <div className="flex items-center">
                   <Timer className="w-4 h-4 mr-1.5" />
-                  {interview?.data.duration ?? 0} minutes
+                  {interview?.data.actualTime ?? 0} minutes
                 </div>
                 <div className="flex items-center">
                   <MessageSquare className="w-4 h-4 mr-1.5" />
