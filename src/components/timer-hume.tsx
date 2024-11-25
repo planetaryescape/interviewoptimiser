@@ -199,6 +199,7 @@ export function TimerHume({
       console.log("error:", error);
       Sentry.withScope((scope) => {
         scope.setContext("params", params);
+        scope.setExtra("error", error);
         Sentry.captureException(error);
       });
       toast.error("Error updating interview. Please try again.");

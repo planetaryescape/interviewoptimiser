@@ -114,12 +114,16 @@ export async function PUT(
     });
 
     if (!existingInterview || existingInterview.userId !== userId) {
-      logger.warn(
+      logger.error(
         { interviewId, userId },
         "Interview not found or unauthorized"
       );
       return NextResponse.json(
-        formatErrorEntity("Interview not found or unauthorized"),
+        formatErrorEntity({
+          message: "Interview not found or unauthorized",
+          interviewId,
+          userId,
+        }),
         {
           status: 404,
         }
@@ -146,6 +150,8 @@ export async function PUT(
     Sentry.withScope((scope) => {
       scope.setExtra("context", "PUT /api/interviews/[interviewId]");
       scope.setExtra("error", error);
+      scope.setExtra("params", params);
+      scope.setExtra("message", error instanceof Error ? error.message : error);
       Sentry.captureException(error);
     });
     logger.error(
