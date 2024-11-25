@@ -2,9 +2,9 @@
 
 import { BackgroundGradient as AnotherBackgroundGradient } from "@/components/background-gradient";
 import { ConfirmationModal } from "@/components/create-optimization/ConfirmationModal";
+import { CreateInterviewErrorModal } from "@/components/create-optimization/CreateInterviewErrorModal";
 import { OutOfMinutesModal } from "@/components/create-optimization/OutOfMinutesModal";
 import { ProcessingTakeover } from "@/components/create-optimization/ProcessingTakeover";
-import { ScheduleErrorModal } from "@/components/create-optimization/ScheduleErrorModal";
 import { Step1CV } from "@/components/create-optimization/Step1CV";
 import { Step2JobDescription } from "@/components/create-optimization/Step2JobDescription";
 import { Step3AdditionalInfo } from "@/components/create-optimization/Step3AdditionalInfo";
@@ -85,49 +85,20 @@ export default function CreateInterview() {
       );
       return interviewRepository.create(interview);
     },
-    onError: (error) => {
-      Sentry.withScope((scope) => {
-        scope.setExtra("context", "createOptimizationMutation");
-        scope.setExtra("error", error);
-        scope.setExtra("message", error.message);
-
-        Sentry.captureException(error);
-      });
-      toast.error(`Error creating interview: ${(error as Error).message}`);
-    },
-  });
-
-  const submitInterviewMutation = useMutation({
-    mutationFn: async (interviewId: number) => {
-      const response = await fetch(`/api/interviews`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          interviewId: idHandler.encode(interviewId),
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `Failed to create interview: ${response.status} ${errorText}`
-        );
-      }
-
-      return response.json();
-    },
-    onSuccess: () => {
-      toast.success("Interview submitted successfully");
+    onSuccess: (data) => {
+      toast.success("Interview created successfully");
       setShowTakeover(true);
       setTimeout(() => {
-        router.push(`/dashboard`);
-        setShowTakeover(false);
         resetStore();
+        router.push(
+          `/dashboard/interviews/${idHandler.encode(data.sys.id ?? 0)}`
+        );
+        setShowTakeover(false);
       }, 9000);
     },
     onError: (error) => {
       Sentry.withScope((scope) => {
-        scope.setExtra("context", "submitInterviewMutation");
+        scope.setExtra("context", "createOptimizationMutation");
         scope.setExtra("error", error);
         scope.setExtra("message", error.message);
 
@@ -138,7 +109,6 @@ export default function CreateInterview() {
   });
 
   const handleSubmit = async () => {
-    setIsAlertDialogOpen(true);
     if (!user || user.minutes <= 0 || user.minutes < duration) {
       posthog.capture("out_of_minutes", {
         userId: user?.id,
@@ -185,18 +155,7 @@ export default function CreateInterview() {
         userId: user?.id,
       });
 
-      const createdInterview = await createInterviewMutation.mutateAsync(
-        interview
-      );
-
-      router.push(
-        `/dashboard/interviews/${idHandler.encode(
-          createdInterview.sys.id ?? 0
-        )}`
-      );
-      // await submitInterviewMutation.mutateAsync(
-      //   createdInterview.sys.id ?? 0
-      // );
+      await createInterviewMutation.mutateAsync(interview);
     } catch (error) {
       console.log("error:", error);
       Sentry.withScope((scope) => {
@@ -275,7 +234,6 @@ export default function CreateInterview() {
               size="sm"
               disabled={
                 createInterviewMutation.isPending ||
-                submitInterviewMutation.isPending ||
                 (step === 2 && !canProceedToStep3) ||
                 (step === 1 && !canProceedToStep2)
               }
@@ -287,8 +245,7 @@ export default function CreateInterview() {
                 }
               }}
             >
-              {createInterviewMutation.isPending ||
-              submitInterviewMutation.isPending
+              {createInterviewMutation.isPending
                 ? "Submitting..."
                 : step === 3
                 ? "Submit"
@@ -330,11 +287,11 @@ export default function CreateInterview() {
         onBuyMinutes={() => router.push("/pricing")}
       />
 
-      <ScheduleErrorModal
+      <CreateInterviewErrorModal
         isOpen={isScheduleErrorDialogOpen}
+        onTryAgain={() => handleSubmit()}
         onClose={() => {
           setIsScheduleErrorDialogOpen(false);
-          router.push("/dashboard");
         }}
       />
 

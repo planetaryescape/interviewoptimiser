@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
   logger.info("POST request received at /api/interviews");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to POST /api/optimizations");
+    logger.warn("Unauthorized access attempt to POST /api/interviews");
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
         maxLength: config.maxTextLengths.additionalInfo,
       });
 
-      logger.info({}, "Creating new optimization");
+      logger.info({}, "Creating new interview");
       const [createdInterview] = await tx
         .insert(interviews)
         .values({
