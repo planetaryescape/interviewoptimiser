@@ -101,24 +101,29 @@ export default async function PricingPage() {
       return minutesA - minutesB;
     });
 
-  const plans = sortedProducts.map((product) => ({
-    name: product.name,
-    icon: planIcons[
-      (product.default_price as Stripe.Price)?.lookup_key as PlanIconKey
-    ],
-    priceId: (product.default_price as Stripe.Price)?.id,
-    description: product.description,
-    minutes: parseInt(product.metadata?.minutes ?? "0", 10),
-    price:
-      offerActive && product.metadata?.originalPrice
-        ? (product.default_price as Stripe.Price)?.unit_amount || 0
-        : ((product.default_price as Stripe.Price)?.unit_amount || 0) *
-          (1 - config.fomoDiscountPercentage / 100),
-    originalPrice: (product.default_price as Stripe.Price)?.unit_amount || 0,
-    duration: 60,
-    features: product.marketing_features.map((f) => f.name) || [],
-    recommended: product.metadata?.recommended === "true",
-  }));
+  const plans = sortedProducts
+    // filter out the plans that are not 15, 30, or 60 minutes
+    .filter((product) =>
+      ["15 minutes", "30 minutes", "60 minutes"].includes(product.name)
+    )
+    .map((product) => ({
+      name: product.name,
+      icon: planIcons[
+        (product.default_price as Stripe.Price)?.lookup_key as PlanIconKey
+      ],
+      priceId: (product.default_price as Stripe.Price)?.id,
+      description: product.description,
+      minutes: parseInt(product.metadata?.minutes ?? "0", 10),
+      price:
+        offerActive && product.metadata?.originalPrice
+          ? (product.default_price as Stripe.Price)?.unit_amount || 0
+          : ((product.default_price as Stripe.Price)?.unit_amount || 0) *
+            (1 - config.fomoDiscountPercentage / 100),
+      originalPrice: (product.default_price as Stripe.Price)?.unit_amount || 0,
+      duration: 60,
+      features: product.marketing_features.map((f) => f.name) || [],
+      recommended: product.metadata?.recommended === "true",
+    }));
 
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">

@@ -2,6 +2,7 @@ import PostHogPageView from "@/components/posthog-pageview";
 import { CSPostHogProvider } from "@/components/providers/posthog";
 import { ReactQueryProvider } from "@/components/react-query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ConditionalBlackFridayBanner } from "@/components/conditional-black-friday-banner";
 import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -140,6 +141,7 @@ export default function RootLayout({
                     <PostHogPageView />
                   </ClerkProvider>
                 </Suspense>
+                <ConditionalBlackFridayBanner />
                 {children}
               </ThemeProvider>
               <SpeedInsights />
