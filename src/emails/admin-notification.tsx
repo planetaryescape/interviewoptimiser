@@ -54,7 +54,7 @@ export const AdminNotificationEmail = ({
       >
         <Body className="bg-offwhite font-sans text-base text-brand">
           <Img
-            src={`https://${config.domain}/logo.png`}
+            src={`${config.baseUrl}/logo.png`}
             width="49"
             height="63.6"
             alt={`${config.projectName} Logo`}

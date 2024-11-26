@@ -1,15 +1,11 @@
 import { getUserFromClerkId } from "@/lib/auth";
 import { config } from "@/lib/config";
 import { logger } from "@/lib/logger";
+import { stripe } from "@/lib/stripe";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-10-28.acacia",
-});
 
 export async function POST(request: NextRequest) {
   try {

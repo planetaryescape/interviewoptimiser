@@ -1,18 +1,34 @@
 #!/bin/bash
 
 set -e  # Exit immediately if a command exits with a non-zero status.
+set -x  # Print commands and their arguments as they are executed.
 
 trap 'echo "Error: Script failed at line $LINENO"; exit 1;' ERR
 
+echo "Cleaning and creating terraform artifacts directory for: $1"
 rm -rf terraform/artifacts/$1
 mkdir -p terraform/artifacts/$1
 
 pnpm install
-rimraf functions/dist/$1
+echo "Cleaning functions dist directory for: $1"
+rm -rf functions/dist/$1
 
+echo "Building lambda function: $1"
 doppler run -c prd -p interviewoptimiser -- node -r esbuild-register scripts/build-lambda.ts $1
 
-cp -r functions/dist/$1/* terraform/artifacts/$1/
+echo "Checking source directory contents:"
+ls -la functions/dist/$1/
+
+echo "Cleaning and preparing terraform artifacts directory"
+rm -rf terraform/artifacts/$1
+mkdir -p terraform/artifacts/$1
+
+echo "Copying files from functions/dist/$1/* to terraform/artifacts/$1/"
+cp -rv functions/dist/$1/* terraform/artifacts/$1/
+
+echo "Checking destination directory contents:"
+ls -la terraform/artifacts/$1/
+
 if [ "$1" = "generate-pdf" ]; then
   cp -r node_modules/@sparticuz/chromium/bin terraform/artifacts/$1/
 fi
