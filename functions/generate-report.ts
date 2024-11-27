@@ -20,11 +20,12 @@ import { eq, sql } from "drizzle-orm";
 Sentry.init({
   dsn: "https://a1c3a134e74ec680a4cc42024dee1a08@o4508119114514432.ingest.de.sentry.io/4508248038572112",
   // integrations: [nodeProfilingIntegration()],
-  // Tracing
-  tracesSampleRate: 1.0, //  Capture 100% of the transactions
 
   // Set sampling rate for profiling - this is relative to tracesSampleRate
   profilesSampleRate: 1.0,
+
+  // Tracing
+  tracesSampleRate: 1.0, //  Capture 100% of the transactions
 });
 
 const sqs = new SQSClient({ region: process.env.LAMBDA_AWS_REGION });

@@ -19,10 +19,11 @@
     "db:migrate:prd": "NODE_ENV=production doppler run -c prd -- drizzle-kit migrate",
     "db:migrate:stg": "NODE_ENV=production doppler run -c stg -- drizzle-kit migrate",
     "terraform:regenerate-incomplete-reports": "bin/build-and-copy-artifacts regenerate-incomplete-reports",
+    "terraform:generate-report": "bin/build-and-copy-artifacts generate-report",
     "terraform:restore-database": "./bin/build-and-copy-artifacts restore-database",
     "terraform:vet-review": "bin/build-and-copy-artifacts vet-review",
-    "tfa-local": "pnpm terraform:regenerate-incomplete-reports && pnpm terraform:vet-review && pnpm terraform:restore-database && bin/terraform-apply-local",
-    "tfa": "pnpm terraform:regenerate-incomplete-reports && pnpm terraform:vet-review && pnpm terraform:restore-database && bin/terraform-apply",
+    "tfa-local": "pnpm terraform:regenerate-incomplete-reports && pnpm terraform:vet-review && pnpm terraform:restore-database && pnpm terraform:generate-report && bin/terraform-apply-local",
+    "tfa": "pnpm terraform:regenerate-incomplete-reports && pnpm terraform:vet-review && pnpm terraform:restore-database && pnpm terraform:generate-report && bin/terraform-apply",
     "lint": "oxlint -c .eslintrc.json",
     "lint:fix": "oxlint --fix -c .eslintrc.json",
     "prepare": "husky"
