@@ -9,6 +9,8 @@ import { useTheme } from "next-themes";
 import { unstable_noStore as noStore } from "next/cache";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { BorderBeam } from "./magicui/border-beam";
+import HeroVideoDialog from "./magicui/hero-video-dialog";
 import Particles from "./magicui/particles";
 
 // Create a new component for the social proof part
@@ -82,7 +84,7 @@ export function Hero() {
   return (
     <div className="relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-        <div className="grid lg:grid-cols-[2fr_1fr] gap-16 items-center">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6 z-50 max-w-3xl">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20">
               <Sparkles size={16} className="animate-pulse" />
@@ -143,10 +145,23 @@ export function Hero() {
             <SocialProofContent />
           </div>
 
-          <div className="relative hidden lg:block">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-purple-500/30 to-pink-500/30 blur-3xl opacity-20 rounded-full" />
-            <div className="relative bg-gradient-to-br from-background/80 to-background/20 backdrop-blur-sm border border-foreground/10 p-8 rounded-2xl">
-              {/* You can add a demo video, animation, or illustration here */}
+          <div className="relative z-50 h-64 md:h-96">
+            <div className="relative">
+              <HeroVideoDialog
+                className="dark:hidden block"
+                animationStyle="from-center"
+                videoSrc="https://www.youtube.com/embed/8dVE_2VNR38?si=F3MQPSx6HQ4T9NpQ"
+                thumbnailSrc="/hero-video-thumbnail.png"
+                thumbnailAlt="Hero Video"
+              />
+              <HeroVideoDialog
+                className="hidden dark:block"
+                animationStyle="from-center"
+                videoSrc="https://www.youtube.com/embed/8dVE_2VNR38?si=F3MQPSx6HQ4T9NpQ"
+                thumbnailSrc="/hero-video-thumbnail.png"
+                thumbnailAlt="Hero Video"
+              />
+              <BorderBeam />
             </div>
           </div>
         </div>
