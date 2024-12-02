@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   logger.info("GET request received at /api/users");
+
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
     logger.warn("Unauthorized access attempt to GET /api/users");
@@ -31,6 +32,7 @@ export async function GET(request: NextRequest) {
       where: eq(users.id, userId),
       with: {
         customisation: true,
+        organizationMemberships: true,
       },
     });
 
@@ -41,8 +43,19 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // Transform the data to include organization memberships
+    const userData = {
+      ...user,
+      organizationMemberships: user.organizationMemberships.map(
+        (membership) => ({
+          organizationId: membership.organizationId,
+          role: membership.role,
+        })
+      ),
+    };
+
     logger.info({ user: user.id }, "Successfully retrieved user");
-    return NextResponse.json(formatEntity(user, "user"));
+    return NextResponse.json(formatEntity(userData, "user"));
   } catch (error) {
     Sentry.withScope((scope) => {
       scope.setExtra("context", "GET /api/users");

@@ -11,7 +11,7 @@ export function ConditionalBlackFridayBanner() {
   const pathname = usePathname();
 
   // Check if the current path is the specific interview route
-  const isInterviewRoute = /^\/dashboard\/interviews\/[^\/]+$/.test(pathname);
+  const isInterviewRoute = /^\/dashboard\/interviews\/[^/]+$/.test(pathname);
 
   // Check if the current path should be excluded
   const shouldShowBanner = !EXCLUDED_PATHS.includes(pathname) && !isInterviewRoute;

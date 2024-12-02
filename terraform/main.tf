@@ -95,6 +95,7 @@ locals {
       PINO_LOG_LEVEL    = "info"
       LAMBDA_AWS_REGION = local.region
       DISCORD_BOT_TOKEN = var.DISCORD_BOT_TOKEN
+      SENTRY_DSN        = "https://a1c3a134e74ec680a4cc42024dee1a08@o4508119114514432.ingest.de.sentry.io/4508248038572112"
     }
     vet_review = {
       DATABASE_URL      = var.DATABASE_URL
@@ -103,6 +104,7 @@ locals {
       PINO_LOG_LEVEL    = "info"
       LAMBDA_AWS_REGION = local.region
       DISCORD_BOT_TOKEN = var.DISCORD_BOT_TOKEN
+      SENTRY_DSN        = "https://6c0af4af9084afc6ecc6166ade3c37c4@o4508119114514432.ingest.de.sentry.io/4508248043814992"
     }
     restore_database = {
       DATABASE_URL       = var.DATABASE_URL
@@ -111,6 +113,7 @@ locals {
       PINO_LOG_LEVEL     = "info"
       LAMBDA_AWS_REGION  = local.region
       DISCORD_BOT_TOKEN  = var.DISCORD_BOT_TOKEN
+      SENTRY_DSN         = "https://092e9d97482b5fab7398da0485d93bfd@o4508119114514432.ingest.de.sentry.io/4508260008591440"
     }
 
     regenerate_incomplete_reports = {
@@ -121,6 +124,7 @@ locals {
       PINO_LOG_LEVEL     = "info"
       LAMBDA_AWS_REGION  = data.aws_region.current.name
       DISCORD_BOT_TOKEN  = var.DISCORD_BOT_TOKEN
+      SENTRY_DSN         = "https://abf04e7d8150b91d6693971ce1495588@o4508119114514432.ingest.de.sentry.io/4508324268605520"
     }
   }
 }

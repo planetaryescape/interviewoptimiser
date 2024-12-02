@@ -14,12 +14,9 @@ import { format, isValid, parseISO } from "date-fns";
 import fs from "fs";
 import path from "path";
 import { Readable } from "stream";
+import { initSentry } from "./lib/sentry";
 
-Sentry.init({
-  dsn: "https://092e9d97482b5fab7398da0485d93bfd@o4508119114514432.ingest.de.sentry.io/4508260008591440",
-  tracesSampleRate: 1.0,
-  profilesSampleRate: 1.0,
-});
+initSentry();
 
 const s3Client = new S3Client({ region: process.env.LAMBDA_AWS_REGION });
 

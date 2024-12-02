@@ -61,3 +61,20 @@ export async function getUserFromId(userId: number): Promise<User | null> {
 
   return user[0];
 }
+
+export async function getUserFromEmail(email: string): Promise<User | null> {
+  if (!email) {
+    return null;
+  }
+
+  const user = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
+
+  if (user.length === 0) {
+    return null;
+  }
+  return user[0];
+}

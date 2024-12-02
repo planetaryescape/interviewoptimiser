@@ -11,16 +11,9 @@ import { format } from "date-fns";
 import { and, eq, isNull } from "drizzle-orm";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
+import { initSentry } from "./lib/sentry";
 
-Sentry.init({
-  dsn: "https://6c0af4af9084afc6ecc6166ade3c37c4@o4508119114514432.ingest.de.sentry.io/4508248043814992",
-  // integrations: [nodeProfilingIntegration()],
-  // Tracing
-  tracesSampleRate: 1.0, //  Capture 100% of the transactions
-
-  // Set sampling rate for profiling - this is relative to tracesSampleRate
-  profilesSampleRate: 1.0,
-});
+initSentry();
 
 const ReviewVettingResponseSchema = z.object({
   isAppropriate: z.boolean(),
