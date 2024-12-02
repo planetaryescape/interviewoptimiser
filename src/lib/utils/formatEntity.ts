@@ -1,10 +1,13 @@
 export type EntityType =
   | "empty"
+  | "job-candidate"
   | "report"
+  | "organization-member"
   | "statistics"
   | "sections-order"
   | "page-settings"
   | "changelog"
+  | "invitation"
   | "cover-letter"
   | "generic"
   | "feature-request"
@@ -15,7 +18,9 @@ export type EntityType =
   | "error"
   | "customisation"
   | "subscription"
-  | "countries";
+  | "countries"
+  | "organization"
+  | "job";
 
 export type StatusType = "success" | "error";
 

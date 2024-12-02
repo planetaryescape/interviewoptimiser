@@ -5,16 +5,9 @@ import { logger } from "@/lib/logger";
 import { SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
 import * as Sentry from "@sentry/aws-serverless";
 import { and, eq, lt } from "drizzle-orm";
+import { initSentry } from "./lib/sentry";
 
-Sentry.init({
-  dsn: "https://abf04e7d8150b91d6693971ce1495588@o4508119114514432.ingest.de.sentry.io/4508324268605520",
-  // integrations: [nodeProfilingIntegration()],
-  // Tracing
-  tracesSampleRate: 1.0, //  Capture 100% of the transactions
-
-  // Set sampling rate for profiling - this is relative to tracesSampleRate
-  profilesSampleRate: 1.0,
-});
+initSentry();
 
 const sqs = new SQSClient({ region: process.env.LAMBDA_AWS_REGION });
 

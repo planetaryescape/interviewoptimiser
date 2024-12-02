@@ -11,7 +11,15 @@ async function fetchUser() {
 }
 
 export function useUser() {
-  return useQuery<User & { customisation: Customisation }>({
+  return useQuery<
+    User & {
+      customisation: Customisation;
+      organizationMemberships: {
+        organizationId: number;
+        role: string;
+      }[];
+    }
+  >({
     queryKey: ["user"],
     queryFn: () => fetchUser(),
   });

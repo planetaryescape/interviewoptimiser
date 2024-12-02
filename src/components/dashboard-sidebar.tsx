@@ -15,14 +15,16 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useFeatureFlagEnabled } from "posthog-js/react";
 import { useState } from "react";
 import { FeedbackModal } from "./feedback-modal";
 
-export default function DashboardSidebar() {
+export function DashboardSidebar() {
   const { data: user } = useUser();
   const isAdmin = user?.role === "admin";
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const pathname = usePathname();
+  const organizationsFeaturesEnabled = useFeatureFlagEnabled("organizations");
 
   const NavItem = ({
     href,
@@ -64,9 +66,20 @@ export default function DashboardSidebar() {
               Interviews
             </NavItem>
 
-            <NavItem href="/dashboard/settings" icon={Cog}>
-              Settings
-            </NavItem>
+            {organizationsFeaturesEnabled &&
+              user &&
+              user?.organizationMemberships.length > 0 && (
+                <>
+                  <div className="mt-6 mb-2 px-3">
+                    <p className="text-xs font-medium text-muted-foreground">
+                      Organization
+                    </p>
+                  </div>
+                  <NavItem href="/dashboard/jobs" icon={BarChart3}>
+                    Jobs
+                  </NavItem>
+                </>
+              )}
 
             {isAdmin && (
               <>
@@ -86,6 +99,15 @@ export default function DashboardSidebar() {
                 </NavItem>
               </>
             )}
+
+            <div className="mt-6 mb-2 px-3">
+              <p className="text-xs font-medium text-muted-foreground">
+                Settings
+              </p>
+            </div>
+            <NavItem href="/dashboard/settings" icon={Cog}>
+              Settings
+            </NavItem>
           </div>
         </div>
 

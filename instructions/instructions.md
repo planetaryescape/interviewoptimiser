@@ -1,750 +1,507 @@
 # Interview Optimiser - Product Requirements Document (PRD)
 
-## 1. Product Overview
+1. Product Overview
 
-Interview Optimiser is an AI-powered interview practice platform that provides real-time, voice-to-voice interview simulations with advanced feedback and analysis capabilities. The platform stands out by offering authentic interview experiences with adaptive AI responses and comprehensive performance evaluation.
+Interview Optimiser is an AI-powered interview practice platform designed to provide real-time, voice-to-voice interview simulations with advanced feedback and analysis. In its new phase, the product extends its capabilities to cater to recruiters and HR professionals, allowing them to streamline their candidate evaluation process.
 
-Evidence from codebase:
+2. Core Value Proposition
 
-```4:21:src/components/landing/differentiators-section.tsx
-export function DifferentiatorsSection() {
-  const differentiators = [
-    {
-      icon: Mic,
-      title: "Real Voice-to-Voice Interaction",
-      description: `Unlike other platforms, ${config.projectName} offers an authentic, real-time, voice-to-voice interview experience where you actually speak and receive spoken responses. Our platform adapts in real time, creating a true-to-life simulation of an in-person interview.`,
-    },
-    {
-      icon: Brain,
-      title: "Emotional and Prosody Analysis",
-      description: `We go beyond just assessing your answers—${config.projectName} analyses how you deliver them. Using AI-powered prosody analysis, we evaluate key aspects like confidence, clarity, and concentration, providing a complete picture of your communication skills.`,
-    },
-    {
-      icon: Target,
-      title: "Adaptive and Personalised Feedback",
-      description: `Our interviews adjust dynamically based on your responses, providing tailored questions specific to your role and industry. Post-interview, receive in-depth feedback on both your answers and delivery, helping you improve in real, practical ways.`,
-    },
-  ];
-```
+The platform now offers:
+• Real voice-to-voice interaction with AI for candidates.
+• Emotional and prosody analysis of responses.
+• Comprehensive performance analytics and tailored feedback.
+• B2B tools for recruiters to create, manage, and evaluate job-specific interviews.
+• Streamlined candidate tracking and reporting.
 
-## 2. Core Value Proposition
+3. User Journey
 
-The platform differentiates itself through:
-
-- Real voice-to-voice interaction with AI
-- Emotional and prosody analysis of responses
-- Adaptive questioning based on user responses
-- Comprehensive performance analytics
-- Personalized feedback and improvement plans
-
-## 3. User Journey
-
-### 3.1 Interview Creation Process
+3.1 For B2C Customers (Candidates)
 
 1. CV Upload/Input
+   Candidates upload their CV, which is analyzed to tailor interview questions.
 2. Job Description Input
+   The target job description helps the AI simulate a realistic interview experience.
 3. Interview Configuration
+   Candidates select interview type and duration, then proceed to the interview.
+4. Interview Experience
+   Candidates interact with AI in real-time and receive feedback post-interview.
+5. Performance Report
+   A detailed report helps candidates identify strengths and areas for improvement.
 
-Evidence:
+3.2 For B2B Users (Recruiters and HR Professionals)
 
-```213:225:src/app/dashboard/create/page.tsx
-  const title =
-    step === 1
-      ? "Let's start with your CV"
-      : step === 2
-      ? "Now, tell us about the job"
-      : "Final details";
+1. Account Setup
+   Recruiters create a dedicated account, landing on a dashboard customized for job management.
+2. Jobs Page
+   • A centralized page listing all the jobs created by the recruiter.
+   • Features a “Create Job” button to start the job creation process.
+3. Job Creation Wizard
+   • Step 1: Job description input.
+   • Step 2: Specify key candidate assessment criteria (optional).
+   • Step 3: Select interview type and duration.
+   • Step 4: Finalize and create the job.
+4. Job Details Page
+   • Displays job-specific information, including a unique shareable link for candidates.
+   • Link format: /jobs/<job-id>/share.
+5. Candidate Flow
+   • Candidates accessing the shareable link are prompted to:
+   • Create an account.
+   • Upload their CV.
+   • Provide basic details (name, contact information).
+   • Start the AI-driven interview.
+   • Link format for interviews: /jobs/<job-id>/interviews/<interview-id>/.
+6. Candidate Management
+   • Recruiters access a list of candidates for a job, available at /jobs/<job-id>/candidates/.
+   • Clicking a candidate displays their details and tailored report at /jobs/<job-id>/candidates/<candidate-id>/.
+7. Tailored Reports for Recruiters
+   • Recruiters receive detailed reports focused on job-specific criteria and AI evaluations for each candidate.
 
-  const subtitle =
-    step === 1
-      ? "We'll use your CV to understand your experience and tailor the interview questions."
-      : step === 2
-      ? "Share the job description to help us create relevant interview questions."
-      : "Help us customize your interview experience.";
+8. Key Features
+
+4.1 B2B Features
+
+• Job Management Dashboard
+A centralized interface for creating, managing, and tracking jobs.
+• Job Creation Wizard
+Guided workflow for defining job details, assessment criteria, and interview configurations.
+• Candidate Management
+Tools for tracking candidate progress and accessing detailed reports.
+• Recruiter-Specific Reports
+AI-generated insights tailored to the recruiter’s job-specific requirements.
+• Candidate Onboarding via Shareable Links
+Simplified candidate access to job-specific interviews.
+
+4.2 Core Platform Features
+
+• Real-time voice interaction.
+• Adaptive AI responses based on CV and job description.
+• Comprehensive performance analytics.
+• Emotional and prosody analysis.
+• Industry-specific interview types and templates.
+
+5. User Interface Components
+
+5.1 For Candidates
+
+• Interview Dashboard
+Access to practice sessions, performance reports, and resource libraries.
+• Interview Interface
+• Real-time voice interaction.
+• Visual progress indicators.
+• Feedback and performance analytics.
+
+5.2 For Recruiters
+
+• Recruiter Dashboard
+• Jobs Page: Lists all jobs with options to create new ones.
+• Candidate Management: Track and evaluate candidates for specific jobs.
+• Job Creation Wizard
+• Multi-step process for defining job and interview details.
+• Candidate Reports
+Tailored insights highlighting candidate suitability based on job criteria.
+
+6. Technical Requirements
+
+6.1 Frontend
+
+• Framework: Next.js with App Router.
+• Styling: Tailwind CSS.
+• Responsive Design: Fully optimized for desktop and mobile devices.
+
+6.2 Backend
+
+• AI Integration: For tailored interview processing and feedback generation.
+• Voice Processing: Real-time interaction capabilities.
+• Data Management: Secure storage of job, candidate, and report data.
+• Notifications: Email alerts for both recruiters and candidates.
+
+6.3 APIs
+
+• Recruiter API:
+• Endpoints for job creation, retrieval, and management.
+• Candidate tracking and reporting.
+• Candidate API:
+• Endpoints for CV uploads, interview initiation, and report retrieval.
+
+7. Success Metrics
+
+• For B2C:
+• Candidate engagement and completion rates.
+• Improvements in candidate interview performance.
+• For B2B:
+• Number of jobs created.
+• Candidate submissions per job.
+• Recruiter satisfaction with tailored reports.
+
+8. Future Enhancements
+
+• B2B Integrations:
+• Integration with ATS (Applicant Tracking Systems) for seamless workflows.
+• Advanced Analytics:
+• Deeper insights into candidate performance trends.
+• Enhanced Reports:
+• Role-based recommendations and comparison metrics for recruiters.
+• Mobile App for Recruiters:
+• Access to job management and candidate tracking on the go.
+• Custom Branding:
+• White-label solutions for enterprise clients.
+
+## Work Breakdown Structure
+
+Feature 1: Recruiter Account Management
+
+1.1 Backend
+• Extend the authentication system to support recruiter roles.
+• Implement role-based access control (RBAC) to differentiate between recruiter and candidate accounts.
+
+1.2 Frontend
+• Create a recruiter-specific onboarding flow.
+• Design and implement a recruiter dashboard layout as a landing page.
+
+1.3 Testing
+• Verify recruiter-specific login and role-based access control.
+
+Feature 2: Jobs Page
+
+2.1 Backend
+• Create APIs to list, create, update, and delete jobs for a recruiter.
+• Implement data structures to store job-related information (e.g., job description, criteria, interview settings).
+
+2.2 Frontend
+• Design the Jobs page UI with:
+• List of jobs created by the recruiter.
+• Actions for creating, editing, and deleting jobs.
+
+2.3 Testing
+• Validate job CRUD operations.
+• Ensure correct association between recruiters and jobs.
+
+Feature 3: Job Creation Wizard
+
+3.1 Backend
+• Implement APIs for creating a job through multi-step submissions:
+• Step 1: Input job description.
+• Step 2: Specify candidate assessment criteria.
+• Step 3: Configure interview type and duration.
+
+3.2 Frontend
+• Build a multi-step wizard for job creation:
+• UI for each step with validation.
+• Confirmation page showing the completed job details.
+
+3.3 Testing
+• Validate seamless navigation through the wizard.
+• Test data persistence at each step.
+
+Feature 4: Shareable Job Links
+
+4.1 Backend
+• Create an API to generate a unique, secure shareable link for each job.
+• Validate link expiration and security.
+
+4.2 Frontend
+• Display the shareable link prominently on the job details page.
+• Design a landing page for candidates visiting the link.
+
+4.3 Testing
+• Test link generation, access, and security.
+• Verify correct navigation from the link to candidate onboarding.
+
+Feature 5: Candidate Onboarding (Job-Specific Flow)
+
+5.1 Backend
+• Adapt existing APIs to handle job-specific candidate data (e.g., associating candidates with a job).
+• Validate candidate data submission.
+
+5.2 Frontend
+• Build candidate-facing pages accessible via the shareable link:
+• Input form for candidate CV and basic details (name, contact info).
+• Redirect to the interview start page.
+
+5.3 Testing
+• Ensure smooth candidate onboarding and data association with the job.
+• Validate error handling for incomplete submissions.
+
+Feature 6: Job-Specific Interviews
+
+6.1 Backend
+• Extend the existing interview APIs to link interviews to jobs and recruiters.
+• Customize question generation based on recruiter-defined criteria.
+
+6.2 Frontend
+• Modify the interview interface for job-specific flows.
+• Add indicators showing the job context to the candidate.
+
+6.3 Testing
+• Validate the accuracy of job-specific question generation.
+• Ensure job and recruiter associations are maintained throughout the interview process.
+
+Feature 7: Candidate List
+
+7.1 Backend
+• Create APIs to list all candidates who have applied for a specific job.
+
+7.2 Frontend
+• Design the Candidate List page for recruiters:
+• Display basic candidate information (e.g., name, submission date).
+• Include actions to view individual candidate reports.
+
+7.3 Testing
+• Verify the correct association of candidates with their respective jobs.
+• Test sorting and filtering options on the Candidate List page.
+
+Feature 8: Candidate Reports
+
+8.1 Backend
+• Generate recruiter-specific reports, highlighting:
+• Overall performance.
+• Job-specific criteria matches.
+• Strengths and areas for improvement.
+
+8.2 Frontend
+• Design a recruiter-friendly report view:
+• Key metrics emphasized.
+• Download option for reports.
+
+8.3 Testing
+• Ensure accuracy and clarity of report data.
+• Test report accessibility and download functionality.
+
+Feature 9: Notifications
+
+9.1 Backend
+• Automate notifications:
+• Notify recruiters when a candidate completes an interview.
+• Notify candidates of their results.
+
+9.2 Frontend
+• Design notification messages for recruiters and candidates.
+• Include notification preferences in recruiter settings.
+
+9.3 Testing
+• Validate notification triggers and delivery.
+• Ensure notifications are clear and actionable.
+
+Feature 10: Security Enhancements
+
+10.1 Backend
+• Implement role-based data access to ensure recruiters can only view their jobs and candidates.
+• Secure shareable links against unauthorized access.
+
+10.2 Testing
+• Conduct penetration tests on shareable links and APIs.
+• Verify data isolation for recruiters.
+
+Feature 11: Deployment and Monitoring
+
+11.1 Deployment
+• Deploy features incrementally to production, starting with Recruiter Account Management.
+• Migrate new data structures to production.
+
+11.2 Monitoring
+• Set up monitoring dashboards for recruiter and candidate activities.
+• Track system performance under increased load.
+
+Suggested Build Order
+
+1. Recruiter Account Management.
+2. Jobs Page.
+3. Job Creation Wizard.
+4. Shareable Job Links.
+5. Candidate Onboarding.
+6. Job-Specific Interviews.
+7. Candidate List.
+8. Candidate Reports.
+9. Notifications.
+10. Security Enhancements.
+11. Deployment and Monitoring.
+
+This feature-based breakdown allows you to build and release functionality incrementally, providing value to users at each step while maintaining focus on development priorities.
+
+## Schema Updates
+
+Here’s how we can extend your schema with new tables and roles for recruiters and candidates, along with the required relationships for jobs and candidates:
+
+Schema Updates
+
+1. Jobs Table
+
+The jobs table will represent jobs created by recruiters. Each job is associated with a recruiter (user) and can have multiple candidates.
+
+```typescript
+import { relations } from "drizzle-orm";
+import { index, pgTable, uniqueIndex } from "drizzle-orm/pg-core";
+import { users } from "./users";
+
+export const jobs = pgTable(
+  "jobs",
+  (p) => ({
+    id: p.serial().primaryKey(),
+    recruiterId: p
+      .integer()
+      .references(() => users.id)
+      .notNull(), // Recruiter who created the job
+    name: p.varchar({ length: 255 }).notNull(), // Job title
+    description: p.text().notNull(), // Detailed job description
+    shareLink: p.varchar({ length: 255 }).notNull().unique(), // Unique link to share with candidates
+    createdAt: p.timestamp().defaultNow().notNull(),
+    updatedAt: p.timestamp().defaultNow().notNull(),
+  }),
+  (jobs) => ({
+    recruiterIdIdx: index("jobs_recruiter_id_idx").on(jobs.recruiterId),
+  })
+);
+
+export const jobRelations = relations(jobs, ({ one, many }) => ({
+  recruiter: one(users, {
+    fields: [jobs.recruiterId],
+    references: [users.id],
+  }),
+  candidates: many(candidates), // Relation to candidates for the job
+}));
+
+export type Job = typeof jobs.$inferSelect;
+export type NewJob = typeof jobs.$inferInsert;
 ```
 
-### 3.2 Interview Types
+2. Candidates Table
 
-- Behavioral Interview
-- Technical Interview
-- Situational Interview
-- Case Study Interview
-- Competency-Based Interview
-- Stress Interview
-- Cultural Fit Interview
+The candidates table tracks users applying for specific jobs. Each candidate is linked to a job and their corresponding interview(s).
 
-Evidence:
+```typescript
+import { relations } from "drizzle-orm";
+import { index, pgTable } from "drizzle-orm/pg-core";
+import { users } from "./users";
+import { jobs } from "./jobs";
+import { interviews } from "./interviews";
 
-```3:67:src/utils/conversation_config.ts
-export const interviewTypes = [
-  {
-    type: "Behavioral Interview",
-    description:
-      "Focuses on past experiences and behaviors as indicators of future performance, often using questions like 'Tell me about a time when…'",
-    exampleQuestions: [
-      "Tell me about a time you resolved a conflict.",
-      "Describe a situation where you showed leadership.",
-    ],
-  },
-  {
-    type: "Situational Interview",
-    description:
-      "Uses hypothetical scenarios to assess decision-making and problem-solving skills.",
-    exampleQuestions: [
-      "What would you do if you had a tight deadline and limited resources?",
-      "How would you handle a difficult customer request?",
-    ],
-  },
-  {
-    type: "Technical Interview",
-    description:
-      "Tests role-specific technical skills and knowledge, common in fields like engineering, IT, and data science.",
-    exampleQuestions: [
-      "Explain how you would optimize a SQL query.",
-      "Describe how you’d troubleshoot a network issue.",
-    ],
-  },
-  {
-    type: "Case Study Interview",
-    description:
-      "Presents a business problem for analysis, often used in consulting and finance.",
-    exampleQuestions: [
-      "How would you improve revenue for a company facing increased competition?",
-      "Analyze this data set and provide actionable insights.",
-    ],
-  },
-  {
-    type: "Competency-Based Interview",
-    description:
-      "Evaluates core competencies, like leadership and adaptability, necessary for the role.",
-    exampleQuestions: [
-      "Describe a situation where you demonstrated teamwork.",
-      "How do you adapt to new situations quickly?",
-    ],
-  },
-  {
-    type: "Stress Interview",
-    description:
-      "Puts candidates under pressure to see how they handle challenging or uncomfortable situations.",
-    exampleQuestions: [
-      "Why do you think you are suitable for this job?",
-      "Are you prepared for the demands of this role?",
-    ],
-  },
-  {
-    type: "Cultural Fit Interview",
-    description:
-      "Assesses whether a candidate aligns with the company's values and work environment.",
-    exampleQuestions: [
-      "What do you value in a team?",
-      "How do you approach work-life balance?",
-    ],
-  },
-];
+export const candidates = pgTable(
+  "candidates",
+  (p) => ({
+    id: p.serial().primaryKey(),
+    jobId: p
+      .integer()
+      .references(() => jobs.id)
+      .notNull(), // Job the candidate applied for
+    userId: p
+      .integer()
+      .references(() => users.id)
+      .notNull(), // User ID of the candidate
+    interviewId: p.integer().references(() => interviews.id), // Optional: Interview tied to this candidate
+    status: p.varchar({ length: 50 }).default("pending"), // Status of the candidate (e.g., pending, interviewed, rejected, hired)
+    createdAt: p.timestamp().defaultNow().notNull(),
+    updatedAt: p.timestamp().defaultNow().notNull(),
+  }),
+  (candidates) => ({
+    jobIdIdx: index("candidates_job_id_idx").on(candidates.jobId),
+    userIdIdx: index("candidates_user_id_idx").on(candidates.userId),
+  })
+);
+
+export const candidateRelations = relations(candidates, ({ one }) => ({
+  job: one(jobs, {
+    fields: [candidates.jobId],
+    references: [jobs.id],
+  }),
+  user: one(users, {
+    fields: [candidates.userId],
+    references: [users.id],
+  }),
+  interview: one(interviews, {
+    fields: [candidates.interviewId],
+    references: [interviews.id],
+  }),
+}));
+
+export type Candidate = typeof candidates.$inferSelect;
+export type NewCandidate = typeof candidates.$inferInsert;
 ```
 
-## 4. Key Features
+3. Roles Update
 
-### 4.1 Interview Experience
+Extend the roleEnum to distinguish recruiters and candidates:
 
-- Real-time voice interaction
-- AI-powered adaptive responses
-- Multiple interview styles
-- Duration customization
-
-Evidence:
-
-```5:27:src/components/landing/how-it-works-section.tsx
-export function HowItWorksSection() {
-  const steps = [
-    {
-      title: "Upload Your Details",
-      description:
-        "Start by sharing your CV and target job description. This allows our AI to tailor the interview experience to your specific career goals and desired role.",
-    },
-    {
-      title: "Choose Your Interview Style",
-      description:
-        "Select the interview type that suits you best—whether it's behavioral, technical, or situational—and set the duration to fit your preparation needs.",
-    },
-    {
-      title: "Get a Realistic, Adaptive Interview",
-      description:
-        "Experience a true-to-life interview simulation where our AI interacts with you in real-time, adapting to your responses and providing live voice-to-voice feedback.",
-    },
-    {
-      title: "Analyze and Refine Your Performance",
-      description:
-        "After the session, receive a comprehensive feedback report, featuring insights into your strengths, areas for improvement, and actionable tips to help you refine your responses.",
-    },
-  ];
+```typescript
+export const roleEnum = pgEnum("role", [
+  "user",
+  "admin",
+  "recruiter",
+  "candidate",
+]);
 ```
 
-### 4.2 Analysis & Feedback
+• Recruiter: Users who create jobs and track candidates.
+• Candidate: Users applying for jobs via recruiter share links.
 
-- Technical knowledge assessment
-- Problem-solving evaluation
-- Communication skills analysis
-- Teamwork assessment
-- Adaptability measurement
+Update the users table to allow these roles.
 
-Evidence:
+CRUD Endpoints for Jobs
 
-```10:67:src/lib/ai/interview-analysis.ts
-const ExtendedReportSchema = ReportSchema.extend({
-  generalAssessment: z
-    .string()
-    .describe("Overall assessment of the interview performance"),
-  overallScore: z
-    .number()
-    .describe("Overall score of the interview out of 100"),
-  fitnessForRole: z
-    .string()
-    .describe("Assessment of the candidate's fitness for the role"),
-  fitnessForRoleScore: z
-    .number()
-    .describe("Score for fitness for the role out of 100"),
-  speakingSkills: z
-    .string()
-    .describe("Assessment of the candidate's speaking skills"),
-  speakingSkillsScore: z
-    .number()
-    .describe("Score for speaking skills out of 100"),
-  communicationSkills: z
-    .string()
-    .describe("Assessment of the candidate's communication skills"),
-  communicationSkillsScore: z
-    .number()
-    .describe("Score for communication skills out of 100"),
-  problemSolvingSkills: z
-    .string()
-    .describe("Assessment of the candidate's problem-solving skills"),
-  problemSolvingSkillsScore: z
-    .number()
-    .describe("Score for problem-solving skills out of 100"),
-  technicalKnowledge: z
-    .string()
-    .describe("Assessment of the candidate's technical knowledge"),
-  technicalKnowledgeScore: z
-    .number()
-    .describe("Score for technical knowledge out of 100"),
-  teamwork: z
-    .string()
-    .describe("Assessment of the candidate's teamwork abilities"),
-  teamworkScore: z.number().describe("Score for teamwork abilities out of 100"),
-  adaptability: z
-    .string()
-    .describe("Assessment of the candidate's adaptability"),
-  adaptabilityScore: z.number().describe("Score for adaptability out of 100"),
-  areasOfStrength: z
-    .array(z.string())
-    .describe("List of the candidate's areas of strength"),
-  areasForImprovement: z
-    .array(z.string())
-    .describe("List of areas where the candidate can improve"),
-  actionableNextSteps: z
-    .array(z.string())
-    .describe("List of actionable steps for the candidate to improve"),
-  candidateName: z.string().describe("Name of the candidate"),
-  companyName: z.string().describe("Name of the company being applied to"),
-  roleName: z.string().describe("Name of the role being applied for"),
-}).omit({ id: true, interviewId: true, createdAt: true, updatedAt: true })
-```
+1. Create Job
 
-### 4.3 Performance Reports
+Endpoint: POST /api/jobs
+Request Body:
+• name (string)
+• description (string)
 
-- Overall performance score
-- Detailed feedback by category
-- Strengths and improvement areas
-- Voice characteristics analysis
-- Actionable next steps
+Response:
+• Job ID
+• Shareable link (/jobs/<job-id>/share)
 
-Evidence:
+2. Get Jobs
 
-```240:446:src/app/report/page.tsx
-          {/* Overall Performance */}
-          <section className="mb-8">
-            <h2
-              className={cn(
-                "text-2xl font-semibold mb-4 text-gray-800 border-b pb-2",
-                report?.data.pageSettings.headingFont
-              )}
-            >
-              Overall Performance
-            </h2>
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center">
-                <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mr-4">
-                  <BarChart2 className="w-10 h-10 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-4xl font-bold text-gray-800">
-                    {report?.data.overallScore}%
-                  </p>
-                  <p className="text-gray-500">Overall Score</p>
-                </div>
-              </div>
-              <div>
-                {report?.data.overallScore >= 80 ? (
-                  <div className="flex items-center text-green-600">
-                    <ThumbsUp className="w-8 h-8 mr-2" />
-                    <span className="text-lg font-semibold">Excellent</span>
-                  </div>
-                ) : report?.data.overallScore >= 60 ? (
-                  <div className="flex items-center text-yellow-600">
-                    <AlertTriangle className="w-8 h-8 mr-2" />
-                    <span className="text-lg font-semibold">Good</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center text-red-600">
-                    <AlertTriangle className="w-8 h-8 mr-2" />
-                    <span className="text-lg font-semibold">
-                      Needs Improvement
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              components={remarkMarkdownComponents}
-              className="text-gray-700 leading-relaxed"
-            >
-              {report?.data.generalAssessment}
-            </ReactMarkdown>
-          </section>
+Endpoint: GET /api/jobs
+Query Params:
+• recruiterId (optional)
 
-          {/* Detailed Feedback */}
-          <section className="mb-8">
-            <h2
-              className={cn(
-                "text-2xl font-semibold mb-4 text-gray-800 border-b pb-2",
-                report?.data.pageSettings.headingFont
-              )}
-            >
-              Detailed Feedback
-            </h2>
-            <div className="space-y-6">
-              {[
-                {
-                  title: "Speaking Skills",
-                  content: report?.data.speakingSkills,
-                  score: report?.data.speakingSkillsScore,
-                },
-                {
-                  title: "Communication Skills",
-                  content: report?.data.communicationSkills,
-                  score: report?.data.communicationSkillsScore,
-                },
-                {
-                  title: "Problem-Solving Skills",
-                  content: report?.data.problemSolvingSkills,
-                  score: report?.data.problemSolvingSkillsScore,
-                },
-                {
-                  title: "Technical Knowledge",
-                  content: report?.data.technicalKnowledge,
-                  score: report?.data.technicalKnowledgeScore,
-                },
-                {
-                  title: "Teamwork",
-                  content: report?.data.teamwork,
-                  score: report?.data.teamworkScore,
-                },
-                {
-                  title: "Adaptability",
-                  content: report?.data.adaptability,
-                  score: report?.data.adaptabilityScore,
-                },
-              ].map((item, index) => (
-                <div key={index} className="border-b pb-4 last:border-b-0">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3
-                      className={cn(
-                        "text-xl font-semibold text-gray-800",
-                        report?.data.pageSettings.headingFont
-                      )}
-                    >
-                      {item.title}
-                    </h3>
-                    <div className="flex items-center">
-                      <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                        <span className="text-xl font-bold text-blue-600">
-                          {item.score}%
-                        </span>
-                      </div>
-                      {item.score >= 80 ? (
-                        <TrendingUp className="w-6 h-6 text-green-500" />
-                      ) : item.score >= 60 ? (
-                        <TrendingUp className="w-6 h-6 text-yellow-500" />
-                      ) : (
-                        <TrendingDown className="w-6 h-6 text-red-500" />
-                      )}
-                    </div>
-                  </div>
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={remarkMarkdownComponents}
-                    className="text-gray-700"
-                  >
-                    {item.content}
-                  </ReactMarkdown>
-                </div>
-              ))}
-            </div>
-          </section>
+Response:
+• List of jobs for the authenticated recruiter.
 
-          {/* Strengths and Areas for Improvement */}
-          <section className="mb-8">
-            <h2
-              className={cn(
-                "text-2xl font-semibold mb-4 text-gray-800 border-b pb-2",
-                report?.data.pageSettings.headingFont
-              )}
-            >
-              Strengths and Areas for Improvement
-            </h2>
-            <div className="grid grid-cols-2 gap-8">
-              <div>
-                <h3
-                  className={cn(
-                    "text-xl font-semibold mb-4 text-green-600",
-                    report?.data.pageSettings.headingFont
-                  )}
-                >
-                  Areas of Strength
-                </h3>
-                <ul className="space-y-3">
-                  {JSON.parse(report?.data.areasOfStrength ?? "[]").map(
-                    (strength: string, index: number) => (
-                      <li key={index} className="flex items-start">
-                        <ThumbsUp className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-1" />
-                        <span className="text-gray-700">{strength}</span>
-                      </li>
-                    )
-                  )}
-                </ul>
-              </div>
-              <div>
-                <h3
-                  className={cn(
-                    "text-xl font-semibold mb-4 text-red-600",
-                    report?.data.pageSettings.headingFont
-                  )}
-                >
-                  Areas for Improvement
-                </h3>
-                <ul className="space-y-3">
-                  {JSON.parse(report?.data.areasForImprovement ?? "[]").map(
-                    (area: string, index: number) => (
-                      <li key={index} className="flex items-start">
-                        <AlertTriangle className="w-5  h-5 text-red-500 mr-3 flex-shrink-0 mt-1" />
-                        <span className="text-gray-700">{area}</span>
-                      </li>
-                    )
-                  )}
-                </ul>
-              </div>
-            </div>
-          </section>
+3. Update Job
 
-          {/* Actionable Next Steps */}
-          <section className="mb-8">
-            <h2
-              className={cn(
-                "text-2xl font-semibold mb-4 text-gray-800 border-b pb-2",
-                report?.data.pageSettings.headingFont
-              )}
-            >
-              Actionable Next Steps
-            </h2>
+Endpoint: PUT /api/jobs/:id
+Request Body:
+• name (optional)
+• description (optional)
 
-            <ol className="space-y-4 list-decimal list-inside">
-              {JSON.parse(report?.data.actionableNextSteps ?? "[]").map(
-                (step: string, index: number) => (
-                  <li key={index} className="pl-2 py-3 bg-blue-50 rounded-lg">
-                    <span className="text-gray-700 ml-2">{step}</span>
-                  </li>
-                )
-              )}
-            </ol>
-          </section>
-```
+Response:
+• Updated job details.
 
-## 5. Technical Requirements
+4. Delete Job
 
-### 5.1 Frontend
+Endpoint: DELETE /api/jobs/:id
+Response:
+• Success message or error.
 
-- Next.js with App Router
-- Tailwind CSS for styling
-- Server and client components
-- Responsive design
-- Progressive Web App capabilities
+CRUD Endpoints for Candidates
 
-Evidence:
+1. Create Candidate
 
-```1:24:public/site.webmanifest
-{
- "name": "Interview Optimiser - AI-Powered Interview Practice",
- "short_name": "Interview Optimiser",
- "description": "Prepare for interviews with personalized, AI-driven mock sessions tailored to your role and goals.",
- "icons": [
-  {
-   "src": "/android-chrome-192x192.png",
-   "sizes": "192x192",
-   "type": "image/png"
-  },
-  {
-   "src": "/android-chrome-512x512.png",
-   "sizes": "512x512",
-   "type": "image/png"
-  }
- ],
- "theme_color": "#648190",
- "background_color": "#ffffff",
- "display": "standalone",
- "start_url": "/",
- "scope": "/",
- "orientation": "portrait-primary",
- "lang": "en"
-}
-```
+Endpoint: POST /api/jobs/:jobId/candidates
+Request Body:
+• userId (candidate user ID)
 
-### 5.2 Backend
+Response:
+• Candidate ID
+• Status: pending
 
-- AI integration for interview processing
-- Voice processing capabilities
-- Secure data storage
-- Performance analytics
-- Email notifications
+2. Get Candidates
 
-Evidence:
+Endpoint: GET /api/jobs/:jobId/candidates
+Response:
+• List of candidates for the job.
 
-```30:172:functions/vet-review.ts
-export const handler = Sentry.wrapHandler(async () => {
-  try {
-    logger.info("Starting review vetting process");
+3. Update Candidate Status
 
-    // Get all unpublished reviews
-    const unpublishedReviews = await db.query.reviews.findMany({
-      where: and(eq(reviews.isPublished, false), isNull(reviews.processedAt)),
-    });
+Endpoint: PUT /api/candidates/:id
+Request Body:
+• status (string, e.g., pending, interviewed, hired, rejected)
 
-    logger.info(
-      { count: unpublishedReviews.length },
-      "Found unpublished reviews"
-    );
+Relationships Overview
 
-    const publishedReviews = [];
-    const rejectedReviews = [];
+1. Users → Jobs: One recruiter (user) creates many jobs.
+2. Jobs → Candidates: Each job has multiple candidates.
+3. Candidates → Interviews: Each candidate can have one or more interviews.
+4. Reports → Interviews: Reports are generated based on interviews.
 
-    for (const review of unpublishedReviews) {
-      const prompt = `
-        Please review this testimonial for ${config.projectName} and determine if it's appropriate for public display.
-        Consider the following criteria:
-        1. Is it relevant to ${config.projectName} or job seeking?
-        2. Is it free from inappropriate content (NSFW, hate speech, etc.)?
-        3. Is it a genuine review (not spam or completely unrelated)?
-
-        Note: Do NOT reject negative reviews if they are legitimate feedback about the service.
-
-        Review to evaluate:
-        "${review.comment}"
-      `;
-
-      const completion = await getOpenAiClient(
-        config.supportEmail
-      ).beta.chat.completions.parse({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: `You are a content moderator for a ${config.projectName} website. Your task is to evaluate testimonials for appropriateness and relevance.`,
-          },
-          { role: "user", content: prompt },
-        ],
-        response_format: zodResponseFormat(
-          ReviewVettingResponseSchema,
-          "reviewVetting"
-        ),
-        temperature: 0.1,
-      });
-
-      if (!completion.choices[0].message.parsed) {
-        logger.error("No parsed response returned from OpenAI");
-        continue;
-      }
-
-      const response = completion.choices[0].message.parsed;
-
-      if (response.isAppropriate) {
-        await db
-          .update(reviews)
-          .set({ isPublished: true, processedAt: new Date() })
-          .where(eq(reviews.id, review.id));
-        publishedReviews.push({
-          id: review.id,
-          content: review.comment,
-          rating: review.rating,
-          author: review.name,
-        });
-      } else {
-        await db
-          .update(reviews)
-          .set({ isPublished: false, processedAt: new Date() })
-          .where(eq(reviews.id, review.id));
-        rejectedReviews.push({
-          id: review.id,
-          content: review.comment,
-          rating: review.rating,
-          author: review.name,
-          rejectionReason: response.reason,
-        });
-      }
-
-      logger.info(
-        {
-          reviewId: review.id,
-          isAppropriate: response.isAppropriate,
-          reason: response.reason,
-        },
-        "Review processed"
-      );
-    }
-
-    // Send email report
-    if (unpublishedReviews.length > 0) {
-      await resend.emails.send({
-        from: `${config.projectName} <reviews@${config.domain}>`,
-        to: config.supportEmail,
-        subject: `Review Moderation Report - ${format(
-          new Date(),
-          "yyyy-MM-dd"
-        )}`,
-        react: ReviewReportEmail({
-          publishedReviews,
-          rejectedReviews,
-          date: format(new Date(), "MMMM d, yyyy"),
-        }),
-      });
-
-      await sendDiscordDM({
-        title: "📋 Review Moderation Report",
-        metadata: {
-          Date: format(new Date(), "MMMM d, yyyy"),
-          Published: publishedReviews.length,
-          Rejected: rejectedReviews.length,
-        },
-      });
-
-      logger.info("Sent review report email and Discord notification");
-    }
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        message: "Review vetting completed",
-        publishedCount: publishedReviews.length,
-        rejectedCount: rejectedReviews.length,
-      }),
-    };
-  } catch (error) {
-    Sentry.withScope((scope) => {
-      scope.setExtra("context", "vet-review");
-      scope.setExtra("error", error);
-      scope.setExtra("message", error instanceof Error ? error.message : error);
-      Sentry.captureException(error);
-    });
-
-    logger.error(
-      { error: error instanceof Error ? error.message : error },
-      "Error in review vetting process"
-    );
-
-    throw error;
-  }
-});
-```
-
-## 6. User Interface Components
-
-### 6.1 Dashboard Features
-
-- Interview history
-- Performance metrics
-- Resource library
-- Practice session scheduling
-- Progress tracking
-
-### 6.2 Interview Interface
-
-- Real-time voice interaction
-- Visual feedback
-- Progress indicators
-- Session controls
-
-Evidence:
-
-```112:154:src/components/messages-placeholder.tsx
-        {/* Content Container */}
-        <div className="relative z-10 max-w-5xl w-full mx-auto px-4 flex flex-col items-center justify-center gap-12">
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center space-y-4"
-          >
-            <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-              Ready for Your Interview
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Experience a realistic interview simulation powered by advanced AI
-            </p>
-          </motion.div>
-
-          {/* Features Grid */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="grid md:grid-cols-3 gap-6 w-full"
-          >
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
-                className="group relative overflow-hidden rounded-2xl bg-gradient-to-b from-background to-primary/5 p-6 border border-primary/10 hover:border-primary/20 transition-colors"
-              >
-                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <feature.icon className="h-8 w-8 text-primary mb-4 relative z-10" />
-                <h3 className="font-semibold mb-2 relative z-10">
-                  {feature.title}
-                </h3>
-                <p className="text-sm text-muted-foreground relative z-10">
-                  {feature.description}
-                </p>
-              </motion.div>
-            ))}
-          </motion.div>
-```
-
-## 7. Success Metrics
-
-- User engagement rates
-- Interview completion rates
-- Performance improvement trends
-- User satisfaction scores
-- Feature adoption rates
-
-## 8. Future Enhancements
-
-- Additional interview types
-- Industry-specific templates
-- Integration with job platforms
-- Enhanced analytics
-- Mobile applications
-
-This PRD is based on the actual implementation details found in the codebase, ensuring alignment between requirements and existing functionality.
+This schema ensures scalability and proper tracking for B2B features, while leveraging the existing user, interview, and report structures.

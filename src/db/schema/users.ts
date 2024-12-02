@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import { pgEnum, pgTable, uniqueIndex } from "drizzle-orm/pg-core";
 import { customisations } from "./customisations";
 import { featureRequestLikes } from "./featureRequestLikes";
+import { organizationMembers } from "./organizations";
 
 export const roleEnum = pgEnum("role", ["user", "admin", "recruiter"]);
 
@@ -50,6 +51,7 @@ export const userRelations = relations(users, ({ many, one }) => ({
     references: [customisations.userId],
   }),
   featureRequestLikes: many(featureRequestLikes),
+  organizationMemberships: many(organizationMembers),
 }));
 
 export type User = typeof users.$inferSelect;
