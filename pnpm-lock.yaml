@@ -160,8 +160,8 @@ importers:
         specifier: ^0.37.104
         version: 0.37.104
       drizzle-kit:
-        specifier: ^0.27.1
-        version: 0.27.1
+        specifier: ^0.29.0
+        version: 0.29.0
       drizzle-orm:
         specifier: ^0.36.0
         version: 0.36.0(@libsql/client-wasm@0.14.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(postgres@3.4.5)(react@19.0.0-rc-fb9a90fa48-20240614)(types-react@19.0.0-rc.1)
@@ -5081,8 +5081,8 @@ packages:
     peerDependencies:
       react: ^19.0.0-rc-69d4b800-20241021
 
-  drizzle-kit@0.27.1:
-    resolution: {integrity: sha512-4BNA0T2blN+jW5wSwhtc+FIlCMuxYSMWCnYYdOBi5rttwq8aVXRUid0d0NCzcBKtZQSPZGAUxy+TXr7Q1OgEug==}
+  drizzle-kit@0.29.0:
+    resolution: {integrity: sha512-WjH0eC7/WKl8hucZPl/H5Df6WbUs1KJdM/vfX6bCjn1lOePrbeeroc18dzAVXdZpvgYx0ywJcFOypoC5MfYAYg==}
     hasBin: true
 
   drizzle-orm@0.36.0:
@@ -14447,7 +14447,7 @@ snapshots:
       react-is: 19.0.0-rc-fb9a90fa48-20240614
       tslib: 2.8.0
 
-  drizzle-kit@0.27.1:
+  drizzle-kit@0.29.0:
     dependencies:
       '@drizzle-team/brocli': 0.10.2
       '@esbuild-kit/esm-loader': 2.6.5
