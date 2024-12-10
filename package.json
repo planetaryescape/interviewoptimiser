@@ -104,7 +104,7 @@
     "pdfreader": "^3.0.5",
     "pino": "^9.5.0",
     "postgres": "^3.4.5",
-    "posthog-js": "^1.180.1",
+    "posthog-js": "^1.195.0",
     "posthog-node": "^4.2.1",
     "puppeteer-core": "^23.7.0",
     "react": "^19.0.0-rc.0",
