@@ -33,7 +33,7 @@
     "@aws-sdk/client-s3": "^3.685.0",
     "@aws-sdk/client-sqs": "^3.682.0",
     "@aws-sdk/s3-request-presigner": "^3.687.0",
-    "@clerk/nextjs": "^6.2.0",
+    "@clerk/nextjs": "^6.9.5",
     "@discordjs/rest": "^2.4.0",
     "@humeai/voice-react": "^0.1.17",
     "@mdxeditor/editor": "^3.15.0",
