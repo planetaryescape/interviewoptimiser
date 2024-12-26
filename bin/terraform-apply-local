@@ -6,4 +6,4 @@ trap 'echo "Error: Script failed at line $LINENO"; exit 1;' ERR
 
 cd terraform
 terraform fmt
-doppler run -c prd -p interviewoptimiser -- terraform apply
+doppler run -c prd -p interview-optimiser -- terraform apply
