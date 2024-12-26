@@ -34,6 +34,9 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
       throw new Error("Invalid event structure");
     }
 
+    const successfulRecords: SQSRecord[] = [];
+    const failedRecords: SQSRecord[] = [];
+
     for (const record of event.Records) {
       let interviewId: number = 0;
       try {
@@ -152,12 +155,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
 
         await deleteMessage(record);
 
-        return {
-          statusCode: 200,
-          body: JSON.stringify({
-            message: "Interview report generated successfully",
-          }),
-        };
+        successfulRecords.push(record);
       } catch (error) {
         Sentry.withScope((scope) => {
           scope.setExtra("context", "handler");
@@ -179,6 +177,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         );
 
         await handleError(record, error as Error, interviewId);
+        failedRecords.push(record);
       }
     }
 
