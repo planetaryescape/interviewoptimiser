@@ -5,7 +5,7 @@ import { logger } from "@/lib/logger";
 import { SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
 import * as Sentry from "@sentry/aws-serverless";
 import { and, eq, lt } from "drizzle-orm";
-import { initSentry } from "./lib/sentry";
+import { initSentry } from "../lib/sentry";
 
 initSentry();
 
@@ -123,3 +123,5 @@ export const handler = Sentry.wrapHandler(async () => {
     throw error;
   }
 });
+
+export default handler;

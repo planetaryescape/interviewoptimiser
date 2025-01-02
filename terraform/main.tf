@@ -26,46 +26,11 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 locals {
-  region                = "eu-west-2"
-  project_name          = "interviewoptimiser"
-  account_id            = data.aws_caller_identity.current.account_id
-  current_region        = data.aws_region.current.name
-  s3_bucket_name        = "${local.project_name}-artifacts"
-  lambda_execution_role = "${local.project_name}-lambda_execution_role"
-  lambda_runtime        = "nodejs20.x"
-  artifacts_dir         = "${path.module}/artifacts"
-
-  lambda_common = {
-    s3_bucket_path      = "${local.s3_bucket_name}/${local.project_name}"
-    artifacts_path      = "${local.artifacts_dir}"
-    zip_file_extension  = ".zip"
-    lambda_secrets_name = "${local.project_name}-secrets"
-  }
-
-  lambdas = {
-    generate_report = {
-      name = "generate-report"
-    }
-    vet_review = {
-      name = "vet-review"
-    }
-    restore_database = {
-      name = "restore-database"
-    }
-    regenerate_incomplete_reports = {
-      name = "regenerate-incomplete-reports"
-    }
-  }
-
-  lambda_details = { for k, v in local.lambdas :
-    k => {
-      name                = v.name
-      s3_filepath         = "${local.lambda_common.s3_bucket_path}-${v.name}"
-      lambda_path         = "${local.lambda_common.artifacts_path}/${v.name}/"
-      lambda_zip_filename = "${v.name}${local.lambda_common.zip_file_extension}"
-      function_name       = "${local.project_name}-${v.name}"
-    }
-  }
+  region         = "eu-west-2"
+  project_name   = "interviewoptimiser"
+  account_id     = data.aws_caller_identity.current.account_id
+  current_region = data.aws_region.current.name
+  s3_bucket_name = "${local.project_name}-artifacts"
 
   base_tags = {
     "interviewoptmiser/service"    = local.project_name
@@ -79,52 +44,4 @@ locals {
 
 output "tags" {
   value = local.tags
-}
-
-locals {
-  sqs_queue_base_url = "https://sqs.${local.region}.amazonaws.com/${data.aws_caller_identity.current.account_id}"
-
-  lambda_environment_variables = {
-    generate_report = {
-      DATABASE_URL      = var.DATABASE_URL
-      OPENAI_API_KEY    = var.OPENAI_API_KEY
-      HELICONE_API_KEY  = var.HELICONE_API_KEY
-      POSTHOG_KEY       = var.POSTHOG_KEY
-      SQS_QUEUE_URL     = "${local.sqs_queue_base_url}/${local.project_name}-generate-report-queue"
-      DLQ_URL           = "${local.sqs_queue_base_url}/${local.project_name}-generate-report-dlq"
-      PINO_LOG_LEVEL    = "info"
-      LAMBDA_AWS_REGION = local.region
-      DISCORD_BOT_TOKEN = var.DISCORD_BOT_TOKEN
-      SENTRY_DSN        = "https://a1c3a134e74ec680a4cc42024dee1a08@o4508119114514432.ingest.de.sentry.io/4508248038572112"
-    }
-    vet_review = {
-      DATABASE_URL      = var.DATABASE_URL
-      OPENAI_API_KEY    = var.OPENAI_API_KEY
-      RESEND_API_KEY    = var.RESEND_API_KEY
-      PINO_LOG_LEVEL    = "info"
-      LAMBDA_AWS_REGION = local.region
-      DISCORD_BOT_TOKEN = var.DISCORD_BOT_TOKEN
-      SENTRY_DSN        = "https://6c0af4af9084afc6ecc6166ade3c37c4@o4508119114514432.ingest.de.sentry.io/4508248043814992"
-    }
-    restore_database = {
-      DATABASE_URL       = var.DATABASE_URL
-      LAMBDA_BUCKET_NAME = local.s3_bucket_name
-      RESEND_API_KEY     = var.RESEND_API_KEY
-      PINO_LOG_LEVEL     = "info"
-      LAMBDA_AWS_REGION  = local.region
-      DISCORD_BOT_TOKEN  = var.DISCORD_BOT_TOKEN
-      SENTRY_DSN         = "https://092e9d97482b5fab7398da0485d93bfd@o4508119114514432.ingest.de.sentry.io/4508260008591440"
-    }
-
-    regenerate_incomplete_reports = {
-      DATABASE_URL       = var.DATABASE_URL
-      OPENAI_API_KEY     = var.OPENAI_API_KEY
-      REPORT_LAMBDA_NAME = local.lambda_details["generate_report"].function_name
-      SQS_QUEUE_URL      = aws_sqs_queue.generate_report_queue.url
-      PINO_LOG_LEVEL     = "info"
-      LAMBDA_AWS_REGION  = data.aws_region.current.name
-      DISCORD_BOT_TOKEN  = var.DISCORD_BOT_TOKEN
-      SENTRY_DSN         = "https://abf04e7d8150b91d6693971ce1495588@o4508119114514432.ingest.de.sentry.io/4508324268605520"
-    }
-  }
 }

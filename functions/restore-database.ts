@@ -218,3 +218,5 @@ export const handler = Sentry.wrapHandler(
     }
   }
 );
+
+export default handler;

@@ -4,6 +4,6 @@ set -e  # Exit immediately if a command exits with a non-zero status.
 
 trap 'echo "Error: Script failed at line $LINENO"; exit 1;' ERR
 
-cd terraform
-terraform fmt
+cd terraform &&
+terraform fmt &&
 doppler run -c prd -p interview-optimiser -- terraform apply
