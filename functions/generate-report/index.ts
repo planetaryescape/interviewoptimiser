@@ -6,21 +6,17 @@ import { config } from "@/lib/config";
 import { sendDiscordDM } from "@/lib/discord";
 import { logger } from "@/lib/logger";
 import { idHandler } from "@/lib/utils/idHandler";
-import {
-  ChangeMessageVisibilityCommand,
-  DeleteMessageCommand,
-  MessageAttributeValue,
-  SendMessageCommand,
-  SQSClient,
-} from "@aws-sdk/client-sqs";
+import { SQSClient } from "@aws-sdk/client-sqs";
 import * as Sentry from "@sentry/aws-serverless";
 import { SQSEvent, SQSRecord } from "aws-lambda";
 import { eq, sql } from "drizzle-orm";
-import { initSentry } from "./lib/sentry";
+import { initSentry } from "../lib/sentry";
+import { deleteMessage } from "../utils/deleteMessage";
+import { handleError } from "../utils/handleError";
 
 initSentry();
 
-const sqs = new SQSClient({ region: process.env.LAMBDA_AWS_REGION });
+const sqs = new SQSClient({ region: process.env.AWS_REGION });
 
 export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
   try {
@@ -153,8 +149,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           },
         });
 
-        await deleteMessage(record);
-
+        await deleteMessage(sqs, record);
         successfulRecords.push(record);
       } catch (error) {
         Sentry.withScope((scope) => {
@@ -176,7 +171,30 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           "Error processing interview report request"
         );
 
-        await handleError(record, error as Error, interviewId);
+        await handleError({
+          sqsClient: sqs,
+          record,
+          error: error as Error,
+          onFailure: async () => {
+            await sendDiscordDM({
+              title: "❌ Interview Report Generation Failed",
+              description: "Failed to generate interview report",
+              metadata: {
+                "Record ID": record.messageId,
+                "Interview ID": record.body
+                  ? JSON.parse(record.body).data?.interviewId
+                  : "unknown",
+                Error:
+                  error instanceof Error
+                    ? error.message
+                    : JSON.stringify(error),
+                "Stack Trace": error instanceof Error ? error.stack : "N/A",
+                Timestamp: new Date().toISOString(),
+              },
+            });
+            failedRecords.push(record);
+          },
+        });
         failedRecords.push(record);
       }
     }
@@ -197,74 +215,4 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
   }
 });
 
-async function deleteMessage(record: SQSRecord): Promise<void> {
-  const deleteCommand = new DeleteMessageCommand({
-    QueueUrl: process.env.SQS_QUEUE_URL!,
-    ReceiptHandle: record.receiptHandle,
-  });
-  await sqs.send(deleteCommand);
-  logger.info("Message deleted from queue");
-}
-
-async function handleError(
-  record: SQSRecord,
-  error: Error,
-  interviewId: number
-): Promise<void> {
-  const receiveCount = parseInt(record.attributes.ApproximateReceiveCount, 10);
-
-  if (receiveCount < 3) {
-    logger.warn({ interviewId, receiveCount }, "Retrying interview report");
-    const changeVisibilityCommand = new ChangeMessageVisibilityCommand({
-      QueueUrl: process.env.SQS_QUEUE_URL!,
-      ReceiptHandle: record.receiptHandle,
-      VisibilityTimeout: 0,
-    });
-    await sqs.send(changeVisibilityCommand);
-  } else {
-    logger.error(
-      { interviewId, receiveCount },
-      "Max retries reached, sending to DLQ"
-    );
-
-    await sendDiscordDM({
-      title: "❌ Interview Report Generation Failed",
-      metadata: {
-        "Interview ID": interviewId,
-        "Interview URL": `${
-          config.domain
-        }/dashboard/interviews/${idHandler.encode(interviewId)}`,
-        Retries: receiveCount,
-        Error: error.message,
-      },
-    });
-
-    Sentry.withScope((scope) => {
-      scope.setExtra("context", "handler");
-      scope.setExtra("error", error);
-      scope.setExtra("record", record);
-      Sentry.captureException(error);
-    });
-
-    await db
-      .update(interviews)
-      .set({ completed: true })
-      .where(eq(interviews.id, interviewId));
-
-    const transformedAttributes = Object.entries(
-      record.messageAttributes
-    ).reduce((acc, [key, value]) => {
-      acc[key] = { DataType: value.dataType, StringValue: value.stringValue };
-      return acc;
-    }, {} as Record<string, MessageAttributeValue>);
-
-    const sendMessageCommand = new SendMessageCommand({
-      QueueUrl: process.env.DLQ_URL!,
-      MessageBody: record.body,
-      MessageAttributes: transformedAttributes,
-    });
-    await sqs.send(sendMessageCommand);
-
-    await deleteMessage(record);
-  }
-}
+export default handler;

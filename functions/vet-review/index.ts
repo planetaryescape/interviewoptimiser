@@ -11,7 +11,7 @@ import { format } from "date-fns";
 import { and, eq, isNull } from "drizzle-orm";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
-import { initSentry } from "./lib/sentry";
+import { initSentry } from "../lib/sentry";
 
 initSentry();
 
@@ -163,3 +163,5 @@ export const handler = Sentry.wrapHandler(async () => {
     throw error;
   }
 });
+
+export default handler;

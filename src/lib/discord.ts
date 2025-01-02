@@ -11,7 +11,7 @@ const rest = new REST({ version: "10" }).setToken(DISCORD_BOT_TOKEN!);
 export async function sendDiscordDM(content: {
   title: string;
   description?: string;
-  metadata?: Record<string, string | number>;
+  metadata?: Record<string, string | number | undefined>;
 }) {
   if (!DISCORD_BOT_TOKEN) {
     logger.warn("Discord bot token not found, skipping Discord notification");
