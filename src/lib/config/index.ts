@@ -8,9 +8,9 @@ export const config = {
   supportEmail: `${domain.split(".")[0]}@bhekani.com`,
   discordUserId: "549143313257725969",
   apiGatewayUrlAddToQueue:
-    "https://h2m69x4dwd.execute-api.eu-west-2.amazonaws.com/prod/add-to-queue",
+    "https://90w85lvw6l.execute-api.eu-west-2.amazonaws.com/prod/shared-infra-add-to-queue",
   apiGatewayUrlGeneratePdf:
-    "https://1l4wnz22x0.execute-api.eu-west-2.amazonaws.com/prod/generate-pdf",
+    "https://t8bqlb879i.execute-api.eu-west-2.amazonaws.com/prod/shared-infra-generate-pdf",
   maxTextLengths: {
     cv: 15000,
     jobDescription: 5000,
