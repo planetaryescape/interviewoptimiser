@@ -1,5 +1,5 @@
 module "regenerate_incomplete_reports_lambda" {
-  source        = "./modules/lambda_function"
+  source        = "git@github.com:planetaryescape/shared-infra.git//terraform/modules/lambda_function"
   function_name = "regenerate-incomplete-reports"
   region        = local.region
   project_name  = local.project_name
