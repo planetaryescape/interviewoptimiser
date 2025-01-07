@@ -1,5 +1,5 @@
 module "generate_report_lambda" {
-  source        = "./modules/lambda_function"
+  source        = "git@github.com:planetaryescape/shared-infra.git//terraform/modules/lambda_function"
   function_name = "generate-report"
   region        = local.current_region
   project_name  = local.project_name
@@ -19,7 +19,7 @@ module "generate_report_lambda" {
 }
 
 module "generate_report_lambda_sqs" {
-  source                     = "./modules/lambda_sqs_queue"
+  source                     = "git@github.com:planetaryescape/shared-infra.git//terraform/modules/lambda_sqs_queue"
   queue_name                 = "generate-report-queue"
   project_name               = local.project_name
   lambda_execution_role_name = module.generate_report_lambda.lambda_execution_role_name

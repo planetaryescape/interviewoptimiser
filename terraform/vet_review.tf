@@ -1,5 +1,5 @@
 module "vet_review_lambda" {
-  source        = "./modules/lambda_function"
+  source        = "git@github.com:planetaryescape/shared-infra.git//terraform/modules/lambda_function"
   function_name = "vet-review"
   project_name  = local.project_name
   region        = local.region
