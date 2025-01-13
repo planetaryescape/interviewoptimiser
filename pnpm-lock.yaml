@@ -277,8 +277,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       remeda:
-        specifier: ^2.16.0
-        version: 2.16.0
+        specifier: ^2.19.1
+        version: 2.19.1
       require-in-the-middle:
         specifier: ^7.4.0
         version: 7.4.0
@@ -7598,8 +7598,8 @@ packages:
   remark-stringify@11.0.0:
     resolution: {integrity: sha512-1OSmLd3awB/t8qdoEOMazZkNsfVTeY4fTsgzcQFdXNq8ToTN4ZGwrMnlda4K6smTFKD+GRV6O48i6Z4iKgPPpw==}
 
-  remeda@2.16.0:
-    resolution: {integrity: sha512-HOymkGg58HW4LT8MBEabQEdW76YsqcRNNFPXPrOrnYm+/9Pmk0b9fm8PKgQxoRPa6WDLnRM/LxTXkHdXf9Ab0w==}
+  remeda@2.19.1:
+    resolution: {integrity: sha512-IZ1NwntA2xwksQgn6zRFZB9lsVWW1GoRZZno3UIHE0tUh1B62ZSIhFIDIRssUfgqOBG2kL7g3GXx4e+CK59OPw==}
 
   require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
@@ -8160,6 +8160,10 @@ packages:
 
   type-fest@4.26.1:
     resolution: {integrity: sha512-yOGpmOAL7CkKe/91I5O3gPICmJNLJ1G4zFYVAsRHg7M64biSnPtRj0WNQt++bRkjYOqjWXrhnUw1utzmVErAdg==}
+    engines: {node: '>=16'}
+
+  type-fest@4.32.0:
+    resolution: {integrity: sha512-rfgpoi08xagF3JSdtJlCwMq9DGNDE0IMh3Mkpc1wUypg9vPi786AiqeBBKcqvIkq42azsBM85N490fyZjeUftw==}
     engines: {node: '>=16'}
 
   type@2.7.3:
@@ -17656,9 +17660,9 @@ snapshots:
       mdast-util-to-markdown: 2.1.0
       unified: 11.0.5
 
-  remeda@2.16.0:
+  remeda@2.19.1:
     dependencies:
-      type-fest: 4.26.1
+      type-fest: 4.32.0
 
   require-directory@2.1.1: {}
 
@@ -18308,6 +18312,8 @@ snapshots:
   type-fest@2.19.0: {}
 
   type-fest@4.26.1: {}
+
+  type-fest@4.32.0: {}
 
   type@2.7.3: {}
 
