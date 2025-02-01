@@ -12,31 +12,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v3.0.0
-        with:
-          version: latest
+      - uses: oven-sh/setup-bun@v2
 
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: "pnpm"
 
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        run: |
-          echo "pnpm_cache_dir=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-cache.outputs.pnpm_cache_dir }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install deps (with cache)
-        run: pnpm install
+      - name: Install deps
+        run: bun install
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -47,7 +31,7 @@ jobs:
 
       - name: Build and apply lambdas
         run: |
-          pnpm run tfa
+          bun run tfa
         env:
           TF_VAR_DATABASE_URL: ${{ secrets.DATABASE_URL }}
           TF_VAR_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

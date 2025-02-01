@@ -1,1 +1,1 @@
-doppler run -c prd -p interview-optimiser -- pnpm build
+doppler run -c prd -p interview-optimiser -- bun run build

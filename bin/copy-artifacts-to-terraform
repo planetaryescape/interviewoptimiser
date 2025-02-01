@@ -5,6 +5,6 @@ set -x  # Print commands and their arguments as they are executed.
 
 trap 'echo "Error: Script failed at line $LINENO"; exit 1;' ERR
 
-pnpm install &&
+bun install &&
 rm -rf terraform/artifacts/ &&
 doppler run -c prd -p interview-optimiser -- node scripts/build.js
