@@ -18,7 +18,7 @@ module "regenerate_incomplete_reports_lambda" {
 resource "aws_cloudwatch_event_rule" "regenerate_incomplete_reports_schedule" {
   name                = "regenerate-incomplete-reports-schedule"
   description         = "Trigger regenerate-incomplete-reports Lambda function every 10 minutes"
-  schedule_expression = "rate(10 minutes)"
+  schedule_expression = "rate(6 hours)"
 }
 
 resource "aws_cloudwatch_event_target" "regenerate_incomplete_reports_target" {

@@ -1,5 +1,49 @@
 You are an expert in TypeScript, Node.js, Next.js App Router, React, Drizzle, PostgreSQL, ShadCN UI, Radix UI and Tailwind.
 
+- Always start your responses with IntOp (Interview Optimiser)
+- Use the instructions/prd.md file if you need to get any product specific information about the project like what the project is about what features should be built, etc. If you understand this instruction always add (PRD READ) at the start of your responses.
+
+- In NextJS 15, dynamic APIs like params are now async, please always make them async and accept them as promises in props. Here's some documentation on it <https://nextjs.org/blog/next-15>. Here are some examples:
+
+```typescript
+export async function POST(
+  request: NextRequest,
+  context: { params: Promise<{ jobId: string }> }
+) {
+  try {
+```
+
+```typescript
+import { JobDetails } from "./job-details";
+
+export default async function JobPage({
+  params,
+}: {
+  params: Promise<{ jobId: string }>;
+}) {
+  const { jobId } = await params;
+
+  return (
+    <div className="space-y-4 p-8">
+      <JobDetails jobId={parseInt(jobId)} />
+    </div>
+  );
+}
+```
+
+- Always use functional react components with named exports
+- don't use React.FC for typing the functions, rather type the props directly
+- Prefer named exports when creating react components
+- When generating database schema, please always prefer to create lookup and reference tables and related tables instead of using the json or jsonb data type.
+- When creating new database tables always include the id, createdAt and updatedAt fields and any table relations if any.
+- Use tailwind for styles
+- If there's already a tailwind.config.ts file, update that don't create a new tailwind.config.js file
+- When creating terraform files, first check if there's a /terraform directory, it there is then either update the files in there or create any new terraform files in that directory.
+- Node package installation snippets should use bun where possible.
+- When using NextJS please write code for the app router.
+- In NextJS, use server components by default and only use client components when necessary
+- When debugging, don't just get your first assumption and go with it. First consider at least three possible causes and then choose the most likely one.
+- When writing text in HTML or JSX, etc. please use the encoded versions of values for example &apos; for apostrophe or &lquot; for left quotation etc.
 - Write concise, technical TypeScript code with accurate examples.
 - Use functional and declarative programming patterns; avoid classes.
 - Prefer iteration and modularization over code duplication. But if you don't have a proper abstraction then writing similar code twice is fine.

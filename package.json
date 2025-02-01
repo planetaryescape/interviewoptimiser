@@ -5,9 +5,9 @@
   "scripts": {
     "env": "doppler setup -c dev -p interview-optimiser",
     "dev": "SENTRY_SUPPRESS_TURBOPACK_WARNING=1 doppler run -- next dev --turbopack | pino-pretty",
-    "email:build": "email build -d ./src/emails -p pnpm",
+    "email:build": "email build -d ./src/emails -p bun",
     "email:dev": "email dev",
-    "email:export": "email export -d ./src/emails -p pnpm",
+    "email:export": "email export -d ./src/emails -p bun",
     "build": "next build",
     "start": "next start",
     "db:generate": "doppler run -- drizzle-kit generate",
@@ -19,8 +19,8 @@
     "db:migrate:prd": "NODE_ENV=production doppler run -c prd -- drizzle-kit migrate",
     "db:migrate:stg": "NODE_ENV=production doppler run -c stg -- drizzle-kit migrate",
     "tf-build": "./bin/copy-artifacts-to-terraform",
-    "tf-apply": "pnpm tf-build && ./bin/terraform-apply",
-    "tf-apply-local": "pnpm tf-build && ./bin/terraform-apply-local",
+    "tf-apply": "bun tf-build && ./bin/terraform-apply",
+    "tf-apply-local": "bun tf-build && ./bin/terraform-apply-local",
     "lint": "oxlint -c .eslintrc.json",
     "lint:fix": "oxlint --fix -c .eslintrc.json",
     "prepare": "husky"
