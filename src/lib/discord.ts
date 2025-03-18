@@ -4,9 +4,9 @@ import { Routes } from "discord-api-types/v10";
 import { config } from "./config";
 import { logger } from "./logger";
 
-const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
+const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || "";
 
-const rest = new REST({ version: "10" }).setToken(DISCORD_BOT_TOKEN!);
+const rest = new REST({ version: "10" }).setToken(DISCORD_BOT_TOKEN);
 
 export async function sendDiscordDM(content: {
   title: string;

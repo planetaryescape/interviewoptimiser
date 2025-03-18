@@ -64,6 +64,16 @@ export default function TermsOfService() {
           all associated data, including any uploaded CVs, account information,
           and preferences. Once deleted, this data is not recoverable.
         </p>
+        <p>
+          Notwithstanding the foregoing, please be advised that in the event you
+          delete your account, we will remove all associated personal and
+          uploaded CV data from our databases; however, we reserve the right to
+          retain your email address for account management and fraud prevention
+          purposes. This retention is solely to prevent the exploitation of
+          promotional credits through repeated account deletions and
+          recreations, and will be managed in accordance with applicable privacy
+          laws and our data retention policies.
+        </p>
         <h2>Account</h2>
         <p>
           By creating an account on this website, you acknowledge and agree to
@@ -110,7 +120,7 @@ export default function TermsOfService() {
           continued use of the service after the date of the updated Terms will
           signify your acceptance of the changes.
         </p>
-        <p>Last Modified: 11 October 2024</p>
+        <p>Last Modified: 1 February 2024</p>
       </article>
     </div>
   );
