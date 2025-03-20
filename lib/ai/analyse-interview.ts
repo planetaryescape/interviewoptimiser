@@ -106,7 +106,7 @@ const USER_PROMPT = `
  * @param structuredCandidateDetails Optional structured candidate details
  * @returns A structured report with scores and analysis
  */
-export async function generateInterviewAnalysis(
+export async function analyseInterview(
   interview: InterviewSchema,
   transcriptString: string,
   userEmail?: string,

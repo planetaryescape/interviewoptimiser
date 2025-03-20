@@ -35,10 +35,13 @@
     "mdxeditor",
     "merriweather",
     "mockmate",
+    "msword",
     "Neue",
     "nunito",
+    "officedocument",
     "offwhite",
     "openai",
+    "openxmlformats",
     "optimisation",
     "Optimisations",
     "Optimise",
@@ -76,6 +79,7 @@
     "turbopack",
     "unformat",
     "wavtools",
+    "wordprocessingml",
     "zustand"
   ]
 }
