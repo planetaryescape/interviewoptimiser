@@ -7,10 +7,10 @@ import { eq, sql } from "drizzle-orm";
 import { config } from "~/config";
 import { db } from "~/db";
 import { candidateDetails, interviews, jobDescriptions, reports, statistics } from "~/db/schema";
+import { analyseInterview } from "~/lib/ai/analyse-interview";
 import { extractCandidateDetails } from "~/lib/ai/extract-candidate-details";
 import { extractJobDescription } from "~/lib/ai/extract-job-description";
 import { extractOriginalCV } from "~/lib/ai/extract-original-cv";
-import { generateInterviewAnalysis } from "~/lib/ai/interview-analysis";
 import { sendDiscordDM } from "~/lib/discord";
 import { logger } from "~/lib/logger";
 import { getOpenAiClient } from "~/lib/openai";
@@ -109,7 +109,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         logger.info({ interviewId }, "Parallel data extraction completed");
 
         // Generate the interview analysis with structured data
-        const generatedReport = await generateInterviewAnalysis(
+        const generatedReport = await analyseInterview(
           interview,
           report.transcript ?? "",
           user?.email,
