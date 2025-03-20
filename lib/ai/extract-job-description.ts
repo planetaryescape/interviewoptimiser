@@ -1,5 +1,4 @@
 import type { LanguageModelV1 } from "@ai-sdk/provider";
-import * as Sentry from "@sentry/serverless";
 import { generateObject } from "ai";
 import { createInsertSchema } from "drizzle-zod";
 import type { CompletionUsage } from "openai/resources/completions.mjs";
@@ -142,12 +141,6 @@ export async function extractJobDescription({
       },
     };
   } catch (error) {
-    // Log the error and rethrow it to be handled by the lambda
-    Sentry.withScope((scope) => {
-      scope.setExtra("context", "extractJobDescription");
-      scope.setExtra("error", error);
-      Sentry.captureException(error);
-    });
     logger.error(
       { message: error instanceof Error ? error.message : error, error },
       "Error extracting structured data from job description"

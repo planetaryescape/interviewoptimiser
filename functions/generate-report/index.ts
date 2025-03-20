@@ -109,16 +109,17 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         logger.info({ interviewId }, "Parallel data extraction completed");
 
         // Generate the interview analysis with structured data
-        const generatedReport = await analyseInterview(
+        const generatedReport = await analyseInterview({
+          model,
           interview,
-          report.transcript ?? "",
-          user?.email,
-          structuredCV?.data,
-          structuredJobDescription?.data,
-          structuredCandidateDetails?.data
-        );
+          transcriptString: report.transcript ?? "",
+          userEmail: user?.email,
+          structuredCV: structuredCV?.data,
+          structuredJobDescription: structuredJobDescription?.data,
+          structuredCandidateDetails: structuredCandidateDetails?.data,
+        });
 
-        if (!generatedReport) {
+        if (!generatedReport?.data) {
           logger.error("No interview report returned");
           throw new Error("Failed to generate report");
         }
@@ -172,23 +173,23 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           await tx
             .update(reports)
             .set({
-              generalAssessment: generatedReport.generalAssessment,
-              overallScore: generatedReport.overallScore,
-              speakingSkills: generatedReport.speakingSkills,
-              speakingSkillsScore: generatedReport.speakingSkillsScore,
-              communicationSkills: generatedReport.communicationSkills,
-              communicationSkillsScore: generatedReport.communicationSkillsScore,
-              problemSolvingSkills: generatedReport.problemSolvingSkills,
-              problemSolvingSkillsScore: generatedReport.problemSolvingSkillsScore,
-              technicalKnowledge: generatedReport.technicalKnowledge,
-              technicalKnowledgeScore: generatedReport.technicalKnowledgeScore,
-              teamwork: generatedReport.teamwork,
-              teamworkScore: generatedReport.teamworkScore,
-              adaptability: generatedReport.adaptability,
-              adaptabilityScore: generatedReport.adaptabilityScore,
-              areasOfStrength: JSON.stringify(generatedReport.areasOfStrength),
-              areasForImprovement: JSON.stringify(generatedReport.areasForImprovement),
-              actionableNextSteps: JSON.stringify(generatedReport.actionableNextSteps),
+              generalAssessment: generatedReport.data.generalAssessment,
+              overallScore: generatedReport.data.overallScore,
+              speakingSkills: generatedReport.data.speakingSkills,
+              speakingSkillsScore: generatedReport.data.speakingSkillsScore,
+              communicationSkills: generatedReport.data.communicationSkills,
+              communicationSkillsScore: generatedReport.data.communicationSkillsScore,
+              problemSolvingSkills: generatedReport.data.problemSolvingSkills,
+              problemSolvingSkillsScore: generatedReport.data.problemSolvingSkillsScore,
+              technicalKnowledge: generatedReport.data.technicalKnowledge,
+              technicalKnowledgeScore: generatedReport.data.technicalKnowledgeScore,
+              teamwork: generatedReport.data.teamwork,
+              teamworkScore: generatedReport.data.teamworkScore,
+              adaptability: generatedReport.data.adaptability,
+              adaptabilityScore: generatedReport.data.adaptabilityScore,
+              areasOfStrength: JSON.stringify(generatedReport.data.areasOfStrength),
+              areasForImprovement: JSON.stringify(generatedReport.data.areasForImprovement),
+              actionableNextSteps: JSON.stringify(generatedReport.data.actionableNextSteps),
               isCompleted: true,
             })
             .where(eq(reports.id, reportId));
@@ -197,9 +198,9 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           await tx
             .update(interviews)
             .set({
-              candidate: generatedReport.candidateName,
-              company: generatedReport.companyName,
-              role: generatedReport.roleName,
+              candidate: generatedReport.data.candidateName,
+              company: generatedReport.data.companyName,
+              role: generatedReport.data.roleName,
               completed: true,
             })
             .where(eq(interviews.id, interviewId));
@@ -227,9 +228,9 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
             "Interview URL": `${
               config.baseUrl
             }/dashboard/interviews/${idHandler.encode(interviewId)}/reports`,
-            Company: generatedReport.companyName,
-            Role: generatedReport.roleName,
-            "Overall Score": generatedReport.overallScore,
+            Company: generatedReport.data.companyName,
+            Role: generatedReport.data.roleName,
+            "Overall Score": generatedReport.data.overallScore,
           },
         });
 
