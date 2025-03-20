@@ -1,8 +1,14 @@
+import * as Sentry from "@sentry/serverless";
+import { generateObject } from "ai";
 import { createInsertSchema } from "drizzle-zod";
-import { zodResponseFormat } from "openai/helpers/zod";
 import * as R from "remeda";
 import { z } from "zod";
-import { type Interview, reports } from "~/db/schema";
+import { reports } from "~/db/schema";
+import type { Interview as InterviewSchema } from "~/db/schema/interviews";
+import type { CandidateDetails } from "~/lib/ai/extract-candidate-details";
+import type { StructuredJobDescriptionSchema } from "~/lib/ai/extract-job-description";
+import type { StructuredOriginalCVSchema } from "~/lib/ai/extract-original-cv";
+import { logger } from "~/lib/logger";
 import { getOpenAiClient } from "../openai";
 
 const ReportSchema = createInsertSchema(reports);
@@ -90,46 +96,112 @@ const USER_PROMPT = `
   Maintain a candid yet respectful tone throughout the report, adhering to Radical Candor principles. Base your analysis and feedback on both the interview transcript content and the prosody analysis provided for each message. Do not be afraid to call out a bad performance as long as you can back it up with specific reasons or examples from the interview.
 `;
 
+/**
+ * Generates a detailed analysis report for an interview
+ * @param interview The interview object containing basic information
+ * @param transcriptString The transcript of the interview in JSON string format
+ * @param userEmail Optional user email for tracking purposes
+ * @param structuredCV Optional structured CV data extracted from the submitted CV
+ * @param structuredJobDescription Optional structured job description data
+ * @param structuredCandidateDetails Optional structured candidate details
+ * @returns A structured report with scores and analysis
+ */
 export async function generateInterviewAnalysis(
-  interview: Interview,
+  interview: InterviewSchema,
   transcriptString: string,
-  userEmail?: string
+  userEmail?: string,
+  structuredCV?: z.infer<typeof StructuredOriginalCVSchema>,
+  structuredJobDescription?: z.infer<typeof StructuredJobDescriptionSchema>,
+  structuredCandidateDetails?: CandidateDetails
 ) {
-  if (!transcriptString) {
-    throw new Error("No transcript found");
+  try {
+    if (!transcriptString) {
+      throw new Error("No transcript found");
+    }
+
+    const transcript = JSON.parse(transcriptString).map(
+      (message: {
+        role: "user" | "assistant";
+        content: string;
+        prosody: Record<string, number>;
+      }) => ({
+        ...message,
+        prosody: R.pipe(
+          message.prosody,
+          R.entries(),
+          R.sortBy(R.pathOr([1], 0)),
+          R.reverse(),
+          R.take(5)
+        ),
+      })
+    );
+
+    // Create an enhanced prompt that includes the structured data
+    let enhancedUserPrompt = USER_PROMPT.replace("{{TRANSCRIPT}}", JSON.stringify(transcript))
+      .replace("{{CV}}", interview.submittedCVText)
+      .replace("{{JD}}", interview.jobDescriptionText)
+      .replace("{{ADDITIONAL_INFO}}", interview.additionalInfo ?? "");
+
+    // Add structured data to the prompt if available
+    if (structuredCV || structuredJobDescription || structuredCandidateDetails) {
+      enhancedUserPrompt += "\n\n## STRUCTURED DATA\n";
+
+      if (structuredCV) {
+        enhancedUserPrompt += `\n### STRUCTURED CV DATA\n${JSON.stringify(
+          structuredCV,
+          null,
+          2
+        )}\n`;
+      }
+
+      if (structuredJobDescription) {
+        enhancedUserPrompt += `\n### STRUCTURED JOB DESCRIPTION\n${JSON.stringify(
+          structuredJobDescription,
+          null,
+          2
+        )}\n`;
+      }
+
+      if (structuredCandidateDetails) {
+        enhancedUserPrompt += `\n### STRUCTURED CANDIDATE DETAILS\n${JSON.stringify(
+          structuredCandidateDetails,
+          null,
+          2
+        )}\n`;
+      }
+
+      enhancedUserPrompt +=
+        "\n\nPlease use these structured data extractions to ensure accuracy in your analysis, especially for candidate name, company, role, and other specific details. The structured data should be considered more reliable than information extracted from raw text.";
+    }
+
+    const { object: structuredOutput } = await generateObject({
+      model: getOpenAiClient(userEmail)("gpt-4o"),
+      schema: ExtendedReportSchema,
+      schemaName: "interviewReport",
+      schemaDescription: "A detailed report on the candidate's performance in the interview",
+      system: SYSTEM_PROMPT,
+      prompt: enhancedUserPrompt,
+      temperature: 0.5,
+      headers: {
+        "Helicone-Auth": `Bearer ${process.env.HELICONE_API_KEY}`,
+        ...(userEmail && { "Helicone-User-Id": userEmail }),
+      },
+    });
+
+    const result = ExtendedReportSchema.parse(structuredOutput);
+
+    return result;
+  } catch (error) {
+    // Log the error and rethrow it to be handled by the lambda
+    Sentry.withScope((scope) => {
+      scope.setExtra("context", "evaluateCV");
+      scope.setExtra("error", error);
+      Sentry.captureException(error);
+    });
+    logger.error(
+      { message: error instanceof Error ? error.message : error, error },
+      "Error evaluating CV"
+    );
+    throw error;
   }
-
-  const transcript = JSON.parse(transcriptString).map(
-    (message: {
-      role: "user" | "assistant";
-      content: string;
-      prosody: Record<string, number>;
-    }) => ({
-      ...message,
-      prosody: R.pipe(
-        message.prosody,
-        R.entries(),
-        R.sortBy(R.pathOr([1], 0)),
-        R.reverse(),
-        R.take(5)
-      ),
-    })
-  );
-
-  const userPrompt = USER_PROMPT.replace("{{TRANSCRIPT}}", JSON.stringify(transcript))
-    .replace("{{CV}}", interview.submittedCVText)
-    .replace("{{JD}}", interview.jobDescriptionText)
-    .replace("{{ADDITIONAL_INFO}}", interview.additionalInfo ?? "");
-
-  const completion = await getOpenAiClient(userEmail).beta.chat.completions.parse({
-    model: "gpt-4o",
-    messages: [
-      { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: userPrompt },
-    ],
-    temperature: 0.5,
-    response_format: zodResponseFormat(ExtendedReportSchema, "interviewReport"),
-  });
-
-  return completion.choices[0].message.parsed;
 }

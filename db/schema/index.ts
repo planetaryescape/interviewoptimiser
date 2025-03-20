@@ -1,3 +1,4 @@
+export * from "./candidateDetails";
 export * from "./changelogs";
 export * from "./countries";
 export * from "./customisations";
@@ -6,6 +7,7 @@ export * from "./featureRequests";
 export * from "./images";
 export * from "./interviews";
 export * from "./invitations";
+export * from "./jobDescriptions";
 export * from "./jobs";
 export * from "./organizations";
 export * from "./pageSettings";
