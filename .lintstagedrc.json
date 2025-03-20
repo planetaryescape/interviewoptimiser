@@ -1,4 +1,7 @@
 {
-  "**/*.{js,mjs,cjs,jsx,ts,tsx}": "oxlint",
-  "*.{md,mdx}": ["prettier --write"]
+  "**/*.{js,mjs,cjs,jsx,ts,tsx}": [
+    "bun run lint:fix",
+    "bun run fmt",
+    "bun run test -- --changed"
+  ]
 }

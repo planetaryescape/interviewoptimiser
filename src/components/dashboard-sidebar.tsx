@@ -8,7 +8,6 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { BarChart3, Cog, Home, MessageSquare, ScrollText, Star } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useFeatureFlagEnabled } from "posthog-js/react";
 import { useState } from "react";
 import { FeedbackModal } from "./feedback-modal";
 
@@ -17,7 +16,6 @@ export function DashboardSidebar() {
   const isAdmin = user?.role === "admin";
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const pathname = usePathname();
-  const organizationsFeaturesEnabled = useFeatureFlagEnabled("organizations");
 
   const NavItem = ({
     href,
@@ -58,17 +56,6 @@ export function DashboardSidebar() {
             <NavItem href="/dashboard" icon={Home}>
               Interviews
             </NavItem>
-
-            {organizationsFeaturesEnabled && user && user?.organizationMemberships.length > 0 && (
-              <>
-                <div className="mt-6 mb-2 px-3">
-                  <p className="text-xs font-medium text-muted-foreground">Organization</p>
-                </div>
-                <NavItem href="/dashboard/jobs" icon={BarChart3}>
-                  Jobs
-                </NavItem>
-              </>
-            )}
 
             {isAdmin && (
               <>

@@ -36,6 +36,7 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url);
 
     const organizationId = Number.parseInt(url.searchParams.get("organizationId") ?? "");
+    console.log("organizationId:", organizationId);
 
     const userInvitations = await db
       .select()
@@ -44,10 +45,13 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(formatEntityList(userInvitations, "invitation"));
   } catch (error) {
-    logger.error("Error fetching invitations", {
-      error,
-      message: error instanceof Error ? error.message : "",
-    });
+    logger.error(
+      {
+        error,
+        message: error instanceof Error ? error.message : "",
+      },
+      "Error fetching invitations"
+    );
     Sentry.withScope((scope) => {
       scope.setExtra("context", "getInvitations");
       scope.setExtra("error", error);
@@ -154,7 +158,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(formatEntity(invitation, "invitation"));
   } catch (error) {
-    logger.error("Error creating invitation", { error });
+    logger.error(
+      {
+        error,
+        message: error instanceof Error ? error.message : "",
+      },
+      "Error creating invitation"
+    );
     Sentry.withScope((scope) => {
       scope.setExtra("context", "createInvitation");
       scope.setExtra("error", error);
@@ -248,7 +258,13 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(formatEntity(result.invitation, "invitation"));
   } catch (error) {
-    logger.error("Error updating invitation", { error });
+    logger.error(
+      {
+        error,
+        message: error instanceof Error ? error.message : "",
+      },
+      "Error updating invitation"
+    );
     Sentry.withScope((scope) => {
       scope.setExtra("context", "updateInvitation");
       scope.setExtra("error", error);

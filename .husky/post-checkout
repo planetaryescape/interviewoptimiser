@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Check if package.json changed between the previous and new branch/commit
+if git diff --name-only "$1" "$2" | grep -q "^package.json$"; then
+  echo "📦 package.json changed, running bun install..."
+  bun install
+fi
