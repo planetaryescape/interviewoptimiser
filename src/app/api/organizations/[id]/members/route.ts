@@ -1,17 +1,13 @@
-import { db } from "@/db";
-import { organizationMembers, users } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { logger } from "@/lib/logger";
-import {
-  formatEntity,
-  formatEntityList,
-  formatErrorEntity,
-} from "@/lib/utils/formatEntity";
+import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { and, eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { organizationMembers, users } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 async function checkOrganizationAccess(organizationId: number, userId: number) {
   const member = await db.query.organizationMembers.findFirst({
@@ -24,10 +20,7 @@ async function checkOrganizationAccess(organizationId: number, userId: number) {
   return member;
 }
 
-export async function GET(
-  request: NextRequest,
-  props: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   logger.info("GET request received at /api/organizations/[id]/members", {
     id: params.id,
@@ -35,9 +28,7 @@ export async function GET(
 
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.error(
-      "Unauthorized access attempt at /api/organizations/[id]/members"
-    );
+    logger.error("Unauthorized access attempt at /api/organizations/[id]/members");
     return NextResponse.json(formatErrorEntity({ message: "Unauthorized" }), {
       status: 401,
     });
@@ -47,10 +38,7 @@ export async function GET(
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const organizationId = idHandler.decode(params.id);
@@ -100,10 +88,7 @@ export async function GET(
   }
 }
 
-export async function POST(
-  request: NextRequest,
-  props: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   logger.info("POST request received at /api/organizations/[id]/members", {
     id: params.id,
@@ -111,9 +96,7 @@ export async function POST(
 
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.error(
-      "Unauthorized access attempt at /api/organizations/[id]/members"
-    );
+    logger.error("Unauthorized access attempt at /api/organizations/[id]/members");
     return NextResponse.json(formatErrorEntity({ message: "Unauthorized" }), {
       status: 401,
     });
@@ -123,10 +106,7 @@ export async function POST(
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const organizationId = idHandler.decode(params.id);
@@ -150,10 +130,9 @@ export async function POST(
 
     if (!email || !role) {
       logger.error("Missing required fields", { json });
-      return NextResponse.json(
-        formatErrorEntity({ message: "Email and role are required" }),
-        { status: 400 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Email and role are required" }), {
+        status: 400,
+      });
     }
 
     if (!["admin", "member"].includes(role)) {
@@ -172,10 +151,7 @@ export async function POST(
 
     if (!newUser) {
       logger.error("User not found", { email });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const existingMember = await db.query.organizationMembers.findFirst({
@@ -188,10 +164,9 @@ export async function POST(
     if (existingMember) {
       if (existingMember.isActive) {
         logger.error("User is already a member", { email });
-        return NextResponse.json(
-          formatErrorEntity({ message: "User is already a member" }),
-          { status: 400 }
-        );
+        return NextResponse.json(formatErrorEntity({ message: "User is already a member" }), {
+          status: 400,
+        });
       }
 
       // Reactivate membership
@@ -211,9 +186,7 @@ export async function POST(
         memberId: updatedMember.id,
       });
 
-      return NextResponse.json(
-        formatEntity(updatedMember, "organization-member")
-      );
+      return NextResponse.json(formatEntity(updatedMember, "organization-member"));
     }
 
     const [newMember] = await db

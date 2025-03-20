@@ -1,8 +1,8 @@
-import { Customisation, User } from "@/db/schema";
 import { useQuery } from "@tanstack/react-query";
+import type { Customisation, User } from "~/db/schema";
 
 async function fetchUser() {
-  const response = await fetch(`/api/users`);
+  const response = await fetch("/api/users");
   if (!response.ok) {
     throw new Error("Network response was not ok");
   }

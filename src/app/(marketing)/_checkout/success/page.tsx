@@ -20,7 +20,7 @@ export default function CheckoutSuccess() {
       router.push("/sign-up");
     }
     queryClient.invalidateQueries({ queryKey: ["user"] });
-  }, [isLoaded, isSignedIn, router]);
+  }, [isLoaded, isSignedIn, router, queryClient]);
 
   if (!isLoaded || !isSignedIn) {
     return null;
@@ -45,13 +45,11 @@ export default function CheckoutSuccess() {
 
         <Card className="p-6 md:p-8 space-y-6">
           <div className="space-y-4">
-            <h1 className="text-3xl font-bold">
-              Thank You for Your Purchase! 🎉
-            </h1>
+            <h1 className="text-3xl font-bold">Thank You for Your Purchase! 🎉</h1>
 
             <p className="text-muted-foreground text-lg">
-              Your 500 minutes have been added to your account. You&apos;re now
-              ready to start practicing and improving your interview skills.
+              Your 500 minutes have been added to your account. You&apos;re now ready to start
+              practicing and improving your interview skills.
             </p>
 
             <div className="flex flex-col gap-4 pt-4">
@@ -76,10 +74,7 @@ export default function CheckoutSuccess() {
           <div className="pt-6 border-t">
             <p className="text-sm text-muted-foreground">
               Need help getting started? Check out our{" "}
-              <Link
-                href="/dashboard/settings"
-                className="text-primary hover:underline"
-              >
+              <Link href="/dashboard/settings" className="text-primary hover:underline">
                 settings
               </Link>{" "}
               to customize your experience or{" "}

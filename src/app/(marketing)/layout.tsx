@@ -4,7 +4,7 @@ import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { ClerkProvider } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Toaster } from "sonner";
 
 export default function LandingPage({ children }: { children: ReactNode }) {

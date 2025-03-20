@@ -11,8 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FeatureRequest } from "@/db/schema";
-import { featureRequestStatusEnum } from "@/db/schema/featureRequests";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
 import { idHandler } from "@/lib/utils/idHandler";
@@ -23,6 +21,8 @@ import { ThumbsUp } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
+import type { FeatureRequest } from "~/db/schema";
+import { featureRequestStatusEnum } from "~/db/schema/featureRequests";
 import { remarkMarkdownComponents } from "./remark-markdown-components";
 
 export function FeatureRequestCard({
@@ -41,9 +41,7 @@ export function FeatureRequestCard({
 
   const voteMutation = useMutation({
     mutationFn: async (featureRequestId: number) => {
-      const repository = await getRepository<FeatureRequest>(
-        "feature-requests"
-      );
+      const repository = await getRepository<FeatureRequest>("feature-requests");
       return repository.update(idHandler.encode(featureRequestId), {});
     },
     onSuccess: () => {
@@ -64,9 +62,7 @@ export function FeatureRequestCard({
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: number; status: string }) => {
-      const repository = await getRepository<FeatureRequest>(
-        "feature-requests"
-      );
+      const repository = await getRepository<FeatureRequest>("feature-requests");
       return repository.update(idHandler.encode(id), {
         status: status as FeatureRequest["status"],
       });
@@ -87,9 +83,7 @@ export function FeatureRequestCard({
     },
   });
 
-  const getStatusColor = (
-    status: (typeof featureRequestStatusEnum.enumValues)[number]
-  ) => {
+  const getStatusColor = (status: (typeof featureRequestStatusEnum.enumValues)[number]) => {
     switch (status) {
       case "submitted":
         return "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-800";
@@ -145,9 +139,7 @@ export function FeatureRequestCard({
         </CardDescription>
       </CardContent>
       <div className="mt-auto p-4 bg-muted/50 border-t border-gray-300 dark:border-gray-700 flex justify-between items-center">
-        <p className="text-sm text-muted-foreground">
-          {featureRequest.likesCount} likes
-        </p>
+        <p className="text-sm text-muted-foreground">{featureRequest.likesCount} likes</p>
         {isAdmin ? (
           <Select
             onValueChange={(value) =>

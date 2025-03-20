@@ -1,15 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Review } from "@/db/schema";
-import { config } from "@/lib/config";
-import { EntityList } from "@/lib/utils/formatEntity";
+import type { EntityList } from "@/lib/utils/formatEntity";
 import { useQuery } from "@tanstack/react-query";
 import Autoplay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight, StarIcon } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { config } from "~/config";
+import type { Review } from "~/db/schema";
 import { TestimonialCard } from "./testimonial-card";
 
 async function getTestimonials() {
@@ -21,10 +21,9 @@ async function getTestimonials() {
 }
 
 export function TestimonialsSection() {
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    { loop: true, align: "start" },
-    [Autoplay({ delay: 5000, stopOnInteraction: true })]
-  );
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" }, [
+    Autoplay({ delay: 5000, stopOnInteraction: true }),
+  ]);
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false);
   const [nextBtnEnabled, setNextBtnEnabled] = useState(false);
 
@@ -62,12 +61,10 @@ export function TestimonialsSection() {
       <div className="container px-4 md:px-6 mx-auto">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
-              What Our Users Say
-            </h2>
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">What Our Users Say</h2>
             <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-              Don&apos;t just take our word for it. Here&apos;s what people are
-              saying about {config.projectName}.
+              Don&apos;t just take our word for it. Here&apos;s what people are saying about{" "}
+              {config.projectName}.
             </p>
           </div>
         </div>
@@ -110,20 +107,15 @@ export function TestimonialsSection() {
 
         <div className="mt-12 space-y-6 text-center">
           <div className="max-w-2xl mx-auto space-y-2">
-            <h3 className="text-xl font-semibold">
-              Have You Used {config.projectName}?
-            </h3>
+            <h3 className="text-xl font-semibold">Have You Used {config.projectName}?</h3>
             <p className="text-muted-foreground">
-              Your feedback helps us improve and helps others make informed
-              decisions. Whether you had a great experience or see room for
-              improvement, we&apos;d love to hear your thoughts.
+              Your feedback helps us improve and helps others make informed decisions. Whether you
+              had a great experience or see room for improvement, we&apos;d love to hear your
+              thoughts.
             </p>
           </div>
           <Button asChild variant="outline" className="group">
-            <Link
-              href="/submit-testimonial"
-              className="flex items-center gap-2"
-            >
+            <Link href="/submit-testimonial" className="flex items-center gap-2">
               Share Your Experience
               <StarIcon className="h-4 w-4 transition-transform group-hover:scale-110" />
             </Link>

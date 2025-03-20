@@ -1,10 +1,10 @@
-import { db } from "@/db";
-import { countries } from "@/db/schema";
-import { logger } from "@/lib/logger";
 import { formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { countries } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 export async function GET(request: NextRequest) {
   const { userId } = getAuth(request);

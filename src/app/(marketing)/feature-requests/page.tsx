@@ -7,7 +7,6 @@ import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSimpleMDEOptions } from "@/config/simplemde-options";
-import { FeatureRequest, NewFeatureRequest } from "@/db/schema";
 import useMarkdownEditor from "@/hooks/useMarkdownEditor";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
@@ -17,6 +16,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import "easymde/dist/easymde.min.css";
 import { Suspense, useMemo, useState } from "react";
 import { toast } from "sonner";
+import type { FeatureRequest, NewFeatureRequest } from "~/db/schema";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -24,13 +24,11 @@ export default function FeatureRequestsPage() {
   const { userId, isLoaded } = useAuth();
   const { data: user } = useUser();
   const queryClient = useQueryClient();
-  const [newFeatureRequest, setNewFeatureRequest] = useState<NewFeatureRequest>(
-    {
-      title: "",
-      content: "",
-      userId: user?.id ?? 0,
-    }
-  );
+  const [newFeatureRequest, setNewFeatureRequest] = useState<NewFeatureRequest>({
+    title: "",
+    content: "",
+    userId: user?.id ?? 0,
+  });
   const [activeCurrentPage, setActiveCurrentPage] = useState(1);
   const [completedCurrentPage, setCompletedCurrentPage] = useState(1);
 
@@ -50,9 +48,7 @@ export default function FeatureRequestsPage() {
 
   const addFeatureRequestMutation = useMutation({
     mutationFn: async (featureRequest: NewFeatureRequest) => {
-      const repository = await getRepository<NewFeatureRequest>(
-        "feature-requests"
-      );
+      const repository = await getRepository<NewFeatureRequest>("feature-requests");
       return repository.create(featureRequest);
     },
     onSuccess: () => {
@@ -74,11 +70,7 @@ export default function FeatureRequestsPage() {
   });
 
   const sortedFeatureRequests = useMemo(() => {
-    return (
-      featureRequests?.data.sort(
-        (a, b) => b.data.likesCount - a.data.likesCount
-      ) || []
-    );
+    return featureRequests?.data.sort((a, b) => b.data.likesCount - a.data.likesCount) || [];
   }, [featureRequests]);
 
   const activeFeatureRequests = useMemo(() => {
@@ -99,12 +91,8 @@ export default function FeatureRequestsPage() {
     completedCurrentPage * ITEMS_PER_PAGE
   );
 
-  const activeTotalPages = Math.ceil(
-    activeFeatureRequests.length / ITEMS_PER_PAGE
-  );
-  const completedTotalPages = Math.ceil(
-    completedFeatureRequests.length / ITEMS_PER_PAGE
-  );
+  const activeTotalPages = Math.ceil(activeFeatureRequests.length / ITEMS_PER_PAGE);
+  const completedTotalPages = Math.ceil(completedFeatureRequests.length / ITEMS_PER_PAGE);
 
   if (isLoading || !isLoaded) {
     return (
@@ -122,14 +110,12 @@ export default function FeatureRequestsPage() {
         <div className="overflow-y-auto">
           <div className="bg-card p-6 rounded-lg shadow">
             {userId ? (
-              <h2 className="text-2xl font-semibold mb-4">
-                Submit a Feature Request
-              </h2>
+              <h2 className="text-2xl font-semibold mb-4">Submit a Feature Request</h2>
             ) : null}
             <p className="mb-4 text-card-foreground">
-              Have an idea for a new feature? Submit it here! If your request
-              gets enough votes and bubbles up to the top, we&apos;ll prioritize
-              it. Only signed in users can submit feature requests.
+              Have an idea for a new feature? Submit it here! If your request gets enough votes and
+              bubbles up to the top, we&apos;ll prioritize it. Only signed in users can submit
+              feature requests.
             </p>
             {userId ? (
               <>
@@ -159,18 +145,12 @@ export default function FeatureRequestsPage() {
                     />
                   )}
                 </Suspense>
-                <Button
-                  onClick={() =>
-                    addFeatureRequestMutation.mutate(newFeatureRequest)
-                  }
-                >
+                <Button onClick={() => addFeatureRequestMutation.mutate(newFeatureRequest)}>
                   Submit Feature Request
                 </Button>
               </>
             ) : (
-              <p className="text-muted-foreground">
-                Please sign in to submit a feature request.
-              </p>
+              <p className="text-muted-foreground">Please sign in to submit a feature request.</p>
             )}
           </div>
         </div>
@@ -198,9 +178,7 @@ export default function FeatureRequestsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() =>
-                    setActiveCurrentPage((page) => Math.max(1, page - 1))
-                  }
+                  onClick={() => setActiveCurrentPage((page) => Math.max(1, page - 1))}
                   disabled={activeCurrentPage === 1}
                 >
                   Previous
@@ -212,9 +190,7 @@ export default function FeatureRequestsPage() {
                   variant="outline"
                   size="sm"
                   onClick={() =>
-                    setActiveCurrentPage((page) =>
-                      Math.min(activeTotalPages, page + 1)
-                    )
+                    setActiveCurrentPage((page) => Math.min(activeTotalPages, page + 1))
                   }
                   disabled={activeCurrentPage === activeTotalPages}
                 >
@@ -241,9 +217,7 @@ export default function FeatureRequestsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() =>
-                    setCompletedCurrentPage((page) => Math.max(1, page - 1))
-                  }
+                  onClick={() => setCompletedCurrentPage((page) => Math.max(1, page - 1))}
                   disabled={completedCurrentPage === 1}
                 >
                   Previous
@@ -255,9 +229,7 @@ export default function FeatureRequestsPage() {
                   variant="outline"
                   size="sm"
                   onClick={() =>
-                    setCompletedCurrentPage((page) =>
-                      Math.min(completedTotalPages, page + 1)
-                    )
+                    setCompletedCurrentPage((page) => Math.min(completedTotalPages, page + 1))
                   }
                   disabled={completedCurrentPage === completedTotalPages}
                 >

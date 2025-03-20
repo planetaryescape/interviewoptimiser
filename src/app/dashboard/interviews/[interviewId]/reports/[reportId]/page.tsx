@@ -30,11 +30,7 @@ import {
 import { Badge } from "@/components/badge";
 import { Expressions } from "@/components/expressions";
 import PagePreview from "@/components/page-preview";
-import {
-  marginSizes,
-  PagePreviewToolbar,
-  paperSizes,
-} from "@/components/page-preview-toolbar";
+import { PagePreviewToolbar, marginSizes, paperSizes } from "@/components/page-preview-toolbar";
 import { RadialProsodyChart } from "@/components/radial-prosody-chart";
 import { remarkMarkdownComponents } from "@/components/remark-markdown-components";
 import {
@@ -51,8 +47,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 import { Switch } from "@/components/ui/switch";
-import { Interview, PageSettings, Report } from "@/db/schema";
-import { config } from "@/lib/config";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { getPagePreviewHtml } from "@/lib/getPagePreviewHtml";
 import { prepareHtml } from "@/lib/prepareHtml";
@@ -88,6 +82,8 @@ import { use, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
+import { config } from "~/config";
+import type { Interview, PageSettings, Report } from "~/db/schema";
 
 function aggregateProsodyData(transcript: string) {
   const messages = JSON.parse(transcript || "[]");
@@ -95,16 +91,14 @@ function aggregateProsodyData(transcript: string) {
   const prosodyTotals: { [key: string]: number } = {};
   let totalMessages = 0;
 
-  messages.forEach(
-    (message: { role: string; prosody: Record<string, number> }) => {
-      if (message.role === "user" && message.prosody) {
-        totalMessages++;
-        Object.entries(message.prosody).forEach(([key, value]) => {
-          prosodyTotals[key] = (prosodyTotals[key] || 0) + value;
-        });
+  for (const message of messages) {
+    if (message.role === "user" && message.prosody) {
+      totalMessages++;
+      for (const [key, value] of Object.entries(message.prosody)) {
+        prosodyTotals[key] = (prosodyTotals[key] || 0) + (value as number);
       }
     }
-  );
+  }
 
   const result = Object.entries(prosodyTotals)
     .map(([name, value]) => ({
@@ -141,9 +135,9 @@ export default function InterviewReportPage(props: {
   } = useQuery({
     queryKey: ["report", params.reportId],
     queryFn: async () => {
-      const reportRepo = await getRepository<
-        Report & { pageSettings: PageSettings }
-      >(`interviews/${params.interviewId}/reports`);
+      const reportRepo = await getRepository<Report & { pageSettings: PageSettings }>(
+        `interviews/${params.interviewId}/reports`
+      );
       return await reportRepo.getById(params.reportId);
     },
   });
@@ -176,9 +170,7 @@ export default function InterviewReportPage(props: {
           scope.setExtra("status", response.status);
           scope.setExtra("response", response);
           scope.setExtra("response", await response.text());
-          Sentry.captureException(
-            new Error(`Failed to generate ${format.toUpperCase()}`)
-          );
+          Sentry.captureException(new Error(`Failed to generate ${format.toUpperCase()}`));
         });
         throw new Error(`Failed to generate ${format.toUpperCase()}`);
       }
@@ -219,70 +211,57 @@ export default function InterviewReportPage(props: {
     (report?.data.pageSettings?.paperSize as keyof typeof paperSizes) || "A4"
   );
   const [marginSize, setMarginSize] = useState<keyof typeof marginSizes>(
-    (report?.data.pageSettings?.marginSize as keyof typeof marginSizes) ||
-      "Normal"
+    (report?.data.pageSettings?.marginSize as keyof typeof marginSizes) || "Normal"
   );
-  const [bodyFont, setBodyFont] = useState(
-    report?.data.pageSettings?.bodyFont || "font-raleway"
-  );
+  const [bodyFont, setBodyFont] = useState(report?.data.pageSettings?.bodyFont || "font-raleway");
   const [headingFont, setHeadingFont] = useState(
     report?.data.pageSettings?.headingFont || "font-roboto"
   );
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isPublic, setIsPublic] = useState(report?.data.isPublic);
 
-  const [containerRef, { width: containerWidth }] =
-    useMeasure<HTMLDivElement>();
+  const [containerRef, { width: containerWidth }] = useMeasure<HTMLDivElement>();
 
   const pageWidth = paperSizes[paperSize].width;
-  const scale = Math.min(
-    ((containerWidth ?? 0) - remToPx(4)) / mmToPx(pageWidth),
-    1
-  );
+  const scale = Math.min(((containerWidth ?? 0) - remToPx(4)) / mmToPx(pageWidth), 1);
 
-  const { mutate: toggleReportPublicStatus, isPending: isToggling } =
-    useMutation({
-      mutationFn: async (newPublicStatus: boolean) => {
-        const reportRepo = await getRepository<
-          Report & { pageSettings: PageSettings }
-        >(`interviews/${params.interviewId}/reports`);
-        return reportRepo.update(idHandler.encode(report?.sys.id ?? 0), {
-          isPublic: newPublicStatus,
-        });
-      },
-      onSuccess: (_, newPublicStatus) => {
-        queryClient.invalidateQueries({
-          queryKey: ["report", params.reportId],
-        });
-        setIsPublic(newPublicStatus);
-        toast.success(
-          newPublicStatus ? "Report made public" : "Report made private",
-          {
-            description: newPublicStatus
-              ? "Your report is now publicly viewable."
-              : "Your report is now private.",
-          }
-        );
-      },
-      onError: (error) => {
-        Sentry.withScope((scope) => {
-          scope.setExtra("context", "toggleReportPublicStatus");
-          scope.setExtra("error", error);
-          scope.setExtra("message", error.message);
+  const { mutate: toggleReportPublicStatus, isPending: isToggling } = useMutation({
+    mutationFn: async (newPublicStatus: boolean) => {
+      const reportRepo = await getRepository<Report & { pageSettings: PageSettings }>(
+        `interviews/${params.interviewId}/reports`
+      );
+      return reportRepo.update(idHandler.encode(report?.sys.id ?? 0), {
+        isPublic: newPublicStatus,
+      });
+    },
+    onSuccess: (_, newPublicStatus) => {
+      queryClient.invalidateQueries({
+        queryKey: ["report", params.reportId],
+      });
+      setIsPublic(newPublicStatus);
+      toast.success(newPublicStatus ? "Report made public" : "Report made private", {
+        description: newPublicStatus
+          ? "Your report is now publicly viewable."
+          : "Your report is now private.",
+      });
+    },
+    onError: (error) => {
+      Sentry.withScope((scope) => {
+        scope.setExtra("context", "toggleReportPublicStatus");
+        scope.setExtra("error", error);
+        scope.setExtra("message", error.message);
 
-          Sentry.captureException(error);
-        });
-        toast.error("Failed to update report visibility", {
-          description: "Please try again.",
-        });
-      },
-    });
+        Sentry.captureException(error);
+      });
+      toast.error("Failed to update report visibility", {
+        description: "Please try again.",
+      });
+    },
+  });
 
   const { mutate: updatePageSettings } = useMutation({
     mutationFn: async (settings: Partial<PageSettings>) => {
-      const pageSettingsRepo = await getRepository<PageSettings>(
-        "page-settings"
-      );
+      const pageSettingsRepo = await getRepository<PageSettings>("page-settings");
       return pageSettingsRepo.update(
         idHandler.encode(report?.data.pageSettings?.id ?? 0),
         settings
@@ -319,16 +298,11 @@ export default function InterviewReportPage(props: {
   };
 
   const handleViewPublic = () => {
-    window.open(
-      `/interview/${idHandler.encode(interview?.sys.id ?? 0)}`,
-      "_blank"
-    );
+    window.open(`/interview/${idHandler.encode(interview?.sys.id ?? 0)}`, "_blank");
   };
 
   const copyShareLink = () => {
-    const shareLink = `${window.location.origin}/cv/${idHandler.encode(
-      interview?.sys.id ?? 0
-    )}`;
+    const shareLink = `${window.location.origin}/cv/${idHandler.encode(interview?.sys.id ?? 0)}`;
     navigator.clipboard.writeText(shareLink);
     toast.success("Link copied to clipboard", {
       description: "You can now share this link with others.",
@@ -396,8 +370,8 @@ export default function InterviewReportPage(props: {
           <Link href="/">Start a New Mock Interview</Link>
         </Button>
         <p className="mt-8 text-sm text-muted-foreground text-center max-w-md">
-          Our AI-powered mock interviews help you practice for your interview
-          skills and prepare you for success.
+          Our AI-powered mock interviews help you practice for your interview skills and prepare you
+          for success.
         </p>
       </div>
     );
@@ -453,10 +427,7 @@ export default function InterviewReportPage(props: {
         onRegenerate={handleRegenerate}
       />
       <div
-        className={cn(
-          "flex-1 overflow-y-auto overflow-x-hidden p-8 bg-background",
-          bodyFont
-        )}
+        className={cn("flex-1 overflow-y-auto overflow-x-hidden p-8 bg-background", bodyFont)}
         ref={containerRef}
       >
         <PagePreview
@@ -480,12 +451,7 @@ export default function InterviewReportPage(props: {
                 height={160}
                 className="mx-auto mb-6"
               />
-              <h1
-                className={cn(
-                  "text-4xl font-bold text-gray-900 mb-3",
-                  headingFont
-                )}
-              >
+              <h1 className={cn("text-4xl font-bold text-gray-900 mb-3", headingFont)}>
                 Interview Assessment Report
               </h1>
               <p className="text-xl text-gray-600 mb-6">
@@ -494,9 +460,7 @@ export default function InterviewReportPage(props: {
               <div className="flex justify-center gap-6 text-sm text-gray-500">
                 <div className="flex items-center">
                   <Clock className="w-4 h-4 mr-1.5" />
-                  {new Date(
-                    interview?.data.createdAt ?? ""
-                  ).toLocaleDateString()}
+                  {new Date(interview?.data.createdAt ?? "").toLocaleDateString()}
                 </div>
                 <div className="flex items-center">
                   <Timer className="w-4 h-4 mr-1.5" />
@@ -514,12 +478,7 @@ export default function InterviewReportPage(props: {
           <section className="mb-12">
             <div className="flex items-center gap-6 mb-8">
               <div className="flex-1">
-                <h2
-                  className={cn(
-                    "text-2xl font-semibold mb-4 text-gray-800",
-                    headingFont
-                  )}
-                >
+                <h2 className={cn("text-2xl font-semibold mb-4 text-gray-800", headingFont)}>
                   Executive Summary
                 </h2>
                 <ReactMarkdown
@@ -534,9 +493,7 @@ export default function InterviewReportPage(props: {
                 <div className="text-5xl font-bold text-blue-600 mb-2">
                   {report.data.overallScore}%
                 </div>
-                <div className="text-sm text-gray-600 text-center">
-                  Overall Performance Score
-                </div>
+                <div className="text-sm text-gray-600 text-center">Overall Performance Score</div>
                 <div className="mt-4">
                   {report.data.overallScore >= 80 ? (
                     <Badge variant="success" className="font-medium">
@@ -558,12 +515,7 @@ export default function InterviewReportPage(props: {
 
           {/* Candidate Profile */}
           <section className="mb-12 bg-gray-50 p-6 rounded-xl">
-            <h2
-              className={cn(
-                "text-2xl font-semibold mb-6 text-gray-800",
-                headingFont
-              )}
-            >
+            <h2 className={cn("text-2xl font-semibold mb-6 text-gray-800", headingFont)}>
               Candidate Profile
             </h2>
             <div className="grid grid-cols-3 gap-8">
@@ -572,27 +524,21 @@ export default function InterviewReportPage(props: {
                   <User className="w-5 h-5 mr-2" />
                   <span className="text-sm font-medium">Candidate</span>
                 </div>
-                <p className="font-medium text-gray-900">
-                  {interview?.data.candidate}
-                </p>
+                <p className="font-medium text-gray-900">{interview?.data.candidate}</p>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center text-blue-600 mb-2">
                   <Briefcase className="w-5 h-5 mr-2" />
                   <span className="text-sm font-medium">Company</span>
                 </div>
-                <p className="font-medium text-gray-900">
-                  {interview?.data.company}
-                </p>
+                <p className="font-medium text-gray-900">{interview?.data.company}</p>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center text-blue-600 mb-2">
                   <UserCircle className="w-5 h-5 mr-2" />
                   <span className="text-sm font-medium">Role</span>
                 </div>
-                <p className="font-medium text-gray-900">
-                  {interview?.data.role}
-                </p>
+                <p className="font-medium text-gray-900">{interview?.data.role}</p>
               </div>
             </div>
           </section>
@@ -600,10 +546,7 @@ export default function InterviewReportPage(props: {
           {/* Detailed Assessment */}
           <section className="mb-12">
             <h2
-              className={cn(
-                "text-2xl font-semibold mb-6 text-gray-800 border-b pb-2",
-                headingFont
-              )}
+              className={cn("text-2xl font-semibold mb-6 text-gray-800 border-b pb-2", headingFont)}
             >
               Detailed Assessment
             </h2>
@@ -635,7 +578,7 @@ export default function InterviewReportPage(props: {
                 },
               ].map((item, index) => (
                 <div
-                  key={index}
+                  key={item.title}
                   className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm"
                 >
                   <div className="flex items-center gap-4 mb-4">
@@ -643,12 +586,7 @@ export default function InterviewReportPage(props: {
                       <item.icon className="w-6 h-6 text-blue-600" />
                     </div>
                     <div className="flex-1">
-                      <h3
-                        className={cn(
-                          "text-lg font-semibold text-gray-800",
-                          headingFont
-                        )}
-                      >
+                      <h3 className={cn("text-lg font-semibold text-gray-800", headingFont)}>
                         {item.title}
                       </h3>
                       <div className="flex items-center mt-1">
@@ -659,8 +597,8 @@ export default function InterviewReportPage(props: {
                               item.score >= 80
                                 ? "bg-green-500"
                                 : item.score >= 60
-                                ? "bg-yellow-500"
-                                : "bg-red-500"
+                                  ? "bg-yellow-500"
+                                  : "bg-red-500"
                             )}
                             style={{ width: `${item.score}%` }}
                           />
@@ -686,10 +624,7 @@ export default function InterviewReportPage(props: {
           {/* Strengths and Areas for Improvement */}
           <section className="mb-12">
             <h2
-              className={cn(
-                "text-2xl font-semibold mb-6 text-gray-800 border-b pb-2",
-                headingFont
-              )}
+              className={cn("text-2xl font-semibold mb-6 text-gray-800 border-b pb-2", headingFont)}
             >
               Key Observations
             </h2>
@@ -707,10 +642,7 @@ export default function InterviewReportPage(props: {
                 <ul className="space-y-3">
                   {JSON.parse(report.data.areasOfStrength).map(
                     (strength: string, index: number) => (
-                      <li
-                        key={index}
-                        className="flex items-start gap-3 text-green-900"
-                      >
+                      <li key={strength} className="flex items-start gap-3 text-green-900">
                         <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
                         <span>{strength}</span>
                       </li>
@@ -731,10 +663,7 @@ export default function InterviewReportPage(props: {
                 <ul className="space-y-3">
                   {JSON.parse(report.data.areasForImprovement).map(
                     (area: string, index: number) => (
-                      <li
-                        key={index}
-                        className="flex items-start gap-3 text-amber-900"
-                      >
+                      <li key={area} className="flex items-start gap-3 text-amber-900">
                         <ArrowUpCircle className="w-5 h-5 text-amber-600 mt-0.5" />
                         <span>{area}</span>
                       </li>
@@ -748,27 +677,22 @@ export default function InterviewReportPage(props: {
           {/* Action Plan */}
           <section className="mb-12">
             <h2
-              className={cn(
-                "text-2xl font-semibold mb-6 text-gray-800 border-b pb-2",
-                headingFont
-              )}
+              className={cn("text-2xl font-semibold mb-6 text-gray-800 border-b pb-2", headingFont)}
             >
               Recommended Action Plan
             </h2>
             <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
               <ol className="space-y-4">
-                {JSON.parse(report.data.actionableNextSteps).map(
-                  (step: string, index: number) => (
-                    <li key={index} className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-medium">
-                        {index + 1}
-                      </div>
-                      <div className="flex-1 bg-white p-4 rounded-lg shadow-sm">
-                        <p className="text-gray-700">{step}</p>
-                      </div>
-                    </li>
-                  )
-                )}
+                {JSON.parse(report.data.actionableNextSteps).map((step: string, index: number) => (
+                  <li key={step} className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-medium">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1 bg-white p-4 rounded-lg shadow-sm">
+                      <p className="text-gray-700">{step}</p>
+                    </div>
+                  </li>
+                ))}
               </ol>
             </div>
           </section>
@@ -786,10 +710,9 @@ export default function InterviewReportPage(props: {
               </h2>
               <div className="bg-white p-6 rounded-xl border border-gray-100">
                 <p className="text-gray-600 mb-6 text-center max-w-2xl mx-auto">
-                  This analysis shows the top emotional and tonal patterns
-                  detected in your responses during the interview. The further a
-                  point extends from the center, the more prevalent that
-                  characteristic was in your speech.
+                  This analysis shows the top emotional and tonal patterns detected in your
+                  responses during the interview. The further a point extends from the center, the
+                  more prevalent that characteristic was in your speech.
                 </p>
                 <div className="w-full">
                   <RadialProsodyChart
@@ -798,9 +721,8 @@ export default function InterviewReportPage(props: {
                 </div>
                 <div className="mt-6 text-sm text-gray-500 text-center">
                   <p>
-                    Values represent the percentage of responses where each
-                    characteristic was significantly detected. Only the top 6
-                    most prevalent characteristics are shown.
+                    Values represent the percentage of responses where each characteristic was
+                    significantly detected. Only the top 6 most prevalent characteristics are shown.
                   </p>
                 </div>
               </div>
@@ -834,12 +756,10 @@ export default function InterviewReportPage(props: {
                       ?.trim();
                     return (
                       <div
-                        key={index}
+                        key={message.content}
                         className={cn(
                           "p-4 rounded-lg",
-                          persona === "Interviewer"
-                            ? "bg-blue-50 ml-4"
-                            : "bg-white mr-4"
+                          persona === "Interviewer" ? "bg-blue-50 ml-4" : "bg-white mr-4"
                         )}
                       >
                         <div className="flex items-center gap-2 mb-2">
@@ -851,26 +771,18 @@ export default function InterviewReportPage(props: {
                           <span
                             className={cn(
                               "font-medium",
-                              persona === "Interviewer"
-                                ? "text-blue-600"
-                                : "text-green-600"
+                              persona === "Interviewer" ? "text-blue-600" : "text-green-600"
                             )}
                           >
                             {persona}
                           </span>
                         </div>
-                        <p className="text-gray-700">
-                          {message.content?.split("{")?.[0] ?? ""}
-                        </p>
-                        {persona === "Candidate" &&
-                          Object.keys(message.prosody).length > 0 && (
-                            <div className="mt-2 pt-2 border-t border-gray-200">
-                              <Expressions
-                                values={message.prosody}
-                                withScores={false}
-                              />
-                            </div>
-                          )}
+                        <p className="text-gray-700">{message.content?.split("{")?.[0] ?? ""}</p>
+                        {persona === "Candidate" && Object.keys(message.prosody).length > 0 && (
+                          <div className="mt-2 pt-2 border-t border-gray-200">
+                            <Expressions values={message.prosody} withScores={false} />
+                          </div>
+                        )}
                       </div>
                     );
                   }
@@ -889,10 +801,7 @@ export default function InterviewReportPage(props: {
                 height={24}
                 className="opacity-50"
               />
-              <p>
-                Generated by Interview Optimiser on{" "}
-                {new Date().toLocaleDateString()}
-              </p>
+              <p>Generated by Interview Optimiser on {new Date().toLocaleDateString()}</p>
             </div>
           </footer>
         </PagePreview>
@@ -902,9 +811,8 @@ export default function InterviewReportPage(props: {
           <AlertDialogHeader>
             <AlertDialogTitle>Share Report</AlertDialogTitle>
             <AlertDialogDescription>
-              You need to make your report public before sharing. Once public,
-              anyone with the link can view it. You can always make it private
-              again later.
+              You need to make your report public before sharing. Once public, anyone with the link
+              can view it. You can always make it private again later.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex items-center space-x-2 py-4">
@@ -914,25 +822,16 @@ export default function InterviewReportPage(props: {
               onCheckedChange={handleTogglePublic}
               disabled={isToggling}
             />
-            <Label htmlFor="public-mode">
-              Make report {isPublic ? "private" : "public"}
-            </Label>
+            <Label htmlFor="public-mode">Make report {isPublic ? "private" : "public"}</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Input
-              value={`${window.location.origin}/report/${idHandler.encode(
-                report?.sys.id ?? 0
-              )}`}
+              value={`${window.location.origin}/report/${idHandler.encode(report?.sys.id ?? 0)}`}
               readOnly
               onClick={(e) => e.currentTarget.select()}
               className="flex-grow"
             />
-            <Button
-              size="icon"
-              variant="outline"
-              onClick={copyShareLink}
-              disabled={!isPublic}
-            >
+            <Button size="icon" variant="outline" onClick={copyShareLink} disabled={!isPublic}>
               <Copy className="h-4 w-4" />
             </Button>
           </div>

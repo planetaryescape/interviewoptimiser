@@ -1,5 +1,5 @@
 import { getFontFamilyName, getFontFamilyString } from "@/lib/fontUtils";
-import { logger } from "@/lib/logger";
+import { logger } from "~/lib/logger";
 
 export function prepareHtml(htmlContent: string): string {
   if (!htmlContent) {

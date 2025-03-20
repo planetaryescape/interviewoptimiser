@@ -32,13 +32,12 @@ export default function PricingPageFaq() {
           <div key={faq.question} className="pt-6">
             <dt className="text-lg">
               <button
+                type="button"
                 onClick={() => setOpenFaq(openFaq === index ? null : index)}
                 className="flex w-full items-start justify-between text-left text-card-foreground"
                 aria-expanded={openFaq === index}
               >
-                <span className="font-semibold text-card-foreground">
-                  {faq.question}
-                </span>
+                <span className="font-semibold text-card-foreground">{faq.question}</span>
                 <span className="ml-6 flex h-7 items-center">
                   <ChevronDown
                     className={`h-6 w-6 transform transition-transform ${

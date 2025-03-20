@@ -35,8 +35,8 @@ export default function NotFound() {
             Page Not Found
           </h2>
           <p className="text-lg text-muted-foreground">
-            Oops! It seems like the page you&apos;re looking for doesn&apos;t
-            exist or has been moved.
+            Oops! It seems like the page you&apos;re looking for doesn&apos;t exist or has been
+            moved.
           </p>
         </div>
 
@@ -61,6 +61,7 @@ export default function NotFound() {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
+          <title>Gradient line</title>
           <line
             x1="0"
             y1="4"
@@ -80,11 +81,7 @@ export default function NotFound() {
           <defs>
             <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="var(--primary)" />
-              <stop
-                offset="100%"
-                stopColor="var(--primary)"
-                stopOpacity="0.2"
-              />
+              <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.2" />
             </linearGradient>
           </defs>
         </svg>

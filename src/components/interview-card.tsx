@@ -20,18 +20,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Interview, Report } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { idHandler } from "@/lib/utils/idHandler";
-import {
-  Building2,
-  Calendar,
-  Loader2,
-  MoreVertical,
-  User2,
-} from "lucide-react";
+import { Building2, Calendar, Loader2, MoreVertical, User2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import type { Interview, Report } from "~/db/schema";
 import { Skeleton } from "./ui/skeleton";
 
 interface InterviewCardProps {
@@ -43,11 +37,7 @@ interface InterviewCardProps {
   deletingId: number | null;
 }
 
-export const InterviewCard = ({
-  interview,
-  onDelete,
-  deletingId,
-}: InterviewCardProps) => {
+export const InterviewCard = ({ interview, onDelete, deletingId }: InterviewCardProps) => {
   const [open, setOpen] = useState(false);
   const hasReport = Boolean(interview.report);
 
@@ -90,9 +80,7 @@ export const InterviewCard = ({
           <CardDescription className="space-y-4">
             <div className="flex items-center gap-2 text-sm">
               <User2 className="h-4 w-4 text-muted-foreground" />
-              <span>
-                {interview.candidate || "Candidate Name Not Available"}
-              </span>
+              <span>{interview.candidate || "Candidate Name Not Available"}</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -103,17 +91,9 @@ export const InterviewCard = ({
       </CardContent>
 
       <div className="p-4 border-t border-gray-200 dark:border-gray-800 flex justify-between items-center bg-muted/50">
-        <Button
-          disabled={!hasReport}
-          asChild
-          size="sm"
-          variant="secondary"
-          className="w-full"
-        >
+        <Button disabled={!hasReport} asChild size="sm" variant="secondary" className="w-full">
           <Link
-            href={`/dashboard/interviews/${idHandler.encode(
-              interview.id ?? 0
-            )}/reports`}
+            href={`/dashboard/interviews/${idHandler.encode(interview.id ?? 0)}/reports`}
             className="flex items-center justify-center gap-2"
           >
             {!hasReport && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -140,12 +120,10 @@ export const InterviewCard = ({
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      the interview and all associated data.
+                      This action cannot be undone. This will permanently delete the interview and
+                      all associated data.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>

@@ -1,13 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useUser } from "@/hooks/useUser";
 import { cn } from "@/lib/utils";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
@@ -53,12 +47,7 @@ export function MobileMenu({ isDashboard, onFeedbackClick }: MobileMenuProps) {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button
-          className="md:hidden relative"
-          variant="ghost"
-          size="sm"
-          aria-label="Open menu"
-        >
+        <Button className="md:hidden relative" variant="ghost" size="sm" aria-label="Open menu">
           <Menu className="w-5 h-5" />
         </Button>
       </SheetTrigger>
@@ -77,15 +66,11 @@ export function MobileMenu({ isDashboard, onFeedbackClick }: MobileMenuProps) {
                   <NavLink href="/dashboard">Optimisations</NavLink>
                   {user?.role === "admin" && (
                     <>
-                      <NavLink href="/dashboard/admin">
-                        Optimisations (Admin)
-                      </NavLink>
+                      <NavLink href="/dashboard/admin">Optimisations (Admin)</NavLink>
                       <NavLink href="/dashboard/admin/feature-requests">
                         Feature Requests (Admin)
                       </NavLink>
-                      <NavLink href="/dashboard/admin/changelog">
-                        Changelog (Admin)
-                      </NavLink>
+                      <NavLink href="/dashboard/admin/changelog">Changelog (Admin)</NavLink>
                     </>
                   )}
                   <NavLink href="/dashboard/settings">Settings</NavLink>
@@ -110,9 +95,7 @@ export function MobileMenu({ isDashboard, onFeedbackClick }: MobileMenuProps) {
                   <div className="flex items-center justify-between p-3 rounded-lg bg-background/80">
                     <div className="flex items-center gap-2">
                       <CreditCard className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">
-                        Minutes
-                      </span>
+                      <span className="text-sm text-muted-foreground">Minutes</span>
                     </div>
                     <Badge variant="secondary" className="font-medium">
                       {user.minutes}

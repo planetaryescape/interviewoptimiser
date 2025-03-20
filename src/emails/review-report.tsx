@@ -1,4 +1,3 @@
-import { config } from "@/lib/config";
 import {
   Body,
   Container,
@@ -11,6 +10,7 @@ import {
   Text,
 } from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
+import { config } from "~/config";
 
 interface Review {
   id: number;
@@ -72,9 +72,7 @@ export const ReviewReportEmail = ({
                 Published Reviews ({publishedReviews.length})
               </Heading>
               {publishedReviews.length === 0 ? (
-                <Text className="text-gray-600 italic">
-                  No reviews were published today
-                </Text>
+                <Text className="text-gray-600 italic">No reviews were published today</Text>
               ) : (
                 publishedReviews.map((review) => (
                   <div key={review.id} className="mb-4 p-4 bg-gray-50 rounded">
@@ -92,9 +90,7 @@ export const ReviewReportEmail = ({
                 Rejected Reviews ({rejectedReviews.length})
               </Heading>
               {rejectedReviews.length === 0 ? (
-                <Text className="text-gray-600 italic">
-                  No reviews were rejected today
-                </Text>
+                <Text className="text-gray-600 italic">No reviews were rejected today</Text>
               ) : (
                 rejectedReviews.map((review) => (
                   <div key={review.id} className="mb-4 p-4 bg-gray-50 rounded">
@@ -114,12 +110,9 @@ export const ReviewReportEmail = ({
 
             <Section className="mt-8 pt-8 border-t border-gray-200">
               <Text className="text-sm text-gray-600 text-center">
-                This is an automated report from {config.projectName}. If you
-                have any questions, please contact our support team at{" "}
-                <a
-                  href={`mailto:${config.supportEmail}`}
-                  className="text-brand"
-                >
+                This is an automated report from {config.projectName}. If you have any questions,
+                please contact our support team at{" "}
+                <a href={`mailto:${config.supportEmail}`} className="text-brand">
                   {config.supportEmail}
                 </a>
               </Text>

@@ -1,20 +1,41 @@
 "use client";
 
+import { Icons } from "@/components/icons";
 import { InterviewStartModal } from "@/components/interview-start-modal";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useVoice } from "@humeai/voice-react";
 import { motion } from "framer-motion";
-import {
-  ChevronRight,
-  Home,
-  MessageCircle,
-  Mic,
-  Sparkles,
-  Target,
-} from "lucide-react";
+import { ChevronRight, Home, MessageCircle, Mic, Sparkles, Target } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+
+const PLACEHOLDER_MESSAGES = [
+  {
+    id: "user-1",
+    role: "user",
+    content: "Hi! I&apos;m preparing for a job interview. Can you help me practice?",
+  },
+  {
+    id: "assistant-1",
+    role: "assistant",
+    content:
+      "Of course! I&apos;d be happy to help you practice for your job interview. What role are you interviewing for?",
+  },
+  {
+    id: "user-2",
+    role: "user",
+    content: "I&apos;m interviewing for a Senior Software Engineer position at a tech company.",
+  },
+  {
+    id: "assistant-2",
+    role: "assistant",
+    content:
+      "Great! I&apos;ll help you prepare for your Senior Software Engineer interview. Let&apos;s start with some common questions. Are you ready?",
+  },
+];
 
 export default function InterviewPlaceholder({
   interviewEnded,
@@ -30,16 +51,19 @@ export default function InterviewPlaceholder({
 
   const features = [
     {
+      id: "voice",
       icon: Mic,
       title: "Real-time Voice Interaction",
       description: "Natural conversation with AI-powered responses",
     },
     {
+      id: "feedback",
       icon: Target,
       title: "Personalized Feedback",
       description: "Get instant insights on your performance",
     },
     {
+      id: "analysis",
       icon: Sparkles,
       title: "AI-Powered Analysis",
       description: "Comprehensive evaluation of your interview skills",
@@ -87,7 +111,7 @@ export default function InterviewPlaceholder({
           <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
           {Array.from({ length: 6 }).map((_, i) => (
             <motion.div
-              key={i}
+              key={`bg-element-${i + 1}`}
               className="absolute rounded-full bg-primary/10 blur-3xl"
               style={{
                 width: Math.random() * 400 + 200,
@@ -102,7 +126,7 @@ export default function InterviewPlaceholder({
               }}
               transition={{
                 duration: 10,
-                repeat: Infinity,
+                repeat: Number.POSITIVE_INFINITY,
                 delay: i * 0.5,
               }}
             />
@@ -133,22 +157,18 @@ export default function InterviewPlaceholder({
             transition={{ duration: 0.5, delay: 0.2 }}
             className="grid md:grid-cols-3 gap-6 w-full"
           >
-            {features.map((feature, index) => (
+            {features.map((feature) => (
               <motion.div
-                key={index}
+                key={feature.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
                 className="group relative overflow-hidden rounded-2xl bg-gradient-to-b from-background to-primary/5 p-6 border border-primary/10 hover:border-primary/20 transition-colors"
               >
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <feature.icon className="h-8 w-8 text-primary mb-4 relative z-10" />
-                <h3 className="font-semibold mb-2 relative z-10">
-                  {feature.title}
-                </h3>
-                <p className="text-sm text-muted-foreground relative z-10">
-                  {feature.description}
-                </p>
+                <h3 className="font-semibold mb-2 relative z-10">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground relative z-10">{feature.description}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -170,6 +190,43 @@ export default function InterviewPlaceholder({
               Start Interview
             </Button>
           </motion.div>
+
+          <div className="space-y-4 pb-20">
+            {PLACEHOLDER_MESSAGES.map((message) => (
+              <div
+                key={message.id}
+                className={cn(
+                  "flex w-full items-start gap-x-8 rounded-lg p-4",
+                  message.role === "assistant" ? "bg-muted/50" : "bg-background border"
+                )}
+              >
+                <span className="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-full">
+                  {message.role === "user" ? (
+                    <Icons.user className="h-8 w-8 bg-background" />
+                  ) : (
+                    <Icons.logo className="h-8 w-8" />
+                  )}
+                </span>
+                <ReactMarkdown
+                  components={{
+                    pre: ({ children, ...props }) => (
+                      <div className="overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg">
+                        <pre {...props}>{children}</pre>
+                      </div>
+                    ),
+                    code: ({ children, ...props }) => (
+                      <code className="bg-black/10 rounded-lg p-1" {...props}>
+                        {children}
+                      </code>
+                    ),
+                  }}
+                  className="text-sm leading-7"
+                >
+                  {message.content}
+                </ReactMarkdown>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

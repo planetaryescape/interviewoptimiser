@@ -10,9 +10,7 @@ import { Step2JobDescription } from "@/components/create-optimization/Step2JobDe
 import { Step3AdditionalInfo } from "@/components/create-optimization/Step3AdditionalInfo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { NewInterview } from "@/db/schema";
 import { useUser } from "@/hooks/useUser";
-import { config } from "@/lib/config";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { sanitiseUserInputText } from "@/lib/sanitiseUserInputText";
 import { cn } from "@/lib/utils";
@@ -36,6 +34,8 @@ import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { usePostHog } from "posthog-js/react";
 import { toast } from "sonner";
+import { config } from "~/config";
+import type { NewInterview } from "~/db/schema";
 
 export default function CreateInterview() {
   const step = useCreateInterviewStep();
@@ -45,8 +45,7 @@ export default function CreateInterview() {
   const showTakeover = useCreateInterviewShowTakeover();
   const isAlertDialogOpen = useCreateInterviewIsAlertDialogOpen();
   const isOutOfMinutesDialogOpen = useCreateInterviewIsOutOfMinutesDialogOpen();
-  const isScheduleErrorDialogOpen =
-    useCreateInterviewIsScheduleErrorDialogOpen();
+  const isScheduleErrorDialogOpen = useCreateInterviewIsScheduleErrorDialogOpen();
   const {
     setStep,
     setShowTakeover,
@@ -79,10 +78,7 @@ export default function CreateInterview() {
 
   const createInterviewMutation = useMutation({
     mutationFn: async (interview: NewInterview) => {
-      const interviewRepository = await getRepository<NewInterview>(
-        "interviews",
-        true
-      );
+      const interviewRepository = await getRepository<NewInterview>("interviews", true);
       return interviewRepository.create(interview);
     },
     onSuccess: (data) => {
@@ -90,9 +86,7 @@ export default function CreateInterview() {
       setShowTakeover(true);
       setTimeout(() => {
         resetStore();
-        router.push(
-          `/dashboard/interviews/${idHandler.encode(data.sys.id ?? 0)}`
-        );
+        router.push(`/dashboard/interviews/${idHandler.encode(data.sys.id ?? 0)}`);
         setShowTakeover(false);
       }, 9000);
     },
@@ -163,9 +157,7 @@ export default function CreateInterview() {
         scope.setExtra("error", error);
         Sentry.captureException(error);
       });
-      toast.error(
-        "An error occurred while processing your request. Please try again."
-      );
+      toast.error("An error occurred while processing your request. Please try again.");
     }
   };
 
@@ -173,27 +165,22 @@ export default function CreateInterview() {
     step === 1
       ? "Let's start with your CV"
       : step === 2
-      ? "Now, tell us about the job"
-      : "Final details";
+        ? "Now, tell us about the job"
+        : "Final details";
 
   const subtitle =
     step === 1
       ? "We'll use your CV to understand your experience and tailor the interview questions."
       : step === 2
-      ? "Share the job description to help us create relevant interview questions."
-      : "Help us customize your interview experience.";
+        ? "Share the job description to help us create relevant interview questions."
+        : "Help us customize your interview experience.";
 
   return (
     <div className="relative flex flex-col h-full overflow-y-auto pb-[env(safe-area-inset-bottom)]">
       <div className="sticky top-0 z-50 bg-background border-b">
         <div className="max-w-2xl mx-auto w-full px-4 py-4">
           <div className="flex items-center justify-between">
-            <Button
-              variant="outline"
-              disabled={step === 1}
-              onClick={handleBack}
-              size="sm"
-            >
+            <Button variant="outline" disabled={step === 1} onClick={handleBack} size="sm">
               Back
             </Button>
 
@@ -245,11 +232,7 @@ export default function CreateInterview() {
                 }
               }}
             >
-              {createInterviewMutation.isPending
-                ? "Submitting..."
-                : step === 3
-                ? "Submit"
-                : "Next"}
+              {createInterviewMutation.isPending ? "Submitting..." : step === 3 ? "Submit" : "Next"}
             </Button>
           </div>
         </div>
@@ -259,9 +242,7 @@ export default function CreateInterview() {
         <div className="mb-8">
           <div className="text-center space-y-1">
             <h1 className="text-2xl font-semibold">{title}</h1>
-            <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              {subtitle}
-            </p>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto">{subtitle}</p>
           </div>
         </div>
 
@@ -295,9 +276,7 @@ export default function CreateInterview() {
         }}
       />
 
-      <AnimatePresence>
-        {showTakeover && <ProcessingTakeover />}
-      </AnimatePresence>
+      <AnimatePresence>{showTakeover && <ProcessingTakeover />}</AnimatePresence>
       <AnotherBackgroundGradient degrees={Math.random() * 360} />
     </div>
   );

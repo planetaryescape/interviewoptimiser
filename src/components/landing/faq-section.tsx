@@ -1,19 +1,10 @@
 "use client";
 
 import { BackgroundGradient } from "@/components/background-gradient";
-import { config } from "@/lib/config";
 import { motion } from "framer-motion";
-import {
-  Brain,
-  ChartLine,
-  Clock,
-  MessageSquare,
-  Mic,
-  Shield,
-  Target,
-  Zap,
-} from "lucide-react";
+import { Brain, ChartLine, Clock, MessageSquare, Mic, Shield, Target, Zap } from "lucide-react";
 import { useState } from "react";
+import { config } from "~/config";
 
 type FAQ = {
   question: string;
@@ -29,7 +20,7 @@ const HexagonPattern = () => (
     transition={{
       duration: 60,
       ease: "linear",
-      repeat: Infinity,
+      repeat: Number.POSITIVE_INFINITY,
     }}
     className="absolute bottom-[-8rem] right-[-4rem] z-0 opacity-[0.08] group-hover:opacity-[0.15] transition-opacity duration-300"
   >
@@ -39,7 +30,9 @@ const HexagonPattern = () => (
       viewBox="0 0 200 200"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      aria-label="Hexagon pattern"
     >
+      <title>Hexagon pattern</title>
       <path
         d="M25 0L47.1649 12.8333L47.1649 38.5L25 51.3333L2.83513 38.5L2.83513 12.8333L25 0Z"
         fill="currentColor"
@@ -88,6 +81,11 @@ const FAQCard = ({
   return (
     <div
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          onClick();
+        }
+      }}
       className={`group cursor-pointer transition-all duration-300 ease-out
         ${
           isActive
@@ -105,23 +103,15 @@ const FAQCard = ({
       >
         <div className="space-y-3">
           <div className="text-primary">{faq.icon}</div>
-          <h3 className="text-xl font-semibold text-foreground/90">
-            {faq.question}
-          </h3>
+          <h3 className="text-xl font-semibold text-foreground/90">{faq.question}</h3>
           {!isActive && (
-            <p className="text-foreground/60 text-sm font-medium">
-              Click to learn more →
-            </p>
+            <p className="text-foreground/60 text-sm font-medium">Click to learn more →</p>
           )}
         </div>
 
         <div
           className={`overflow-hidden transition-all duration-300
-          ${
-            isActive
-              ? "opacity-100 max-h-96"
-              : "opacity-0 max-h-0 md:max-h-none md:opacity-0"
-          }`}
+          ${isActive ? "opacity-100 max-h-96" : "opacity-0 max-h-0 md:max-h-none md:opacity-0"}`}
         >
           <p className="text-foreground/75 leading-relaxed">{faq.answer}</p>
         </div>
@@ -151,7 +141,7 @@ export function FAQSection() {
       icon: <Target className="w-6 h-6" />,
     },
     {
-      question: `What types of interviews can I practice?`,
+      question: "What types of interviews can I practice?",
       answer: `${config.projectName} offers a variety of interview types, including behavioral, technical, and situational formats. Each interview style adapts to your industry and role, so you can choose the style that best fits your goals.`,
       icon: <MessageSquare className="w-6 h-6" />,
     },
@@ -161,7 +151,7 @@ export function FAQSection() {
       icon: <Zap className="w-6 h-6" />,
     },
     {
-      question: `How do I track my progress?`,
+      question: "How do I track my progress?",
       answer: `After each interview, you receive a detailed feedback report that highlights your strengths, areas for improvement, and actionable suggestions. These reports are saved in your ${config.projectName} account, allowing you to track your growth over time.`,
       icon: <ChartLine className="w-6 h-6" />,
     },
@@ -185,21 +175,18 @@ export function FAQSection() {
             Frequently Asked Questions
           </h2>
           <p className="text-lg text-foreground/80">
-            Everything you need to know about {config.projectName}. Can&apos;t
-            find the answer you&apos;re looking for? Reach out to our support
-            team.
+            Everything you need to know about {config.projectName}. Can&apos;t find the answer
+            you&apos;re looking for? Reach out to our support team.
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {faqs.map((faq, index) => (
             <FAQCard
-              key={index}
+              key={faq.question}
               faq={faq}
               isActive={activeIndex === index}
-              onClick={() =>
-                setActiveIndex(activeIndex === index ? null : index)
-              }
+              onClick={() => setActiveIndex(activeIndex === index ? null : index)}
             />
           ))}
         </div>

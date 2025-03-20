@@ -2,12 +2,10 @@
 
 import "easymde/dist/easymde.min.css";
 import { useEffect, useState } from "react";
-import SimpleMDE from "react-simplemde-editor";
+import type SimpleMDE from "react-simplemde-editor";
 
 export default function useMarkdownEditor() {
-  const [SimpleMDEComponent, setSimpleMDEComponent] = useState<
-    typeof SimpleMDE | null
-  >(null);
+  const [SimpleMDEComponent, setSimpleMDEComponent] = useState<typeof SimpleMDE | null>(null);
 
   useEffect(() => {
     import("react-simplemde-editor").then((module) => {

@@ -1,17 +1,17 @@
-import { db } from "@/db";
-import { users } from "@/db/schema";
 import PurchaseNotificationEmail from "@/emails/purchase-notification";
-import { config } from "@/lib/config";
 import { createDefaultApiRouteContext } from "@/lib/createDefaultApiRouteContext";
-import { logger } from "@/lib/logger";
-import { resend } from "@/lib/resend";
-import { stripe } from "@/lib/stripe";
 import { formatEmptyEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
 import { eq, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
+import type Stripe from "stripe";
+import { config } from "~/config";
+import { db } from "~/db";
+import { users } from "~/db/schema";
+import { logger } from "~/lib/logger";
+import { resend } from "~/lib/resend";
+import { stripe } from "~/lib/stripe";
 
 export async function POST(request: Request) {
   const context = {
@@ -51,30 +51,20 @@ export async function POST(request: Request) {
         .set({
           minutes: config.startingFreeMinutes,
         })
-        .where(
-          eq(users.stripeCustomerId, event.data.object.customer as string)
-        );
+        .where(eq(users.stripeCustomerId, event.data.object.customer as string));
     } else if (event.type === "customer.subscription.deleted") {
     } else if (event.type === "checkout.session.completed") {
-      const checkoutSessionId = event.data.object
-        .id as Stripe.Checkout.Session["id"];
+      const checkoutSessionId = event.data.object.id as Stripe.Checkout.Session["id"];
 
-      const lineItems = await stripe.checkout.sessions.listLineItems(
-        checkoutSessionId,
-        {
-          expand: ["data.price.product"],
-        }
-      );
+      const lineItems = await stripe.checkout.sessions.listLineItems(checkoutSessionId, {
+        expand: ["data.price.product"],
+      });
 
-      logger.info(
-        { ...context, lineItems, checkoutSessionId },
-        "Checkout session completed"
-      );
+      logger.info({ ...context, lineItems, checkoutSessionId }, "Checkout session completed");
 
       let customerId = event.data.object.customer as string;
       const email = event.data.object.customer_details?.email || "";
-      const customerName =
-        event.data.object.customer_details?.name || "Customer";
+      const customerName = event.data.object.customer_details?.name || "Customer";
 
       logger.info({ ...context, customerId, email }, "Customer details");
 
@@ -94,7 +84,7 @@ export async function POST(request: Request) {
       }
 
       const minutes = lineItems.data.reduce((acc, lineItem) => {
-        const minutes = parseInt(
+        const minutes = Number.parseInt(
           (lineItem.price?.product as Stripe.Product)?.metadata.minutes
         );
         const quantity = lineItem.quantity || 0;
@@ -102,9 +92,7 @@ export async function POST(request: Request) {
         return acc + minutes * quantity;
       }, 0);
 
-      const amountPaid = event.data.object.amount_total
-        ? event.data.object.amount_total / 100
-        : 0; // Convert from cents to dollars
+      const amountPaid = event.data.object.amount_total ? event.data.object.amount_total / 100 : 0; // Convert from cents to dollars
 
       const [user] = await db
         .update(users)
@@ -132,10 +120,7 @@ export async function POST(request: Request) {
         });
         logger.info("Purchase notification email sent successfully");
       } catch (emailError) {
-        logger.error(
-          { error: emailError },
-          "Failed to send purchase notification email"
-        );
+        logger.error({ error: emailError }, "Failed to send purchase notification email");
         // Don't fail the webhook if email sending fails
       }
 

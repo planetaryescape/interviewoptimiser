@@ -2,7 +2,7 @@
 
 import mammoth from "mammoth";
 import { PdfReader } from "pdfreader";
-import { logger } from "./logger";
+import { logger } from "../../lib/logger";
 
 export async function extractTextFromFile(file: File): Promise<string> {
   const buffer = await file.arrayBuffer();
@@ -24,8 +24,7 @@ export async function extractTextFromFile(file: File): Promise<string> {
 
     return text;
   } else if (
-    file.type ===
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+    file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
     file.type === "application/msword"
   ) {
     const result = await mammoth.extractRawText({ arrayBuffer: buffer });

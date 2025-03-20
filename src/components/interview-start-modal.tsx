@@ -11,11 +11,7 @@ type InterviewStartModalProps = {
   onStart: () => void;
 };
 
-export function InterviewStartModal({
-  isOpen,
-  onClose,
-  onStart,
-}: InterviewStartModalProps) {
+export function InterviewStartModal({ isOpen, onClose, onStart }: InterviewStartModalProps) {
   const guidelines = [
     {
       icon: Volume2,
@@ -35,8 +31,7 @@ export function InterviewStartModal({
     {
       icon: MessageSquare,
       title: "Feel Free to Interrupt",
-      description:
-        "You can politely interrupt if needed - just like a real conversation",
+      description: "You can politely interrupt if needed - just like a real conversation",
     },
   ];
 
@@ -48,14 +43,12 @@ export function InterviewStartModal({
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-background animate-gradient" />
 
           <div className="relative z-10">
-            <h2 className="text-2xl font-bold text-center mb-6">
-              Before you begin your interview
-            </h2>
+            <h2 className="text-2xl font-bold text-center mb-6">Before you begin your interview</h2>
 
             <div className="grid sm:grid-cols-2 gap-4 mb-8">
               {guidelines.map((item, index) => (
                 <motion.div
-                  key={index}
+                  key={item.title}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
@@ -65,9 +58,7 @@ export function InterviewStartModal({
                     <item.icon className="w-5 h-5 text-primary mt-1" />
                     <div>
                       <h3 className="font-medium mb-1">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {item.description}
-                      </p>
+                      <p className="text-sm text-muted-foreground">{item.description}</p>
                     </div>
                   </div>
                 </motion.div>

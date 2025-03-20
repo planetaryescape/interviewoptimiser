@@ -3,11 +3,11 @@
 import { BackgroundGradient } from "@/components/background-gradient";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { InvitationModal } from "@/components/invitation-modal";
-import { Invitation } from "@/db/schema";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import type { Invitation } from "~/db/schema";
 
 export default function DashboardLayout({
   children,
@@ -38,14 +38,12 @@ export default function DashboardLayout({
         <div className="container mx-auto p-6 space-y-8 h-full">{children}</div>
         <BackgroundGradient />
       </main>
-      {showInvites &&
-        pendingInvitations?.length &&
-        pendingInvitations?.length > 0 && (
-          <InvitationModal
-            invitations={pendingInvitations.map((i) => i.data)}
-            onClose={() => setShowInvites(false)}
-          />
-        )}
+      {showInvites && pendingInvitations?.length && pendingInvitations?.length > 0 && (
+        <InvitationModal
+          invitations={pendingInvitations.map((i) => i.data)}
+          onClose={() => setShowInvites(false)}
+        />
+      )}
     </div>
   );
 }

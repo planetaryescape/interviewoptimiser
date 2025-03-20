@@ -1,6 +1,6 @@
-import { db } from "@/db";
-import { User, users } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { db } from "~/db";
+import { type User, users } from "~/db/schema";
 
 export async function getUserFromClerkId(clerkUserId: string): Promise<{
   id?: number;
@@ -49,11 +49,7 @@ export async function getUserFromId(userId: number): Promise<User | null> {
     return null;
   }
 
-  const user = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, userId))
-    .limit(1);
+  const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
 
   if (user.length === 0) {
     return null;
@@ -67,11 +63,7 @@ export async function getUserFromEmail(email: string): Promise<User | null> {
     return null;
   }
 
-  const user = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, email))
-    .limit(1);
+  const user = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
   if (user.length === 0) {
     return null;

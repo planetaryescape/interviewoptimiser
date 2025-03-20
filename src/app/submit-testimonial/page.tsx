@@ -1,6 +1,6 @@
 "use client";
 
-import { ReviewForm, ReviewFormData } from "@/components/review-form";
+import { ReviewForm, type ReviewFormData } from "@/components/review-form";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/nextjs";
 import { useMutation } from "@tanstack/react-query";
@@ -25,9 +25,7 @@ export default function SubmitTestimonialPage() {
     if (user?.firstName || user?.lastName) {
       setReviewForm((prev) => ({
         ...prev,
-        name:
-          [user.firstName, user.lastName].filter(Boolean).join(" ") ||
-          prev.name,
+        name: [user.firstName, user.lastName].filter(Boolean).join(" ") || prev.name,
       }));
     }
   }, [user]);
@@ -64,18 +62,14 @@ export default function SubmitTestimonialPage() {
             <CheckCircle2 className="h-16 w-16 text-green-500" />
           </div>
           <div className="space-y-4">
-            <h1 className="text-3xl font-bold tracking-tighter">
-              Thank You for Your Feedback!
-            </h1>
+            <h1 className="text-3xl font-bold tracking-tighter">Thank You for Your Feedback!</h1>
             <p className="text-muted-foreground">
-              Your review helps us improve CV Optimiser and assists other job
-              seekers in making informed decisions. We truly appreciate you
-              taking the time to share your experience.
+              Your review helps us improve CV Optimiser and assists other job seekers in making
+              informed decisions. We truly appreciate you taking the time to share your experience.
             </p>
             {reviewForm.showOnLanding && (
               <p className="text-sm text-muted-foreground">
-                Your review will be visible on our landing page after a brief
-                review.
+                Your review will be visible on our landing page after a brief review.
               </p>
             )}
           </div>
@@ -93,14 +87,10 @@ export default function SubmitTestimonialPage() {
   return (
     <div className="container max-w-2xl mx-auto py-12 px-4">
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold tracking-tighter">
-          Share Your Experience
-        </h1>
+        <h1 className="text-3xl font-bold tracking-tighter">Share Your Experience</h1>
         <ReviewForm
           formData={reviewForm}
-          onFormChange={(data) =>
-            setReviewForm((prev) => ({ ...prev, ...data }))
-          }
+          onFormChange={(data) => setReviewForm((prev) => ({ ...prev, ...data }))}
           onSubmit={() => submitReview(reviewForm)}
           isSubmitting={isPending}
           autoFocus

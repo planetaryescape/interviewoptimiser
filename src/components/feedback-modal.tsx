@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { NewFeatureRequest } from "@/db/schema";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { useAuth } from "@clerk/nextjs";
@@ -19,6 +18,7 @@ import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import type { NewFeatureRequest } from "~/db/schema";
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -29,19 +29,15 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
   const { userId } = useAuth();
   const { data: user } = useUser();
   const queryClient = useQueryClient();
-  const [newFeatureRequest, setNewFeatureRequest] = useState<NewFeatureRequest>(
-    {
-      userId: user?.id ?? 0,
-      title: "",
-      content: "",
-    }
-  );
+  const [newFeatureRequest, setNewFeatureRequest] = useState<NewFeatureRequest>({
+    userId: user?.id ?? 0,
+    title: "",
+    content: "",
+  });
 
   const addFeatureRequestMutation = useMutation({
     mutationFn: async (featureRequest: NewFeatureRequest) => {
-      const repository = await getRepository<NewFeatureRequest>(
-        "feature-requests"
-      );
+      const repository = await getRepository<NewFeatureRequest>("feature-requests");
       return repository.create(featureRequest);
     },
     onSuccess: () => {
@@ -88,8 +84,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
         <DialogHeader>
           <DialogTitle>Feedback & Feature Requests</DialogTitle>
           <DialogDescription>
-            We value your input! Use this form to submit feedback or suggest new
-            features.
+            We value your input! Use this form to submit feedback or suggest new features.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">

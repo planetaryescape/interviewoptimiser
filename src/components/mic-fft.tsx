@@ -21,19 +21,22 @@ export function MicFFT({
             height={height}
             className={cn("absolute !inset-0 !size-full", className)}
           >
+            <title>Audio Frequency Visualization</title>
             {Array.from({ length: 24 }).map((_, index) => {
               const value = (fft[index] ?? 0) / 4;
               const h = Math.min(Math.max(height * value, 2), height);
-              const yOffset = height * 0.5 - h * 0.5;
-
               return (
                 <motion.rect
-                  key={`mic-fft-${index}`}
+                  key={`fft-bar-${index + 1}-${h}`}
                   height={h}
                   width={2}
-                  x={2 + (index * width - 4) / 24}
-                  y={yOffset}
-                  rx={4}
+                  x={index * 4}
+                  y={height - h}
+                  fill="currentColor"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.15, delay: index * 0.02 }}
                 />
               );
             })}

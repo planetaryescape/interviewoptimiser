@@ -1,16 +1,12 @@
-import { db } from "@/db";
-import { featureRequestLikes, featureRequests, users } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { logger } from "@/lib/logger";
-import {
-  formatEntity,
-  formatEntityList,
-  formatErrorEntity,
-} from "@/lib/utils/formatEntity";
+import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { desc, sql } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { featureRequestLikes, featureRequests, users } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 export async function GET(request: NextRequest) {
   logger.info("GET request received at /api/feature-requests");
@@ -35,9 +31,7 @@ export async function GET(request: NextRequest) {
         userId: featureRequests.userId,
         createdAt: featureRequests.createdAt,
         updatedAt: featureRequests.updatedAt,
-        likesCount: sql<number>`count(${featureRequestLikes.id})`.as(
-          "likes_count"
-        ),
+        likesCount: sql<number>`count(${featureRequestLikes.id})`.as("likes_count"),
         ...(isAdmin ? { username: users.username } : {}),
         hasVoted: currentUserId
           ? sql<boolean>`EXISTS (
@@ -57,9 +51,7 @@ export async function GET(request: NextRequest) {
       .orderBy(desc(sql`likes_count`));
 
     logger.info("Successfully retrieved feature requests");
-    return NextResponse.json(
-      formatEntityList(featureRequestsWithLikes, "feature-request")
-    );
+    return NextResponse.json(formatEntityList(featureRequestsWithLikes, "feature-request"));
   } catch (error) {
     Sentry.withScope((scope) => {
       scope.setExtra("context", "GET /api/feature-requests");
@@ -115,9 +107,7 @@ export async function POST(request: NextRequest) {
       { featureRequestId: newFeatureRequest.id },
       "Successfully created new feature request"
     );
-    return NextResponse.json(
-      formatEntity(newFeatureRequest, "feature-request")
-    );
+    return NextResponse.json(formatEntity(newFeatureRequest, "feature-request"));
   } catch (error) {
     Sentry.withScope((scope) => {
       scope.setExtra("context", "POST /api/feature-requests");

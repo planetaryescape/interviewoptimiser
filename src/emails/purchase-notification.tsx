@@ -1,4 +1,3 @@
-import { config } from "@/lib/config";
 import {
   Body,
   Container,
@@ -11,6 +10,7 @@ import {
   Text,
 } from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
+import { config } from "~/config";
 
 interface PurchaseNotificationEmailProps {
   customerName: string;
@@ -31,8 +31,7 @@ export const PurchaseNotificationEmail = ({
     <Html>
       <Head />
       <Preview>
-        New Purchase - {customerName} bought {minutesPurchased.toString()}{" "}
-        minutes
+        New Purchase - {customerName} bought {minutesPurchased.toString()} minutes
       </Preview>
       <Tailwind
         config={{
@@ -72,18 +71,17 @@ export const PurchaseNotificationEmail = ({
 
                 <div className="space-y-3">
                   <Text className="text-gray-700">
-                    <span className="font-semibold">Minutes Purchased:</span>{" "}
-                    {minutesPurchased} minutes
+                    <span className="font-semibold">Minutes Purchased:</span> {minutesPurchased}{" "}
+                    minutes
                   </Text>
 
                   <Text className="text-gray-700">
-                    <span className="font-semibold">Amount Paid:</span>{" "}
-                    {currency} {amountPaid.toFixed(2)}
+                    <span className="font-semibold">Amount Paid:</span> {currency}{" "}
+                    {amountPaid.toFixed(2)}
                   </Text>
 
                   <Text className="text-gray-700">
-                    <span className="font-semibold">Purchase Date:</span>{" "}
-                    {purchaseDate}
+                    <span className="font-semibold">Purchase Date:</span> {purchaseDate}
                   </Text>
                 </div>
               </div>
@@ -91,12 +89,9 @@ export const PurchaseNotificationEmail = ({
 
             <Section className="mt-8 pt-8 border-t border-gray-200">
               <Text className="text-sm text-gray-600 text-center">
-                This is an automated notification from {config.projectName}. If
-                you have any questions, please contact our support team at{" "}
-                <a
-                  href={`mailto:${config.supportEmail}`}
-                  className="text-brand"
-                >
+                This is an automated notification from {config.projectName}. If you have any
+                questions, please contact our support team at{" "}
+                <a href={`mailto:${config.supportEmail}`} className="text-brand">
                   {config.supportEmail}
                 </a>
               </Text>

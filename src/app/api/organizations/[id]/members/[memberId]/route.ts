@@ -1,13 +1,13 @@
-import { db } from "@/db";
-import { organizationMembers } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { logger } from "@/lib/logger";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { and, eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { organizationMembers } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 async function checkOrganizationAccess(organizationId: number, userId: number) {
   const member = await db.query.organizationMembers.findFirst({
@@ -25,16 +25,14 @@ export async function PUT(
   props: { params: Promise<{ id: string; memberId: string }> }
 ) {
   const params = await props.params;
-  logger.info(
-    "PUT request received at /api/organizations/[id]/members/[memberId]",
-    { id: params.id, memberId: params.memberId }
-  );
+  logger.info("PUT request received at /api/organizations/[id]/members/[memberId]", {
+    id: params.id,
+    memberId: params.memberId,
+  });
 
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.error(
-      "Unauthorized access attempt at /api/organizations/[id]/members/[memberId]"
-    );
+    logger.error("Unauthorized access attempt at /api/organizations/[id]/members/[memberId]");
     return NextResponse.json(formatErrorEntity({ message: "Unauthorized" }), {
       status: 401,
     });
@@ -44,10 +42,7 @@ export async function PUT(
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const organizationId = idHandler.decode(params.id);
@@ -77,20 +72,14 @@ export async function PUT(
 
     if (!targetMember) {
       logger.error("Member not found", { memberId, organizationId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "Member not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Member not found" }), { status: 404 });
     }
 
     const json = await request.json();
     const { role } = json;
 
     // Owner role can only be changed by the current owner
-    if (
-      (targetMember.role === "owner" || json.role === "owner") &&
-      member.role !== "owner"
-    ) {
+    if ((targetMember.role === "owner" || json.role === "owner") && member.role !== "owner") {
       logger.error("Only owners can modify owner role", {
         userId: user.id,
         organizationId,
@@ -106,10 +95,7 @@ export async function PUT(
 
     if (!role) {
       logger.error("Missing required fields", { json });
-      return NextResponse.json(
-        formatErrorEntity({ message: "Role is required" }),
-        { status: 400 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Role is required" }), { status: 400 });
     }
 
     if (!["owner", "admin", "member"].includes(role)) {
@@ -162,9 +148,7 @@ export async function PUT(
         newRole: role,
       });
 
-      return NextResponse.json(
-        formatEntity(updatedMember, "organization-member")
-      );
+      return NextResponse.json(formatEntity(updatedMember, "organization-member"));
     }
 
     // For non-owner role changes
@@ -185,9 +169,7 @@ export async function PUT(
       newRole: role,
     });
 
-    return NextResponse.json(
-      formatEntity(updatedMember, "organization-member")
-    );
+    return NextResponse.json(formatEntity(updatedMember, "organization-member"));
   } catch (error) {
     logger.error("Error updating organization member", { error });
     Sentry.captureException(error);
@@ -200,16 +182,14 @@ export async function DELETE(
   props: { params: Promise<{ id: string; memberId: string }> }
 ) {
   const params = await props.params;
-  logger.info(
-    "DELETE request received at /api/organizations/[id]/members/[memberId]",
-    { id: params.id, memberId: params.memberId }
-  );
+  logger.info("DELETE request received at /api/organizations/[id]/members/[memberId]", {
+    id: params.id,
+    memberId: params.memberId,
+  });
 
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.error(
-      "Unauthorized access attempt at /api/organizations/[id]/members/[memberId]"
-    );
+    logger.error("Unauthorized access attempt at /api/organizations/[id]/members/[memberId]");
     return NextResponse.json(formatErrorEntity({ message: "Unauthorized" }), {
       status: 401,
     });
@@ -219,10 +199,7 @@ export async function DELETE(
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const organizationId = idHandler.decode(params.id);
@@ -252,10 +229,7 @@ export async function DELETE(
 
     if (!targetMember) {
       logger.error("Member not found", { memberId, organizationId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "Member not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Member not found" }), { status: 404 });
     }
 
     // Cannot remove the owner
@@ -287,9 +261,7 @@ export async function DELETE(
       memberId,
     });
 
-    return NextResponse.json(
-      formatEntity(updatedMember, "organization-member")
-    );
+    return NextResponse.json(formatEntity(updatedMember, "organization-member"));
   } catch (error) {
     logger.error("Error removing organization member", { error });
     Sentry.captureException(error);

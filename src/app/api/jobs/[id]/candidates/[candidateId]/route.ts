@@ -1,13 +1,13 @@
-import { db } from "@/db";
-import { jobCandidates, jobs, organizationMembers } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { logger } from "@/lib/logger";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { and, eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { jobCandidates, jobs, organizationMembers } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 async function checkJobAccess(jobId: number, userId: number) {
   const job = await db.query.jobs.findFirst({
@@ -32,16 +32,14 @@ export async function PUT(
   props: { params: Promise<{ id: string; candidateId: string }> }
 ) {
   const params = await props.params;
-  logger.info(
-    "PUT request received at /api/jobs/[id]/candidates/[candidateId]",
-    { id: params.id, candidateId: params.candidateId }
-  );
+  logger.info("PUT request received at /api/jobs/[id]/candidates/[candidateId]", {
+    id: params.id,
+    candidateId: params.candidateId,
+  });
 
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.error(
-      "Unauthorized access attempt at /api/jobs/[id]/candidates/[candidateId]"
-    );
+    logger.error("Unauthorized access attempt at /api/jobs/[id]/candidates/[candidateId]");
     return NextResponse.json(formatErrorEntity({ message: "Unauthorized" }), {
       status: 401,
     });
@@ -51,23 +49,17 @@ export async function PUT(
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const jobId = idHandler.decode(params.id);
-    const candidateId = parseInt(params.candidateId);
+    const candidateId = Number.parseInt(params.candidateId);
 
     const access = await checkJobAccess(jobId, user.id);
 
     if (!access?.job) {
       logger.error("Job not found", { jobId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "Job not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Job not found" }), { status: 404 });
     }
 
     if (!access.member || !["owner", "admin"].includes(access.member.role)) {
@@ -94,10 +86,9 @@ export async function PUT(
 
     if (!candidate) {
       logger.error("Candidate not found", { candidateId, jobId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "Candidate not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Candidate not found" }), {
+        status: 404,
+      });
     }
 
     const json = await request.json();
@@ -105,22 +96,14 @@ export async function PUT(
 
     if (!status && !cvUrl && !notes) {
       logger.error("No fields to update", { json });
-      return NextResponse.json(
-        formatErrorEntity({ message: "No fields to update" }),
-        { status: 400 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "No fields to update" }), {
+        status: 400,
+      });
     }
 
     if (
       status &&
-      ![
-        "applied",
-        "screening",
-        "interviewing",
-        "offer",
-        "hired",
-        "rejected",
-      ].includes(status)
+      !["applied", "screening", "interviewing", "offer", "hired", "rejected"].includes(status)
     ) {
       logger.error("Invalid status", { status });
       return NextResponse.json(
@@ -163,16 +146,14 @@ export async function DELETE(
   props: { params: Promise<{ id: string; candidateId: string }> }
 ) {
   const params = await props.params;
-  logger.info(
-    "DELETE request received at /api/jobs/[id]/candidates/[candidateId]",
-    { id: params.id, candidateId: params.candidateId }
-  );
+  logger.info("DELETE request received at /api/jobs/[id]/candidates/[candidateId]", {
+    id: params.id,
+    candidateId: params.candidateId,
+  });
 
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.error(
-      "Unauthorized access attempt at /api/jobs/[id]/candidates/[candidateId]"
-    );
+    logger.error("Unauthorized access attempt at /api/jobs/[id]/candidates/[candidateId]");
     return NextResponse.json(formatErrorEntity({ message: "Unauthorized" }), {
       status: 401,
     });
@@ -182,10 +163,7 @@ export async function DELETE(
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const jobId = idHandler.decode(params.id);
@@ -195,10 +173,7 @@ export async function DELETE(
 
     if (!access?.job) {
       logger.error("Job not found", { jobId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "Job not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Job not found" }), { status: 404 });
     }
 
     if (!access.member || !["owner", "admin"].includes(access.member.role)) {
@@ -225,10 +200,9 @@ export async function DELETE(
 
     if (!candidate) {
       logger.error("Candidate not found", { candidateId, jobId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "Candidate not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Candidate not found" }), {
+        status: 404,
+      });
     }
 
     // Soft delete

@@ -1,7 +1,7 @@
 "use client";
 
-import { WavRecorder, WavStreamPlayer } from "@/lib/wavtools";
-import { WavRenderer } from "@/utils/wav_renderer";
+import type { WavRecorder, WavStreamPlayer } from "@/lib/wavtools";
+import { drawBars } from "@/utils/wav_renderer";
 import { useCallback, useEffect, useRef } from "react";
 
 export function AudioVisualizer({
@@ -23,18 +23,8 @@ export function AudioVisualizer({
         const aiCtx = aiCanvasRef.current.getContext("2d");
 
         if (userCtx && aiCtx) {
-          userCtx.clearRect(
-            0,
-            0,
-            userCanvasRef.current.width,
-            userCanvasRef.current.height
-          );
-          aiCtx.clearRect(
-            0,
-            0,
-            aiCanvasRef.current.width,
-            aiCanvasRef.current.height
-          );
+          userCtx.clearRect(0, 0, userCanvasRef.current.width, userCanvasRef.current.height);
+          aiCtx.clearRect(0, 0, aiCanvasRef.current.width, aiCanvasRef.current.height);
 
           if (wavRecorder && wavStreamPlayer) {
             const userFrequencies = wavRecorder.recording
@@ -44,7 +34,7 @@ export function AudioVisualizer({
               ? wavStreamPlayer.getFrequencies("voice")
               : { values: new Float32Array([0]) };
 
-            WavRenderer.drawBars(
+            drawBars(
               userCanvasRef.current,
               userCtx,
               Array.from(userFrequencies?.values || []),
@@ -53,7 +43,7 @@ export function AudioVisualizer({
               5,
               50
             );
-            WavRenderer.drawBars(
+            drawBars(
               aiCanvasRef.current,
               aiCtx,
               Array.from(aiFrequencies?.values || []),
@@ -82,26 +72,12 @@ export function AudioVisualizer({
     <div className="w-full max-w-md bg-white p-4 rounded-2xl shadow-lg">
       <div className="flex justify-between space-x-4">
         <div className="w-1/2">
-          <div className="text-center text-sm font-semibold text-blue-600 mb-2">
-            You
-          </div>
-          <canvas
-            ref={userCanvasRef}
-            width="200"
-            height="100"
-            className="w-full rounded-lg"
-          />
+          <div className="text-center text-sm font-semibold text-blue-600 mb-2">You</div>
+          <canvas ref={userCanvasRef} width="200" height="100" className="w-full rounded-lg" />
         </div>
         <div className="w-1/2">
-          <div className="text-center text-sm font-semibold text-pink-600 mb-2">
-            AI
-          </div>
-          <canvas
-            ref={aiCanvasRef}
-            width="200"
-            height="100"
-            className="w-full rounded-lg"
-          />
+          <div className="text-center text-sm font-semibold text-pink-600 mb-2">AI</div>
+          <canvas ref={aiCanvasRef} width="200" height="100" className="w-full rounded-lg" />
         </div>
       </div>
     </div>

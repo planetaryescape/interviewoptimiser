@@ -1,4 +1,4 @@
-import { CompletionUsage } from "openai/resources/completions.mjs";
+import type { CompletionUsage } from "openai/resources/completions.mjs";
 
 export interface OpenAIResponse {
   usage: CompletionUsage;

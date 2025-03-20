@@ -1,16 +1,12 @@
-import { db } from "@/db";
-import { organizationMembers } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { logger } from "@/lib/logger";
-import {
-  formatEntity,
-  formatEntityList,
-  formatErrorEntity,
-} from "@/lib/utils/formatEntity";
+import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { organizationMembers } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 export async function GET(request: NextRequest) {
   logger.info("GET request received at /api/organization-members");
@@ -27,10 +23,7 @@ export async function GET(request: NextRequest) {
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const members = await db
@@ -46,10 +39,9 @@ export async function GET(request: NextRequest) {
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
-    return NextResponse.json(
-      formatErrorEntity({ message: "Internal server error" }),
-      { status: 500 }
-    );
+    return NextResponse.json(formatErrorEntity({ message: "Internal server error" }), {
+      status: 500,
+    });
   }
 }
 
@@ -68,20 +60,16 @@ export async function POST(request: NextRequest) {
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const data = await request.json();
     const { organizationId, role } = data;
 
     if (!organizationId || !role) {
-      return NextResponse.json(
-        formatErrorEntity({ message: "Missing required fields" }),
-        { status: 400 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Missing required fields" }), {
+        status: 400,
+      });
     }
 
     const member = await db
@@ -103,9 +91,8 @@ export async function POST(request: NextRequest) {
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
-    return NextResponse.json(
-      formatErrorEntity({ message: "Internal server error" }),
-      { status: 500 }
-    );
+    return NextResponse.json(formatErrorEntity({ message: "Internal server error" }), {
+      status: 500,
+    });
   }
 }

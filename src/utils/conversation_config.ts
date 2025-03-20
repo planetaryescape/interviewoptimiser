@@ -1,4 +1,4 @@
-import { config } from "@/lib/config";
+import { config } from "~/config";
 
 export const interviewTypes = [
   {
@@ -30,8 +30,7 @@ export const interviewTypes = [
   },
   {
     type: "Case Study Interview",
-    description:
-      "Presents a business problem for analysis, often used in consulting and finance.",
+    description: "Presents a business problem for analysis, often used in consulting and finance.",
     exampleQuestions: [
       "How would you improve revenue for a company facing increased competition?",
       "Analyze this data set and provide actionable insights.",
@@ -59,18 +58,15 @@ export const interviewTypes = [
     type: "Cultural Fit Interview",
     description:
       "Assesses whether a candidate aligns with the company's values and work environment.",
-    exampleQuestions: [
-      "What do you value in a team?",
-      "How do you approach work-life balance?",
-    ],
+    exampleQuestions: ["What do you value in a team?", "How do you approach work-life balance?"],
   },
 ];
 
 export const createInterviewInstructions = (
   cv: string,
   jobDescription: string,
-  duration: number = 15,
-  interviewType: string = "behavioral"
+  duration = 15,
+  interviewType = "behavioral"
 ) => {
   return `
 **Context**:

@@ -2,15 +2,12 @@ import { extractTextFromFile } from "@/actions/extractTextFromFile";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { config } from "@/lib/config";
 import { cn } from "@/lib/utils";
-import {
-  useCreateInterviewActions,
-  useCreateInterviewCVText,
-} from "@/stores/createInterviewStore";
+import { useCreateInterviewActions, useCreateInterviewCVText } from "@/stores/createInterviewStore";
 import * as Sentry from "@sentry/nextjs";
 import { useState } from "react";
 import { toast } from "sonner";
+import { config } from "~/config";
 
 export function Step1CV() {
   const cvText = useCreateInterviewCVText();
@@ -26,15 +23,14 @@ export function Step1CV() {
       return;
     }
 
-    if (files && files[0]) {
+    if (files?.[0]) {
       setIsLoading(true);
       const file = files[0];
       const fileType = file.type;
       if (
         fileType === "application/pdf" ||
         fileType === "application/msword" ||
-        fileType ===
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
       ) {
         const formData = new FormData();
         formData.append("file", file);
@@ -46,14 +42,11 @@ export function Step1CV() {
             setCVFile(file);
             setShowStep1Error(false);
           } else {
-            toast.error(
-              "Failed to parse the CV. Please try again or paste the content manually.",
-              {
-                position: "top-center",
-                richColors: true,
-                duration: 10000,
-              }
-            );
+            toast.error("Failed to parse the CV. Please try again or paste the content manually.", {
+              position: "top-center",
+              richColors: true,
+              duration: 10000,
+            });
           }
         } catch (error) {
           Sentry.withScope((scope) => {
@@ -61,9 +54,7 @@ export function Step1CV() {
             scope.setExtra("error", error);
             Sentry.captureException(error);
           });
-          toast.error(
-            "An error occurred while processing the file. Please try again."
-          );
+          toast.error("An error occurred while processing the file. Please try again.");
         } finally {
           setIsLoading(false);
         }
@@ -80,8 +71,7 @@ export function Step1CV() {
         <div className="flex items-center gap-2 mb-4">
           <div className="h-1.5 w-1.5 rounded-full bg-primary" />
           <p className="text-sm font-medium">
-            Upload your CV or paste its content below - this helps us understand
-            your background
+            Upload your CV or paste its content below - this helps us understand your background
           </p>
         </div>
         <div className="w-full border-2 border-dashed border-muted-foreground/25 rounded-lg bg-white dark:bg-black">
@@ -95,10 +85,9 @@ export function Step1CV() {
           />
         </div>
         <p className="text-sm text-muted-foreground mt-4">
-          Note: Sometimes we may not be able to parse text from uploaded PDFs.
-          If the textbox doesn&apos;t populate shortly after uploading your
-          document, please try copying the text from your document and pasting
-          it below.
+          Note: Sometimes we may not be able to parse text from uploaded PDFs. If the textbox
+          doesn&apos;t populate shortly after uploading your document, please try copying the text
+          from your document and pasting it below.
         </p>
       </div>
 
@@ -121,10 +110,7 @@ export function Step1CV() {
               setShowStep1Error(false);
             }
           }}
-          className={cn(
-            "min-h-[400px] h-full resize-none",
-            showStep1Error && "border-destructive"
-          )}
+          className={cn("min-h-[400px] h-full resize-none", showStep1Error && "border-destructive")}
           placeholder="Paste your CV content here..."
         />
         {showStep1Error && (

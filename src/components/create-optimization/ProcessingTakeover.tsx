@@ -2,6 +2,15 @@ import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 import { motion } from "framer-motion";
 import { Brain, FileText, Sparkles } from "lucide-react";
 
+const BLOBS = [
+  { id: "blob-1", position: { top: "0%", left: "0%" } },
+  { id: "blob-2", position: { top: "20%", left: "20%" } },
+  { id: "blob-3", position: { top: "40%", left: "40%" } },
+  { id: "blob-4", position: { top: "60%", left: "60%" } },
+  { id: "blob-5", position: { top: "80%", left: "80%" } },
+  { id: "blob-6", position: { top: "100%", left: "100%" } },
+];
+
 export function ProcessingTakeover() {
   const steps = [
     {
@@ -31,25 +40,15 @@ export function ProcessingTakeover() {
       {/* Background Pattern */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
-        {Array.from({ length: 6 }).map((_, i) => (
+        {BLOBS.map((blob) => (
           <motion.div
-            key={i}
+            key={blob.id}
             className="absolute rounded-full bg-primary/10 blur-3xl"
             style={{
-              width: Math.random() * 400 + 200,
-              height: Math.random() * 400 + 200,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              x: [0, 30, 0],
-              y: [0, 30, 0],
-              opacity: [0.1, 0.2, 0.1],
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              delay: i * 0.5,
+              ...blob.position,
+              width: "50%",
+              height: "50%",
+              transform: "translate(-50%, -50%)",
             }}
           />
         ))}
@@ -71,8 +70,7 @@ export function ProcessingTakeover() {
               Creating Your Interview
             </h2>
             <p className="text-muted-foreground">
-              Please wait while we prepare your personalized interview
-              experience
+              Please wait while we prepare your personalized interview experience
             </p>
           </motion.div>
         </div>
@@ -82,7 +80,7 @@ export function ProcessingTakeover() {
           <div className="relative z-10 grid grid-cols-3 gap-4">
             {steps.map((step, index) => (
               <motion.div
-                key={index}
+                key={step.title}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 + index * 0.2 }}
@@ -92,9 +90,7 @@ export function ProcessingTakeover() {
                   <step.icon className="w-6 h-6 text-primary" />
                 </div>
                 <h3 className="text-sm font-medium mb-1">{step.title}</h3>
-                <p className="text-xs text-muted-foreground">
-                  {step.description}
-                </p>
+                <p className="text-xs text-muted-foreground">{step.description}</p>
               </motion.div>
             ))}
           </div>

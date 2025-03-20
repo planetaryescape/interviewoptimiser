@@ -1,15 +1,13 @@
-import { config } from "../config";
+import { config } from "../../../config";
 import {
-  Entity,
-  EntityList,
+  type Entity,
+  type EntityList,
   formatEntity,
   formatEntityList,
 } from "../utils/formatEntity";
-import { GenericRepository } from "./genericRepository";
+import type { GenericRepository } from "./genericRepository";
 
-export class IndexedDBRepository<T extends { id?: number }>
-  implements GenericRepository<T>
-{
+export class IndexedDBRepository<T extends { id?: number }> implements GenericRepository<T> {
   private readonly dbName = `${config.projectName}-db`;
   private db: IDBDatabase | null = null;
 
@@ -96,16 +94,12 @@ export class IndexedDBRepository<T extends { id?: number }>
   }
 
   async getAll(): Promise<EntityList<T>> {
-    const items = await this.performTransaction("readonly", (store) =>
-      store.getAll()
-    );
+    const items = await this.performTransaction("readonly", (store) => store.getAll());
     return formatEntityList(items, this.storeName as any);
   }
 
   async getById(id: string): Promise<Entity<T> | null> {
-    const item = await this.performTransaction("readonly", (store) =>
-      store.get(id)
-    );
+    const item = await this.performTransaction("readonly", (store) => store.get(id));
     return item ? formatEntity(item, this.storeName as any) : null;
   }
 
@@ -123,9 +117,7 @@ export class IndexedDBRepository<T extends { id?: number }>
     if (!existingItem) return null;
 
     const updatedFullItem = { ...existingItem.data, ...updatedItem } as T;
-    await this.performTransaction("readwrite", (store) =>
-      store.put(updatedFullItem)
-    );
+    await this.performTransaction("readwrite", (store) => store.put(updatedFullItem));
     return formatEntity(updatedFullItem, this.storeName as any);
   }
 

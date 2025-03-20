@@ -1,12 +1,12 @@
-import { db } from "@/db";
-import { interviews } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { logger } from "@/lib/logger";
 import { formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { desc } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { interviews } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 export async function GET(request: NextRequest) {
   logger.info("GET request received at /api/admin/interviews");
@@ -28,10 +28,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (role !== "admin") {
-      logger.warn(
-        { clerkUserId },
-        "Unauthorized access attempt to GET /api/admin/interviews"
-      );
+      logger.warn({ clerkUserId }, "Unauthorized access attempt to GET /api/admin/interviews");
       return NextResponse.json(formatErrorEntity("Unauthorized"), {
         status: 401,
       });
@@ -44,10 +41,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    logger.info(
-      { count: userInterviews.length },
-      "Successfully retrieved interviews"
-    );
+    logger.info({ count: userInterviews.length }, "Successfully retrieved interviews");
     return NextResponse.json(formatEntityList(userInterviews, "interview"));
   } catch (error) {
     Sentry.withScope((scope) => {

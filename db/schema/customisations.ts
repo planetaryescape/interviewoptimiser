@@ -19,9 +19,7 @@ export const customisations = pgTable(
     updatedAt: p.timestamp().defaultNow().notNull(),
   }),
   (customisations) => ({
-    userIdIdx: uniqueIndex("customisations_user_id_idx").on(
-      customisations.userId
-    ),
+    userIdIdx: uniqueIndex("customisations_user_id_idx").on(customisations.userId),
   })
 );
 

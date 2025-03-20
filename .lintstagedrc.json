@@ -1,6 +1,4 @@
 {
-	"**/*.{js,mjs,cjs,jsx,ts,tsx}": "oxlint",
-	"*.{md,mdx}": [
-		"prettier --write"
-	]
+  "**/*.{js,mjs,cjs,jsx,ts,tsx}": "oxlint",
+  "*.{md,mdx}": ["prettier --write"]
 }

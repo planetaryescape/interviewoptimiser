@@ -1,4 +1,3 @@
-import { config } from "@/lib/config";
 import {
   Body,
   Container,
@@ -11,6 +10,7 @@ import {
   Text,
 } from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
+import { config } from "~/config";
 
 interface AdminNotificationEmailProps {
   eventType: "signup" | "deletion";
@@ -22,18 +22,14 @@ interface AdminNotificationEmailProps {
   };
 }
 
-export const AdminNotificationEmail = ({
-  eventType,
-  userData,
-}: AdminNotificationEmailProps) => {
+export const AdminNotificationEmail = ({ eventType, userData }: AdminNotificationEmailProps) => {
   const isSignup = eventType === "signup";
 
   return (
     <Html>
       <Head />
       <Preview>
-        {isSignup ? "New User Signup" : "User Account Deleted"} -{" "}
-        {userData.email}
+        {isSignup ? "New User Signup" : "User Account Deleted"} - {userData.email}
       </Preview>
       <Tailwind
         config={{
@@ -70,24 +66,20 @@ export const AdminNotificationEmail = ({
                 <Text className="font-medium text-xl mb-4">User Details:</Text>
                 <div className="space-y-2">
                   <Text className="text-gray-700">
-                    <span className="font-semibold">Email:</span>{" "}
-                    {userData.email}
+                    <span className="font-semibold">Email:</span> {userData.email}
                   </Text>
                   {userData.firstName && (
                     <Text className="text-gray-700">
-                      <span className="font-semibold">First Name:</span>{" "}
-                      {userData.firstName}
+                      <span className="font-semibold">First Name:</span> {userData.firstName}
                     </Text>
                   )}
                   {userData.lastName && (
                     <Text className="text-gray-700">
-                      <span className="font-semibold">Last Name:</span>{" "}
-                      {userData.lastName}
+                      <span className="font-semibold">Last Name:</span> {userData.lastName}
                     </Text>
                   )}
                   <Text className="text-gray-700">
-                    <span className="font-semibold">Timestamp:</span>{" "}
-                    {userData.timestamp}
+                    <span className="font-semibold">Timestamp:</span> {userData.timestamp}
                   </Text>
                 </div>
               </div>

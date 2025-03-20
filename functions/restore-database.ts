@@ -1,19 +1,15 @@
+import { spawn } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+import type { Readable } from "node:stream";
 import BackupFailedEmail from "@/emails/backup-failed";
-import { config } from "@/lib/config";
-import { sendDiscordDM } from "@/lib/discord";
-import { logger } from "@/lib/logger";
-import { resend } from "@/lib/resend";
-import {
-  GetObjectCommand,
-  ListObjectsV2Command,
-  S3Client,
-} from "@aws-sdk/client-s3";
+import { GetObjectCommand, ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
 import * as Sentry from "@sentry/aws-serverless";
-import { spawn } from "child_process";
 import { format, isValid, parseISO } from "date-fns";
-import fs from "fs";
-import path from "path";
-import { Readable } from "stream";
+import { config } from "~/config";
+import { sendDiscordDM } from "~/lib/discord";
+import { logger } from "~/lib/logger";
+import { resend } from "~/lib/resend";
 import { initSentry } from "./lib/sentry";
 
 initSentry();
@@ -35,23 +31,17 @@ async function getLatestBackupKey(): Promise<string> {
   }
 
   // Sort backups by the timestamp in their names
-  const sortedBackups = response.Contents.filter((obj) =>
-    obj.Key?.endsWith(".sql")
-  ) // Only consider SQL backups
+  const sortedBackups = response.Contents.filter((obj) => obj.Key?.endsWith(".sql")) // Only consider SQL backups
     .sort((a, b) => {
-      const getDateFromKey = (key: string = "") => {
+      const getDateFromKey = (key = "") => {
         const match = key.match(/(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2})/);
-        return match
-          ? parseISO(`${match[1].replace(/-/g, "T")}Z`)
-          : new Date(0);
+        return match ? parseISO(`${match[1].replace(/-/g, "T")}Z`) : new Date(0);
       };
 
       const dateA = getDateFromKey(a.Key);
       const dateB = getDateFromKey(b.Key);
 
-      return isValid(dateB) && isValid(dateA)
-        ? dateB.getTime() - dateA.getTime()
-        : 0;
+      return isValid(dateB) && isValid(dateA) ? dateB.getTime() - dateA.getTime() : 0;
     });
 
   if (!sortedBackups[0].Key) {
@@ -62,14 +52,10 @@ async function getLatestBackupKey(): Promise<string> {
   return sortedBackups[0].Key;
 }
 
-function spawnPgRestore(
-  binDir: string,
-  args: string[],
-  env: NodeJS.ProcessEnv
-) {
+function spawnPgRestore(binDir: string, args: string[], env: NodeJS.ProcessEnv) {
   const pgRestorePath = path.join(binDir, "pg_restore");
   if (!fs.existsSync(pgRestorePath)) {
-    throw new Error("pg_restore not found at " + pgRestorePath);
+    throw new Error(`pg_restore not found at ${pgRestorePath}`);
   }
 
   return spawn(pgRestorePath, args, { env });
@@ -174,10 +160,7 @@ export const handler = Sentry.wrapHandler(
       Sentry.withScope((scope) => {
         scope.setExtra("context", "restore-database");
         scope.setExtra("error", error);
-        scope.setExtra(
-          "message",
-          error instanceof Error ? error.message : error
-        );
+        scope.setExtra("message", error instanceof Error ? error.message : error);
         Sentry.captureException(error);
       });
 
@@ -208,10 +191,7 @@ export const handler = Sentry.wrapHandler(
           },
         });
       } catch (emailError) {
-        logger.error(
-          { error: emailError },
-          "Failed to send restore failure notification email"
-        );
+        logger.error({ error: emailError }, "Failed to send restore failure notification email");
       }
 
       throw error;

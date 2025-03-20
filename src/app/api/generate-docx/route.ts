@@ -1,10 +1,10 @@
-import { config } from "@/lib/config";
 import { css } from "@/lib/export-css";
 import { getFontFamilyName } from "@/lib/fontUtils";
-import { logger } from "@/lib/logger";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { config } from "~/config";
+import { logger } from "~/lib/logger";
 
 // @ts-expect-error TODO: Fix this
 import HTMLtoDOCX from "html-to-docx";
@@ -12,24 +12,17 @@ import HTMLtoDOCX from "html-to-docx";
 export async function POST(req: NextRequest) {
   try {
     logger.info({ event: "generate-docx" }, "Generating DOCX");
-    const { htmlContent, paperSize, margin, bodyFont, headingFont } =
-      await req.json();
+    const { htmlContent, paperSize, margin, bodyFont, headingFont } = await req.json();
 
     if (!htmlContent) {
       logger.error({ event: "generate-docx" }, "HTML content is required");
-      return NextResponse.json(
-        { error: "HTML content is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "HTML content is required" }, { status: 400 });
     }
 
     // Compile Tailwind CSS
     logger.info("Compiling Tailwind CSS");
 
-    const htmlContentWithStyles = htmlContent.replace(
-      "{{css_placeholder}}",
-      css
-    );
+    const htmlContentWithStyles = htmlContent.replace("{{css_placeholder}}", css);
 
     logger.info("HTML content with styles");
 
@@ -84,8 +77,7 @@ export async function POST(req: NextRequest) {
     return new NextResponse(arrayBuffer, {
       status: 200,
       headers: {
-        "Content-Type":
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "Content-Disposition": 'attachment; filename="document.docx"',
       },
     });

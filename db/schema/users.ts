@@ -35,13 +35,9 @@ export const users = pgTable(
   }),
   (users) => ({
     usernameIndex: uniqueIndex("users_username_idx").on(users.username),
-    stripeCustomerIdIndex: uniqueIndex("users_stripe_customer_id_idx").on(
-      users.stripeCustomerId
-    ),
+    stripeCustomerIdIndex: uniqueIndex("users_stripe_customer_id_idx").on(users.stripeCustomerId),
     emailIndex: uniqueIndex("users_email_idx").on(users.email),
-    clerkUserIdIndex: uniqueIndex("users_clerk_user_id_idx").on(
-      users.clerkUserId
-    ),
+    clerkUserIdIndex: uniqueIndex("users_clerk_user_id_idx").on(users.clerkUserId),
   })
 );
 

@@ -1,44 +1,30 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Invitation, Organization } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import type { Invitation, Organization } from "~/db/schema";
 
 type InvitationModalProps = {
   invitation: Invitation;
-  handleResponse: (
-    invitationId: number,
-    status: "accepted" | "rejected"
-  ) => void;
+  handleResponse: (invitationId: number, status: "accepted" | "rejected") => void;
   isPending: boolean;
 };
 
-export function InvitationLine({
-  invitation,
-  handleResponse,
-  isPending,
-}: InvitationModalProps) {
+export function InvitationLine({ invitation, handleResponse, isPending }: InvitationModalProps) {
   const { data: organization } = useQuery({
     queryKey: ["organization", invitation.organizationId],
     queryFn: async () => {
-      const organizationRepo = await getRepository<Organization>(
-        "organizations"
-      );
-      return organizationRepo.getById(
-        idHandler.encode(invitation.organizationId)
-      );
+      const organizationRepo = await getRepository<Organization>("organizations");
+      return organizationRepo.getById(idHandler.encode(invitation.organizationId));
     },
     enabled: !!invitation.organizationId,
   });
 
   return (
-    <div
-      key={invitation.id}
-      className="flex flex-col space-y-2 border-b pb-4 last:border-0"
-    >
+    <div key={invitation.id} className="flex flex-col space-y-2 border-b pb-4 last:border-0">
       <p className="font-medium">
         You&apos;ve been invited to join{" "}
         <span className="font-semibold">{organization?.data.name}</span>

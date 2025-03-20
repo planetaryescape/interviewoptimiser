@@ -1,10 +1,10 @@
-import { db } from "@/db";
-import { interviews, reports } from "@/db/schema";
-import { sendDiscordDM } from "@/lib/discord";
-import { logger } from "@/lib/logger";
-import { SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
+import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 import * as Sentry from "@sentry/aws-serverless";
 import { and, eq, lt } from "drizzle-orm";
+import { db } from "~/db";
+import { interviews, reports } from "~/db/schema";
+import { sendDiscordDM } from "~/lib/discord";
+import { logger } from "~/lib/logger";
 import { initSentry } from "../lib/sentry";
 
 initSentry();
@@ -20,12 +20,7 @@ export const handler = Sentry.wrapHandler(async () => {
     const incompleteReports = await db
       .select({ id: reports.id, interviewId: reports.interviewId })
       .from(reports)
-      .where(
-        and(
-          eq(reports.isCompleted, false),
-          lt(reports.createdAt, tenMinutesAgo)
-        )
-      );
+      .where(and(eq(reports.isCompleted, false), lt(reports.createdAt, tenMinutesAgo)));
 
     logger.info(
       {
@@ -83,17 +78,11 @@ export const handler = Sentry.wrapHandler(async () => {
         Sentry.withScope((scope) => {
           scope.setExtra("context", "regenerateIncompleteReports");
           scope.setExtra("error", error);
-          scope.setExtra(
-            "message",
-            error instanceof Error ? error.message : error
-          );
+          scope.setExtra("message", error instanceof Error ? error.message : error);
           scope.setExtra("reportId", report.id);
           Sentry.captureException(error);
         });
-        logger.error(
-          { error, reportId: report.id },
-          "Error sending message to SQS queue"
-        );
+        logger.error({ error, reportId: report.id }, "Error sending message to SQS queue");
 
         await sendDiscordDM({
           title: "❌ Failed to regenerate report",

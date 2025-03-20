@@ -1,4 +1,3 @@
-import { config } from "@/lib/config";
 import {
   Body,
   Button,
@@ -14,6 +13,7 @@ import {
   Text,
 } from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
+import { config } from "~/config";
 
 export const UserDetailsUpdatedEmail = ({
   firstName,
@@ -23,9 +23,7 @@ export const UserDetailsUpdatedEmail = ({
   return (
     <Html>
       <Head />
-      <Preview>
-        {config.projectName}: Your account details have been updated
-      </Preview>
+      <Preview>{config.projectName}: Your account details have been updated</Preview>
       <Tailwind
         config={{
           theme: {
@@ -60,14 +58,12 @@ export const UserDetailsUpdatedEmail = ({
               <Row>
                 <Text className="text-base">Hi {firstName ?? "there"},</Text>
                 <Text className="text-base">
-                  We wanted to let you know that your account details have been
-                  successfully updated. If these changes were made by you, no
-                  further action is required.
+                  We wanted to let you know that your account details have been successfully
+                  updated. If these changes were made by you, no further action is required.
                 </Text>
                 <Text className="text-base">
-                  However, if you did not make these changes or if you have any
-                  concerns, please contact us immediately to secure your
-                  account.
+                  However, if you did not make these changes or if you have any concerns, please
+                  contact us immediately to secure your account.
                 </Text>
               </Row>
             </Section>
@@ -82,11 +78,8 @@ export const UserDetailsUpdatedEmail = ({
             </Section>
             <Section>
               <Text className="text-base">
-                Thank you for using {config.projectName}. If you need further
-                assistance, feel free to contact{" "}
-                <Link href="mailto:cvoptimiser@bhekani.com">
-                  our support team
-                </Link>
+                Thank you for using {config.projectName}. If you need further assistance, feel free
+                to contact <Link href="mailto:cvoptimiser@bhekani.com">our support team</Link>
                 .
                 <br />
                 <br />– The {config.projectName} Team

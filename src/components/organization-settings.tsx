@@ -2,10 +2,10 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
-import { Organization, OrganizationMember } from "@/db/schema";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { useQuery } from "@tanstack/react-query";
+import type { Organization, OrganizationMember } from "~/db/schema";
 import { OrganizationDialog } from "./organization-dialog";
 import { OrganizationInvitations } from "./organization-invitations";
 
@@ -45,8 +45,7 @@ export function OrganizationSettings() {
       <div className="flex flex-col items-center justify-center space-y-4 py-12">
         <h2 className="text-xl font-semibold">No Organization</h2>
         <p className="text-muted-foreground text-center max-w-md">
-          You are not part of any organization yet. Create one to start managing
-          your team and jobs.
+          You are not part of any organization yet. Create one to start managing your team and jobs.
         </p>
         <OrganizationDialog mode="create" />
       </div>
@@ -57,18 +56,14 @@ export function OrganizationSettings() {
   const organizationMember = organizationMembers?.data.find(
     (member) => member.data.organizationId === userOrganization.data.id
   );
-  const isAdmin = organizationMember?.data.role === "admin" || organizationMember?.data.role === "owner";
+  const isAdmin =
+    organizationMember?.data.role === "admin" || organizationMember?.data.role === "owner";
 
   return (
     <section className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Organization Settings</h2>
-        {isAdmin && (
-          <OrganizationDialog
-            mode="edit"
-            organization={userOrganization.data}
-          />
-        )}
+        {isAdmin && <OrganizationDialog mode="edit" organization={userOrganization.data} />}
       </div>
 
       <Card>

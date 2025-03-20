@@ -3,7 +3,7 @@ import Hashids from "hashids";
 class IDHandler {
   private hashids: Hashids;
 
-  constructor(salt: string, minLength: number = 10) {
+  constructor(salt: string, minLength = 10) {
     this.hashids = new Hashids(salt, minLength);
   }
 

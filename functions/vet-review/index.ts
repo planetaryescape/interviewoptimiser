@@ -1,16 +1,16 @@
-import { db } from "@/db";
-import { reviews } from "@/db/schema";
 import ReviewReportEmail from "@/emails/review-report";
-import { getOpenAiClient } from "@/lib/ai/openai";
-import { config } from "@/lib/config";
-import { sendDiscordDM } from "@/lib/discord";
-import { logger } from "@/lib/logger";
-import { resend } from "@/lib/resend";
 import * as Sentry from "@sentry/aws-serverless";
 import { format } from "date-fns";
 import { and, eq, isNull } from "drizzle-orm";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
+import { config } from "~/config";
+import { db } from "~/db";
+import { reviews } from "~/db/schema";
+import { sendDiscordDM } from "~/lib/discord";
+import { logger } from "~/lib/logger";
+import { getOpenAiClient } from "~/lib/openai";
+import { resend } from "~/lib/resend";
 import { initSentry } from "../lib/sentry";
 
 initSentry();
@@ -29,10 +29,7 @@ export const handler = Sentry.wrapHandler(async () => {
       where: and(eq(reviews.isPublished, false), isNull(reviews.processedAt)),
     });
 
-    logger.info(
-      { count: unpublishedReviews.length },
-      "Found unpublished reviews"
-    );
+    logger.info({ count: unpublishedReviews.length }, "Found unpublished reviews");
 
     const publishedReviews = [];
     const rejectedReviews = [];
@@ -51,9 +48,7 @@ export const handler = Sentry.wrapHandler(async () => {
         "${review.comment}"
       `;
 
-      const completion = await getOpenAiClient(
-        config.supportEmail
-      ).beta.chat.completions.parse({
+      const completion = await getOpenAiClient(config.supportEmail).beta.chat.completions.parse({
         model: "gpt-4o",
         messages: [
           {
@@ -62,10 +57,7 @@ export const handler = Sentry.wrapHandler(async () => {
           },
           { role: "user", content: prompt },
         ],
-        response_format: zodResponseFormat(
-          ReviewVettingResponseSchema,
-          "reviewVetting"
-        ),
+        response_format: zodResponseFormat(ReviewVettingResponseSchema, "reviewVetting"),
         temperature: 0.1,
       });
 
@@ -116,10 +108,7 @@ export const handler = Sentry.wrapHandler(async () => {
       await resend.emails.send({
         from: `${config.projectName} <reviews@${config.domain}>`,
         to: config.supportEmail,
-        subject: `Review Moderation Report - ${format(
-          new Date(),
-          "yyyy-MM-dd"
-        )}`,
+        subject: `Review Moderation Report - ${format(new Date(), "yyyy-MM-dd")}`,
         react: ReviewReportEmail({
           publishedReviews,
           rejectedReviews,

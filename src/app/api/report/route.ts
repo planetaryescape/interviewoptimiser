@@ -1,14 +1,14 @@
-import { db } from "@/db";
-import { interviews, reports } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { config } from "@/lib/config";
-import { logger } from "@/lib/logger";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { config } from "~/config";
+import { db } from "~/db";
+import { interviews, reports } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 const API_GATEWAY_URL = config.apiGatewayUrlAddToQueue;
 
@@ -48,10 +48,7 @@ export async function POST(req: NextRequest) {
           scope.setExtra("interviewId", interviewId);
           Sentry.captureException(new Error("Interview not found"));
         });
-        return NextResponse.json(
-          { error: "Interview not found" },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: "Interview not found" }, { status: 404 });
       }
 
       logger.info("Interview found");
@@ -86,16 +83,10 @@ export async function POST(req: NextRequest) {
 
     if (!reportId) {
       logger.error("Failed to generate report ID");
-      return NextResponse.json(
-        { error: "Failed to generate report ID" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to generate report ID" }, { status: 500 });
     }
 
-    logger.info(
-      { interviewId, url: API_GATEWAY_URL },
-      "Sending message to API Gateway"
-    );
+    logger.info({ interviewId, url: API_GATEWAY_URL }, "Sending message to API Gateway");
     const response = await fetch(API_GATEWAY_URL, {
       method: "POST",
       headers: {
@@ -114,10 +105,7 @@ export async function POST(req: NextRequest) {
 
     const responseData = await response.json();
 
-    logger.info(
-      { status: response.status, responseData },
-      "Received response from API Gateway"
-    );
+    logger.info({ status: response.status, responseData }, "Received response from API Gateway");
 
     if (!response.ok) {
       logger.error(
@@ -131,10 +119,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(responseData, { status: response.status });
     }
 
-    return NextResponse.json(
-      { message: "Report generation started" },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: "Report generation started" }, { status: 200 });
   } catch (error) {
     Sentry.withScope((scope) => {
       scope.setExtra("context", "POST /api/generate");

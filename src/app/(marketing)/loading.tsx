@@ -9,9 +9,7 @@ export default function MarketingLoading() {
       </div>
       <div className="relative z-10 flex flex-col items-center space-y-4">
         <ParticleSwarmLoader />
-        <p className="text-muted-foreground animate-pulse">
-          Loading content...
-        </p>
+        <p className="text-muted-foreground animate-pulse">Loading content...</p>
       </div>
     </div>
   );

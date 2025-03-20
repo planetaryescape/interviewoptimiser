@@ -1,14 +1,14 @@
 "use client";
 
-import { Interview } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { createInterviewInstructions } from "@/utils/conversation_config";
 import { VoiceProvider } from "@humeai/voice-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
-import { ComponentRef, useEffect, useRef, useState } from "react";
+import { type ComponentRef, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import type { Interview } from "~/db/schema";
 import { Controls } from "./controls";
 import { GeneratingReportTakeover } from "./generating-report-takeover";
 import { Messages } from "./messages";
@@ -74,7 +74,7 @@ export default function ClientComponent({
   const ref = useRef<ComponentRef<typeof Messages> | null>(null);
 
   // optional: use configId from environment variable
-  const configId = process.env["NEXT_PUBLIC_HUME_CONFIG_ID"];
+  const configId = process.env.NEXT_PUBLIC_HUME_CONFIG_ID;
   const [interviewEnded, setInterviewEnded] = useState(false);
   const [interviewStarted, setInterviewStarted] = useState(false);
   const [showTakeover, setShowTakeover] = useState(false);
@@ -84,14 +84,10 @@ export default function ClientComponent({
       setShowTakeover(true);
       generateReportMutation.mutate();
     }
-  }, [interviewEnded]);
+  }, [interviewEnded, generateReportMutation.mutate]);
 
   return (
-    <div
-      className={
-        "relative grid grid-rows-[1fr_auto] mx-auto w-full overflow-auto h-full"
-      }
-    >
+    <div className={"relative grid grid-rows-[1fr_auto] mx-auto w-full overflow-auto h-full"}>
       <VoiceProvider
         auth={{ type: "accessToken", value: accessToken }}
         configId={configId}
@@ -141,9 +137,7 @@ export default function ClientComponent({
         )}
         <Controls setInterviewEnded={setInterviewEnded} />
 
-        <AnimatePresence>
-          {showTakeover && <GeneratingReportTakeover />}
-        </AnimatePresence>
+        <AnimatePresence>{showTakeover && <GeneratingReportTakeover />}</AnimatePresence>
       </VoiceProvider>
     </div>
   );

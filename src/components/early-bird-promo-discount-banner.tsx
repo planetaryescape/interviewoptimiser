@@ -1,11 +1,10 @@
 "use client";
 
-import { config } from "@/lib/config";
 import { useEffect, useState } from "react";
+import { config } from "~/config";
 
 export const EarlyBirdPromoDiscountBanner = () => {
-  const durationInMilliseconds =
-    config.fomoDiscountPromoLengthInDays * 24 * 60 * 60 * 1000;
+  const durationInMilliseconds = config.fomoDiscountPromoLengthInDays * 24 * 60 * 60 * 1000;
   const [timeLeft, setTimeLeft] = useState(durationInMilliseconds);
   const [offerActive, setOfferActive] = useState(false);
 
@@ -14,8 +13,7 @@ export const EarlyBirdPromoDiscountBanner = () => {
 
     const updateTimer = () => {
       const now = new Date();
-      const elapsed =
-        now.getTime() - config.fomoDiscountPromoStartDate.getTime();
+      const elapsed = now.getTime() - config.fomoDiscountPromoStartDate.getTime();
 
       if (elapsed < 0) {
         // Offer hasn't started yet
@@ -62,9 +60,7 @@ export const EarlyBirdPromoDiscountBanner = () => {
       <p className="text-sm text-accent-foreground mb-2">
         Don&apos;t miss out on these savings. Offer expires in:
       </p>
-      <p className="text-2xl font-bold text-accent-foreground">
-        {formatTime(timeLeft)}
-      </p>
+      <p className="text-2xl font-bold text-accent-foreground">{formatTime(timeLeft)}</p>
     </div>
   );
 };

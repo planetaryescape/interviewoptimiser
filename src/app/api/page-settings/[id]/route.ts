@@ -1,13 +1,13 @@
-import { db } from "@/db";
-import { pageSettings } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { logger } from "@/lib/logger";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { pageSettings } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 export async function PUT(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -33,12 +33,7 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
     const updatedPageSettings = await request.json();
 
     const result = await db.transaction(async (tx) => {
-      const {
-        id: _,
-        createdAt: _c,
-        updatedAt: _u,
-        ...updateData
-      } = updatedPageSettings;
+      const { id: _, createdAt: _c, updatedAt: _u, ...updateData } = updatedPageSettings;
 
       // Update page settings
       const [updatedPageSettingsResult] = await tx

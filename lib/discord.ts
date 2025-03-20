@@ -1,7 +1,7 @@
 import { REST } from "@discordjs/rest";
 import * as Sentry from "@sentry/nextjs";
 import { Routes } from "discord-api-types/v10";
-import { config } from "./config";
+import { config } from "~/config";
 import { logger } from "./logger";
 
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || "";

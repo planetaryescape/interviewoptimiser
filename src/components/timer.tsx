@@ -1,10 +1,10 @@
 "use client";
 
-import { User } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import type { User } from "~/db/schema";
 
 export function Timer({
   isInterviewStarted,
@@ -15,66 +15,61 @@ export function Timer({
   totalTime: number;
   onOutOfMinutes: () => void;
 }) {
-  const [elapsedTime, setElapsedTime] = useState(0);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
   const timerCanvasRef = useRef<HTMLCanvasElement>(null);
+  const startTimeRef = useRef<number>(Date.now());
   const lastDecrementTimeRef = useRef<number>(0);
   const queryClient = useQueryClient();
 
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
-      .toString()
-      .padStart(2, "0")}`;
-  };
+  useEffect(() => {
+    if (isInterviewStarted) {
+      startTimeRef.current = Date.now();
+    }
+  }, [isInterviewStarted]);
+
+  const formatTime = useCallback((time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  }, []);
 
   const drawTimer = useCallback(() => {
     if (!timerCanvasRef.current) return;
 
-    const ctx = timerCanvasRef.current.getContext("2d");
+    const canvas = timerCanvasRef.current;
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const WIDTH = timerCanvasRef.current.width;
-    const HEIGHT = timerCanvasRef.current.height;
-    const centerX = WIDTH / 2;
-    const centerY = HEIGHT / 2;
-    const radius = Math.min(WIDTH, HEIGHT) / 2 - 10;
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = Math.min(centerX, centerY) - 10;
 
-    ctx.clearRect(0, 0, WIDTH, HEIGHT);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw background circle
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.fillStyle = "#f0f0f0";
-    ctx.fill();
+    ctx.strokeStyle = "#e5e7eb";
+    ctx.lineWidth = 10;
+    ctx.stroke();
 
-    // Draw timer arc
-    const progress = elapsedTime / totalTime;
-    ctx.beginPath();
-    ctx.arc(
-      centerX,
-      centerY,
-      radius,
-      -Math.PI / 2,
-      -Math.PI / 2 + progress * 2 * Math.PI
-    );
-    ctx.lineTo(centerX, centerY);
-    ctx.fillStyle = "#3B82F6";
-    ctx.fill();
+    // Draw progress
+    const progress = (elapsedTime || 0) / totalTime;
+    const startAngle = -Math.PI / 2;
+    const endAngle = startAngle + progress * 2 * Math.PI;
 
-    // Draw center circle
     ctx.beginPath();
-    ctx.arc(centerX, centerY, radius - 20, 0, 2 * Math.PI);
-    ctx.fillStyle = "white";
-    ctx.fill();
+    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+    ctx.strokeStyle = "#3b82f6";
+    ctx.stroke();
 
     // Draw time text
-    ctx.font = "bold 20px Inter, sans-serif";
-    ctx.fillStyle = "#333";
+    ctx.font = "bold 24px Inter";
+    ctx.fillStyle = "#3b82f6";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(formatTime(elapsedTime || totalTime), centerX, centerY);
-  }, [elapsedTime, totalTime]);
+  }, [elapsedTime, totalTime, formatTime]);
 
   const decrementMutation = useMutation({
     mutationFn: async () => {
@@ -97,49 +92,29 @@ export function Timer({
 
   useEffect(() => {
     drawTimer();
-  }, []);
+  }, [drawTimer]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isInterviewStarted) {
       interval = setInterval(() => {
-        setElapsedTime((prevTime) => {
-          const newTime = prevTime + 1;
-
-          // Check if a minute has passed since the last decrement
-          if (
-            Math.floor(newTime / 60) >
-            Math.floor(lastDecrementTimeRef.current / 60)
-          ) {
-            decrementMutation.mutate();
-            lastDecrementTimeRef.current = newTime;
-          }
-
-          if (newTime >= totalTime) {
-            clearInterval(interval);
-            return totalTime;
-          }
-          return newTime;
-        });
+        const newElapsedTime = totalTime - Math.floor((Date.now() - startTimeRef.current) / 1000);
+        if (newElapsedTime <= 0) {
+          clearInterval(interval);
+          onOutOfMinutes();
+          return;
+        }
+        setElapsedTime(newElapsedTime);
         drawTimer();
+        if (newElapsedTime % 60 === 0) {
+          decrementMutation.mutate();
+        }
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [
-    isInterviewStarted,
-    totalTime,
-    drawTimer,
-    setElapsedTime,
-    onOutOfMinutes,
-    decrementMutation,
-  ]);
+  }, [isInterviewStarted, totalTime, drawTimer, decrementMutation, onOutOfMinutes]);
 
   return (
-    <canvas
-      ref={timerCanvasRef}
-      width={120}
-      height={120}
-      className="shadow-lg rounded-full"
-    />
+    <canvas ref={timerCanvasRef} width={120} height={120} className="shadow-lg rounded-full" />
   );
 }

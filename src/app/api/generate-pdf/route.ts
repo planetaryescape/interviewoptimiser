@@ -1,11 +1,11 @@
 import { getUserFromClerkId } from "@/lib/auth";
-import { config } from "@/lib/config";
-import { logger } from "@/lib/logger";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import Case from "case";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { config } from "~/config";
+import { logger } from "~/lib/logger";
 
 export const maxDuration = 60;
 

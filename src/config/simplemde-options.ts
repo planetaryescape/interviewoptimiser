@@ -1,4 +1,4 @@
-import { Options } from "easymde";
+import type { Options } from "easymde";
 import { useTheme } from "next-themes";
 import { useMemo } from "react";
 
@@ -10,8 +10,7 @@ export function useSimpleMDEOptions() {
       autofocus: false,
       spellChecker: false,
       theme: theme === "dark" ? "dark" : "easymde",
-      previewClass:
-        theme === "dark" ? ["editor-preview-dark"] : ["editor-preview-light"],
+      previewClass: theme === "dark" ? ["editor-preview-dark"] : ["editor-preview-light"],
       toolbar: [
         "bold",
         "italic",

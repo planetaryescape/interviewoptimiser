@@ -1,0 +1,13 @@
+---
+description: Write tests and update tests whenever you make changes
+globs: *.tsx, *.ts
+alwaysApply: false
+---
+
+# Your rule content
+
+- whenever you make changes to components or utilities or other typescript files could you take a tdd approach by writing tests for whatever feature needs to be built and then iterating until those tests pass.
+- Most of the code in this project is not tested yet. So when you encounter files that have no tests at all write the tests. And when you encounter files that do have tests, update the tests. But the idea is that we want to test everything that we do we come up with a plan or hypothesis first, write the tests for it and then iterate until the tests pass. 
+- Be discriminant with what test you write. You don't have to test every little, single, small thing. Think like a senior, experienced engineer who knows the things that need tests and the things that do not. 
+- We are using Vitest for tests so make sure you use Vitest APIs and not Jest APIs. 
+- Bun has it's own test command, so when you want to run the test script in package.json, please use `bun run test ...` and not `bun test ...`
