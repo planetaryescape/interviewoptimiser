@@ -1,5 +1,7 @@
 import { relations } from "drizzle-orm";
 import { index, pgEnum, pgTable } from "drizzle-orm/pg-core";
+import { candidateDetails } from "./candidateDetails";
+import { jobDescriptions } from "./jobDescriptions";
 import { reports } from "./reports";
 import { users } from "./users";
 
@@ -43,6 +45,14 @@ export const interviewRelations = relations(interviews, ({ one, many }) => ({
     references: [users.id],
   }),
   report: many(reports),
+  candidateDetails: one(candidateDetails, {
+    fields: [interviews.id],
+    references: [candidateDetails.interviewId],
+  }),
+  jobDescription: one(jobDescriptions, {
+    fields: [interviews.id],
+    references: [jobDescriptions.interviewId],
+  }),
 }));
 
 export type Interview = typeof interviews.$inferSelect;

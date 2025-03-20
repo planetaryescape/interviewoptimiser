@@ -6,10 +6,14 @@ import type { SQSEvent, SQSRecord } from "aws-lambda";
 import { eq, sql } from "drizzle-orm";
 import { config } from "~/config";
 import { db } from "~/db";
-import { interviews, reports, statistics } from "~/db/schema";
+import { candidateDetails, interviews, jobDescriptions, reports, statistics } from "~/db/schema";
+import { extractCandidateDetails } from "~/lib/ai/extract-candidate-details";
+import { extractJobDescription } from "~/lib/ai/extract-job-description";
+import { extractOriginalCV } from "~/lib/ai/extract-original-cv";
 import { generateInterviewAnalysis } from "~/lib/ai/interview-analysis";
 import { sendDiscordDM } from "~/lib/discord";
 import { logger } from "~/lib/logger";
+import { getOpenAiClient } from "~/lib/openai";
 import { initSentry } from "../lib/sentry";
 import { deleteMessage } from "../utils/deleteMessage";
 import { handleError } from "../utils/handleError";
@@ -66,10 +70,52 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           throw new Error("Report not found");
         }
 
+        // Get the language model
+        const model = getOpenAiClient(user?.email)("gpt-4o");
+
+        // Run extraction functions in parallel using Promise.all
+        logger.info({ interviewId }, "Starting parallel data extraction");
+
+        const [structuredCV, structuredJobDescription, structuredCandidateDetails] =
+          await Promise.all([
+            extractOriginalCV({
+              model,
+              submittedCVText: interview.submittedCVText ?? "",
+              userEmail: user?.email,
+            }).catch((error) => {
+              logger.error({ error }, "Error extracting structured CV data");
+              return null;
+            }),
+
+            extractJobDescription({
+              model,
+              jobDescriptionText: interview.jobDescriptionText ?? "",
+              userEmail: user?.email,
+            }).catch((error) => {
+              logger.error({ error }, "Error extracting structured job description");
+              return null;
+            }),
+
+            extractCandidateDetails({
+              model,
+              submittedCVText: interview.submittedCVText ?? "",
+              userEmail: user?.email,
+            }).catch((error) => {
+              logger.error({ error }, "Error extracting structured candidate details");
+              return null;
+            }),
+          ]);
+
+        logger.info({ interviewId }, "Parallel data extraction completed");
+
+        // Generate the interview analysis with structured data
         const generatedReport = await generateInterviewAnalysis(
           interview,
           report.transcript ?? "",
-          user?.email
+          user?.email,
+          structuredCV?.data,
+          structuredJobDescription?.data,
+          structuredCandidateDetails?.data
         );
 
         if (!generatedReport) {
@@ -78,6 +124,51 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         }
 
         await db.transaction(async (tx) => {
+          // Save structured job description to database if available
+          if (structuredJobDescription?.data) {
+            await tx
+              .insert(jobDescriptions)
+              .values({
+                interviewId,
+                company: structuredJobDescription.data.company,
+                role: structuredJobDescription.data.role,
+                requiredQualifications: structuredJobDescription.data.requiredQualifications,
+                requiredExperience: structuredJobDescription.data.requiredExperience,
+                requiredSkills: structuredJobDescription.data.requiredSkills,
+                preferredQualifications: structuredJobDescription.data.preferredQualifications,
+                preferredSkills: structuredJobDescription.data.preferredSkills,
+                responsibilities: structuredJobDescription.data.responsibilities,
+                benefits: structuredJobDescription.data.benefits,
+                location: structuredJobDescription.data.location,
+                employmentType: structuredJobDescription.data.employmentType,
+                seniority: structuredJobDescription.data.seniority,
+                industry: structuredJobDescription.data.industry,
+                keyTechnologies: structuredJobDescription.data.keyTechnologies,
+                keywords: structuredJobDescription.data.keywords,
+              })
+              .onConflictDoNothing();
+          }
+
+          // Save structured candidate details to database if available
+          if (structuredCandidateDetails?.data) {
+            await tx
+              .insert(candidateDetails)
+              .values({
+                interviewId,
+                name: structuredCandidateDetails.data.name,
+                email: structuredCandidateDetails.data.email,
+                phone: structuredCandidateDetails.data.phone,
+                location: structuredCandidateDetails.data.location,
+                currentRole: structuredCandidateDetails.data.currentRole,
+                professionalSummary: structuredCandidateDetails.data.professionalSummary,
+                linkedinUrl: structuredCandidateDetails.data.linkedinUrl,
+                portfolioUrl: structuredCandidateDetails.data.portfolioUrl,
+                otherUrls: structuredCandidateDetails.data.otherUrls,
+              })
+              .onConflictDoNothing();
+          }
+
+          // Update the report with generated analysis
           await tx
             .update(reports)
             .set({
@@ -102,6 +193,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
             })
             .where(eq(reports.id, reportId));
 
+          // Update the interview with candidate, company, and role information
           await tx
             .update(interviews)
             .set({
@@ -112,6 +204,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
             })
             .where(eq(interviews.id, interviewId));
 
+          // Update global statistics
           await tx
             .update(statistics)
             .set({
@@ -120,7 +213,10 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
             .where(eq(statistics.id, 1));
         });
 
-        logger.info({ interviewId }, "Successfully generated and saved interview report");
+        logger.info(
+          { interviewId },
+          "Successfully generated and saved interview report with structured data"
+        );
 
         await sendDiscordDM({
           title: "✅ Interview Report Generated",
