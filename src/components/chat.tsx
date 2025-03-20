@@ -1,6 +1,6 @@
 "use client";
 
-import { getRepository } from "@/lib/data/repositoryFactory";
+import type { Entity } from "@/lib/utils/formatEntity";
 import { createInterviewInstructions } from "@/utils/conversation_config";
 import { VoiceProvider } from "@humeai/voice-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -8,12 +8,23 @@ import { AnimatePresence } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import { type ComponentRef, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import type { Interview } from "~/db/schema";
+import type { z } from "zod";
+import type { InferResultType } from "~/db/helpers";
+import type { CandidateDetails } from "~/lib/ai/extract-candidate-details";
+import type { StructuredJobDescriptionSchema } from "~/lib/ai/extract-job-description";
 import { Controls } from "./controls";
 import { GeneratingReportTakeover } from "./generating-report-takeover";
 import { Messages } from "./messages";
 import MessagesPlaceholder from "./messages-placeholder";
 import { TimerHume } from "./timer-hume";
+
+type InterviewWithCandidateDetailsAndJobDescription = InferResultType<
+  "interviews",
+  {
+    candidateDetails: true;
+    jobDescription: true;
+  }
+>;
 
 export default function ClientComponent({
   id,
@@ -26,11 +37,16 @@ export default function ClientComponent({
   const router = useRouter();
   const params = useParams();
 
-  const { data: interview } = useQuery({
+  const { data: interview } = useQuery<Entity<InterviewWithCandidateDetailsAndJobDescription>>({
     queryKey: ["interview", id],
     queryFn: async () => {
-      const interviewRepo = await getRepository<Interview>("interviews");
-      return await interviewRepo.getById(id);
+      const response = await fetch(`/api/interviews/${id}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch interview");
+      }
+
+      return response.json();
     },
   });
 
@@ -93,16 +109,20 @@ export default function ClientComponent({
         configId={configId}
         sessionSettings={{
           type: "session_settings",
-          systemPrompt: createInterviewInstructions(
-            interview?.data.submittedCVText ?? "",
-            interview?.data.jobDescriptionText ?? "",
-            interview?.data.duration ?? 15,
-            interview?.data.type ?? "behavioral"
-          ),
+          systemPrompt: createInterviewInstructions({
+            cvText: interview?.data.submittedCVText ?? "",
+            structuredCandidateDetails: interview?.data
+              .candidateDetails as unknown as CandidateDetails,
+            structuredJobDescription: interview?.data.jobDescription as unknown as z.infer<
+              typeof StructuredJobDescriptionSchema
+            >,
+            duration: interview?.data.duration ?? 15,
+            interviewType: interview?.data.type ?? "behavioral",
+          }),
           context: {
-            text: `You are an AI interviewer for Interview Optimiser, conducting mock interviews to help candidates prepare for job roles. Your goal is to ask relevant, insightful questions based on the candidate's CV and job description, focusing on ${interview?.data.type} questions.
+            text: `You are an AI interviewer for Interview Optimiser, conducting mock interviews to help candidates prepare for job roles. Your goal is to ask relevant, insightful questions based on the candidate data and job role information, focusing on ${interview?.data.type} questions.
 
-            Do not interrupt the candidate; always let them finish their thoughts. If the candidate's response seems incomplete, use affirming interjections like “uh-huh” to encourage them to continue. Use positive reinforcement and adjust the difficulty of questions based on the candidate's performance, allowing them to expand and providing feedback when necessary. Refer to the candidate's CV for tailored questions.`,
+            Do not interrupt the candidate; always let them finish their thoughts. If the candidate's response seems incomplete, use affirming interjections like "uh-huh" to encourage them to continue. Use positive reinforcement and adjust the difficulty of questions based on the candidate's performance, allowing them to expand and providing feedback when necessary.`,
             type: "persistent",
           },
         }}
