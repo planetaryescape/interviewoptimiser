@@ -1,7 +1,3 @@
 {
-  "**/*.{js,mjs,cjs,jsx,ts,tsx}": [
-    "bun run lint:fix",
-    "bun run fmt",
-    "bun run test -- --changed"
-  ]
+  "**/*.{js,mjs,cjs,jsx,ts,tsx}": ["bun run lint:fix", "bun run fmt", "bun run test -- --changed"]
 }
