@@ -138,7 +138,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@sentry/esbuild-plugin": "^2.22.6",
+    "@sentry/esbuild-plugin": "^3.2.2",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@testing-library/react-hooks": "^8.0.1",
