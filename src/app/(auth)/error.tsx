@@ -34,8 +34,7 @@ export default function AuthError({
             Authentication Error
           </h1>
           <p className="text-lg text-muted-foreground max-w-md">
-            We encountered an issue during the authentication process. Please
-            try again.
+            We encountered an issue during the authentication process. Please try again.
           </p>
         </div>
         <div className="flex items-center gap-4">

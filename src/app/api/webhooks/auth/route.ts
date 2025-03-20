@@ -1,20 +1,20 @@
-import { db } from "@/db";
-import { customisations, interviews, statistics, users } from "@/db/schema";
 import AccountDeletedEmail from "@/emails/account-deleted";
 import AdminNotificationEmail from "@/emails/admin-notification";
 import WelcomeEmail from "@/emails/welcome";
 import { getUserFromClerkId } from "@/lib/auth";
-import { config } from "@/lib/config";
 import { createDefaultApiRouteContext } from "@/lib/createDefaultApiRouteContext";
-import { sendDiscordDM } from "@/lib/discord";
-import { logger } from "@/lib/logger";
-import { resend } from "@/lib/resend";
-import { stripe } from "@/lib/stripe";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
 import { countDistinct, eq, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { NextResponse } from "next/server";
+import { config } from "~/config";
+import { db } from "~/db";
+import { customisations, interviews, statistics, users } from "~/db/schema";
+import { sendDiscordDM } from "~/lib/discord";
+import { logger } from "~/lib/logger";
+import { resend } from "~/lib/resend";
+import { stripe } from "~/lib/stripe";
 
 const newUserSchema = createInsertSchema(users);
 
@@ -29,9 +29,7 @@ export async function POST(request: Request) {
 
   if (data.type === "user.created") {
     logger.info({}, "Getting number of users");
-    const [numOfUsers] = await db
-      .select({ count: countDistinct(users.id) })
-      .from(users);
+    const [numOfUsers] = await db.select({ count: countDistinct(users.id) }).from(users);
 
     logger.info({ ...context, numUsers: numOfUsers }, "Number of users");
 
@@ -52,8 +50,7 @@ export async function POST(request: Request) {
         email: data.data.email_addresses[0].email_address,
         role: "user",
         minutes:
-          config.earlyBirdPromo.enabled &&
-          numOfUsers.count < config.earlyBirdPromo.userCount
+          config.earlyBirdPromo.enabled && numOfUsers.count < config.earlyBirdPromo.userCount
             ? config.earlyBirdPromo.minutes
             : config.startingFreeMinutes,
         stripeCustomerId: customer.id,
@@ -191,10 +188,7 @@ export async function POST(request: Request) {
       logger.info({ ...context, user }, "User");
 
       if (!user || !user.id) {
-        logger.error(
-          { ...context, clerkUserId },
-          "User not found in Clerk but was deleted"
-        );
+        logger.error({ ...context, clerkUserId }, "User not found in Clerk but was deleted");
         throw new Error("User not found in Clerk but was deleted");
       }
 
@@ -213,9 +207,7 @@ export async function POST(request: Request) {
 
         // Delete customisations
         logger.info({}, "Deleting customisations");
-        await tx
-          .delete(customisations)
-          .where(eq(customisations.userId, userId));
+        await tx.delete(customisations).where(eq(customisations.userId, userId));
 
         // Finally, delete the user
         logger.info({}, "Deleting user");
@@ -234,10 +226,7 @@ export async function POST(request: Request) {
           react: AccountDeletedEmail({ firstName }),
         });
 
-        logger.info(
-          { ...context, emailResponse },
-          "Account deleted email sent"
-        );
+        logger.info({ ...context, emailResponse }, "Account deleted email sent");
       }
 
       // Send admin notification

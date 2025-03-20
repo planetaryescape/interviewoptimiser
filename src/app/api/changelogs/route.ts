@@ -1,16 +1,12 @@
-import { db } from "@/db";
-import { changelogs } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { logger } from "@/lib/logger";
-import {
-  formatEntity,
-  formatEntityList,
-  formatErrorEntity,
-} from "@/lib/utils/formatEntity";
+import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { desc } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { changelogs } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 export async function GET() {
   logger.info("GET request received at /api/changelogs");
@@ -20,10 +16,7 @@ export async function GET() {
       orderBy: desc(changelogs.date),
     });
 
-    logger.info(
-      { count: changelogEntries.length },
-      "Successfully retrieved changelogs"
-    );
+    logger.info({ count: changelogEntries.length }, "Successfully retrieved changelogs");
     return NextResponse.json(formatEntityList(changelogEntries, "changelog"));
   } catch (error) {
     Sentry.withScope((scope) => {
@@ -65,16 +58,10 @@ export async function POST(request: NextRequest) {
 
     // Check if the user is an admin
     if (role !== "admin") {
-      logger.warn(
-        { clerkUserId, role },
-        "Non-admin user attempted to create a changelog"
-      );
-      return NextResponse.json(
-        formatErrorEntity("Unauthorized: Admin access required"),
-        {
-          status: 403,
-        }
-      );
+      logger.warn({ clerkUserId, role }, "Non-admin user attempted to create a changelog");
+      return NextResponse.json(formatErrorEntity("Unauthorized: Admin access required"), {
+        status: 403,
+      });
     }
 
     const body = await request.json();
@@ -89,10 +76,7 @@ export async function POST(request: NextRequest) {
       })
       .returning();
 
-    logger.info(
-      { changelogId: newChangelog.id },
-      "Successfully created new changelog"
-    );
+    logger.info({ changelogId: newChangelog.id }, "Successfully created new changelog");
     return NextResponse.json(formatEntity(newChangelog, "changelog"));
   } catch (error) {
     Sentry.withScope((scope) => {

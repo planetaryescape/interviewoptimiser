@@ -1,4 +1,3 @@
-import { config } from "@/lib/config";
 import {
   Body,
   Button,
@@ -13,6 +12,7 @@ import {
   Text,
 } from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
+import { config } from "~/config";
 
 export const AccountDeletedEmail = ({ firstName }: { firstName?: string }) => {
   return (
@@ -45,23 +45,21 @@ export const AccountDeletedEmail = ({ firstName }: { firstName?: string }) => {
             className="mx-auto my-20"
           />
           <Container className="p-45 bg-[hsl(210, 36%, 96%)]">
-            <Heading className="my-0 text-center leading-8">
-              Your Account Has Been Deleted
-            </Heading>
+            <Heading className="my-0 text-center leading-8">Your Account Has Been Deleted</Heading>
 
             <Section>
               <Row>
                 <Text className="text-base">Hi {firstName ?? "there"},</Text>
                 <Text className="text-base">
-                  We’re sorry to see you go. Your account with{" "}
-                  {config.projectName} has been successfully deleted, and all of
-                  your personal data has been removed from our systems.
+                  We’re sorry to see you go. Your account with {config.projectName} has been
+                  successfully deleted, and all of your personal data has been removed from our
+                  systems.
                 </Text>
                 <Text className="text-base">
-                  If this was a mistake or if you have any questions, please
-                  reach out to our support team. Additionally, if you’d like to
-                  share why you decided to delete your account, simply reply to
-                  this email and let us know. Your feedback helps us improve.
+                  If this was a mistake or if you have any questions, please reach out to our
+                  support team. Additionally, if you’d like to share why you decided to delete your
+                  account, simply reply to this email and let us know. Your feedback helps us
+                  improve.
                 </Text>
               </Row>
             </Section>
@@ -76,9 +74,8 @@ export const AccountDeletedEmail = ({ firstName }: { firstName?: string }) => {
             </Section>
             <Section>
               <Text className="text-base">
-                Thank you for having been a part of {config.projectName}. If you
-                decide to return, you’re always welcome to sign up again at any
-                time.
+                Thank you for having been a part of {config.projectName}. If you decide to return,
+                you’re always welcome to sign up again at any time.
                 <br />
                 <br />– The {config.projectName} Team
               </Text>

@@ -2,7 +2,8 @@
 
 import { mmToPx } from "@/lib/unit-conversions";
 import { cn } from "@/lib/utils";
-import React, { forwardRef, ReactNode } from "react";
+import type React from "react";
+import { type ReactNode, forwardRef } from "react";
 
 interface PagePreviewProps {
   children: ReactNode;
@@ -20,17 +21,7 @@ interface PagePreviewProps {
 
 const PagePreview = forwardRef<HTMLDivElement, PagePreviewProps>(
   (
-    {
-      children,
-      className,
-      id,
-      pageWidth,
-      pageHeight,
-      margin,
-      bodyFont,
-      scale,
-      noBorder = false,
-    },
+    { children, className, id, pageWidth, pageHeight, margin, bodyFont, scale, noBorder = false },
     ref
   ) => {
     const pageWidthPx = mmToPx(pageWidth);
@@ -43,7 +34,7 @@ const PagePreview = forwardRef<HTMLDivElement, PagePreviewProps>(
         ref={ref}
         id={id}
         className={cn(
-          `relative mx-auto shadow-lg overflow-hidden bg-white flex flex-col text-[11pt] transform origin-top-left`,
+          "relative mx-auto shadow-lg overflow-hidden bg-white flex flex-col text-[11pt] transform origin-top-left",
           className,
           noBorder ? "border-none" : "border border-gray-300"
         )}
@@ -53,7 +44,7 @@ const PagePreview = forwardRef<HTMLDivElement, PagePreviewProps>(
         }}
       >
         <div
-          id={`page-0`}
+          id={"page-0"}
           className={cn("flex-1 text-black", bodyFont)}
           style={{
             height: innerContainerHeight,

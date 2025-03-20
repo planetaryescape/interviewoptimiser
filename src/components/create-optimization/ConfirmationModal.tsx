@@ -8,8 +8,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Interview } from "@/db/schema";
 import { useCreateInterviewDuration } from "@/stores/createInterviewStore";
+import type { Interview } from "~/db/schema";
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -35,8 +35,8 @@ export function ConfirmationModal({
         <AlertDialogHeader>
           <AlertDialogTitle>Start Mock Interview </AlertDialogTitle>
           <AlertDialogDescription>
-            This mock interview will cost {duration} minute(s). You currently
-            have {userMinutes} minute(s). Do you want to proceed?
+            This mock interview will cost {duration} minute(s). You currently have {userMinutes}{" "}
+            minute(s). Do you want to proceed?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

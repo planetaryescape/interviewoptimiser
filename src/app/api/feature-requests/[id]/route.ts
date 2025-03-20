@@ -1,22 +1,20 @@
-import { db } from "@/db";
-import { featureRequestLikes, featureRequests } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { logger } from "@/lib/logger";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { and, eq, sql } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { featureRequestLikes, featureRequests } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 export async function PUT(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   logger.info("POST request received at /api/feature-requests/[id]");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn(
-      "Unauthorized access attempt to POST /api/feature-requests/[id]"
-    );
+    logger.warn("Unauthorized access attempt to POST /api/feature-requests/[id]");
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -47,9 +45,7 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
 
       if (existingLike.length > 0) {
         // Unlike
-        await tx
-          .delete(featureRequestLikes)
-          .where(eq(featureRequestLikes.id, existingLike[0].id));
+        await tx.delete(featureRequestLikes).where(eq(featureRequestLikes.id, existingLike[0].id));
       } else {
         // Like
         await tx.insert(featureRequestLikes).values({
@@ -75,9 +71,7 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
           content: featureRequests.content,
           status: featureRequests.status,
           createdAt: featureRequests.createdAt,
-          likesCount: sql<number>`count(${featureRequestLikes.id})`.as(
-            "likes_count"
-          ),
+          likesCount: sql<number>`count(${featureRequestLikes.id})`.as("likes_count"),
         })
         .from(featureRequests)
         .leftJoin(
@@ -101,9 +95,7 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
       { featureRequestId: updatedFeatureRequest.id },
       "Successfully updated feature request likes"
     );
-    return NextResponse.json(
-      formatEntity(updatedFeatureRequest, "feature-request")
-    );
+    return NextResponse.json(formatEntity(updatedFeatureRequest, "feature-request"));
   } catch (error) {
     Sentry.withScope((scope) => {
       scope.setExtra("context", "PUT /api/feature-requests/[id]");

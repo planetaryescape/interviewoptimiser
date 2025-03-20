@@ -10,10 +10,10 @@ export function formatDateRange(dateRange: {
   const endDate = dateRange.current
     ? "Present"
     : dateRange.endDate
-    ? new Date(dateRange.endDate).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-      })
-    : "";
+      ? new Date(dateRange.endDate).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+        })
+      : "";
   return `${startDate} - ${endDate}`;
 }

@@ -38,10 +38,7 @@ export function RadialProsodyChart({ data }: RadialProsodyChartProps) {
   return (
     <div className="w-full h-[500px] bg-white rounded-lg p-4">
       <ResponsiveContainer>
-        <RadarChart
-          data={data}
-          margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
-        >
+        <RadarChart data={data} margin={{ top: 20, right: 30, left: 30, bottom: 20 }}>
           <PolarGrid gridType="circle" stroke={colors.grid} strokeWidth={1} />
           <PolarAngleAxis
             dataKey="name"
@@ -85,9 +82,7 @@ export function RadialProsodyChart({ data }: RadialProsodyChartProps) {
                     <p className="text-xs font-medium text-gray-500 uppercase">
                       {payload[0].payload.name}
                     </p>
-                    <p className="text-sm font-bold text-gray-900">
-                      {payload[0].value}%
-                    </p>
+                    <p className="text-sm font-bold text-gray-900">{payload[0].value}%</p>
                   </div>
                 </div>
               );

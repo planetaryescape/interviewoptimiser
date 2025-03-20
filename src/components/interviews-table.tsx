@@ -24,11 +24,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Interview } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { idHandler } from "@/lib/utils/idHandler";
 import { Loader2, MoreVertical } from "lucide-react";
 import Link from "next/link";
+import type { Interview } from "~/db/schema";
 
 interface InterviewsTableProps {
   interviews: Array<
@@ -40,11 +40,7 @@ interface InterviewsTableProps {
   deletingId: number | null;
 }
 
-export const InterviewsTable = ({
-  interviews,
-  onDelete,
-  deletingId,
-}: InterviewsTableProps) => {
+export const InterviewsTable = ({ interviews, onDelete, deletingId }: InterviewsTableProps) => {
   return (
     <Table className="size-full row-span-1 bg-card text-card-foreground">
       <TableHeader className="sticky top-0 bg-card">
@@ -66,25 +62,17 @@ export const InterviewsTable = ({
             >
               <TableCell>
                 <div>
-                  <div className="font-medium">
-                    {interview.role || "Role Not Specified"}
-                  </div>
+                  <div className="font-medium">{interview.role || "Role Not Specified"}</div>
                   <div className="text-sm text-muted-foreground">
                     {interview.company || "Company Not Specified"}
                   </div>
                 </div>
               </TableCell>
-              <TableCell>
-                {new Date(interview.createdAt).toLocaleDateString()}
-              </TableCell>
+              <TableCell>{new Date(interview.createdAt).toLocaleDateString()}</TableCell>
               <TableCell>
                 <div className="flex justify-end items-center space-x-2">
                   <Button asChild size="sm" variant="outline">
-                    <Link
-                      href={`/dashboard/interviews/${idHandler.encode(
-                        interview.id ?? 0
-                      )}`}
-                    >
+                    <Link href={`/dashboard/interviews/${idHandler.encode(interview.id ?? 0)}`}>
                       View CV
                     </Link>
                   </Button>
@@ -102,21 +90,16 @@ export const InterviewsTable = ({
                       <DropdownMenuContent align="end">
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <DropdownMenuItem
-                              onSelect={(e) => e.preventDefault()}
-                            >
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                               Delete
                             </DropdownMenuItem>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                Are you absolutely sure?
-                              </AlertDialogTitle>
+                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This action cannot be undone. This will
-                                permanently delete the interview and all
-                                associated data.
+                                This action cannot be undone. This will permanently delete the
+                                interview and all associated data.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>

@@ -25,8 +25,8 @@ export function CreateInterviewErrorModal({
         <AlertDialogHeader>
           <AlertDialogTitle>Scheduling Issue</AlertDialogTitle>
           <AlertDialogDescription>
-            We encountered an issue with creating your interview. Not to worry,
-            Just click try again and we will create the interview for you.
+            We encountered an issue with creating your interview. Not to worry, Just click try again
+            and we will create the interview for you.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

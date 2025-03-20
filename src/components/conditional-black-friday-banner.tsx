@@ -3,9 +3,7 @@
 import { usePathname } from "next/navigation";
 import { BlackFridayBanner } from "./black-friday-banner";
 
-const EXCLUDED_PATHS = [
-  "/checkout/black-friday",
-];
+const EXCLUDED_PATHS = ["/checkout/black-friday"];
 
 export function ConditionalBlackFridayBanner() {
   const pathname = usePathname();

@@ -2,14 +2,8 @@ import { Badge } from "@/components/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Report } from "@/db/schema";
-import { Entity } from "@/lib/utils/formatEntity";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import type { Entity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { format } from "date-fns";
 import {
@@ -23,6 +17,7 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
+import type { Report } from "~/db/schema";
 import { Skeleton } from "./ui/skeleton";
 
 interface ReportCardProps {
@@ -46,13 +41,12 @@ export function ReportCard({ report, interviewId }: ReportCardProps) {
 
           <div className="grid grid-cols-2 gap-4 mb-6">
             {[...Array(4)].map((_, idx) => (
-              <div key={idx} className="space-y-2">
+              <div key={`skeleton-item-${idx + 1}`} className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Skeleton className="h-4 w-4" />
                   <Skeleton className="h-4 w-20" />
                 </div>
-                <Skeleton className="h-2 w-full" />
-                <Skeleton className="h-4 w-8" />
+                <Skeleton className="h-4 w-full" />
               </div>
             ))}
           </div>
@@ -76,8 +70,8 @@ export function ReportCard({ report, interviewId }: ReportCardProps) {
                 report.data.overallScore >= 80
                   ? "success"
                   : report.data.overallScore >= 65
-                  ? "warning"
-                  : "destructive"
+                    ? "warning"
+                    : "destructive"
               }
               className="px-2 py-0.5"
             >
@@ -85,10 +79,7 @@ export function ReportCard({ report, interviewId }: ReportCardProps) {
             </Badge>
             <span className="text-sm text-muted-foreground">
               <Calendar className="w-4 h-4 inline mr-1" />
-              {format(
-                new Date(report.data.createdAt),
-                "MMM d, yyyy 'at' h:mm a"
-              )}
+              {format(new Date(report.data.createdAt), "MMM d, yyyy 'at' h:mm a")}
             </span>
           </div>
         </div>
@@ -135,13 +126,11 @@ export function ReportCard({ report, interviewId }: ReportCardProps) {
                         skill.score >= 80
                           ? "bg-green-500"
                           : skill.score >= 65
-                          ? "bg-yellow-500"
-                          : "bg-red-500"
+                            ? "bg-yellow-500"
+                            : "bg-red-500"
                       }
                     />
-                    <span className="text-sm text-muted-foreground">
-                      {skill.score}%
-                    </span>
+                    <span className="text-sm text-muted-foreground">{skill.score}%</span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>

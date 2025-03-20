@@ -4,7 +4,6 @@ import { FileUpload } from "@/components/ui/file-upload";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { config } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import {
   useCreateInterviewActions,
@@ -14,6 +13,7 @@ import * as Sentry from "@sentry/nextjs";
 import { useDebounce } from "@uidotdev/usehooks";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { config } from "~/config";
 
 export function Step2JobDescription() {
   const jobDescriptionText = useCreateInterviewJobDescriptionText();
@@ -30,9 +30,7 @@ export function Step2JobDescription() {
 
       setIsLoading(true);
       try {
-        const extractedText = await extractTextFromUrl(
-          debouncedJobDescriptionLink
-        );
+        const extractedText = await extractTextFromUrl(debouncedJobDescriptionLink);
         if (extractedText?.trim()) {
           setJobDescriptionText(extractedText);
           setShowStep2Error(false);
@@ -57,7 +55,7 @@ export function Step2JobDescription() {
     };
 
     getJobDescriptionText();
-  }, [debouncedJobDescriptionLink]);
+  }, [debouncedJobDescriptionLink, setJobDescriptionText]);
 
   const handleFileChange = async (files: File[]) => {
     if (files.length === 0) {
@@ -66,15 +64,14 @@ export function Step2JobDescription() {
       return;
     }
 
-    if (files && files[0]) {
+    if (files?.[0]) {
       setIsLoading(true);
       const file = files[0];
       const fileType = file.type;
       if (
         fileType === "application/pdf" ||
         fileType === "application/msword" ||
-        fileType ===
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
       ) {
         const formData = new FormData();
         formData.append("file", file);
@@ -96,9 +93,7 @@ export function Step2JobDescription() {
             scope.setExtra("error", error);
             Sentry.captureException(error);
           });
-          toast.error(
-            "An error occurred while processing the file. Please try again."
-          );
+          toast.error("An error occurred while processing the file. Please try again.");
         } finally {
           setIsLoading(false);
         }
@@ -115,8 +110,8 @@ export function Step2JobDescription() {
         <div className="flex items-center gap-2 mb-4">
           <div className="h-1.5 w-1.5 rounded-full bg-primary" />
           <p className="text-sm font-medium">
-            Share the job posting - we&apos;ll align the interview questions
-            with the role requirements
+            Share the job posting - we&apos;ll align the interview questions with the role
+            requirements
           </p>
         </div>
         <div className="w-full border-2 border-dashed border-muted-foreground/25 rounded-lg bg-white dark:bg-black">
@@ -130,10 +125,9 @@ export function Step2JobDescription() {
           />
         </div>
         <p className="text-sm text-muted-foreground mt-4">
-          Note: Sometimes we may not be able to parse text from uploaded PDFs.
-          If the textbox doesn&apos;t populate shortly after uploading your
-          document, please try copying the text from your document and pasting
-          it below.
+          Note: Sometimes we may not be able to parse text from uploaded PDFs. If the textbox
+          doesn&apos;t populate shortly after uploading your document, please try copying the text
+          from your document and pasting it below.
         </p>
       </div>
 
@@ -174,10 +168,7 @@ export function Step2JobDescription() {
               setShowStep2Error(false);
             }
           }}
-          className={cn(
-            "min-h-[400px] h-full resize-none",
-            showStep2Error && "border-destructive"
-          )}
+          className={cn("min-h-[400px] h-full resize-none", showStep2Error && "border-destructive")}
           placeholder="Paste the job description content here..."
         />
         {showStep2Error && (

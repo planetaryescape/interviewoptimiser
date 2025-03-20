@@ -1,10 +1,5 @@
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +15,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { PageSettings } from "@/db/schema";
 import { useUser } from "@clerk/nextjs";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -37,9 +31,11 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useFeatureFlagEnabled } from "posthog-js/react";
+import * as React from "react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ReviewForm, ReviewFormData } from "./review-form";
+import type { PageSettings } from "~/db/schema";
+import { ReviewForm, type ReviewFormData } from "./review-form";
 
 export const paperSizes = {
   A4: { width: 210, height: 297 },
@@ -218,9 +214,7 @@ export function PagePreviewToolbar({
     if ((user?.firstName || user?.lastName) && isReviewDialogOpen) {
       setReviewForm((prev) => ({
         ...prev,
-        name:
-          [user.firstName, user.lastName].filter(Boolean).join(" ") ||
-          prev.name,
+        name: [user.firstName, user.lastName].filter(Boolean).join(" ") || prev.name,
       }));
     }
   }, [user, isReviewDialogOpen]);
@@ -323,10 +317,7 @@ export function PagePreviewToolbar({
                   onCheckedChange={setIncludeTranscript}
                   className="data-[state=checked]:bg-primary"
                 />
-                <Label
-                  htmlFor="transcript-toggle"
-                  className="text-xs font-medium"
-                >
+                <Label htmlFor="transcript-toggle" className="text-xs font-medium">
                   {includeTranscript ? "On" : "Off"}
                 </Label>
               </div>
@@ -350,12 +341,8 @@ export function PagePreviewToolbar({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-[160px]">
-                  <DropdownMenuItem onClick={() => onShare("pdf")}>
-                    Share as PDF
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onShare("link")}>
-                    Share Link
-                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onShare("pdf")}>Share as PDF</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onShare("link")}>Share Link</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
@@ -370,12 +357,7 @@ export function PagePreviewToolbar({
               </Button>
 
               {regenerateButtonEnabled && onRegenerate && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={onRegenerate}
-                  className="h-8"
-                >
+                <Button variant="secondary" size="sm" onClick={onRegenerate} className="h-8">
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Regenerate
                 </Button>
@@ -396,9 +378,7 @@ export function PagePreviewToolbar({
               <div className="max-w-2xl mx-auto">
                 <ReviewForm
                   formData={reviewForm}
-                  onFormChange={(data) =>
-                    setReviewForm((prev) => ({ ...prev, ...data }))
-                  }
+                  onFormChange={(data) => setReviewForm((prev) => ({ ...prev, ...data }))}
                   onSubmit={handleReviewSubmit}
                   isSubmitting={isSubmitting}
                   autoFocus
@@ -420,14 +400,16 @@ interface ToolbarItemProps {
 }
 
 function ToolbarItem({ label, children }: ToolbarItemProps) {
+  const labelId = React.useId();
+
   return (
     <div className="flex flex-col items-start space-y-1.5">
       {label && (
-        <label className="text-xs font-medium text-muted-foreground">
+        <span id={labelId} className="text-xs font-medium text-muted-foreground">
           {label}
-        </label>
+        </span>
       )}
-      {children}
+      <div aria-labelledby={label ? labelId : undefined}>{children}</div>
     </div>
   );
 }
@@ -440,13 +422,7 @@ interface ToolbarSelectProps {
   items: Array<{ value: string; label: string } | string>;
 }
 
-function ToolbarSelect({
-  value,
-  onValueChange,
-  icon,
-  placeholder,
-  items,
-}: ToolbarSelectProps) {
+function ToolbarSelect({ value, onValueChange, icon, placeholder, items }: ToolbarSelectProps) {
   return (
     <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger className="h-9 w-[140px] text-sm bg-background border shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground">

@@ -1,6 +1,6 @@
 import { BackgroundGradient as AnotherBackgroundGradient } from "@/components/background-gradient";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Interview } from "@/db/schema";
+import type { Interview } from "~/db/schema";
 import { InterviewCard } from "./interview-card";
 
 interface InterviewsGridProps {
@@ -13,11 +13,7 @@ interface InterviewsGridProps {
   deletingId: number | null;
 }
 
-export const InterviewsGrid = ({
-  interviews,
-  onDelete,
-  deletingId,
-}: InterviewsGridProps) => {
+export const InterviewsGrid = ({ interviews, onDelete, deletingId }: InterviewsGridProps) => {
   return (
     <ScrollArea className="relative size-full row-span-1 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 text-card-foreground p-4">
       <div className="size-full grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4 auto-rows-max">

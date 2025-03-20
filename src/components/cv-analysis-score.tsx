@@ -35,19 +35,8 @@ export function CVAnalysisScore({ score }: CVAnalysisScoreProps) {
             startAngle={90}
             endAngle={-270}
           >
-            <PolarAngleAxis
-              type="number"
-              domain={[0, 100]}
-              angleAxisId={0}
-              tick={false}
-            />
-            <RadialBar
-              background
-              dataKey="value"
-              angleAxisId={0}
-              data={data}
-              cornerRadius={12}
-            />
+            <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
+            <RadialBar background dataKey="value" angleAxisId={0} data={data} cornerRadius={12} />
             <text
               x={80}
               y={80}
@@ -60,9 +49,8 @@ export function CVAnalysisScore({ score }: CVAnalysisScoreProps) {
           </RadialBarChart>
         </div>
         <p className="text-sm text-muted-foreground flex-1">
-          This is what our optimiser scored you based on the information
-          provided. Note that this score is static and won&apos;t change as you
-          update your CV with the feedback provided.
+          This is what our optimiser scored you based on the information provided. Note that this
+          score is static and won&apos;t change as you update your CV with the feedback provided.
         </p>
       </CardContent>
     </Card>

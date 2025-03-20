@@ -1,5 +1,5 @@
-import { config } from "@/lib/config";
-import { MetadataRoute } from "next";
+import type { MetadataRoute } from "next";
+import { config } from "~/config";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -7,14 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: ["/"],
-        disallow: [
-          "/api",
-          "/api/*",
-          "/_next",
-          "/_next/*",
-          "/admin",
-          "/admin/*",
-        ],
+        disallow: ["/api", "/api/*", "/_next", "/_next/*", "/admin", "/admin/*"],
       },
       {
         userAgent: "Googlebot", // Additional rule for Googlebot, allowing everything

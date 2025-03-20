@@ -34,8 +34,8 @@ export default function DashboardError({
             Dashboard Error
           </h1>
           <p className="text-lg text-muted-foreground max-w-md">
-            We encountered an issue while loading your dashboard. We&apos;re
-            sorry for the inconvenience.
+            We encountered an issue while loading your dashboard. We&apos;re sorry for the
+            inconvenience.
           </p>
         </div>
         <div className="flex items-center gap-4">

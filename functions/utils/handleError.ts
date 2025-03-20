@@ -1,13 +1,13 @@
-import { sendDiscordDM } from "@/lib/discord";
-import { logger } from "@/lib/logger";
 import {
   ChangeMessageVisibilityCommand,
-  MessageAttributeValue,
+  type MessageAttributeValue,
+  type SQSClient,
   SendMessageCommand,
-  SQSClient,
 } from "@aws-sdk/client-sqs";
 import * as Sentry from "@sentry/aws-serverless";
-import { SQSRecord } from "aws-lambda";
+import type { SQSRecord } from "aws-lambda";
+import { sendDiscordDM } from "~/lib/discord";
+import { logger } from "~/lib/logger";
 import { deleteMessage } from "./deleteMessage";
 
 export async function handleError({
@@ -22,13 +22,10 @@ export async function handleError({
   onFailure?: () => Promise<void>;
 }): Promise<void> {
   const context = { handler: "handle-error" };
-  const receiveCount = parseInt(record.attributes.ApproximateReceiveCount, 10);
+  const receiveCount = Number.parseInt(record.attributes.ApproximateReceiveCount, 10);
 
   if (receiveCount < 3) {
-    logger.warn(
-      { ...context, receiveCount, recordId: record.messageId },
-      "Retrying failed record"
-    );
+    logger.warn({ ...context, receiveCount, recordId: record.messageId }, "Retrying failed record");
 
     const changeVisibilityCommand = new ChangeMessageVisibilityCommand({
       QueueUrl: process.env.SQS_QUEUE_URL!,
@@ -65,12 +62,13 @@ export async function handleError({
       await onFailure();
     }
 
-    const transformedAttributes = Object.entries(
-      record.messageAttributes
-    ).reduce((acc, [key, value]) => {
-      acc[key] = { DataType: value.dataType, StringValue: value.stringValue };
-      return acc;
-    }, {} as Record<string, MessageAttributeValue>);
+    const transformedAttributes = Object.entries(record.messageAttributes).reduce(
+      (acc, [key, value]) => {
+        acc[key] = { DataType: value.dataType, StringValue: value.stringValue };
+        return acc;
+      },
+      {} as Record<string, MessageAttributeValue>
+    );
 
     const sendMessageCommand = new SendMessageCommand({
       QueueUrl: process.env.DLQ_URL!,

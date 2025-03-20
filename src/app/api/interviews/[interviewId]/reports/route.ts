@@ -1,13 +1,13 @@
-import { db } from "@/db";
-import { reports } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { logger } from "@/lib/logger";
 import { formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { reports } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 export async function GET(
   request: NextRequest,
@@ -16,9 +16,7 @@ export async function GET(
   logger.info("GET request received at /api/interviews/[interviewId]/reports");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn(
-      "Unauthorized access attempt to GET /api/interviews/[interviewId]/reports"
-    );
+    logger.warn("Unauthorized access attempt to GET /api/interviews/[interviewId]/reports");
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });

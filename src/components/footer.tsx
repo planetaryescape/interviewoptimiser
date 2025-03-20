@@ -1,7 +1,7 @@
-import { config } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import { config } from "~/config";
 
 export function Footer() {
   return (
@@ -13,9 +13,7 @@ export function Footer() {
           <div className="space-y-4">
             <Link
               href="/"
-              className={cn(
-                "font-oswald flex gap-3 items-center text-2xl font-bold group"
-              )}
+              className={cn("font-oswald flex gap-3 items-center text-2xl font-bold group")}
             >
               <div className="relative transition-transform duration-300 group-hover:scale-105">
                 <Image
@@ -31,8 +29,8 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed max-w-xs">
-              Empowering job seekers with AI-driven tools to optimize their
-              career journey and stand out in the job market.
+              Empowering job seekers with AI-driven tools to optimize their career journey and stand
+              out in the job market.
             </p>
           </div>
 
@@ -41,9 +39,7 @@ export function Footer() {
 
           {/* Legal Links */}
           <div className="space-y-4">
-            <h3 className="font-medium text-gray-900 dark:text-gray-100">
-              Legal
-            </h3>
+            <h3 className="font-medium text-gray-900 dark:text-gray-100">Legal</h3>
             <ul className="space-y-3">
               <li>
                 <Link
@@ -66,9 +62,7 @@ export function Footer() {
 
           {/* Creator Links */}
           <div className="space-y-4">
-            <h3 className="font-medium text-gray-900 dark:text-gray-100">
-              More from the creator
-            </h3>
+            <h3 className="font-medium text-gray-900 dark:text-gray-100">More from the creator</h3>
             <ul className="space-y-3">
               <li>
                 <Link
@@ -82,7 +76,9 @@ export function Footer() {
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-label="CV Optimiser icon"
                   >
+                    <title>CV Optimiser icon</title>
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -105,6 +101,7 @@ export function Footer() {
                     stroke="currentColor"
                     viewBox="0 0 24 24"
                   >
+                    <title>Dealbase Africa icon</title>
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -121,8 +118,7 @@ export function Footer() {
         {/* Copyright Bar */}
         <div className="border-t border-gray-200 dark:border-gray-800 py-8">
           <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
-            © {new Date().getFullYear()} {config.projectName}. All rights
-            reserved.
+            © {new Date().getFullYear()} {config.projectName}. All rights reserved.
           </p>
         </div>
       </div>

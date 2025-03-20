@@ -33,8 +33,6 @@ import { marginSizes, paperSizes } from "@/components/page-preview-toolbar";
 import { remarkMarkdownComponents } from "@/components/remark-markdown-components";
 import { Button } from "@/components/ui/button";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
-import { Interview, PageSettings, Report } from "@/db/schema";
-import { config } from "@/lib/config";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { mmToPx, remToPx } from "@/lib/unit-conversions";
 import { cn } from "@/lib/utils";
@@ -57,6 +55,8 @@ import Link from "next/link";
 import { use, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { config } from "~/config";
+import type { Interview, PageSettings, Report } from "~/db/schema";
 
 export default function PublicInterviewReportPage(props: {
   params: Promise<{ id: string }>;
@@ -73,10 +73,7 @@ export default function PublicInterviewReportPage(props: {
       const reportRepo = await getRepository<
         Report & {
           pageSettings: PageSettings;
-          interview: Pick<
-            Interview,
-            "candidate" | "role" | "company" | "transcript"
-          >;
+          interview: Pick<Interview, "candidate" | "role" | "company" | "transcript">;
         }
       >("public/reports");
       return await reportRepo.getById(params.id);
@@ -85,15 +82,10 @@ export default function PublicInterviewReportPage(props: {
 
   const [includeTranscript, setIncludeTranscript] = useState(true);
 
-  const [containerRef, { width: containerWidth }] =
-    useMeasure<HTMLDivElement>();
+  const [containerRef, { width: containerWidth }] = useMeasure<HTMLDivElement>();
 
-  const pageWidth =
-    paperSizes[report?.data.pageSettings.paperSize ?? "A4"].width;
-  const scale = Math.min(
-    ((containerWidth ?? 0) - remToPx(4)) / mmToPx(pageWidth),
-    1
-  );
+  const pageWidth = paperSizes[report?.data.pageSettings.paperSize ?? "A4"].width;
+  const scale = Math.min(((containerWidth ?? 0) - remToPx(4)) / mmToPx(pageWidth), 1);
 
   if (isLoading) {
     return (
@@ -115,8 +107,8 @@ export default function PublicInterviewReportPage(props: {
           <Link href="/">Start Your Own Mock Interview</Link>
         </Button>
         <p className="mt-8 text-sm text-muted-foreground text-center max-w-md">
-          Our AI-powered mock interviews help you practice for your interview
-          skills and prepare you for success.
+          Our AI-powered mock interviews help you practice for your interview skills and prepare you
+          for success.
         </p>
       </div>
     );
@@ -163,9 +155,7 @@ export default function PublicInterviewReportPage(props: {
         <PagePreview
           scale={scale}
           pageWidth={pageWidth}
-          pageHeight={
-            paperSizes[report?.data.pageSettings.paperSize ?? "A4"].height
-          }
+          pageHeight={paperSizes[report?.data.pageSettings.paperSize ?? "A4"].height}
           margin={marginSizes[report?.data.pageSettings.marginSize ?? "Normal"]}
           id="report-preview"
           className={cn(
@@ -213,18 +203,14 @@ export default function PublicInterviewReportPage(props: {
                 <User className="w-5 h-5 mr-3 text-blue-600" />
                 <div>
                   <p className="text-sm">Name</p>
-                  <p className="font-medium">
-                    {report?.data.interview.candidate}
-                  </p>
+                  <p className="font-medium">{report?.data.interview.candidate}</p>
                 </div>
               </div>
               <div className="flex items-center">
                 <Briefcase className="w-5 h-5 mr-3 text-blue-600" />
                 <div>
                   <p className="text-sm">Company</p>
-                  <p className="font-medium">
-                    {report?.data.interview.company}
-                  </p>
+                  <p className="font-medium">{report?.data.interview.company}</p>
                 </div>
               </div>
               <div className="flex items-center">
@@ -253,9 +239,7 @@ export default function PublicInterviewReportPage(props: {
                   <BarChart2 className="w-10 h-10 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-4xl font-bold text-gray-800">
-                    {report?.data.overallScore}%
-                  </p>
+                  <p className="text-4xl font-bold text-gray-800">{report?.data.overallScore}%</p>
                   <p className="text-gray-500">Overall Score</p>
                 </div>
               </div>
@@ -273,9 +257,7 @@ export default function PublicInterviewReportPage(props: {
                 ) : (
                   <div className="flex items-center text-red-600">
                     <AlertTriangle className="w-8 h-8 mr-2" />
-                    <span className="text-lg font-semibold">
-                      Needs Improvement
-                    </span>
+                    <span className="text-lg font-semibold">Needs Improvement</span>
                   </div>
                 )}
               </div>
@@ -331,8 +313,8 @@ export default function PublicInterviewReportPage(props: {
                   content: report?.data.adaptability,
                   score: report?.data.adaptabilityScore,
                 },
-              ].map((item, index) => (
-                <div key={index} className="border-b pb-4 last:border-b-0">
+              ].map((item) => (
+                <div key={item.title} className="border-b pb-4 last:border-b-0">
                   <div className="flex justify-between items-center mb-2">
                     <h3
                       className={cn(
@@ -344,9 +326,7 @@ export default function PublicInterviewReportPage(props: {
                     </h3>
                     <div className="flex items-center">
                       <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                        <span className="text-xl font-bold text-blue-600">
-                          {item.score}%
-                        </span>
+                        <span className="text-xl font-bold text-blue-600">{item.score}%</span>
                       </div>
                       {item.score >= 80 ? (
                         <TrendingUp className="w-6 h-6 text-green-500" />
@@ -392,7 +372,7 @@ export default function PublicInterviewReportPage(props: {
                 <ul className="space-y-3">
                   {JSON.parse(report?.data.areasOfStrength ?? "[]").map(
                     (strength: string, index: number) => (
-                      <li key={index} className="flex items-start">
+                      <li key={strength} className="flex items-start">
                         <ThumbsUp className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-1" />
                         <span className="text-gray-700">{strength}</span>
                       </li>
@@ -412,7 +392,7 @@ export default function PublicInterviewReportPage(props: {
                 <ul className="space-y-3">
                   {JSON.parse(report?.data.areasForImprovement ?? "[]").map(
                     (area: string, index: number) => (
-                      <li key={index} className="flex items-start">
+                      <li key={area} className="flex items-start">
                         <AlertTriangle className="w-5  h-5 text-red-500 mr-3 flex-shrink-0 mt-1" />
                         <span className="text-gray-700">{area}</span>
                       </li>
@@ -437,7 +417,7 @@ export default function PublicInterviewReportPage(props: {
             <ol className="space-y-4 list-decimal list-inside">
               {JSON.parse(report?.data.actionableNextSteps ?? "[]").map(
                 (step: string, index: number) => (
-                  <li key={index} className="pl-2 py-3 bg-blue-50 rounded-lg">
+                  <li key={step} className="pl-2 py-3 bg-blue-50 rounded-lg">
                     <span className="text-gray-700 ml-2">{step}</span>
                   </li>
                 )
@@ -471,7 +451,7 @@ export default function PublicInterviewReportPage(props: {
                       .replace("user", "Candidate")
                       ?.trim();
                     return (
-                      <div key={index} className="mb-4 last:mb-0">
+                      <div key={message.content} className="mb-4 last:mb-0">
                         <span
                           className={cn(
                             "font-semibold text-blue-600 block mb-1",
@@ -482,13 +462,9 @@ export default function PublicInterviewReportPage(props: {
                         </span>
                         <div className="text-gray-700 bg-white p-3 rounded-lg shadow-sm">
                           <div className="block mb-2">{message.content}</div>
-                          {persona === "Candidate" &&
-                            Object.keys(message.prosody).length > 0 && (
-                              <Expressions
-                                values={message.prosody}
-                                withScores={false}
-                              />
-                            )}
+                          {persona === "Candidate" && Object.keys(message.prosody).length > 0 && (
+                            <Expressions values={message.prosody} withScores={false} />
+                          )}
                         </div>
                       </div>
                     );
@@ -500,10 +476,7 @@ export default function PublicInterviewReportPage(props: {
 
           {/* Footer */}
           <footer className="text-center text-gray-500 text-sm mt-8 pt-4 border-t">
-            <p>
-              Generated on {new Date().toLocaleDateString()} by Interview
-              Optimiser
-            </p>
+            <p>Generated on {new Date().toLocaleDateString()} by Interview Optimiser</p>
           </footer>
         </PagePreview>
       </div>

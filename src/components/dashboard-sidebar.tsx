@@ -5,14 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@/hooks/useUser";
 import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
-import {
-  BarChart3,
-  Cog,
-  Home,
-  MessageSquare,
-  ScrollText,
-  Star,
-} from "lucide-react";
+import { BarChart3, Cog, Home, MessageSquare, ScrollText, Star } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFeatureFlagEnabled } from "posthog-js/react";
@@ -66,27 +59,21 @@ export function DashboardSidebar() {
               Interviews
             </NavItem>
 
-            {organizationsFeaturesEnabled &&
-              user &&
-              user?.organizationMemberships.length > 0 && (
-                <>
-                  <div className="mt-6 mb-2 px-3">
-                    <p className="text-xs font-medium text-muted-foreground">
-                      Organization
-                    </p>
-                  </div>
-                  <NavItem href="/dashboard/jobs" icon={BarChart3}>
-                    Jobs
-                  </NavItem>
-                </>
-              )}
+            {organizationsFeaturesEnabled && user && user?.organizationMemberships.length > 0 && (
+              <>
+                <div className="mt-6 mb-2 px-3">
+                  <p className="text-xs font-medium text-muted-foreground">Organization</p>
+                </div>
+                <NavItem href="/dashboard/jobs" icon={BarChart3}>
+                  Jobs
+                </NavItem>
+              </>
+            )}
 
             {isAdmin && (
               <>
                 <div className="mt-6 mb-2 px-3">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Admin
-                  </p>
+                  <p className="text-xs font-medium text-muted-foreground">Admin</p>
                 </div>
                 <NavItem href="/dashboard/admin" icon={BarChart3}>
                   Interviews
@@ -101,9 +88,7 @@ export function DashboardSidebar() {
             )}
 
             <div className="mt-6 mb-2 px-3">
-              <p className="text-xs font-medium text-muted-foreground">
-                Settings
-              </p>
+              <p className="text-xs font-medium text-muted-foreground">Settings</p>
             </div>
             <NavItem href="/dashboard/settings" icon={Cog}>
               Settings
@@ -126,10 +111,7 @@ export function DashboardSidebar() {
       </div>
 
       <ClerkProvider dynamic>
-        <FeedbackModal
-          isOpen={isFeedbackModalOpen}
-          onClose={() => setIsFeedbackModalOpen(false)}
-        />
+        <FeedbackModal isOpen={isFeedbackModalOpen} onClose={() => setIsFeedbackModalOpen(false)} />
       </ClerkProvider>
 
       <BackgroundGradient degrees={Math.random() * 360} />

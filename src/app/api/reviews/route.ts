@@ -1,15 +1,15 @@
-import { db } from "@/db";
-import { reviews } from "@/db/schema";
 import ReviewNotificationEmail from "@/emails/review-notification";
 import { getUserFromClerkId } from "@/lib/auth";
-import { config } from "@/lib/config";
-import { sendDiscordDM } from "@/lib/discord";
-import { logger } from "@/lib/logger";
-import { resend } from "@/lib/resend";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { config } from "~/config";
+import { db } from "~/db";
+import { reviews } from "~/db/schema";
+import { sendDiscordDM } from "~/lib/discord";
+import { logger } from "~/lib/logger";
+import { resend } from "~/lib/resend";
 
 export async function POST(request: NextRequest) {
   logger.info("POST request received at /api/reviews");
@@ -63,10 +63,7 @@ export async function POST(request: NextRequest) {
       });
       logger.info("Review notification email sent successfully");
     } catch (emailError) {
-      logger.error(
-        { error: emailError },
-        "Failed to send review notification email"
-      );
+      logger.error({ error: emailError }, "Failed to send review notification email");
       // Don't fail the request if email sending fails
     }
 
@@ -85,10 +82,7 @@ export async function POST(request: NextRequest) {
         },
       });
     } catch (discordError) {
-      logger.error(
-        { error: discordError },
-        "Failed to send review notification Discord"
-      );
+      logger.error({ error: discordError }, "Failed to send review notification Discord");
       // Don't fail the request if Discord sending fails
     }
 

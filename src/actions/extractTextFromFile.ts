@@ -1,8 +1,8 @@
 "use server";
 
-import { logger } from "@/lib/logger";
 import * as Sentry from "@sentry/nextjs";
 import mammoth from "mammoth";
+import { logger } from "~/lib/logger";
 
 // @ts-expect-error TODO: fix this
 import * as pdf from "pdf-parse/lib/pdf-parse.js";
@@ -22,23 +22,16 @@ export async function extractTextFromFile(formData: FormData): Promise<string> {
       logger.info("starting to extract text from PDF");
       const buffer = Buffer.from(uint8Array);
       const data = await pdf(buffer);
-      logger.info(
-        { textLength: data.text?.trim().length },
-        "Extracted text from PDF"
-      );
+      logger.info({ textLength: data.text?.trim().length }, "Extracted text from PDF");
       return data.text?.trim();
     } else if (
-      file.type ===
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
       file.type === "application/msword"
     ) {
       logger.info("starting to extract text from word file");
       const buffer = Buffer.from(uint8Array);
       const result = await mammoth.extractRawText({ buffer });
-      logger.info(
-        { textLength: result.value?.trim().length },
-        "Extracted text from word file"
-      );
+      logger.info({ textLength: result.value?.trim().length }, "Extracted text from word file");
       return result.value?.trim();
     }
 

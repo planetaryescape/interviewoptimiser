@@ -15,9 +15,7 @@ export default function SettingsPage() {
       <Tabs defaultValue="customisation" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="customisation">Customisation</TabsTrigger>
-          {flagEnabled && (
-            <TabsTrigger value="organization">Organization</TabsTrigger>
-          )}
+          {flagEnabled && <TabsTrigger value="organization">Organization</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="customisation" className="mt-6">

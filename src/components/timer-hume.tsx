@@ -1,20 +1,29 @@
 "use client";
 
-import { Interview, NewInterview, User } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
 import { formatTime } from "@/lib/utils/formatTime";
-import {
-  formatMessage,
-  ONE_MINUTE_LEFT_MESSAGE,
-} from "@/lib/utils/messageUtils";
+import { ONE_MINUTE_LEFT_MESSAGE } from "@/lib/utils/messageUtils";
 import { unformatTime } from "@/lib/utils/unformatTime";
 import { useVoice } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import type { Interview, NewInterview, User } from "~/db/schema";
+
+interface Message {
+  role: string;
+  content: string;
+}
+
+interface VoiceStatus {
+  value: "disconnected" | "connecting" | "connected";
+  reason?: string;
+  sendUserInput: (message: string) => void;
+  messages: Message[];
+}
 
 export function TimerHume({
   totalTime,
@@ -30,22 +39,13 @@ export function TimerHume({
   const timeUpRef = useRef<boolean>(false);
   const params = useParams();
 
-  const {
-    disconnect,
-    status,
-    callDurationTimestamp,
-    sendUserInput,
-    sendAssistantInput,
-    messages,
-  } = useVoice();
+  const { disconnect, status, callDurationTimestamp, sendUserInput, sendAssistantInput, messages } =
+    useVoice();
 
   const { mutate: updateInterview } = useMutation({
     mutationFn: async (interview: Partial<NewInterview>) => {
       const interviewRepo = await getRepository<Interview>("interviews");
-      return await interviewRepo.update(
-        params.interviewId as string,
-        interview
-      );
+      return await interviewRepo.update(params.interviewId as string, interview);
     },
     onSuccess: () => {
       sendAssistantInput("hang_up");
@@ -67,46 +67,50 @@ export function TimerHume({
     },
   });
 
+  const handleSendUserInput = useCallback(
+    (message: string) => {
+      if (status.value === "connected" && "sendUserInput" in status) {
+        (status as VoiceStatus).sendUserInput(message);
+      }
+    },
+    [status]
+  );
+
+  const handleUpdateInterview = useCallback(
+    (data: Partial<NewInterview>) => {
+      updateInterview(data);
+    },
+    [updateInterview]
+  );
+
   useEffect(() => {
     if (status.value !== "connected") return;
     if (!callDurationTimestamp) return;
 
-    if (
-      unformatTime(callDurationTimestamp) === totalTime - 60 &&
-      !wrapUpRef.current
-    ) {
-      sendUserInput(ONE_MINUTE_LEFT_MESSAGE);
+    if (unformatTime(callDurationTimestamp) === totalTime - 60 && !wrapUpRef.current) {
+      handleSendUserInput(ONE_MINUTE_LEFT_MESSAGE);
       wrapUpRef.current = true;
     }
 
-    if (
-      unformatTime(callDurationTimestamp) === totalTime &&
-      !timeUpRef.current
-    ) {
-      updateInterview({
+    if (unformatTime(callDurationTimestamp) === totalTime && !timeUpRef.current) {
+      handleUpdateInterview({
         actualTime: Math.floor(unformatTime(callDurationTimestamp) / 60),
         transcript: JSON.stringify(
-          messages
-            .map((msg) => {
-              if (
-                msg.type === "user_message" ||
-                msg.type === "assistant_message"
-              ) {
-                return {
-                  role: msg.message.role,
-                  content: formatMessage(msg.message.content),
-                  prosody: msg.models.prosody?.scores ?? {},
-                };
-              }
-              return null;
-            })
-            .filter((msg) => msg !== null)
+          (status as VoiceStatus).messages
+            .filter((m: Message) => m.role === "assistant")
+            .map((m: Message) => m.content)
         ),
       });
-
       timeUpRef.current = true;
     }
-  }, [callDurationTimestamp, totalTime, status.value, messages]);
+  }, [
+    status.value,
+    callDurationTimestamp,
+    totalTime,
+    handleSendUserInput,
+    handleUpdateInterview,
+    status,
+  ]);
 
   useEffect(() => {
     if (!timerCanvasRef.current) return;
@@ -136,13 +140,7 @@ export function TimerHume({
 
     // Draw timer arc
     ctx.beginPath();
-    ctx.arc(
-      centerX,
-      centerY,
-      radius,
-      -Math.PI / 2,
-      -Math.PI / 2 + progress * 2 * Math.PI
-    );
+    ctx.arc(centerX, centerY, radius, -Math.PI / 2, -Math.PI / 2 + progress * 2 * Math.PI);
     ctx.lineTo(centerX, centerY);
     ctx.fillStyle = "#3B82F6";
     ctx.fill();
@@ -170,9 +168,7 @@ export function TimerHume({
     onSuccess: (updatedUser) => {
       if (updatedUser && updatedUser.data.minutes <= 0) {
         disconnect();
-        toast.error(
-          "You've run out of minutes. The interview has been stopped."
-        );
+        toast.error("You've run out of minutes. The interview has been stopped.");
       }
       queryClient.invalidateQueries({ queryKey: ["user"] });
     },
@@ -185,10 +181,7 @@ export function TimerHume({
   const partialTranscriptMutation = useMutation({
     mutationFn: async (interview: Partial<NewInterview>) => {
       const interviewRepo = await getRepository<Interview>("interviews");
-      return await interviewRepo.update(
-        params.interviewId as string,
-        interview
-      );
+      return await interviewRepo.update(params.interviewId as string, interview);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -209,37 +202,22 @@ export function TimerHume({
   useEffect(() => {
     if (status.value === "connected") {
       if (!callDurationTimestamp) return;
-      // Check if a minute has passed since the last decrement
-      if (
-        Math.floor(unformatTime(callDurationTimestamp) / 60) >
-        Math.floor(lastDecrementTimeRef.current / 60)
-      ) {
-        decrementMutation.mutate();
-        lastDecrementTimeRef.current = unformatTime(callDurationTimestamp);
+
+      const currentTime = unformatTime(callDurationTimestamp);
+      if (Math.floor(currentTime / 60) > Math.floor(lastDecrementTimeRef.current / 60)) {
+        lastDecrementTimeRef.current = currentTime;
 
         partialTranscriptMutation.mutate({
           actualTime: Math.floor(unformatTime(callDurationTimestamp) / 60),
           transcript: JSON.stringify(
-            messages
-              .map((msg) => {
-                if (
-                  msg.type === "user_message" ||
-                  msg.type === "assistant_message"
-                ) {
-                  return {
-                    role: msg.message.role,
-                    content: formatMessage(msg.message.content),
-                    prosody: msg.models.prosody?.scores ?? {},
-                  };
-                }
-                return null;
-              })
-              .filter((msg) => msg !== null)
+            (status as VoiceStatus).messages
+              .filter((m: Message) => m.role === "assistant")
+              .map((m: Message) => m.content)
           ),
         });
       }
     }
-  }, [decrementMutation, status.value, callDurationTimestamp, messages]);
+  }, [status.value, callDurationTimestamp, status, partialTranscriptMutation]);
 
   return (
     <div className="absolute top-4 right-4 flex items-center gap-4 z-50">
@@ -274,14 +252,10 @@ export function TimerHume({
         />
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
-            <div className="text-xs text-muted-foreground font-medium mb-1">
-              Time Left
-            </div>
+            <div className="text-xs text-muted-foreground font-medium mb-1">Time Left</div>
             <div className="text-lg font-bold font-mono">
               {callDurationTimestamp
-                ? formatTime(
-                    Math.max(0, totalTime - unformatTime(callDurationTimestamp))
-                  )
+                ? formatTime(Math.max(0, totalTime - unformatTime(callDurationTimestamp)))
                 : "--:--"}
             </div>
           </div>

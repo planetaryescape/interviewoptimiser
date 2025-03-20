@@ -5,9 +5,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { config } from "@/lib/config";
-import { StarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Star } from "lucide-react";
 import { useEffect } from "react";
+import { config } from "~/config";
 
 export interface ReviewFormData {
   name: string;
@@ -31,9 +32,9 @@ export function ReviewFormContent() {
   return (
     <div className="space-y-4">
       <p className="text-muted-foreground">
-        Your honest feedback helps us improve {config.projectName} and helps
-        others make informed decisions. Whether your experience was positive or
-        negative, we value your authentic perspective.
+        Your honest feedback helps us improve {config.projectName} and helps others make informed
+        decisions. Whether your experience was positive or negative, we value your authentic
+        perspective.
       </p>
       <div className="bg-muted/50 p-4 rounded-lg space-y-2">
         <p className="font-medium">Tips for writing a helpful review:</p>
@@ -76,18 +77,15 @@ export function ReviewForm({
           <div className="flex gap-1">
             {Array.from({ length: 5 }).map((_, i) => (
               <button
-                key={i}
+                key={`rating-star-${i + 1}`}
                 type="button"
                 onClick={() => onFormChange({ rating: i + 1 })}
-                className="p-1 hover:scale-110 transition-transform"
+                className={cn(
+                  "p-2 rounded-lg hover:bg-accent transition-colors",
+                  i < formData.rating ? "text-yellow-500" : "text-muted-foreground"
+                )}
               >
-                <StarIcon
-                  className={`h-6 w-6 ${
-                    i < formData.rating
-                      ? "fill-yellow-400 text-yellow-400"
-                      : "fill-none text-gray-300"
-                  }`}
-                />
+                <Star className="h-4 w-4" />
               </button>
             ))}
           </div>
@@ -120,9 +118,7 @@ export function ReviewForm({
             <Input
               id="twitterUsername"
               value={formData.twitterUsername}
-              onChange={(e) =>
-                onFormChange({ twitterUsername: e.target.value })
-              }
+              onChange={(e) => onFormChange({ twitterUsername: e.target.value })}
               placeholder="@username"
             />
           </div>
@@ -142,9 +138,7 @@ export function ReviewForm({
           <Checkbox
             id="showOnLanding"
             checked={formData.showOnLanding}
-            onCheckedChange={(checked) =>
-              onFormChange({ showOnLanding: checked as boolean })
-            }
+            onCheckedChange={(checked) => onFormChange({ showOnLanding: checked as boolean })}
           />
           <Label htmlFor="showOnLanding">
             I&apos;m okay with this review being shown on the landing page
@@ -152,17 +146,11 @@ export function ReviewForm({
         </div>
 
         <p className="text-sm text-muted-foreground">
-          Note: If you prefer to remain anonymous, you can use
-          &quot;Anonymous&quot; as your name or a pseudonym. your name or a
-          pseudonym.
+          Note: If you prefer to remain anonymous, you can use &quot;Anonymous&quot; as your name or
+          a pseudonym. your name or a pseudonym.
         </p>
 
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={isSubmitting}
-          onClick={onSubmit}
-        >
+        <Button type="submit" className="w-full" disabled={isSubmitting} onClick={onSubmit}>
           {isSubmitting ? "Submitting..." : submitButtonText}
         </Button>
       </div>

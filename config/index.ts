@@ -31,7 +31,5 @@ export const config = {
     userCount: 20,
     enabled: true,
   },
-  blackFridayPriceId: isDev
-    ? "price_1QPVMGAN8Y6xS9fBBDDCsyLr"
-    : "price_1QPVaaAN8Y6xS9fBye0k5Dgi",
+  blackFridayPriceId: isDev ? "price_1QPVMGAN8Y6xS9fBBDDCsyLr" : "price_1QPVaaAN8Y6xS9fBye0k5Dgi",
 };

@@ -9,9 +9,7 @@ export default function DashboardLoading() {
       </div>
       <div className="relative z-10 flex flex-col items-center space-y-4">
         <ParticleSwarmLoader />
-        <p className="text-muted-foreground animate-pulse">
-          Loading your dashboard...
-        </p>
+        <p className="text-muted-foreground animate-pulse">Loading your dashboard...</p>
       </div>
     </div>
   );

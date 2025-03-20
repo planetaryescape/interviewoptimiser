@@ -29,9 +29,7 @@ const StatisticItem = ({
         <NumberTicker value={value} />
       </h3>
       <div className="h-0.5 w-12 bg-gradient-to-r from-primary to-transparent" />
-      <p className="text-lg md:text-xl font-medium text-muted-foreground text-center">
-        {label}
-      </p>
+      <p className="text-lg md:text-xl font-medium text-muted-foreground text-center">{label}</p>
     </div>
   </motion.div>
 );
@@ -83,12 +81,7 @@ const StatisticsContent = () => {
   return (
     <>
       {stats.map((stat, index) => (
-        <StatisticItem
-          key={stat.label}
-          value={stat.value}
-          label={stat.label}
-          index={index}
-        />
+        <StatisticItem key={stat.label} value={stat.value} label={stat.label} index={index} />
       ))}
     </>
   );
@@ -110,8 +103,8 @@ export function SocialProofSection() {
             Our Growing Impact
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Join our community of professionals who are transforming their
-            interview preparation journey with us.
+            Join our community of professionals who are transforming their interview preparation
+            journey with us.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

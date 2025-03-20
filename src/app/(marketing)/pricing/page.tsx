@@ -1,10 +1,10 @@
 import { EarlyBirdPromoDiscountBanner } from "@/components/early-bird-promo-discount-banner";
 import PricingPageFaq from "@/components/pricing-page-faq";
 import { PricingPlanButton } from "@/components/pricing-plan-button";
-import { config } from "@/lib/config";
-import { stripe } from "@/lib/stripe";
 import { isFomoDiscountActive } from "@/lib/utils/isFomoDiscountActive";
-import Stripe from "stripe";
+import type Stripe from "stripe";
+import { config } from "~/config";
+import { stripe } from "~/lib/stripe";
 
 type PlanIconKey = keyof typeof planIcons;
 
@@ -15,7 +15,9 @@ const planIcons = {
       viewBox="0 0 100 100"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      aria-label="60 minute plan icon"
     >
+      <title>60 minute plan icon</title>
       <circle
         cx="50"
         cy="50"
@@ -41,6 +43,7 @@ const planIcons = {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
+      <title>30 minute plan icon</title>
       <circle
         cx="50"
         cy="50"
@@ -66,6 +69,7 @@ const planIcons = {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
+      <title>15 minute plan icon</title>
       <circle
         cx="50"
         cy="50"
@@ -96,24 +100,20 @@ export default async function PricingPage() {
   const sortedProducts = (products.data || [])
     .filter((product) => product && typeof product === "object")
     .sort((a, b) => {
-      const minutesA = parseInt(a.metadata?.minutes || "0", 10);
-      const minutesB = parseInt(b.metadata?.minutes || "0", 10);
+      const minutesA = Number.parseInt(a.metadata?.minutes || "0", 10);
+      const minutesB = Number.parseInt(b.metadata?.minutes || "0", 10);
       return minutesA - minutesB;
     });
 
   const plans = sortedProducts
     // filter out the plans that are not 15, 30, or 60 minutes
-    .filter((product) =>
-      ["15 minutes", "30 minutes", "60 minutes"].includes(product.name)
-    )
+    .filter((product) => ["15 minutes", "30 minutes", "60 minutes"].includes(product.name))
     .map((product) => ({
       name: product.name,
-      icon: planIcons[
-        (product.default_price as Stripe.Price)?.lookup_key as PlanIconKey
-      ],
+      icon: planIcons[(product.default_price as Stripe.Price)?.lookup_key as PlanIconKey],
       priceId: (product.default_price as Stripe.Price)?.id,
       description: product.description,
-      minutes: parseInt(product.metadata?.minutes ?? "0", 10),
+      minutes: Number.parseInt(product.metadata?.minutes ?? "0", 10),
       price:
         offerActive && product.metadata?.originalPrice
           ? (product.default_price as Stripe.Price)?.unit_amount || 0
@@ -172,24 +172,16 @@ export default async function PricingPage() {
                 )}
                 <p className="text-sm text-muted-foreground mt-2">
                   {offerActive ? (
-                    <span>
-                      ${(plan.originalPrice / 100 / plan.minutes).toFixed(2)}{" "}
-                      per minute
-                    </span>
+                    <span>${(plan.originalPrice / 100 / plan.minutes).toFixed(2)} per minute</span>
                   ) : (
-                    <span>
-                      ${(plan.price / 100 / plan.minutes).toFixed(2)} per minute
-                    </span>
+                    <span>${(plan.price / 100 / plan.minutes).toFixed(2)} per minute</span>
                   )}
                 </p>
               </div>
               <p className="mt-2 flex-grow text-sm leading-6 text-muted-foreground text-center">
                 {plan.description}
               </p>
-              <PricingPlanButton
-                recommended={plan.recommended}
-                priceId={plan.priceId}
-              />
+              <PricingPlanButton recommended={plan.recommended} priceId={plan.priceId} />
             </div>
           ))}
         </div>
@@ -203,21 +195,18 @@ export default async function PricingPage() {
             Take the Next Step to Interview Success
           </h2>
           <p className="mt-6 text-lg leading-8 text-muted-foreground">
-            Don&apos;t wait! With these limited-time savings, now is the perfect
-            time to invest in your interview success. Choose a plan that works
-            for you and start optimizing your performance today!
+            Don&apos;t wait! With these limited-time savings, now is the perfect time to invest in
+            your interview success. Choose a plan that works for you and start optimizing your
+            performance today!
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
             <a
-              href="#"
+              href="/signup"
               className="rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               Get Started Now!
             </a>
-            <a
-              href="#"
-              className="text-sm font-semibold leading-6 text-foreground"
-            >
+            <a href="/pricing" className="text-sm font-semibold leading-6 text-foreground">
               Learn more <span aria-hidden="true">→</span>
             </a>
           </div>

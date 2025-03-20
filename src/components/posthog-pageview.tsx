@@ -19,7 +19,7 @@ export default function PostHogPageView(): null {
     if (pathname && posthog) {
       let url = window.origin + pathname;
       if (searchParams.toString()) {
-        url = url + `?${searchParams.toString()}`;
+        url = `${url}?${searchParams.toString()}`;
       }
       posthog.capture("$pageview", {
         $current_url: url,
@@ -31,7 +31,7 @@ export default function PostHogPageView(): null {
     if (isSignedIn && user && !posthog._isIdentified()) {
       posthog.identify(user.id.toString(), {
         email: user.email,
-        name: user.firstname + " " + user.lastname,
+        name: `${user.firstname} ${user.lastname}`,
         username: user.username,
       });
     }

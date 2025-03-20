@@ -5,20 +5,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Invitation, NewInvitation, Organization } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { add, format } from "date-fns";
 import { useState } from "react";
 import { toast } from "sonner";
+import type { Invitation, NewInvitation, Organization } from "~/db/schema";
 
-type InvitationStatus =
-  | "pending"
-  | "accepted"
-  | "rejected"
-  | "expired"
-  | "revoked";
+type InvitationStatus = "pending" | "accepted" | "rejected" | "expired" | "revoked";
 
 export function OrganizationInvitations({
   organization,
@@ -90,14 +85,17 @@ export function OrganizationInvitations({
     );
   }
 
-  const groupedInvitations = invitations?.data.reduce((acc, invitation) => {
-    const status = invitation.data.status as InvitationStatus;
-    if (!acc[status]) {
-      acc[status] = [];
-    }
-    acc[status].push(invitation.data);
-    return acc;
-  }, {} as Record<InvitationStatus, (typeof invitations.data)[0]["data"][]>);
+  const groupedInvitations = invitations?.data.reduce(
+    (acc, invitation) => {
+      const status = invitation.data.status as InvitationStatus;
+      if (!acc[status]) {
+        acc[status] = [];
+      }
+      acc[status].push(invitation.data);
+      return acc;
+    },
+    {} as Record<InvitationStatus, (typeof invitations.data)[0]["data"][]>
+  );
 
   return (
     <div className="space-y-6">
@@ -137,31 +135,20 @@ export function OrganizationInvitations({
           </TabsTrigger>
         </TabsList>
 
-        {(
-          ["pending", "accepted", "rejected", "expired", "revoked"] as const
-        ).map((status) => (
+        {(["pending", "accepted", "rejected", "expired", "revoked"] as const).map((status) => (
           <TabsContent key={status} value={status}>
             <Card>
               <CardContent className="pt-6">
                 {groupedInvitations?.[status]?.length === 0 ? (
-                  <p className="text-muted-foreground text-center py-4">
-                    No {status} invitations
-                  </p>
+                  <p className="text-muted-foreground text-center py-4">No {status} invitations</p>
                 ) : (
                   <div className="space-y-4">
                     {groupedInvitations?.[status]?.map((invitation) => (
-                      <div
-                        key={invitation.id}
-                        className="flex items-center justify-between"
-                      >
+                      <div key={invitation.id} className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">{invitation.email}</p>
                           <p className="text-sm text-muted-foreground">
-                            Expires:{" "}
-                            {format(
-                              new Date(invitation.expiresAt),
-                              "MMM d, yyyy"
-                            )}
+                            Expires: {format(new Date(invitation.expiresAt), "MMM d, yyyy")}
                           </p>
                         </div>
                         {status === "pending" && (

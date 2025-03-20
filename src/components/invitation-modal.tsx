@@ -9,12 +9,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Invitation } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import type { Invitation } from "~/db/schema";
 import { InvitationLine } from "./invitation-line";
 
 type InvitationModalProps = {
@@ -22,10 +22,7 @@ type InvitationModalProps = {
   onClose: () => void;
 };
 
-export function InvitationModal({
-  invitations,
-  onClose,
-}: InvitationModalProps) {
+export function InvitationModal({ invitations, onClose }: InvitationModalProps) {
   const [open, setOpen] = useState(true);
   const queryClient = useQueryClient();
 
@@ -54,17 +51,12 @@ export function InvitationModal({
     onClose();
   };
 
-  const handleResponse = async (
-    invitationId: number,
-    status: "accepted" | "rejected"
-  ) => {
+  const handleResponse = async (invitationId: number, status: "accepted" | "rejected") => {
     respondToInvitation(
       { invitationId, status },
       {
         onSuccess: () => {
-          toast.success(
-            `Invitation ${status === "accepted" ? "accepted" : "rejected"}`
-          );
+          toast.success(`Invitation ${status === "accepted" ? "accepted" : "rejected"}`);
           // If this was the last invitation, close the modal
           if (invitations.length === 1) {
             handleClose();
@@ -79,9 +71,7 @@ export function InvitationModal({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Organization Invitations</DialogTitle>
-          <DialogDescription>
-            You have pending invitations to join organizations
-          </DialogDescription>
+          <DialogDescription>You have pending invitations to join organizations</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           {invitations.map((invitation) => (

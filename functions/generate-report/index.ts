@@ -1,15 +1,15 @@
-import { db } from "@/db";
-import { interviews, reports, statistics } from "@/db/schema";
-import { generateInterviewAnalysis } from "@/lib/ai/interview-analysis";
 import { getUserFromId } from "@/lib/auth";
-import { config } from "@/lib/config";
-import { sendDiscordDM } from "@/lib/discord";
-import { logger } from "@/lib/logger";
 import { idHandler } from "@/lib/utils/idHandler";
 import { SQSClient } from "@aws-sdk/client-sqs";
 import * as Sentry from "@sentry/aws-serverless";
-import { SQSEvent, SQSRecord } from "aws-lambda";
+import type { SQSEvent, SQSRecord } from "aws-lambda";
 import { eq, sql } from "drizzle-orm";
+import { config } from "~/config";
+import { db } from "~/db";
+import { interviews, reports, statistics } from "~/db/schema";
+import { generateInterviewAnalysis } from "~/lib/ai/interview-analysis";
+import { sendDiscordDM } from "~/lib/discord";
+import { logger } from "~/lib/logger";
 import { initSentry } from "../lib/sentry";
 import { deleteMessage } from "../utils/deleteMessage";
 import { handleError } from "../utils/handleError";
@@ -23,10 +23,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
     logger.info({ event }, "Received event");
 
     if (!event.Records?.length) {
-      logger.error(
-        { event },
-        "Invalid event structure: Records is not an array"
-      );
+      logger.error({ event }, "Invalid event structure: Records is not an array");
       throw new Error("Invalid event structure");
     }
 
@@ -34,7 +31,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
     const failedRecords: SQSRecord[] = [];
 
     for (const record of event.Records) {
-      let interviewId: number = 0;
+      let interviewId = 0;
       try {
         const {
           data: { interviewId: id, reportId },
@@ -89,11 +86,9 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
               speakingSkills: generatedReport.speakingSkills,
               speakingSkillsScore: generatedReport.speakingSkillsScore,
               communicationSkills: generatedReport.communicationSkills,
-              communicationSkillsScore:
-                generatedReport.communicationSkillsScore,
+              communicationSkillsScore: generatedReport.communicationSkillsScore,
               problemSolvingSkills: generatedReport.problemSolvingSkills,
-              problemSolvingSkillsScore:
-                generatedReport.problemSolvingSkillsScore,
+              problemSolvingSkillsScore: generatedReport.problemSolvingSkillsScore,
               technicalKnowledge: generatedReport.technicalKnowledge,
               technicalKnowledgeScore: generatedReport.technicalKnowledgeScore,
               teamwork: generatedReport.teamwork,
@@ -101,12 +96,8 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
               adaptability: generatedReport.adaptability,
               adaptabilityScore: generatedReport.adaptabilityScore,
               areasOfStrength: JSON.stringify(generatedReport.areasOfStrength),
-              areasForImprovement: JSON.stringify(
-                generatedReport.areasForImprovement
-              ),
-              actionableNextSteps: JSON.stringify(
-                generatedReport.actionableNextSteps
-              ),
+              areasForImprovement: JSON.stringify(generatedReport.areasForImprovement),
+              actionableNextSteps: JSON.stringify(generatedReport.actionableNextSteps),
               isCompleted: true,
             })
             .where(eq(reports.id, reportId));
@@ -129,10 +120,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
             .where(eq(statistics.id, 1));
         });
 
-        logger.info(
-          { interviewId },
-          "Successfully generated and saved interview report"
-        );
+        logger.info({ interviewId }, "Successfully generated and saved interview report");
 
         await sendDiscordDM({
           title: "✅ Interview Report Generated",
@@ -156,10 +144,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           scope.setExtra("context", "handler");
           scope.setExtra("error", error);
           scope.setExtra("event", event);
-          scope.setExtra(
-            "message",
-            error instanceof Error ? error.message : error
-          );
+          scope.setExtra("message", error instanceof Error ? error.message : error);
           Sentry.captureException(error);
         });
 
@@ -181,13 +166,8 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
               description: "Failed to generate interview report",
               metadata: {
                 "Record ID": record.messageId,
-                "Interview ID": record.body
-                  ? JSON.parse(record.body).data?.interviewId
-                  : "unknown",
-                Error:
-                  error instanceof Error
-                    ? error.message
-                    : JSON.stringify(error),
+                "Interview ID": record.body ? JSON.parse(record.body).data?.interviewId : "unknown",
+                Error: error instanceof Error ? error.message : JSON.stringify(error),
                 "Stack Trace": error instanceof Error ? error.stack : "N/A",
                 Timestamp: new Date().toISOString(),
               },

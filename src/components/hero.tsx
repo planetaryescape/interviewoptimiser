@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Sparkles } from "lucide-react";
@@ -12,6 +13,29 @@ import { useEffect, useState } from "react";
 import { BorderBeam } from "./magicui/border-beam";
 import HeroVideoDialog from "./magicui/hero-video-dialog";
 import Particles from "./magicui/particles";
+
+const AVATAR_ITEMS = [
+  {
+    id: "avatar-1",
+    className:
+      "bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800",
+  },
+  {
+    id: "avatar-2",
+    className:
+      "bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800",
+  },
+  {
+    id: "avatar-3",
+    className:
+      "bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800",
+  },
+  {
+    id: "avatar-4",
+    className:
+      "bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800",
+  },
+];
 
 // Create a new component for the social proof part
 const SocialProofContent = () => {
@@ -36,18 +60,16 @@ const SocialProofContent = () => {
   return (
     <div className="flex items-center gap-4 text-muted-foreground">
       <div className="flex -space-x-2">
-        {[...Array(4)].map((_, i) => (
+        {AVATAR_ITEMS.map((item) => (
           <div
-            key={i}
-            className="w-8 h-8 rounded-full border-2 border-background bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800"
+            key={item.id}
+            className={cn("w-8 h-8 rounded-full border-2 border-background", item.className)}
           />
         ))}
       </div>
       <p className="text-sm">
         Join{" "}
-        <span className="font-bold">
-          {statistics?.usersCount?.toLocaleString() ?? "our"} users
-        </span>{" "}
+        <span className="font-bold">{statistics?.usersCount?.toLocaleString() ?? "our"} users</span>{" "}
         who have spent over{" "}
         <span className="font-bold">
           {statistics?.minutesCount?.toLocaleString() ?? "many"} minutes
@@ -61,10 +83,13 @@ const SocialProofContent = () => {
 const SocialProofSkeleton = () => (
   <div className="flex items-center gap-4 text-muted-foreground">
     <div className="flex -space-x-2">
-      {[...Array(4)].map((_, i) => (
+      {AVATAR_ITEMS.map((item) => (
         <div
-          key={i}
-          className="w-8 h-8 rounded-full border-2 border-background bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800 animate-pulse"
+          key={item.id}
+          className={cn(
+            "w-8 h-8 rounded-full border-2 border-background animate-pulse",
+            item.className
+          )}
         />
       ))}
     </div>
@@ -88,9 +113,7 @@ export function Hero() {
           <div className="space-y-6 z-50 max-w-3xl">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20">
               <Sparkles size={16} className="animate-pulse" />
-              <span className="text-sm font-medium">
-                AI-Powered Interview Mastery
-              </span>
+              <span className="text-sm font-medium">AI-Powered Interview Mastery</span>
             </div>
 
             <div className="space-y-4">
@@ -101,10 +124,9 @@ export function Hero() {
                 </span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground">
-                Experience true-to-life interview practice with voice-to-voice
-                AI that adapts to your responses, analyzes your delivery, and
-                provides personalized feedback on both what you say and how you
-                say it.
+                Experience true-to-life interview practice with voice-to-voice AI that adapts to
+                your responses, analyzes your delivery, and provides personalized feedback on both
+                what you say and how you say it.
               </p>
             </div>
 
@@ -115,29 +137,18 @@ export function Hero() {
                 asChild
               >
                 {userId ? (
-                  <Link
-                    href="/dashboard/create"
-                    className="inline-flex items-center gap-2"
-                  >
+                  <Link href="/dashboard/create" className="inline-flex items-center gap-2">
                     Start Mock Interview
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 ) : (
-                  <Link
-                    href="/sign-up"
-                    className="inline-flex items-center gap-2"
-                  >
+                  <Link href="/sign-up" className="inline-flex items-center gap-2">
                     Try For Free
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 )}
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="font-semibold group"
-                asChild
-              >
+              <Button size="lg" variant="outline" className="font-semibold group" asChild>
                 <Link href="#how-it-works">See How It Works</Link>
               </Button>
             </div>
@@ -167,12 +178,7 @@ export function Hero() {
         </div>
       </div>
 
-      <Particles
-        className="absolute inset-0 -z-10"
-        quantity={150}
-        staticity={30}
-        color={color}
-      />
+      <Particles className="absolute inset-0 -z-10" quantity={150} staticity={30} color={color} />
 
       <div className="absolute top-0 right-0 -z-10 h-[600px] w-[600px] rounded-full bg-gradient-to-br from-primary/40 to-purple-500/40 blur-3xl opacity-20" />
       <div className="absolute bottom-0 left-0 -z-10 h-[600px] w-[600px] rounded-full bg-gradient-to-tr from-pink-500/40 to-primary/40 blur-3xl opacity-20" />

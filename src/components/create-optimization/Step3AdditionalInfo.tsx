@@ -7,13 +7,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { config } from "@/lib/config";
 import {
   useCreateInterviewActions,
   useCreateInterviewAdditionalInfo,
   useCreateInterviewDuration,
   useCreateInterviewInterviewType,
 } from "@/stores/createInterviewStore";
+import { config } from "~/config";
 
 export function Step3AdditionalInfo() {
   const additionalInfo = useCreateInterviewAdditionalInfo();
@@ -38,9 +38,7 @@ export function Step3AdditionalInfo() {
             <Label htmlFor="interview-type" className="text-base">
               Interview Type
             </Label>
-            <span className="text-sm text-muted-foreground">
-              Choose the style that best fits
-            </span>
+            <span className="text-sm text-muted-foreground">Choose the style that best fits</span>
           </div>
           <Select value={interviewType} onValueChange={setInterviewType}>
             <SelectTrigger id="interview-type">
@@ -68,7 +66,7 @@ export function Step3AdditionalInfo() {
           </div>
           <Select
             value={duration.toString()}
-            onValueChange={(value) => setDuration(parseInt(value))}
+            onValueChange={(value) => setDuration(Number.parseInt(value))}
           >
             <SelectTrigger id="interview-duration">
               <SelectValue placeholder="Select interview duration" />
@@ -98,7 +96,9 @@ export function Step3AdditionalInfo() {
           maxLength={config.maxTextLengths.additionalInfo}
           onChange={(e) => setAdditionalInfo(e.target.value)}
           className="min-h-[300px] h-full resize-none"
-          placeholder={`Examples:\n- Conduct the interview in French\n- Use British English\n- Focus on leadership experience\n- Include questions about specific projects`}
+          placeholder={
+            "Examples:\n- Conduct the interview in French\n- Use British English\n- Focus on leadership experience\n- Include questions about specific projects"
+          }
         />
       </div>
     </div>

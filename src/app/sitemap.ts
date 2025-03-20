@@ -1,4 +1,4 @@
-import { config } from "@/lib/config";
+import { config } from "~/config";
 
 export default async function sitemap() {
   return [

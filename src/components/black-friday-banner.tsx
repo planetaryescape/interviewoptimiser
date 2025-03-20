@@ -13,12 +13,14 @@ export function BlackFridayBanner() {
     try {
       setIsUserSignedIn(isSignedIn || false);
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error("Auth check failed:", error);
       setIsUserSignedIn(false);
     }
   }, [isSignedIn]);
 
-  const targetUrl = isUserSignedIn ? "/checkout/black-friday" : "/sign-up?redirect=/checkout/black-friday";
+  const targetUrl = isUserSignedIn
+    ? "/checkout/black-friday"
+    : "/sign-up?redirect=/checkout/black-friday";
 
   return (
     <motion.div
@@ -35,7 +37,7 @@ export function BlackFridayBanner() {
             }}
             transition={{
               duration: 2,
-              repeat: Infinity,
+              repeat: Number.POSITIVE_INFINITY,
               ease: "easeInOut",
             }}
             className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4"

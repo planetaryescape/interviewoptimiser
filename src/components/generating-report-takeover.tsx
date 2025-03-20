@@ -33,7 +33,7 @@ export function GeneratingReportTakeover() {
         <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
         {Array.from({ length: 6 }).map((_, i) => (
           <motion.div
-            key={i}
+            key={`bg-element-${i + 1}`}
             className="absolute rounded-full bg-primary/10 blur-3xl"
             style={{
               width: Math.random() * 400 + 200,
@@ -48,7 +48,7 @@ export function GeneratingReportTakeover() {
             }}
             transition={{
               duration: 10,
-              repeat: Infinity,
+              repeat: Number.POSITIVE_INFINITY,
               delay: i * 0.5,
             }}
           />
@@ -81,7 +81,7 @@ export function GeneratingReportTakeover() {
           <div className="relative z-10 grid grid-cols-3 gap-4">
             {steps.map((step, index) => (
               <motion.div
-                key={index}
+                key={step.title}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 + index * 0.2 }}
@@ -91,9 +91,7 @@ export function GeneratingReportTakeover() {
                   <step.icon className="w-6 h-6 text-primary" />
                 </div>
                 <h3 className="text-sm font-medium mb-1">{step.title}</h3>
-                <p className="text-xs text-muted-foreground">
-                  {step.description}
-                </p>
+                <p className="text-xs text-muted-foreground">{step.description}</p>
               </motion.div>
             ))}
           </div>

@@ -3,7 +3,7 @@
 import { Header } from "@/components/header";
 import { ClerkProvider } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Toaster } from "sonner";
 
 export default function LandingPage({ children }: { children: ReactNode }) {
@@ -15,9 +15,7 @@ export default function LandingPage({ children }: { children: ReactNode }) {
         <Header className="row-span-1" />
       </ClerkProvider>
 
-      <main className="text-muted-foreground row-span-1 overflow-hidden">
-        {children}
-      </main>
+      <main className="text-muted-foreground row-span-1 overflow-hidden">{children}</main>
 
       <Toaster
         position="top-center"

@@ -34,6 +34,7 @@ export const ParticleSwarmLoader = ({ className }: { className?: string }) => {
       )}
     >
       <svg width="100%" height="100%" viewBox="-100 -100 200 200">
+        <title>Loading animation with swirling particles</title>
         {particles.map((particle) => (
           <motion.circle
             key={particle.id}
@@ -50,7 +51,7 @@ export const ParticleSwarmLoader = ({ className }: { className?: string }) => {
             }}
             transition={{
               duration: 3,
-              repeat: Infinity,
+              repeat: Number.POSITIVE_INFINITY,
               ease: "easeInOut",
               delay: Math.random() * 2,
             }}

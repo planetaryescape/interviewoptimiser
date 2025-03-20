@@ -1,10 +1,10 @@
-import { db } from "@/db";
-import { reviews } from "@/db/schema";
-import { logger } from "@/lib/logger";
 import { formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
 import { and, desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { db } from "~/db";
+import { reviews } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 export async function GET() {
   logger.info("GET request received at /api/public/reviews");

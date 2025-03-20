@@ -24,9 +24,7 @@ export function StartCall({
       <AnimatePresence>
         {status.value !== "connected" ? (
           <motion.div
-            className={cn(
-              "w-full p-4 flex items-center justify-center row-span-1"
-            )}
+            className={cn("w-full p-4 flex items-center justify-center row-span-1")}
             initial={{
               y: "100%",
               opacity: 0,

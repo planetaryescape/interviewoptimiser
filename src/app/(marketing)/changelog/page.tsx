@@ -3,7 +3,6 @@
 import { remarkMarkdownComponents } from "@/components/remark-markdown-components";
 import { Button } from "@/components/ui/button";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
-import { Changelog } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
 import { useUser } from "@clerk/nextjs";
@@ -14,6 +13,7 @@ import { Suspense } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
+import type { Changelog } from "~/db/schema";
 
 export default function ChangelogPage() {
   const { user, isLoaded } = useUser();
@@ -61,15 +61,13 @@ export default function ChangelogPage() {
       <h1 className="text-3xl font-bold mb-8 text-foreground">Changelog</h1>
       <div className="relative">
         {/* Timeline */}
-        <div className="absolute h-full top-0 bottom-0 left-4 md:left-1/2 w-0.5 bg-gray-200 dark:bg-gray-700"></div>
+        <div className="absolute h-full top-0 bottom-0 left-4 md:left-1/2 w-0.5 bg-gray-200 dark:bg-gray-700" />
 
         {/* Changelog items */}
         {changelogs?.data.map((changelog, index) => (
           <div
             key={changelog.sys.id}
-            className={`flex items-center mb-8 ${
-              index % 2 === 0 && "md:flex-row-reverse"
-            }`}
+            className={`flex items-center mb-8 ${index % 2 === 0 && "md:flex-row-reverse"}`}
           >
             <div className="w-full md:w-1/2 pl-8 md:px-4">
               <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
@@ -89,9 +87,7 @@ export default function ChangelogPage() {
                   </ReactMarkdown>
                 </Suspense>
                 <div className="flex items-center justify-between mt-2">
-                  <p className="text-gray-500 dark:text-gray-400">
-                    Likes: {changelog.data.likes}
-                  </p>
+                  <p className="text-gray-500 dark:text-gray-400">Likes: {changelog.data.likes}</p>
                   {user && (
                     <Button
                       variant="ghost"
@@ -106,7 +102,7 @@ export default function ChangelogPage() {
                 </div>
               </div>
             </div>
-            <div className="w-4 h-4 bg-blue-500 rounded-full absolute left-4 md:left-1/2 transform -translate-x-1/2"></div>
+            <div className="w-4 h-4 bg-blue-500 rounded-full absolute left-4 md:left-1/2 transform -translate-x-1/2" />
           </div>
         ))}
       </div>

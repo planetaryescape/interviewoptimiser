@@ -3,7 +3,7 @@ import {
   noteFrequencyLabels,
   voiceFrequencies,
   voiceFrequencyLabels,
-} from './constants.js';
+} from "./constants.js";
 
 /**
  * Output of AudioAnalysis for the frequency domain of the audio
@@ -33,9 +33,9 @@ export class AudioAnalysis {
     analyser,
     sampleRate,
     fftResult,
-    analysisType = 'frequency',
+    analysisType = "frequency",
     minDecibels = -100,
-    maxDecibels = -30,
+    maxDecibels = -30
   ) {
     if (!fftResult) {
       fftResult = new Float32Array(analyser.frequencyBinCount);
@@ -46,9 +46,8 @@ export class AudioAnalysis {
     let outputValues;
     let frequencies;
     let labels;
-    if (analysisType === 'music' || analysisType === 'voice') {
-      const useFrequencies =
-        analysisType === 'voice' ? voiceFrequencies : noteFrequencies;
+    if (analysisType === "music" || analysisType === "voice") {
+      const useFrequencies = analysisType === "voice" ? voiceFrequencies : noteFrequencies;
       const aggregateOutput = Array(useFrequencies.length).fill(minDecibels);
       for (let i = 0; i < fftResult.length; i++) {
         const frequency = i * frequencyStep;
@@ -61,10 +60,8 @@ export class AudioAnalysis {
         }
       }
       outputValues = aggregateOutput;
-      frequencies =
-        analysisType === 'voice' ? voiceFrequencies : noteFrequencies;
-      labels =
-        analysisType === 'voice' ? voiceFrequencyLabels : noteFrequencyLabels;
+      frequencies = analysisType === "voice" ? voiceFrequencies : noteFrequencies;
+      labels = analysisType === "voice" ? voiceFrequencyLabels : noteFrequencyLabels;
     } else {
       outputValues = Array.from(fftResult);
       frequencies = outputValues.map((_, i) => frequencyStep * i);
@@ -72,10 +69,7 @@ export class AudioAnalysis {
     }
     // We normalize to {0, 1}
     const normalizedOutput = outputValues.map((v) => {
-      return Math.max(
-        0,
-        Math.min((v - minDecibels) / (maxDecibels - minDecibels), 1),
-      );
+      return Math.max(0, Math.min((v - minDecibels) / (maxDecibels - minDecibels), 1));
     });
     const values = new Float32Array(normalizedOutput);
     return {
@@ -163,18 +157,11 @@ export class AudioAnalysis {
    * @param {number} [maxDecibels] default -30
    * @returns {AudioAnalysisOutputType}
    */
-  getFrequencies(
-    analysisType = 'frequency',
-    minDecibels = -100,
-    maxDecibels = -30,
-  ) {
+  getFrequencies(analysisType = "frequency", minDecibels = -100, maxDecibels = -30) {
     let fftResult = null;
     if (this.audioBuffer && this.fftResults.length) {
       const pct = this.audio.currentTime / this.audio.duration;
-      const index = Math.min(
-        (pct * this.fftResults.length) | 0,
-        this.fftResults.length - 1,
-      );
+      const index = Math.min((pct * this.fftResults.length) | 0, this.fftResults.length - 1);
       fftResult = this.fftResults[index];
     }
     return AudioAnalysis.getFrequencies(
@@ -183,7 +170,7 @@ export class AudioAnalysis {
       fftResult,
       analysisType,
       minDecibels,
-      maxDecibels,
+      maxDecibels
     );
   }
 
@@ -193,7 +180,7 @@ export class AudioAnalysis {
    * @returns {Promise<true>}
    */
   async resumeIfSuspended() {
-    if (this.context.state === 'suspended') {
+    if (this.context.state === "suspended") {
       await this.context.resume();
     }
     return true;

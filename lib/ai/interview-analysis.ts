@@ -1,60 +1,30 @@
-import { Interview, reports } from "@/db/schema";
 import { createInsertSchema } from "drizzle-zod";
 import { zodResponseFormat } from "openai/helpers/zod";
 import * as R from "remeda";
 import { z } from "zod";
-import { getOpenAiClient } from "./openai";
+import { type Interview, reports } from "~/db/schema";
+import { getOpenAiClient } from "../openai";
 
 const ReportSchema = createInsertSchema(reports);
 
 const ExtendedReportSchema = ReportSchema.extend({
-  generalAssessment: z
-    .string()
-    .describe("Overall assessment of the interview performance"),
-  overallScore: z
-    .number()
-    .describe("Overall score of the interview out of 100"),
-  fitnessForRole: z
-    .string()
-    .describe("Assessment of the candidate's fitness for the role"),
-  fitnessForRoleScore: z
-    .number()
-    .describe("Score for fitness for the role out of 100"),
-  speakingSkills: z
-    .string()
-    .describe("Assessment of the candidate's speaking skills"),
-  speakingSkillsScore: z
-    .number()
-    .describe("Score for speaking skills out of 100"),
-  communicationSkills: z
-    .string()
-    .describe("Assessment of the candidate's communication skills"),
-  communicationSkillsScore: z
-    .number()
-    .describe("Score for communication skills out of 100"),
-  problemSolvingSkills: z
-    .string()
-    .describe("Assessment of the candidate's problem-solving skills"),
-  problemSolvingSkillsScore: z
-    .number()
-    .describe("Score for problem-solving skills out of 100"),
-  technicalKnowledge: z
-    .string()
-    .describe("Assessment of the candidate's technical knowledge"),
-  technicalKnowledgeScore: z
-    .number()
-    .describe("Score for technical knowledge out of 100"),
-  teamwork: z
-    .string()
-    .describe("Assessment of the candidate's teamwork abilities"),
+  generalAssessment: z.string().describe("Overall assessment of the interview performance"),
+  overallScore: z.number().describe("Overall score of the interview out of 100"),
+  fitnessForRole: z.string().describe("Assessment of the candidate's fitness for the role"),
+  fitnessForRoleScore: z.number().describe("Score for fitness for the role out of 100"),
+  speakingSkills: z.string().describe("Assessment of the candidate's speaking skills"),
+  speakingSkillsScore: z.number().describe("Score for speaking skills out of 100"),
+  communicationSkills: z.string().describe("Assessment of the candidate's communication skills"),
+  communicationSkillsScore: z.number().describe("Score for communication skills out of 100"),
+  problemSolvingSkills: z.string().describe("Assessment of the candidate's problem-solving skills"),
+  problemSolvingSkillsScore: z.number().describe("Score for problem-solving skills out of 100"),
+  technicalKnowledge: z.string().describe("Assessment of the candidate's technical knowledge"),
+  technicalKnowledgeScore: z.number().describe("Score for technical knowledge out of 100"),
+  teamwork: z.string().describe("Assessment of the candidate's teamwork abilities"),
   teamworkScore: z.number().describe("Score for teamwork abilities out of 100"),
-  adaptability: z
-    .string()
-    .describe("Assessment of the candidate's adaptability"),
+  adaptability: z.string().describe("Assessment of the candidate's adaptability"),
   adaptabilityScore: z.number().describe("Score for adaptability out of 100"),
-  areasOfStrength: z
-    .array(z.string())
-    .describe("List of the candidate's areas of strength"),
+  areasOfStrength: z.array(z.string()).describe("List of the candidate's areas of strength"),
   areasForImprovement: z
     .array(z.string())
     .describe("List of areas where the candidate can improve"),
@@ -146,17 +116,12 @@ export async function generateInterviewAnalysis(
     })
   );
 
-  const userPrompt = USER_PROMPT.replace(
-    "{{TRANSCRIPT}}",
-    JSON.stringify(transcript)
-  )
+  const userPrompt = USER_PROMPT.replace("{{TRANSCRIPT}}", JSON.stringify(transcript))
     .replace("{{CV}}", interview.submittedCVText)
     .replace("{{JD}}", interview.jobDescriptionText)
     .replace("{{ADDITIONAL_INFO}}", interview.additionalInfo ?? "");
 
-  const completion = await getOpenAiClient(
-    userEmail
-  ).beta.chat.completions.parse({
+  const completion = await getOpenAiClient(userEmail).beta.chat.completions.parse({
     model: "gpt-4o",
     messages: [
       { role: "system", content: SYSTEM_PROMPT },

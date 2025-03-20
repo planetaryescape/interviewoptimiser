@@ -27,10 +27,7 @@ export function HowItWorksSection() {
   ];
 
   return (
-    <section
-      id="how-it-works"
-      className="relative w-full py-12 md:py-24 lg:py-32"
-    >
+    <section id="how-it-works" className="relative w-full py-12 md:py-24 lg:py-32">
       <div className="container mx-auto px-4 md:px-6">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
@@ -52,7 +49,7 @@ export function HowItWorksSection() {
                 scale: 1.02,
                 boxShadow: "0 10px 30px -10px rgba(0,0,0,0.2)",
               }}
-              key={index}
+              key={step.title}
               className="relative row-span-2 grid grid-rows-subgrid items-start text-center border border-primary/30 bg-gradient-to-b from-accent/20 to-primary/20 rounded-lg p-8 pb-12 overflow-hidden transition-colors duration-300 hover:border-primary/50 group"
             >
               <div className="row-span-1 grid grid-cols-[auto_1fr] gap-4 items-start justify-center text-left">
@@ -66,9 +63,7 @@ export function HowItWorksSection() {
                   {step.title}
                 </h3>
               </div>
-              <p className="row-span-1 text-left text-muted-foreground">
-                {step.description}
-              </p>
+              <p className="row-span-1 text-left text-muted-foreground">{step.description}</p>
               <motion.div
                 animate={{
                   rotate: [0, 360],
@@ -76,7 +71,7 @@ export function HowItWorksSection() {
                 transition={{
                   duration: 50,
                   ease: "linear",
-                  repeat: Infinity,
+                  repeat: Number.POSITIVE_INFINITY,
                 }}
                 className="absolute bottom-[-6rem] right-[-2rem] z-0 w-14.5 overflow-hidden text-muted-foreground/30 group-hover:text-primary/30 transition-colors duration-300"
               >
@@ -87,41 +82,42 @@ export function HowItWorksSection() {
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
-                  <circle cx="3" cy="3" r="3" fill="currentColor"></circle>
-                  <circle cx="29" cy="3" r="3" fill="currentColor"></circle>
-                  <circle cx="55" cy="3" r="3" fill="currentColor"></circle>
-                  <circle cx="81" cy="3" r="3" fill="currentColor"></circle>
-                  <circle cx="107" cy="3" r="3" fill="currentColor"></circle>
-                  <circle cx="3" cy="29" r="3" fill="currentColor"></circle>
-                  <circle cx="29" cy="29" r="3" fill="currentColor"></circle>
-                  <circle cx="55" cy="29" r="3" fill="currentColor"></circle>
-                  <circle cx="81" cy="29" r="3" fill="currentColor"></circle>
-                  <circle cx="107" cy="29" r="3" fill="currentColor"></circle>
-                  <circle cx="3" cy="55" r="3" fill="currentColor"></circle>
-                  <circle cx="29" cy="55" r="3" fill="currentColor"></circle>
-                  <circle cx="55" cy="55" r="3" fill="currentColor"></circle>
-                  <circle cx="81" cy="55" r="3" fill="currentColor"></circle>
-                  <circle cx="107" cy="55" r="3" fill="currentColor"></circle>
-                  <circle cx="3" cy="81" r="3" fill="currentColor"></circle>
-                  <circle cx="29" cy="81" r="3" fill="currentColor"></circle>
-                  <circle cx="55" cy="81" r="3" fill="currentColor"></circle>
-                  <circle cx="81" cy="81" r="3" fill="currentColor"></circle>
-                  <circle cx="107" cy="81" r="3" fill="currentColor"></circle>
-                  <circle cx="3" cy="107" r="3" fill="currentColor"></circle>
-                  <circle cx="29" cy="107" r="3" fill="currentColor"></circle>
-                  <circle cx="55" cy="107" r="3" fill="currentColor"></circle>
-                  <circle cx="81" cy="107" r="3" fill="currentColor"></circle>
-                  <circle cx="107" cy="107" r="3" fill="currentColor"></circle>
-                  <circle cx="3" cy="133" r="3" fill="currentColor"></circle>
-                  <circle cx="29" cy="133" r="3" fill="currentColor"></circle>
-                  <circle cx="55" cy="133" r="3" fill="currentColor"></circle>
-                  <circle cx="81" cy="133" r="3" fill="currentColor"></circle>
-                  <circle cx="107" cy="133" r="3" fill="currentColor"></circle>
-                  <circle cx="3" cy="159" r="3" fill="currentColor"></circle>
-                  <circle cx="29" cy="159" r="3" fill="currentColor"></circle>
-                  <circle cx="55" cy="159" r="3" fill="currentColor"></circle>
-                  <circle cx="81" cy="159" r="3" fill="currentColor"></circle>
-                  <circle cx="107" cy="159" r="3" fill="currentColor"></circle>
+                  <title>Gradient line</title>
+                  <circle cx="3" cy="3" r="3" fill="currentColor" />
+                  <circle cx="29" cy="3" r="3" fill="currentColor" />
+                  <circle cx="55" cy="3" r="3" fill="currentColor" />
+                  <circle cx="81" cy="3" r="3" fill="currentColor" />
+                  <circle cx="107" cy="3" r="3" fill="currentColor" />
+                  <circle cx="3" cy="29" r="3" fill="currentColor" />
+                  <circle cx="29" cy="29" r="3" fill="currentColor" />
+                  <circle cx="55" cy="29" r="3" fill="currentColor" />
+                  <circle cx="81" cy="29" r="3" fill="currentColor" />
+                  <circle cx="107" cy="29" r="3" fill="currentColor" />
+                  <circle cx="3" cy="55" r="3" fill="currentColor" />
+                  <circle cx="29" cy="55" r="3" fill="currentColor" />
+                  <circle cx="55" cy="55" r="3" fill="currentColor" />
+                  <circle cx="81" cy="55" r="3" fill="currentColor" />
+                  <circle cx="107" cy="55" r="3" fill="currentColor" />
+                  <circle cx="3" cy="81" r="3" fill="currentColor" />
+                  <circle cx="29" cy="81" r="3" fill="currentColor" />
+                  <circle cx="55" cy="81" r="3" fill="currentColor" />
+                  <circle cx="81" cy="81" r="3" fill="currentColor" />
+                  <circle cx="107" cy="81" r="3" fill="currentColor" />
+                  <circle cx="3" cy="107" r="3" fill="currentColor" />
+                  <circle cx="29" cy="107" r="3" fill="currentColor" />
+                  <circle cx="55" cy="107" r="3" fill="currentColor" />
+                  <circle cx="81" cy="107" r="3" fill="currentColor" />
+                  <circle cx="107" cy="107" r="3" fill="currentColor" />
+                  <circle cx="3" cy="133" r="3" fill="currentColor" />
+                  <circle cx="29" cy="133" r="3" fill="currentColor" />
+                  <circle cx="55" cy="133" r="3" fill="currentColor" />
+                  <circle cx="81" cy="133" r="3" fill="currentColor" />
+                  <circle cx="107" cy="133" r="3" fill="currentColor" />
+                  <circle cx="3" cy="159" r="3" fill="currentColor" />
+                  <circle cx="29" cy="159" r="3" fill="currentColor" />
+                  <circle cx="55" cy="159" r="3" fill="currentColor" />
+                  <circle cx="81" cy="159" r="3" fill="currentColor" />
+                  <circle cx="107" cy="159" r="3" fill="currentColor" />
                 </svg>
               </motion.div>
             </motion.div>

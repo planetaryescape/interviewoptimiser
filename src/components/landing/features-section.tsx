@@ -24,15 +24,13 @@ export function FeaturesSection() {
       <div className="grid md:grid-cols-3 gap-8">
         {features.map((feature, index) => (
           <BackgroundGradient
-            key={index}
+            key={feature.title}
             className="rounded-[22px] h-full p-4 sm:p-10 bg-white dark:bg-zinc-900"
           >
             <p className="text-base sm:text-xl text-black mt-4 mb-2 dark:text-neutral-200 font-sourceSerif">
               {feature.title}
             </p>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">
-              {feature.description}
-            </p>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">{feature.description}</p>
           </BackgroundGradient>
         ))}
       </div>

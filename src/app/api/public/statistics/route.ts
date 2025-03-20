@@ -1,9 +1,9 @@
-import { db } from "@/db";
-import { statistics } from "@/db/schema";
-import { logger } from "@/lib/logger";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
 import { NextResponse } from "next/server";
+import { db } from "~/db";
+import { statistics } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 export async function GET() {
   logger.info("GET request received at /api/public/statistics");

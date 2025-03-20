@@ -24,9 +24,7 @@ export const reviews = pgTable(
   }),
   (reviews) => ({
     userIdIdx: index("reviews_user_id_idx").on(reviews.userId),
-    showOnLandingIdx: index("reviews_show_on_landing_idx").on(
-      reviews.showOnLanding
-    ),
+    showOnLandingIdx: index("reviews_show_on_landing_idx").on(reviews.showOnLanding),
     isPublishedIdx: index("reviews_is_published_idx").on(reviews.isPublished),
   })
 );

@@ -24,16 +24,13 @@ export const featureRequests = pgTable("feature_requests", (p) => ({
   updatedAt: p.timestamp().defaultNow().notNull(),
 }));
 
-export const featureRequestRelations = relations(
-  featureRequests,
-  ({ one, many }) => ({
-    user: one(users, {
-      fields: [featureRequests.userId],
-      references: [users.id],
-    }),
-    likes: many(featureRequestLikes),
-  })
-);
+export const featureRequestRelations = relations(featureRequests, ({ one, many }) => ({
+  user: one(users, {
+    fields: [featureRequests.userId],
+    references: [users.id],
+  }),
+  likes: many(featureRequestLikes),
+}));
 
 export type FeatureRequest = typeof featureRequests.$inferSelect;
 export type NewFeatureRequest = typeof featureRequests.$inferInsert;

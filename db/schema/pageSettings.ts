@@ -3,11 +3,7 @@ import { pgEnum, pgTable, uniqueIndex } from "drizzle-orm/pg-core";
 import { reports } from "./reports";
 
 export const paperSizeEnum = pgEnum("paper_size", ["A4", "Letter", "Legal"]);
-export const marginSizeEnum = pgEnum("margin_size", [
-  "Normal",
-  "Narrow",
-  "Wide",
-]);
+export const marginSizeEnum = pgEnum("margin_size", ["Normal", "Narrow", "Wide"]);
 
 export const pageSettings = pgTable(
   "page_settings",
@@ -23,9 +19,7 @@ export const pageSettings = pgTable(
     updatedAt: p.timestamp().defaultNow().notNull(),
   }),
   (pageSettings) => ({
-    reportIdIdx: uniqueIndex("page_settings_report_id_idx").on(
-      pageSettings.reportId
-    ),
+    reportIdIdx: uniqueIndex("page_settings_report_id_idx").on(pageSettings.reportId),
   })
 );
 

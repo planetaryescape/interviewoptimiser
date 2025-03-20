@@ -5,9 +5,7 @@ export default function ReportsLoading() {
     <div className="container mx-auto p-6">
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <ParticleSwarmLoader />
-        <p className="text-muted-foreground animate-pulse">
-          Loading reports...
-        </p>
+        <p className="text-muted-foreground animate-pulse">Loading reports...</p>
       </div>
     </div>
   );

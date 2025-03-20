@@ -1,7 +1,7 @@
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { ClerkProvider } from "@clerk/nextjs";
-import { ReactNode, Suspense } from "react";
+import { type ReactNode, Suspense } from "react";
 
 export default function LandingPage({ children }: { children: ReactNode }) {
   return (
@@ -12,9 +12,7 @@ export default function LandingPage({ children }: { children: ReactNode }) {
         </ClerkProvider>
       </Suspense>
 
-      <main className="flex-grow w-full h-full grid place-items-center">
-        {children}
-      </main>
+      <main className="flex-grow w-full h-full grid place-items-center">{children}</main>
 
       <Footer />
     </div>

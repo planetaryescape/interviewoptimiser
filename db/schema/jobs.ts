@@ -1,12 +1,25 @@
 import { relations } from "drizzle-orm";
-import { pgTable, varchar, timestamp, boolean, serial, text, integer, jsonb } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  integer,
+  jsonb,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core";
 import { organizations } from "./organizations";
 import { users } from "./users";
 
 export const jobs = pgTable("jobs", {
   id: serial("id").primaryKey(),
-  organizationId: integer("organization_id").notNull().references(() => organizations.id),
-  createdById: serial("created_by_id").references(() => users.id).notNull(),
+  organizationId: integer("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  createdById: serial("created_by_id")
+    .references(() => users.id)
+    .notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description").notNull(),
   requirements: text("requirements"),
@@ -22,8 +35,12 @@ export const jobs = pgTable("jobs", {
 
 export const jobCandidates = pgTable("job_candidates", {
   id: serial("id").primaryKey(),
-  jobId: serial("job_id").references(() => jobs.id).notNull(),
-  userId: serial("user_id").references(() => users.id).notNull(),
+  jobId: serial("job_id")
+    .references(() => jobs.id)
+    .notNull(),
+  userId: serial("user_id")
+    .references(() => users.id)
+    .notNull(),
   status: varchar("status", { length: 50 }).notNull().default("pending"), // "pending", "interviewed", "reviewed"
   cvUrl: varchar("cv_url", { length: 255 }),
   notes: text("notes"),

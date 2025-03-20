@@ -49,11 +49,7 @@
     --chart-6: 43.3 96.4% 56.3%;
   }
   .dark {
-    --gradient: linear-gradient(
-      to top left,
-      hsl(220, 15%, 10%),
-      hsl(240, 15%, 20%)
-    );
+    --gradient: linear-gradient(to top left, hsl(220, 15%, 10%), hsl(240, 15%, 20%));
 
     --background: 220 20% 23%; /* Dark background */
     --foreground: 0 0% 100%; /* White text for readability */

@@ -6,20 +6,12 @@ import { ReportCard } from "@/components/report-card";
 import { Button } from "@/components/ui/button";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Interview, Report } from "@/db/schema";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
-import { Entity, EntityList } from "@/lib/utils/formatEntity";
+import type { Entity, EntityList } from "@/lib/utils/formatEntity";
 import * as Tabs from "@radix-ui/react-tabs";
 import { useQuery } from "@tanstack/react-query";
-import {
-  BarChart2,
-  Calendar,
-  ChevronRight,
-  FileText,
-  Home,
-  RefreshCw,
-} from "lucide-react";
+import { BarChart2, Calendar, ChevronRight, FileText, Home, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { usePostHog } from "posthog-js/react";
@@ -34,6 +26,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import type { Interview, Report } from "~/db/schema";
 
 // Add this type for the chart data
 type ChartDataPoint = {
@@ -55,14 +48,12 @@ const getTopProsodies = (reports: Entity<Report>[]) => {
   // Count total occurrences of each prosody across all reports
   const prosodyCount = new Map<string, number>();
 
-  reports.forEach((report) => {
-    const prosodies = report.data.transcript
-      ? JSON.parse(report.data.transcript)
-      : [];
-    Object.keys(prosodies).forEach((prosody) => {
+  for (const report of reports) {
+    const prosodies = report.data.transcript ? JSON.parse(report.data.transcript) : [];
+    for (const prosody of Object.keys(prosodies)) {
       prosodyCount.set(prosody, (prosodyCount.get(prosody) || 0) + 1);
-    });
-  });
+    }
+  }
 
   // Sort and get top prosodies
   return Array.from(prosodyCount.entries())
@@ -78,16 +69,14 @@ function aggregateProsodyData(transcript: string) {
   const prosodyTotals: { [key: string]: number } = {};
   let totalMessages = 0;
 
-  messages.forEach(
-    (message: { role: string; prosody: Record<string, number> }) => {
-      if (message.role === "user" && message.prosody) {
-        totalMessages++;
-        Object.entries(message.prosody).forEach(([key, value]) => {
-          prosodyTotals[key] = (prosodyTotals[key] || 0) + value;
-        });
+  for (const message of messages) {
+    if (message.role === "user" && message.prosody) {
+      totalMessages++;
+      for (const [key, value] of Object.entries(message.prosody)) {
+        prosodyTotals[key] = (prosodyTotals[key] || 0) + (value as number);
       }
     }
-  );
+  }
 
   const result = Object.entries(prosodyTotals)
     .map(([name, value]) => ({
@@ -108,8 +97,7 @@ export default function InterviewReportsPage(props: {
   const posthog = usePostHog();
   const { data: user } = useUser();
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
-  const [isOutOfMinutesDialogOpen, setIsOutOfMinutesDialogOpen] =
-    useState(false);
+  const [isOutOfMinutesDialogOpen, setIsOutOfMinutesDialogOpen] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
 
   const {
@@ -119,9 +107,7 @@ export default function InterviewReportsPage(props: {
   } = useQuery<EntityList<Report>>({
     queryKey: ["interview-reports", params.interviewId],
     queryFn: async () => {
-      const response = await fetch(
-        `/api/interviews/${params.interviewId}/reports`
-      );
+      const response = await fetch(`/api/interviews/${params.interviewId}/reports`);
       if (!response.ok) {
         throw new Error("Failed to fetch reports");
       }
@@ -164,20 +150,12 @@ export default function InterviewReportsPage(props: {
     if (!reportsData?.data.length) return [];
 
     const prepared = reportsData.data
-      .sort(
-        (a, b) =>
-          new Date(a.data.createdAt!).getTime() -
-          new Date(b.data.createdAt!).getTime()
-      )
+      .sort((a, b) => new Date(a.data.createdAt!).getTime() - new Date(b.data.createdAt!).getTime())
       .map((report) => ({
         date: new Date(report.data.createdAt).toLocaleDateString(),
         technicalScore: Math.round(report.data.technicalKnowledgeScore || 0),
-        communicationScore: Math.round(
-          report.data.communicationSkillsScore || 0
-        ),
-        problemSolvingScore: Math.round(
-          report.data.problemSolvingSkillsScore || 0
-        ),
+        communicationScore: Math.round(report.data.communicationSkillsScore || 0),
+        problemSolvingScore: Math.round(report.data.problemSolvingSkillsScore || 0),
         teamworkScore: Math.round(report.data.teamworkScore || 0),
       }));
 
@@ -194,10 +172,13 @@ export default function InterviewReportsPage(props: {
     );
 
     // Count total occurrences of each prosody across all reports
-    const prosodyTotals = allProsodyData.reduce((acc, { name }) => {
-      acc[name] = (acc[name] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const prosodyTotals = allProsodyData.reduce(
+      (acc, { name }) => {
+        acc[name] = (acc[name] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     // Get top 6 most frequent prosodies
     const topProsodies = Object.entries(prosodyTotals)
@@ -207,26 +188,21 @@ export default function InterviewReportsPage(props: {
 
     // Prepare the data points for each report
     const data = reportsData.data
-      .sort(
-        (a, b) =>
-          new Date(a.data.createdAt!).getTime() -
-          new Date(b.data.createdAt!).getTime()
-      )
+      .sort((a, b) => new Date(a.data.createdAt!).getTime() - new Date(b.data.createdAt!).getTime())
       .map((report) => {
-        const prosodyData = aggregateProsodyData(
-          report.data.transcript || "[]"
+        const prosodyData = aggregateProsodyData(report.data.transcript || "[]");
+
+        const reducedProsodyData = topProsodies.reduce(
+          (acc, prosodyName) => {
+            acc[prosodyName] = prosodyData.find((p) => p.name === prosodyName)?.value || 0;
+            return acc;
+          },
+          {} as Record<string, number>
         );
 
         return {
           date: new Date(report.data.createdAt).toLocaleDateString(),
-          ...topProsodies.reduce(
-            (acc, prosodyName) => ({
-              ...acc,
-              [prosodyName]:
-                prosodyData.find((p) => p.name === prosodyName)?.value || 0,
-            }),
-            {}
-          ),
+          ...reducedProsodyData,
         };
       });
 
@@ -245,9 +221,7 @@ export default function InterviewReportsPage(props: {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h1 className="text-2xl font-bold mb-4">Error Loading Reports</h1>
-        <p className="text-gray-600 mb-8">
-          There was an error loading the interview reports.
-        </p>
+        <p className="text-gray-600 mb-8">There was an error loading the interview reports.</p>
         <Button asChild>
           <Link href="/dashboard">Return to Dashboard</Link>
         </Button>
@@ -285,23 +259,17 @@ export default function InterviewReportsPage(props: {
                   <div className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
                     {interview?.data.createdAt &&
-                      new Date(interview.data.createdAt).toLocaleDateString(
-                        "en-US",
-                        {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        }
-                      )}
+                      new Date(interview.data.createdAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
                   </div>
                   <div className="flex items-center gap-1">
                     <FileText className="w-4 h-4" />
-                    {reports.length}{" "}
-                    {reports.length === 1 ? "report" : "reports"}
+                    {reports.length} {reports.length === 1 ? "report" : "reports"}
                   </div>
-                  <div className="capitalize">
-                    {interview?.data.type || "Technical"} Interview
-                  </div>
+                  <div className="capitalize">{interview?.data.type || "Technical"} Interview</div>
                 </div>
               </div>
             </div>
@@ -317,16 +285,11 @@ export default function InterviewReportsPage(props: {
           <div className="text-center py-12">
             <FileText className="w-12 h-12 mx-auto text-gray-400 mb-4" />
             <h2 className="text-xl font-semibold mb-2">No Reports Yet</h2>
-            <p className="text-gray-600 mb-6">
-              Take the interview to generate your first report.
-            </p>
+            <p className="text-gray-600 mb-6">Take the interview to generate your first report.</p>
             <Button onClick={handleRetakeInterview}>Start Interview</Button>
           </div>
         ) : (
-          <Tabs.Root
-            defaultValue="reports"
-            className="flex-1 flex flex-col min-h-0"
-          >
+          <Tabs.Root defaultValue="reports" className="flex-1 flex flex-col min-h-0">
             <Tabs.List className="flex gap-1 pb-6">
               <Tabs.Trigger
                 value="reports"
@@ -344,17 +307,13 @@ export default function InterviewReportsPage(props: {
               </Tabs.Trigger>
             </Tabs.List>
 
-            <Tabs.Content
-              value="reports"
-              className="flex-1 min-h-0 relative outline-none"
-            >
+            <Tabs.Content value="reports" className="flex-1 min-h-0 relative outline-none">
               <ScrollArea className="h-full">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pr-4">
                   {reports
                     .sort(
                       (a, b) =>
-                        new Date(b.data.createdAt).getTime() -
-                        new Date(a.data.createdAt).getTime()
+                        new Date(b.data.createdAt).getTime() - new Date(a.data.createdAt).getTime()
                     )
                     .map((report) => (
                       <ReportCard
@@ -374,9 +333,7 @@ export default function InterviewReportsPage(props: {
             >
               <div className="bg-card rounded-lg p-6 shadow-sm space-y-8">
                 <div>
-                  <h2 className="text-xl font-semibold mb-4">
-                    Skills Progress
-                  </h2>
+                  <h2 className="text-xl font-semibold mb-4">Skills Progress</h2>
                   {chartData.length === 0 ? (
                     <div className="h-[300px] w-full flex items-center justify-center text-muted-foreground">
                       No chart data available
@@ -473,10 +430,7 @@ export default function InterviewReportsPage(props: {
                                 key={prosody}
                                 type="monotone"
                                 dataKey={prosody}
-                                name={
-                                  prosody.charAt(0).toUpperCase() +
-                                  prosody.slice(1)
-                                }
+                                name={prosody.charAt(0).toUpperCase() + prosody.slice(1)}
                                 stroke={colors[index % colors.length]}
                                 strokeWidth={2}
                                 dot={{ r: 4 }}

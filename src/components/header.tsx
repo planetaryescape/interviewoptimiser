@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/hooks/useUser";
-import { config } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import { ClerkProvider, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { CreditCard } from "lucide-react";
@@ -10,6 +9,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { config } from "~/config";
 import { Badge } from "./badge";
 import { FeedbackModal } from "./feedback-modal";
 import { MobileMenu } from "./mobile-menu";
@@ -24,8 +24,7 @@ export function Header({ className }: { className?: string }) {
   const isLandingPage = pathname === "/";
   const isCreatePage = pathname === "/dashboard/create";
   const isInterviewPage =
-    pathname.startsWith("/dashboard/interviews") &&
-    !pathname.endsWith("report");
+    pathname.startsWith("/dashboard/interviews") && !pathname.endsWith("report");
 
   const showOptimiseButton =
     !isDashboardLanding && !isLandingPage && !isCreatePage && !isInterviewPage;
@@ -34,9 +33,7 @@ export function Header({ className }: { className?: string }) {
     <header
       className={cn(
         "sticky top-0 w-full border-b backdrop-blur-sm transition-all",
-        isDashboard
-          ? "bg-card/80 border-border"
-          : "bg-background/80 border-border/40",
+        isDashboard ? "bg-card/80 border-border" : "bg-background/80 border-border/40",
         className
       )}
     >
@@ -142,9 +139,7 @@ export function Header({ className }: { className?: string }) {
               {user && (
                 <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted rounded-md">
                   <CreditCard className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
-                    Minutes:
-                  </span>
+                  <span className="text-sm text-muted-foreground">Minutes:</span>
                   <Badge variant="warning" className="font-medium">
                     {user.minutes}
                   </Badge>
@@ -152,12 +147,7 @@ export function Header({ className }: { className?: string }) {
               )}
 
               {showOptimiseButton && (
-                <Button
-                  className="hidden md:flex"
-                  size="sm"
-                  variant="default"
-                  asChild
-                >
+                <Button className="hidden md:flex" size="sm" variant="default" asChild>
                   <Link href="/dashboard/create">New Mock Interview</Link>
                 </Button>
               )}
@@ -170,9 +160,7 @@ export function Header({ className }: { className?: string }) {
                 </Button>
                 <Button size="sm" asChild>
                   <Link href="/sign-up">
-                    {isLandingPage
-                      ? "Start Mock Interview"
-                      : "New Mock Interview"}
+                    {isLandingPage ? "Start Mock Interview" : "New Mock Interview"}
                   </Link>
                 </Button>
               </div>
@@ -200,10 +188,7 @@ export function Header({ className }: { className?: string }) {
       </div>
 
       <ClerkProvider dynamic>
-        <FeedbackModal
-          isOpen={isFeedbackModalOpen}
-          onClose={() => setIsFeedbackModalOpen(false)}
-        />
+        <FeedbackModal isOpen={isFeedbackModalOpen} onClose={() => setIsFeedbackModalOpen(false)} />
       </ClerkProvider>
     </header>
   );
