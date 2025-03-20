@@ -1,6 +1,5 @@
 import { extractTextFromFile } from "@/actions/extractTextFromFile";
 import { FileUpload } from "@/components/ui/file-upload";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useCreateInterviewActions, useCreateInterviewCVText } from "@/stores/createInterviewStore";
@@ -66,42 +65,82 @@ export function Step1CV() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-muted/50 rounded-lg p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-          <p className="text-sm font-medium">
-            Upload your CV or paste its content below - this helps us understand your background
+    <div className="space-y-6 bg-card rounded-xl border shadow-md overflow-hidden">
+      {/* Main Header */}
+      <div className="px-6 pt-8 pb-6 text-center border-b">
+        <h2 className="text-2xl font-semibold mb-2">Let&apos;s start with your CV</h2>
+        <p className="text-base text-muted-foreground">
+          We&apos;ll use your CV to understand your experience and tailor the interview questions
+        </p>
+      </div>
+
+      {/* Warning Notice */}
+      <div className="px-6 py-4 border-b bg-muted/30">
+        <div className="flex items-center gap-3">
+          <div className="flex-shrink-0">
+            <span aria-hidden="true" role="presentation">
+              <svg
+                className="w-5 h-5 text-amber-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <title>Information</title>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Sometimes we may not be able to parse text from uploaded PDFs. If the textbox
+            doesn&apos;t populate shortly after uploading your document, please try copying the text
+            from your document and pasting it in the textbox below.
           </p>
         </div>
-        <div className="w-full border-2 border-dashed border-muted-foreground/25 rounded-lg bg-white dark:bg-black">
+      </div>
+
+      {/* File Upload Section */}
+      <div className="px-6 py-8 space-y-6 border-b">
+        <div className="flex flex-col items-center text-center gap-3">
+          <div className="h-3 w-3 rounded-full bg-primary shadow-sm shadow-primary/50" />
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-foreground">Upload your document</h3>
+            <p className="text-sm text-muted-foreground">
+              We&apos;ll extract the content automatically from PDF or Word documents
+            </p>
+          </div>
+        </div>
+
+        <div className="w-full border-2 border-dashed border-muted/60 rounded-xl bg-background/80 hover:bg-background/90 transition-colors duration-200">
           <FileUpload
             files={[cvFile].filter(Boolean) as File[]}
-            label="Upload your CV (PDF or Word)"
-            description="Drag and drop your file here or click to upload"
+            label="Drop your file here"
+            description="or click to browse PDF and Word documents"
             accept=".pdf,.doc,.docx"
             onChange={handleFileChange}
             loading={isLoading}
           />
         </div>
-        <p className="text-sm text-muted-foreground mt-4">
-          Note: Sometimes we may not be able to parse text from uploaded PDFs. If the textbox
-          doesn&apos;t populate shortly after uploading your document, please try copying the text
-          from your document and pasting it below.
-        </p>
       </div>
 
-      <div className="space-y-3">
-        <div className="flex flex-col gap-1">
-          <Label htmlFor="cv-paste" className="text-base">
-            Or paste your CV
-          </Label>
-          <span className="text-sm text-muted-foreground">
-            Include work experience, education, and skills
-          </span>
+      {/* Manual Input Section */}
+      <div className="px-6 py-8 space-y-6">
+        <div className="flex flex-col items-center text-center gap-3">
+          <div className="h-3 w-3 rounded-full bg-primary shadow-sm shadow-primary/50" />
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-foreground">Paste your CV content</h3>
+            <p className="text-sm text-muted-foreground">
+              Include your work experience, education, and skills
+            </p>
+          </div>
         </div>
+
         <Textarea
-          id="cv-paste"
           value={cvText}
           maxLength={config.maxTextLengths.cv}
           onChange={(e) => {
@@ -110,12 +149,16 @@ export function Step1CV() {
               setShowStep1Error(false);
             }
           }}
-          className={cn("min-h-[400px] h-full resize-none", showStep1Error && "border-destructive")}
+          className={cn(
+            "min-h-[300px] resize-none bg-background/80 rounded-xl transition-colors duration-200 hover:bg-background/90",
+            showStep1Error && "border-destructive"
+          )}
           placeholder="Paste your CV content here..."
         />
+
         {showStep1Error && (
-          <p className="text-destructive text-sm">
-            Please upload or paste your CV before proceeding.
+          <p className="text-destructive text-sm text-center font-medium">
+            Please provide your CV content before continuing
           </p>
         )}
       </div>

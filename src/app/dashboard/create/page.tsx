@@ -79,7 +79,22 @@ export default function CreateInterview() {
   const createInterviewMutation = useMutation({
     mutationFn: async (interview: NewInterview) => {
       const interviewRepository = await getRepository<NewInterview>("interviews", true);
-      return interviewRepository.create(interview);
+      const createdInterview = await interviewRepository.create(interview);
+
+      // Extract structured data
+      await fetch("/api/interviews/extract", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          cvText: interview.submittedCVText,
+          jobDescriptionText: interview.jobDescriptionText,
+          interviewId: createdInterview.sys.id,
+        }),
+      });
+
+      return createdInterview;
     },
     onSuccess: (data) => {
       toast.success("Interview created successfully");
@@ -178,7 +193,7 @@ export default function CreateInterview() {
   return (
     <div className="relative flex flex-col h-full overflow-y-auto pb-[env(safe-area-inset-bottom)]">
       <div className="sticky top-0 z-50 bg-background border-b">
-        <div className="max-w-2xl mx-auto w-full px-4 py-4">
+        <div className="max-w-4xl mx-auto w-full px-4 py-4">
           <div className="flex items-center justify-between">
             <Button variant="outline" disabled={step === 1} onClick={handleBack} size="sm">
               Back
@@ -238,16 +253,9 @@ export default function CreateInterview() {
         </div>
       </div>
 
-      <div className="flex-1 container max-w-2xl mx-auto px-4 py-6 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-        <div className="mb-8">
-          <div className="text-center space-y-1">
-            <h1 className="text-2xl font-semibold">{title}</h1>
-            <p className="text-sm text-muted-foreground max-w-md mx-auto">{subtitle}</p>
-          </div>
-        </div>
-
+      <div className="flex-1 container max-w-4xl mx-auto px-4 py-6 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-6 sm:p-8">
             {step === 1 && <Step1CV />}
             {step === 2 && <Step2JobDescription />}
             {step === 3 && <Step3AdditionalInfo />}

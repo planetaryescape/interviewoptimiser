@@ -24,78 +24,98 @@ export function Step3AdditionalInfo() {
   const { setDuration } = useCreateInterviewActions();
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-        <p className="text-sm font-medium">
-          Customize your interview experience with these final settings
+    <div className="space-y-6 bg-card rounded-xl border shadow-md overflow-hidden">
+      {/* Main Header */}
+      <div className="px-6 pt-8 pb-6 text-center border-b">
+        <h2 className="text-2xl font-semibold mb-2">Finally, let&apos;s customize the interview</h2>
+        <p className="text-base text-muted-foreground">
+          Configure the interview settings to match your requirements
         </p>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2">
-        <div className="space-y-3">
-          <div className="flex flex-col gap-1">
-            <Label htmlFor="interview-type" className="text-base">
-              Interview Type
-            </Label>
-            <span className="text-sm text-muted-foreground">Choose the style that best fits</span>
+      {/* Interview Type and Duration Section */}
+      <div className="px-6 py-8 space-y-8 border-b">
+        <div className="flex flex-col items-center text-center gap-3">
+          <div className="h-3 w-3 rounded-full bg-primary shadow-sm shadow-primary/50" />
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-foreground">Interview Settings</h3>
+            <p className="text-sm text-muted-foreground">
+              Choose the interview type and duration that best fits your needs
+            </p>
           </div>
-          <Select value={interviewType} onValueChange={setInterviewType}>
-            <SelectTrigger id="interview-type">
-              <SelectValue placeholder="Select an interview type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="behavioral">Behavioral</SelectItem>
-              <SelectItem value="technical">Technical</SelectItem>
-              <SelectItem value="case_study">Case Study</SelectItem>
-              <SelectItem value="competency_based">Competency Based</SelectItem>
-              <SelectItem value="stress">Stress</SelectItem>
-              <SelectItem value="cultural_fit">Cultural Fit</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
 
-        <div className="space-y-3">
-          <div className="flex flex-col gap-1">
-            <Label htmlFor="interview-duration" className="text-base">
+        <div className="grid sm:grid-cols-2 gap-8">
+          <div>
+            <Label htmlFor="interview-type" className="text-sm font-medium block mb-1.5">
+              Interview Type
+            </Label>
+            <p className="text-sm text-muted-foreground mb-3">Choose the style that best fits</p>
+            <Select value={interviewType} onValueChange={setInterviewType}>
+              <SelectTrigger
+                id="interview-type"
+                className="bg-background/80 hover:bg-background/90 transition-colors duration-200"
+              >
+                <SelectValue placeholder="Select an interview type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="behavioral">Behavioral</SelectItem>
+                <SelectItem value="technical">Technical</SelectItem>
+                <SelectItem value="case_study">Case Study</SelectItem>
+                <SelectItem value="competency_based">Competency Based</SelectItem>
+                <SelectItem value="stress">Stress</SelectItem>
+                <SelectItem value="cultural_fit">Cultural Fit</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="interview-duration" className="text-sm font-medium block mb-1.5">
               Duration
             </Label>
-            <span className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground mb-3">
               Longer interviews are more thorough
-            </span>
+            </p>
+            <Select
+              value={duration.toString()}
+              onValueChange={(value) => setDuration(Number.parseInt(value))}
+            >
+              <SelectTrigger
+                id="interview-duration"
+                className="bg-background/80 hover:bg-background/90 transition-colors duration-200"
+              >
+                <SelectValue placeholder="Select interview duration" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="3">3 minutes</SelectItem>
+                <SelectItem value="5">5 minutes</SelectItem>
+                <SelectItem value="10">10 minutes</SelectItem>
+                <SelectItem value="15">15 minutes</SelectItem>
+                <SelectItem value="20">20 minutes</SelectItem>
+                <SelectItem value="30">30 minutes</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <Select
-            value={duration.toString()}
-            onValueChange={(value) => setDuration(Number.parseInt(value))}
-          >
-            <SelectTrigger id="interview-duration">
-              <SelectValue placeholder="Select interview duration" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="3">3 minutes</SelectItem>
-              <SelectItem value="5">5 minutes</SelectItem>
-              <SelectItem value="10">10 minutes</SelectItem>
-              <SelectItem value="15">15 minutes</SelectItem>
-              <SelectItem value="20">20 minutes</SelectItem>
-              <SelectItem value="30">30 minutes</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
-      <div className="space-y-3">
-        <div className="flex flex-col gap-1">
-          <Label htmlFor="additional-info" className="text-base">
-            Special Instructions
-          </Label>
-          <span className="text-sm text-muted-foreground">Optional</span>
+      {/* Special Instructions Section */}
+      <div className="px-6 py-8 space-y-6">
+        <div className="flex flex-col items-center text-center gap-3">
+          <div className="h-3 w-3 rounded-full bg-primary shadow-sm shadow-primary/50" />
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-foreground">Special Instructions</h3>
+            <p className="text-sm text-muted-foreground">
+              Add any specific requirements or preferences for the interview (optional)
+            </p>
+          </div>
         </div>
+
         <Textarea
-          id="additional-info"
           value={additionalInfo}
           maxLength={config.maxTextLengths.additionalInfo}
           onChange={(e) => setAdditionalInfo(e.target.value)}
-          className="min-h-[300px] h-full resize-none"
+          className="min-h-[300px] resize-none bg-background/80 rounded-xl transition-colors duration-200 hover:bg-background/90"
           placeholder={
             "Examples:\n- Conduct the interview in French\n- Use British English\n- Focus on leadership experience\n- Include questions about specific projects"
           }
