@@ -37,6 +37,10 @@ export async function GET(
 
     const userInterview = await db.query.interviews.findFirst({
       where: eq(interviews.id, interviewId),
+      with: {
+        candidateDetails: true,
+        jobDescription: true,
+      },
     });
 
     if (!userInterview) {

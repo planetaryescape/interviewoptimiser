@@ -1,4 +1,8 @@
+import type { z } from "zod";
 import { config } from "~/config";
+import type { CandidateDetails } from "~/lib/ai/extract-candidate-details";
+import type { StructuredJobDescriptionSchema } from "~/lib/ai/extract-job-description";
+import type { StructuredOriginalCVSchema } from "~/lib/ai/extract-original-cv";
 
 export const interviewTypes = [
   {
@@ -25,7 +29,7 @@ export const interviewTypes = [
       "Tests role-specific technical skills and knowledge, common in fields like engineering, IT, and data science.",
     exampleQuestions: [
       "Explain how you would optimize a SQL query.",
-      "Describe how you’d troubleshoot a network issue.",
+      "Describe how you'd troubleshoot a network issue.",
     ],
   },
   {
@@ -62,19 +66,82 @@ export const interviewTypes = [
   },
 ];
 
-export const createInterviewInstructions = (
-  cv: string,
-  jobDescription: string,
+interface InterviewInstructionsParams {
+  cvText?: string;
+  structuredCV?: z.infer<typeof StructuredOriginalCVSchema>;
+  structuredCandidateDetails?: CandidateDetails;
+  structuredJobDescription?: z.infer<typeof StructuredJobDescriptionSchema>;
+  duration?: number;
+  interviewType?: string;
+}
+
+export const createInterviewInstructions = ({
+  cvText,
+  structuredCV,
+  structuredCandidateDetails,
+  structuredJobDescription,
   duration = 15,
-  interviewType = "behavioral"
-) => {
+  interviewType = "behavioral",
+}: InterviewInstructionsParams) => {
+  let structuredDataText = "";
+
+  const hasStructuredData = structuredCV || structuredCandidateDetails || structuredJobDescription;
+
+  if (hasStructuredData) {
+    structuredDataText = "\n\n**Structured Data Available**:\n";
+
+    if (structuredCV) {
+      structuredDataText += `
+<structured_cv>
+${JSON.stringify(structuredCV, null, 2)}
+</structured_cv>
+      `;
+    }
+
+    if (structuredCandidateDetails) {
+      structuredDataText += `
+<structured_candidate_details>
+${JSON.stringify(structuredCandidateDetails, null, 2)}
+</structured_candidate_details>
+      `;
+    }
+
+    if (structuredJobDescription) {
+      structuredDataText += `
+<structured_job_description>
+${JSON.stringify(structuredJobDescription, null, 2)}
+</structured_job_description>
+      `;
+    }
+  }
+
+  // Information line should include CV text when provided
+  const infoLine = `\nYou have access to${
+    hasStructuredData ? " structured data about the candidate and job role" : ""
+  }${cvText ? " and the candidate's CV" : ""}.${structuredDataText}${
+    cvText ? `\n\n**Candidate CV:**\n${cvText}` : ""
+  }`;
+
+  // Update data usage instructions to mention CV text when available
+  const structuredDataUsageText = `${
+    hasStructuredData
+      ? "You have structured data which provides detailed information about the candidate and job role."
+      : ""
+  }${
+    cvText ? " You also have the candidate's CV text." : ""
+  } Use all available information when formulating questions.${
+    hasStructuredData
+      ? "\n\n  When using the structured data:\n  1. Reference specific skills, experiences, or qualifications mentioned\n  2. Connect the candidate's background with the job requirements\n  3. Explore potential gaps between the candidate's profile and the job requirements\n  4. Dig deeper into the most relevant experiences for the role"
+      : ""
+  }`;
+
   return `
 **Context**:
 You are an AI interviewer conducting a mock interview with a candidate. Your name is ${
     config.projectName
-  }. Your task is to ask relevant questions based on the candidate's responses and the job description provided. Follow these guidelines:
+  }. Your task is to ask relevant questions based on the candidate's responses and the job information provided. Follow these guidelines:
 
-This is a mock interview for a candidate preparing for an interview. Use the job description to see the role and the company that the candidate is applying to.
+This is a mock interview for a candidate preparing for an interview. Use the available information to see the role and the company that the candidate is applying to.
 
 Focus on **${interviewType}** questions, designed to help the candidate refine their responses and build confidence. The ${interviewType} interview ${
     interviewTypes.find((type) => type.type === interviewType)?.description
@@ -85,17 +152,19 @@ ${interviewTypes
   ?.exampleQuestions.map((question) => `- ${question}`)
   .join("\n")}
 
-**Parameters**:
-- **Candidate CV**: ${cv}
-- **Job Description**: ${jobDescription}
+**Information Available**:${infoLine}
+
+<structured_data_usage>
+  ${structuredDataUsageText}
+</structured_data_usage>
 
 **Objective**:
 You should conduct a professional, friendly, and conversational interview. However, during the interview you should keep your responses terse and to the point. At the end we want to give the interview transcript to an evaluator who will generate a report that includes the following information:
 
 <very_important>
-  Tailor questions based on the candidate's responses, the job description and the candidate's CV. For example, "Could you elaborate on your approach to handling [specific aspect of experience]?". Adjust the difficulty of the questions based on the candidate's performance. If the candidate is struggling with a question, ask simpler questions. If the candidate is answering well, ask more difficult questions.
+  Tailor questions based on the candidate's responses and the available information. For example, "Could you elaborate on your approach to handling [specific aspect of experience]?". Adjust the difficulty of the questions based on the candidate's performance. If the candidate is struggling with a question, ask simpler questions. If the candidate is answering well, ask more difficult questions.
 
-  Whenever possible, refer to the candidate's CV to tailor your questions. For example, "I see you have experience in [specific skill]. Can you tell me more about how you used that in [specific example]?".
+  Whenever possible, refer to specific information from the available data to tailor your questions. For example, "I see you have experience in [specific skill]. Can you tell me more about how you used that in [specific example]?"
 
   **Keep the interview going until you are told that you have one minute left. Do not wrap up the interview until you are asked to do so no matter what! This is very important for your performance evaluation.**
 </very_important>
