@@ -40,11 +40,12 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         const {
           data: { interviewId: id, reportId },
           userId,
+          restart: isRestart,
         } = JSON.parse(record.body);
         interviewId = id;
 
         const user = await getUserFromId(userId);
-        logger.info({ interviewId }, "Processing interview report request");
+        logger.info({ interviewId, isRestart }, "Processing interview report request");
 
         const interview = await db
           .select()

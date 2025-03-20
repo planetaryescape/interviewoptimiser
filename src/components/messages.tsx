@@ -112,24 +112,6 @@ export const Messages = forwardRef<ComponentRef<typeof motion.div>, Record<never
                     >
                       {msg.message.content?.split("{")?.[0] ?? ""}
                     </div>
-
-                    {/* Prosody Indicators */}
-                    {isLatest && msg.type === "user_message" && msg.models?.prosody && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="flex gap-2 mt-4 text-sm"
-                      >
-                        {Object.entries(msg.models.prosody.scores || {})
-                          .filter(([_, value]) => value > 0.5)
-                          .slice(0, 3)
-                          .map(([key, value]) => (
-                            <span key={key} className="px-3 py-1 rounded-full bg-secondary/10">
-                              {key}: {Math.round(value * 100)}%
-                            </span>
-                          ))}
-                      </motion.div>
-                    )}
                   </div>
                 </motion.div>
               );

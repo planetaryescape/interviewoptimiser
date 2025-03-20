@@ -249,13 +249,9 @@ export async function analyseInterview({
         prosody: Record<string, number>;
       }) => ({
         ...message,
-        prosody: R.pipe(
-          message.prosody,
-          R.entries(),
-          R.sortBy(R.pathOr([1], 0)),
-          R.reverse(),
-          R.take(5)
-        ),
+        prosody: message.prosody
+          ? R.pipe(message.prosody, R.entries(), R.sortBy(R.pathOr([1], 0)), R.reverse(), R.take(5))
+          : undefined,
       })
     );
 
