@@ -2,14 +2,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { extractCandidateDetails } from "../extract-candidate-details";
 import { mockCV, mockOptimiseModel, mockUsage } from "./test-utils";
 
-import * as Sentry from "@sentry/serverless";
 // Import the actual modules but spy on the functions
 import { logger } from "~/lib/logger";
 
-// Spy on the logger and Sentry functions
+// Spy on the logger functions
 vi.spyOn(logger, "info");
 vi.spyOn(logger, "error");
-vi.spyOn(Sentry, "captureException");
 
 // Mock the generateObject function
 vi.mock("ai", () => ({
@@ -84,7 +82,6 @@ describe("extractCandidateDetails", () => {
     });
     expect(logger.info).toHaveBeenCalledWith("Extracting candidate details from CV");
     expect(logger.error).not.toHaveBeenCalled();
-    expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 
   it("should throw error with invalid results", async () => {
@@ -103,7 +100,6 @@ describe("extractCandidateDetails", () => {
     ).rejects.toThrow("Validation error: email must be a valid email");
 
     expect(logger.error).toHaveBeenCalled();
-    expect(Sentry.captureException).toHaveBeenCalled();
   });
 
   it("should throw error with AI generation errors", async () => {
@@ -115,7 +111,6 @@ describe("extractCandidateDetails", () => {
     ).rejects.toThrow("AI generation failed");
 
     expect(logger.error).toHaveBeenCalled();
-    expect(Sentry.captureException).toHaveBeenCalled();
   });
 
   it("should throw error with parsing errors", async () => {
@@ -127,7 +122,6 @@ describe("extractCandidateDetails", () => {
     ).rejects.toThrow("JSON parsing failed");
 
     expect(logger.error).toHaveBeenCalled();
-    expect(Sentry.captureException).toHaveBeenCalled();
   });
 
   it("should throw error with API errors", async () => {
@@ -139,7 +133,6 @@ describe("extractCandidateDetails", () => {
     ).rejects.toThrow("API Error");
 
     expect(logger.error).toHaveBeenCalled();
-    expect(Sentry.captureException).toHaveBeenCalled();
   });
 
   it("should throw error with network errors", async () => {
@@ -151,7 +144,6 @@ describe("extractCandidateDetails", () => {
     ).rejects.toThrow("Network Error: Failed to fetch");
 
     expect(logger.error).toHaveBeenCalled();
-    expect(Sentry.captureException).toHaveBeenCalled();
   });
 
   it("should throw error with invalid input CV JSON", async () => {
@@ -163,6 +155,5 @@ describe("extractCandidateDetails", () => {
     ).rejects.toThrow("Invalid input CV JSON");
 
     expect(logger.error).toHaveBeenCalled();
-    expect(Sentry.captureException).toHaveBeenCalled();
   });
 });

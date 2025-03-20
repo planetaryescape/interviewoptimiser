@@ -112,12 +112,6 @@ vi.mock("~/lib/logger", () => ({
   },
 }));
 
-// Mock Sentry
-vi.mock("@sentry/serverless", () => ({
-  withScope: vi.fn((callback) => callback({ setExtra: vi.fn() })),
-  captureException: vi.fn(),
-}));
-
 // Replace the actual implementation of extractOriginalCV with a mock
 vi.mock("~/lib/ai/extract-original-cv", async () => {
   const mockResult = {

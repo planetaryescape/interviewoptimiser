@@ -1,6 +1,8 @@
-import * as Sentry from "@sentry/serverless";
+import type { LanguageModelV1 } from "@ai-sdk/provider";
+import * as Sentry from "@sentry/nextjs";
 import { generateObject } from "ai";
 import { createInsertSchema } from "drizzle-zod";
+import type { CompletionUsage } from "openai/resources/completions.mjs";
 import * as R from "remeda";
 import { z } from "zod";
 import { reports } from "~/db/schema";
@@ -9,7 +11,6 @@ import type { CandidateDetails } from "~/lib/ai/extract-candidate-details";
 import type { StructuredJobDescriptionSchema } from "~/lib/ai/extract-job-description";
 import type { StructuredOriginalCVSchema } from "~/lib/ai/extract-original-cv";
 import { logger } from "~/lib/logger";
-import { getOpenAiClient } from "../openai";
 
 const ReportSchema = createInsertSchema(reports);
 
@@ -42,78 +43,200 @@ const ExtendedReportSchema = ReportSchema.extend({
   roleName: z.string().describe("Name of the role being applied for"),
 }).omit({ id: true, interviewId: true, createdAt: true, updatedAt: true });
 
+export type InterviewReport = z.infer<typeof ExtendedReportSchema>;
+
 const SYSTEM_PROMPT = `
-  You are an expert interview analyst and career coach. Your task is to provide very detailed, comprehensive, candid, and constructive feedback on interview performances. Aim to be honest, direct, and constructively critical. Follow the principles of Radical Candor: "Care Personally, Challenge Directly." Do not be afraid to call out a bad performance as long as you can back it up with specific reasons or examples from the interview. Deliver clear, respectful feedback aimed at empowering the candidate to improve. Use specific examples from the interview to support your points. If the interview information is limited, provide the most useful and actionable report possible with the available data, **and recommend a longer mock interview for more comprehensive feedback.** Stick to the information provided in the transcript. Provide scores out of 100 for each section and an overall score to help the candidate understand their performance.
+You are an expert interview analyst and career coach specializing in providing highly detailed, candid, and actionable feedback. Your analysis must follow the principles of Radical Candor: "Care Personally, Challenge Directly."
+
+CORE PRINCIPLES:
+1. BE DIRECT AND HONEST: Do not soften critical feedback. If something is poor, say so directly.
+2. CITE SPECIFIC EVIDENCE: Every evaluation point must reference specific examples from the interview transcript.
+3. EXPLAIN IMPACT: For each strength or weakness, explain its real-world impact in a professional setting.
+4. PROVIDE ACTIONABLE GUIDANCE: All feedback must be concrete enough that the candidate can immediately begin improving.
+5. USE THE FULL SCORING RANGE: Do not cluster scores in the 70-90% range. Use the entire 0-100 scale deliberately.
+
+SCORING GUIDELINES:
+- 0-10: Critically deficient - Would actively harm team/company performance
+- 11-30: Significant gaps - Far below minimum expectations for the role
+- 31-50: Below average - Missing key competencies needed for the role
+- 51-65: Average - Meets basic requirements but doesn't stand out
+- 66-80: Above average - Demonstrates solid competencies for the role
+- 81-90: Excellent - Exceeds expectations in meaningful ways
+- 91-100: Exceptional - Among the top performers you've evaluated
+
+For each score, justify it with specific examples from the transcript. Do not inflate scores - a score of 85+ should be rare and truly impressive. The same applies to very low scores - use them when warranted with clear evidence.
+
+SPECIAL CONSIDERATIONS:
+- For extremely nervous candidates (evidenced in prosody data), distinguish between anxiety effects and actual competency issues.
+- For non-native speakers, distinguish between language proficiency issues and actual communication deficiencies.
+- If technical/audio issues appear to affect the evaluation, acknowledge these limitations.
+
+Your goal is to provide the most useful, honest, and actionable feedback that will genuinely help the candidate improve, even if that feedback might be difficult to hear.
 `;
 
 const USER_PROMPT = `
-  Analyze the following interview transcript and generate a very detailed, comprehensive, well-formatted report in Markdown (with hierarchical headings, bold, italic, etc.) on the candidate's performance. **Word count is not a factor.** Focus your analysis on both the content of the interview transcript and the prosody analysis provided for each message.
+Analyze the provided interview transcript and generate a comprehensive, detailed, and brutally honest report on the candidate's performance.
 
-  Important: The CV, job description, and additional information are provided only for context. Do not use them as the basis for your analysis or report. Focus solely on the interview transcript and prosody analysis for your evaluation.
+FORMAT REQUIREMENTS:
+- Use proper Markdown formatting with hierarchical headings, bullet points, and emphasis where appropriate
+- Include direct quotes from the transcript to support your points
+- Provide numerical scores (0-100) for each evaluation category
+- Word count is not a factor - be as thorough as needed
 
-  Each message in the transcript contains prosody analysis, indicating the user's tone. Carefully analyze the emotional expressions provided for each message. The score indicates how likely the user is expressing that emotion in their voice. Consider these expressions and confidence scores to craft an empathic, appropriate assessment. Even if the user does not explicitly state their emotions, infer the emotional context from these expressions.
+IMPORTANT CONTEXT:
+- The structured data provided contains accurate information about the candidate, company, and role
+- Use the candidate name, company name, and role name from the structured data (particularly from structured candidate details and job description)
+- Do NOT attempt to extract these details from the transcript itself
+- If structured data is not available, only then extract these details from the transcript
 
-  Before starting the report, extract the following information:
-  1. The candidate's name
-  2. The name of the company being applied to
-  3. The name of the role being applied for
+YOUR OUTPUT MUST INCLUDE THE FOLLOWING ASSESSMENTS, which will be captured in our structured schema:
 
-  Then, proceed with the report structure as follows:
+1. GENERAL ASSESSMENT
+   - Provide a comprehensive overall assessment of the interview performance
+   - Include a clear statement about hiring recommendation
+   - Score out of 100 with explicit justification
+   - MUST INCLUDE at least 3 specific examples from the transcript with direct quotes
 
-  1. General Assessment
-    • Overall evaluation of the candidate's performance
-    • Comments on confidence, clarity, engagement, and professionalism
-    • Specific examples highlighting strengths and areas for improvement
-    • Balanced tone acknowledging both positives and negatives
-    • Analysis of the candidate's emotional state throughout the interview based on prosody data
+2. FITNESS FOR ROLE
+   - Assessment of how well the candidate's experience and skills match the job requirements
+   - Score out of 100 with explicit justification
+   - Use specific examples (direct quotes) to support your assessment
 
-  2. Detailed Feedback
-    • Candidate's fitness for the role based on their experiences and responses. Including strengths and areas for improvement. This is very important for the report!!
-    • Speaking skills assessment (fluency, clarity, confidence, hesitation, filler words)
-    • Clarity, relevance, and depth of responses
-    • Communication skills evaluation (elaboration, specific examples)
-    • Problem-solving skills, technical knowledge, teamwork, adaptability, and overall fit
-    • Emotional intelligence and ability to manage stress during the interview (based on prosody analysis)
-    • Areas of Strength (3-5 points with specific examples)
-    • Areas for Improvement (2-3 points with specific examples and actionable tips)
+3. SPEAKING SKILLS
+   - Assessment of clarity, fluency, pace, tone, filler words, hesitation
+   - Score out of 100 with explicit justification
+   - Use specific examples (direct quotes) to support your assessment
 
-  3. Actionable Next Steps
-    • Strengths to build on (with suggestions for leveraging in future interviews)
-    • Focus areas for improvement (with practical steps)
-    • Suggestions for managing emotions and stress during interviews
-    • Encouraging closing note on continuous improvement
+4. COMMUNICATION SKILLS
+   - Assessment of organization, relevance, depth, examples, persuasiveness
+   - Score out of 100 with explicit justification
+   - Use specific examples (direct quotes) to support your assessment
 
-  Provide a score out of 100 for each major section, including a separate score for emotional management based on the prosody analysis. Conclude with an overall performance score.
+5. PROBLEM-SOLVING SKILLS
+   - Assessment of approach, creativity, thoroughness, practicality
+   - Score out of 100 with explicit justification
+   - Use specific examples (direct quotes) to support your assessment
 
-  Interview Transcript:
-  {{TRANSCRIPT}}
+6. TECHNICAL KNOWLEDGE
+   - Assessment of accuracy, depth, application, awareness of limitations
+   - Score out of 100 with explicit justification
+   - Use specific examples (direct quotes) to support your assessment
 
-  Additional Context (for reference only, not for analysis):
-  Submitted CV: {{CV}}
-  Job Description: {{JD}}
-  Additional Information: {{ADDITIONAL_INFO}}
+7. TEAMWORK
+   - Assessment of evidence of effective team interactions, conflict resolution
+   - Score out of 100 with explicit justification
+   - Use specific examples (direct quotes) to support your assessment
 
-  Maintain a candid yet respectful tone throughout the report, adhering to Radical Candor principles. Base your analysis and feedback on both the interview transcript content and the prosody analysis provided for each message. Do not be afraid to call out a bad performance as long as you can back it up with specific reasons or examples from the interview.
+8. ADAPTABILITY
+   - Assessment of response to challenges, learning agility, flexibility
+   - Score out of 100 with explicit justification
+   - Use specific examples (direct quotes) to support your assessment
+
+9. AREAS OF STRENGTH
+   - List 3-5 specific strengths with evidence from the transcript
+   - Each strength must cite specific evidence from the transcript
+   - Explain the workplace impact of each strength
+
+10. AREAS FOR IMPROVEMENT
+    - List 3-5 specific areas where the candidate can improve
+    - Each weakness must cite specific evidence from the transcript
+    - Explain the workplace impact of each weakness
+
+11. ACTIONABLE NEXT STEPS
+    - List specific, practical steps the candidate can take to improve
+    - Include industry-specific recommendations when applicable
+    - Provide specific metrics to track improvement
+
+12. CANDIDATE, COMPANY, AND ROLE INFORMATION
+    - Provide the candidate's name
+    - Provide the company name being applied to
+    - Provide the role/position name being applied for
+
+SPECIAL CASES HANDLING:
+
+NERVOUSNESS: If prosody data indicates high anxiety (nervousness, stress, uncertainty):
+- Acknowledge how anxiety may have affected performance
+- Distinguish between anxiety effects and actual competence issues
+- Provide specific techniques for managing interview anxiety
+- Still provide candid feedback on performance issues unrelated to nervousness
+
+LANGUAGE/CULTURAL DIFFERENCES: If the candidate appears to be a non-native speaker:
+- Distinguish between language proficiency issues and substantive communication skills
+- Note any cultural differences that might impact interview style or content
+- Provide language-specific improvement recommendations if relevant
+- Evaluate whether language barriers would significantly impact job performance
+
+TECHNICAL DIFFICULTIES: If audio quality or technical issues may have affected the evaluation:
+- Acknowledge these limitations clearly
+- Focus more heavily on content analysis rather than delivery
+- Note if certain aspects couldn't be fairly evaluated due to technical issues
+
+STRUCTURED DATA:
+{{STRUCTURED_DATA}}
+
+Remember: Your goal is to provide RADICAL CANDOR - honest, sometimes difficult feedback delivered with the genuine intent to help the candidate improve. Do not sugarcoat significant issues, but ensure all criticism comes with specific, actionable guidance.
+
+Interview Transcript:
+{{TRANSCRIPT}}
+
+Additional Context (for reference only, not for analysis):
+Submitted CV: {{CV}}
+Job Description: {{JD}}
+Additional Information: {{ADDITIONAL_INFO}}
 `;
 
 /**
- * Generates a detailed analysis report for an interview
- * @param interview The interview object containing basic information
- * @param transcriptString The transcript of the interview in JSON string format
- * @param userEmail Optional user email for tracking purposes
- * @param structuredCV Optional structured CV data extracted from the submitted CV
- * @param structuredJobDescription Optional structured job description data
- * @param structuredCandidateDetails Optional structured candidate details
- * @returns A structured report with scores and analysis
+ * Interface for analysing interview parameters
  */
-export async function analyseInterview(
-  interview: InterviewSchema,
-  transcriptString: string,
-  userEmail?: string,
-  structuredCV?: z.infer<typeof StructuredOriginalCVSchema>,
-  structuredJobDescription?: z.infer<typeof StructuredJobDescriptionSchema>,
-  structuredCandidateDetails?: CandidateDetails
-) {
+export interface AnalyseInterviewParams {
+  /**
+   * The language model to use for analysis
+   */
+  model: LanguageModelV1;
+  /**
+   * The interview object containing basic information
+   */
+  interview: InterviewSchema;
+  /**
+   * The transcript of the interview in JSON string format
+   */
+  transcriptString: string;
+  /**
+   * Optional user email for tracking purposes
+   */
+  userEmail?: string;
+  /**
+   * Optional structured CV data extracted from the submitted CV
+   */
+  structuredCV?: z.infer<typeof StructuredOriginalCVSchema>;
+  /**
+   * Optional structured job description data
+   */
+  structuredJobDescription?: z.infer<typeof StructuredJobDescriptionSchema>;
+  /**
+   * Optional structured candidate details
+   */
+  structuredCandidateDetails?: CandidateDetails;
+}
+
+/**
+ * Generates a detailed analysis report for an interview
+ * @param params - Object containing all parameters for the analysis
+ * @returns A structured report with scores and analysis along with usage information
+ */
+export async function analyseInterview({
+  model,
+  interview,
+  transcriptString,
+  userEmail,
+  structuredCV,
+  structuredJobDescription,
+  structuredCandidateDetails,
+}: AnalyseInterviewParams): Promise<{
+  data: InterviewReport;
+  usage: CompletionUsage;
+}> {
+  logger.info("Generating interview analysis report");
   try {
     if (!transcriptString) {
       throw new Error("No transcript found");
@@ -136,46 +259,48 @@ export async function analyseInterview(
       })
     );
 
-    // Create an enhanced prompt that includes the structured data
-    let enhancedUserPrompt = USER_PROMPT.replace("{{TRANSCRIPT}}", JSON.stringify(transcript))
-      .replace("{{CV}}", interview.submittedCVText)
-      .replace("{{JD}}", interview.jobDescriptionText)
-      .replace("{{ADDITIONAL_INFO}}", interview.additionalInfo ?? "");
+    // Format structured data for the prompt
+    let structuredDataText = "No structured data available for this analysis.";
 
-    // Add structured data to the prompt if available
+    // If we have any structured data, format it properly
     if (structuredCV || structuredJobDescription || structuredCandidateDetails) {
-      enhancedUserPrompt += "\n\n## STRUCTURED DATA\n";
-
-      if (structuredCV) {
-        enhancedUserPrompt += `\n### STRUCTURED CV DATA\n${JSON.stringify(
-          structuredCV,
-          null,
-          2
-        )}\n`;
-      }
-
-      if (structuredJobDescription) {
-        enhancedUserPrompt += `\n### STRUCTURED JOB DESCRIPTION\n${JSON.stringify(
-          structuredJobDescription,
-          null,
-          2
-        )}\n`;
-      }
+      structuredDataText =
+        "The following structured data has been extracted and should be used to inform your analysis:";
 
       if (structuredCandidateDetails) {
-        enhancedUserPrompt += `\n### STRUCTURED CANDIDATE DETAILS\n${JSON.stringify(
+        structuredDataText += `\n\n### CANDIDATE DETAILS\n${JSON.stringify(
           structuredCandidateDetails,
           null,
           2
-        )}\n`;
+        )}`;
       }
 
-      enhancedUserPrompt +=
-        "\n\nPlease use these structured data extractions to ensure accuracy in your analysis, especially for candidate name, company, role, and other specific details. The structured data should be considered more reliable than information extracted from raw text.";
+      if (structuredJobDescription) {
+        structuredDataText += `\n\n### JOB DESCRIPTION\n${JSON.stringify(
+          structuredJobDescription,
+          null,
+          2
+        )}`;
+      }
+
+      if (structuredCV) {
+        structuredDataText += `\n\n### CV DATA\n${JSON.stringify(structuredCV, null, 2)}`;
+      }
+
+      structuredDataText +=
+        "\n\nUse this structured data as the primary source for candidate name, company name, role details, and other factual information. This data is more reliable than information you might extract from the raw transcript.";
     }
 
-    const { object: structuredOutput } = await generateObject({
-      model: getOpenAiClient(userEmail)("gpt-4o"),
+    // Replace all placeholders in the user prompt
+    const enhancedUserPrompt = USER_PROMPT.replace("{{TRANSCRIPT}}", JSON.stringify(transcript))
+      .replace("{{CV}}", interview.submittedCVText)
+      .replace("{{JD}}", interview.jobDescriptionText)
+      .replace("{{ADDITIONAL_INFO}}", interview.additionalInfo ?? "")
+      .replace("{{STRUCTURED_DATA}}", structuredDataText);
+
+    // Generate the structured output
+    const { object: structuredOutput, usage } = await generateObject({
+      model,
       schema: ExtendedReportSchema,
       schemaName: "interviewReport",
       schemaDescription: "A detailed report on the candidate's performance in the interview",
@@ -188,19 +313,27 @@ export async function analyseInterview(
       },
     });
 
-    const result = ExtendedReportSchema.parse(structuredOutput);
+    // Validate the output against the schema
+    const validatedOutput = ExtendedReportSchema.parse(structuredOutput);
 
-    return result;
+    return {
+      data: validatedOutput,
+      usage: {
+        prompt_tokens: usage.promptTokens,
+        completion_tokens: usage.completionTokens,
+        total_tokens: usage.promptTokens + usage.completionTokens,
+      },
+    };
   } catch (error) {
     // Log the error and rethrow it to be handled by the lambda
     Sentry.withScope((scope) => {
-      scope.setExtra("context", "evaluateCV");
+      scope.setExtra("context", "analyseInterview");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
     logger.error(
       { message: error instanceof Error ? error.message : error, error },
-      "Error evaluating CV"
+      "Error generating interview analysis report"
     );
     throw error;
   }

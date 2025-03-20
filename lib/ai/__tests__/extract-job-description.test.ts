@@ -78,19 +78,6 @@ vi.mock("~/lib/logger", () => {
   };
 });
 
-// Mock Sentry
-vi.mock("@sentry/serverless", () => {
-  return {
-    withScope: vi.fn((callback) => {
-      callback({
-        setExtra: vi.fn(),
-      });
-      return null;
-    }),
-    captureException: vi.fn(),
-  };
-});
-
 describe("extractJobDescription", () => {
   it("should extract structured data from the job description", async () => {
     const mockModel = {} as any;

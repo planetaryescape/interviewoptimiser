@@ -1,5 +1,4 @@
 import type { LanguageModelV1 } from "@ai-sdk/provider";
-import * as Sentry from "@sentry/serverless";
 import { generateObject } from "ai";
 import type { CompletionUsage } from "openai/resources/completions.mjs";
 import { z } from "zod";
@@ -100,12 +99,6 @@ export async function extractCandidateDetails({
       },
     };
   } catch (error) {
-    // Log the error and rethrow it to be handled by the lambda
-    Sentry.withScope((scope) => {
-      scope.setExtra("context", "extractCandidateDetails");
-      scope.setExtra("error", error);
-      Sentry.captureException(error);
-    });
     logger.error(
       { message: error instanceof Error ? error.message : error, error },
       "Error extracting candidate details from CV"

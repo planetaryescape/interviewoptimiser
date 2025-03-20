@@ -9,7 +9,7 @@ import { db } from "~/db";
 import { reviews } from "~/db/schema";
 import { sendDiscordDM } from "~/lib/discord";
 import { logger } from "~/lib/logger";
-import { getOpenAiClient } from "~/lib/openai";
+import { getOpenAiClientOld } from "~/lib/openai";
 import { resend } from "~/lib/resend";
 import { initSentry } from "../lib/sentry";
 
@@ -48,7 +48,7 @@ export const handler = Sentry.wrapHandler(async () => {
         "${review.comment}"
       `;
 
-      const completion = await getOpenAiClient(config.supportEmail).beta.chat.completions.parse({
+      const completion = await getOpenAiClientOld(config.supportEmail).beta.chat.completions.parse({
         model: "gpt-4o",
         messages: [
           {
