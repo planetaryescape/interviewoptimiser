@@ -4,7 +4,7 @@
 bun run test
 
 # typecheck
-bunx tsc --noEmit
+bun run typecheck
 
 # Run build
 doppler run -c prd -p interview-optimiser -- bun run build
