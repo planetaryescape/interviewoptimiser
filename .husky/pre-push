@@ -3,5 +3,8 @@
 # Run tests before pushing to ensure everything is working
 bun run test
 
+# typecheck
+bunx tsc --noEmit
+
 # Run build
 doppler run -c prd -p interview-optimiser -- bun run build
