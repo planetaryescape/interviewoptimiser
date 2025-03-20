@@ -1,1 +1,7 @@
-bun run lint --fix
+#!/bin/sh
+
+# Run lint-staged to run linting and tests on staged files
+bun lint-staged
+
+# Run tsc to check for type errors
+bunx tsc --noEmit
