@@ -4,6 +4,7 @@ import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
 import { formatMessage } from "@/lib/utils/messageUtils";
 import { unformatTime } from "@/lib/utils/unformatTime";
+import { useActiveInterviewActions } from "@/stores/useActiveInterviewStore";
 import { useVoice } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -18,11 +19,7 @@ import { MicFFT } from "./mic-fft";
 import { Button } from "./ui/button";
 import { Toggle } from "./ui/toggle";
 
-export function Controls({
-  setInterviewEnded,
-}: {
-  setInterviewEnded: (ended: boolean) => void;
-}) {
+export function Controls() {
   const {
     disconnect,
     status,
@@ -37,6 +34,7 @@ export function Controls({
   } = useVoice();
   const params = useParams();
   const queryClient = useQueryClient();
+  const { setInterviewEnded } = useActiveInterviewActions();
 
   const { mutate: updateInterview } = useMutation({
     mutationFn: async (interview: Partial<NewInterview>) => {

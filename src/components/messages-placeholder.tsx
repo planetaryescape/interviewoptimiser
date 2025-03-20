@@ -2,6 +2,7 @@
 
 import { InterviewStartModal } from "@/components/interview-start-modal";
 import { Button } from "@/components/ui/button";
+import { useActiveInterviewEnded } from "@/stores/useActiveInterviewStore";
 import { useVoice } from "@humeai/voice-react";
 import { motion } from "framer-motion";
 import { ChevronRight, Home, MessageCircle, Mic, Sparkles, Target } from "lucide-react";
@@ -10,16 +11,15 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 
 export default function InterviewPlaceholder({
-  interviewEnded,
   setInterviewStarted,
 }: {
-  interviewEnded: boolean;
   setInterviewStarted: (value: boolean) => void;
 }) {
   const [showModal, setShowModal] = useState(false);
   const params = useParams();
   const interviewId = params.interviewId;
   const { connect, status } = useVoice();
+  const interviewEnded = useActiveInterviewEnded();
 
   const features = [
     {

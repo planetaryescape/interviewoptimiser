@@ -1,6 +1,10 @@
 "use client";
 
 import type { Entity } from "@/lib/utils/formatEntity";
+import {
+  useActiveInterviewActions,
+  useActiveInterviewEnded,
+} from "@/stores/useActiveInterviewStore";
 import { createInterviewInstructions } from "@/utils/conversation_config";
 import { VoiceProvider } from "@humeai/voice-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -36,6 +40,8 @@ export default function ClientComponent({
   const queryClient = useQueryClient();
   const router = useRouter();
   const params = useParams();
+  const interviewEnded = useActiveInterviewEnded();
+  const { setInterviewEnded } = useActiveInterviewActions();
 
   const { data: interview } = useQuery<Entity<InterviewWithCandidateDetailsAndJobDescription>>({
     queryKey: ["interview", id],
@@ -70,7 +76,7 @@ export default function ClientComponent({
       queryClient.invalidateQueries({
         queryKey: ["interview", params.interviewId],
       });
-      // setShowTakeover(false);
+      setShowTakeover(false);
       router.push(`/dashboard/interviews/${params.interviewId}/reports`);
     },
     onError: (error) => {
@@ -81,7 +87,6 @@ export default function ClientComponent({
       queryClient.invalidateQueries({
         queryKey: ["interview", params.interviewId],
       });
-      // setShowTakeover(false);
       router.push(`/dashboard/interviews/${params.interviewId}/reports`);
     },
   });
@@ -91,7 +96,7 @@ export default function ClientComponent({
 
   // optional: use configId from environment variable
   const configId = process.env.NEXT_PUBLIC_HUME_CONFIG_ID;
-  const [interviewEnded, setInterviewEnded] = useState(false);
+
   const [interviewStarted, setInterviewStarted] = useState(false);
   const [showTakeover, setShowTakeover] = useState(false);
 
@@ -100,7 +105,7 @@ export default function ClientComponent({
       setShowTakeover(true);
       generateReportMutation.mutate();
     }
-  }, [interviewEnded, generateReportMutation.mutate]);
+  }, [interviewEnded, generateReportMutation]);
 
   return (
     <div className={"relative grid grid-rows-[1fr_auto] mx-auto w-full overflow-auto h-full"}>
@@ -150,12 +155,9 @@ export default function ClientComponent({
         {interviewStarted ? (
           <Messages ref={ref} />
         ) : (
-          <MessagesPlaceholder
-            interviewEnded={interviewEnded}
-            setInterviewStarted={setInterviewStarted}
-          />
+          <MessagesPlaceholder setInterviewStarted={setInterviewStarted} />
         )}
-        <Controls setInterviewEnded={setInterviewEnded} />
+        <Controls />
 
         <AnimatePresence>{showTakeover && <GeneratingReportTakeover />}</AnimatePresence>
       </VoiceProvider>
