@@ -41,7 +41,13 @@ const ExtendedReportSchema = ReportSchema.extend({
   candidateName: z.string().describe("Name of the candidate"),
   companyName: z.string().describe("Name of the company being applied to"),
   roleName: z.string().describe("Name of the role being applied for"),
-}).omit({ id: true, interviewId: true, createdAt: true, updatedAt: true });
+}).omit({
+  id: true,
+  interviewId: true,
+  createdAt: true,
+  updatedAt: true,
+  transcript: true,
+});
 
 export type InterviewReport = z.infer<typeof ExtendedReportSchema>;
 

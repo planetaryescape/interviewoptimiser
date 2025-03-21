@@ -1,5 +1,4 @@
 import type { z } from "zod";
-import { config } from "~/config";
 import type { CandidateDetails } from "~/lib/ai/extract-candidate-details";
 import type { StructuredJobDescriptionSchema } from "~/lib/ai/extract-job-description";
 import type { StructuredOriginalCVSchema } from "~/lib/ai/extract-original-cv";
@@ -91,7 +90,8 @@ export const createInterviewInstructions = ({
     structuredDataText = "\n\n**Structured Data Available**:\n";
 
     if (structuredCV) {
-      structuredDataText += `
+      `${structuredDataText}
+
 <structured_cv>
 ${JSON.stringify(structuredCV, null, 2)}
 </structured_cv>
@@ -99,7 +99,8 @@ ${JSON.stringify(structuredCV, null, 2)}
     }
 
     if (structuredCandidateDetails) {
-      structuredDataText += `
+      `${structuredDataText}
+
 <structured_candidate_details>
 ${JSON.stringify(structuredCandidateDetails, null, 2)}
 </structured_candidate_details>
@@ -107,7 +108,8 @@ ${JSON.stringify(structuredCandidateDetails, null, 2)}
     }
 
     if (structuredJobDescription) {
-      structuredDataText += `
+      `${structuredDataText}
+
 <structured_job_description>
 ${JSON.stringify(structuredJobDescription, null, 2)}
 </structured_job_description>
@@ -137,11 +139,17 @@ ${JSON.stringify(structuredJobDescription, null, 2)}
 
   return `
 **Context**:
-You are an AI interviewer conducting a mock interview with a candidate. Your name is ${
-    config.projectName
-  }. Your task is to ask relevant questions based on the candidate's responses and the job information provided. Follow these guidelines:
+You are an AI interviewer called Interview Optimiser. You are conducting a mock interview with ${
+    structuredCandidateDetails?.name
+  } who is applying for a ${structuredJobDescription?.role} job at ${
+    structuredJobDescription?.company
+  }. Your task is to ask relevant questions based on the ${
+    structuredCandidateDetails?.name
+  }'s responses and the job information provided. Follow these guidelines:
 
-This is a mock interview for a candidate preparing for an interview. Use the available information to see the role and the company that the candidate is applying to.
+This is a mock interview for a ${structuredJobDescription?.role} job at ${
+    structuredJobDescription?.company
+  }.
 
 Focus on **${interviewType}** questions, designed to help the candidate refine their responses and build confidence. The ${interviewType} interview ${
     interviewTypes.find((type) => type.type === interviewType)?.description
