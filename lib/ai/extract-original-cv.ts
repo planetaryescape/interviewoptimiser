@@ -41,8 +41,8 @@ export const StructuredOriginalCVSchema = ExtendedOriginalCVSchema.extend({
   phone: z.string(),
   location: z.string(),
   summary: z.string(),
-  isPublic: z.boolean().optional(),
-  isOriginal: z.boolean().optional(),
+  isPublic: z.boolean(),
+  isOriginal: z.boolean(),
   experiences: z.array(experienceSchema),
   educations: z.array(
     z.object({
@@ -133,13 +133,17 @@ export async function extractOriginalCV({
       7. Custom Sections:
          - For any other sections (certifications, languages, interests, etc.), extract the title and content
 
+      8. Visibility Settings:
+         - Set isOriginal to true (this is always an original CV)
+         - Set isPublic to false (default visibility setting)
+
       Important:
       - Extract the information EXACTLY as it appears in the CV without any improvements or modifications
       - Preserve the original wording, formatting, and structure as much as possible
       - Do not add any information that is not explicitly stated in the CV
       - If certain information is not available, use reasonable defaults based on the candidate details provided
-      - Set isOriginal to true in the output
       - For current positions or education without an end date, use null instead of omitting the field
+      - Always include isOriginal as true and isPublic as false
 
       CV Text:
       ${submittedCVText}
@@ -159,8 +163,11 @@ export async function extractOriginalCV({
       },
     });
 
-    // Ensure isOriginal is set to true
+    // Ensure required fields have default values
     structuredOutput.isOriginal = true;
+    if (structuredOutput.isPublic === undefined) {
+      structuredOutput.isPublic = false;
+    }
 
     // Validate the output against the schema
     const validatedOutput = StructuredOriginalCVSchema.parse(structuredOutput);
