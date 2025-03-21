@@ -72,7 +72,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         }
 
         // Get the language model
-        const model = getOpenAiClient(user?.email)("gpt-4o");
+        const model = getOpenAiClient(user?.email)("o3-mini");
 
         // Run extraction functions in parallel using Promise.all
         logger.info({ interviewId }, "Starting parallel data extraction");

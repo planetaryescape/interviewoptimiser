@@ -5,7 +5,7 @@ import { logger } from "~/lib/logger";
 import { getOpenAiClient } from "~/lib/openai";
 
 /**
- * Performs a two-step AI process where Gemini generates initial text and GPT-4o-mini structures it.
+ * Performs a two-step AI process where Gemini generates initial text and o3-mini structures it.
  * @param params Parameters for the two-step AI process
  * @returns The structured output and combined usage statistics
  */
@@ -46,10 +46,10 @@ export async function twoStepAIProcess<T>({
       },
     });
 
-    // Step 2: Structure the output with GPT-4o
-    const gpt4o = getOpenAiClient(userEmail)("gpt-4o");
-    const { object: structuredOutput, usage: gpt4Usage } = await generateObject({
-      model: gpt4o,
+    // Step 2: Structure the output with o3-mini
+    const o3Mini = getOpenAiClient(userEmail)("o3-mini");
+    const { object: structuredOutput, usage: o3MiniUsage } = await generateObject({
+      model: o3Mini,
       schema,
       schemaName,
       schemaDescription,
@@ -76,13 +76,13 @@ export async function twoStepAIProcess<T>({
         data: null,
         error: safeParseResult.success ? undefined : safeParseResult.error,
         usage: {
-          prompt_tokens: initialUsage.promptTokens + gpt4Usage.promptTokens,
-          completion_tokens: initialUsage.completionTokens + gpt4Usage.completionTokens,
+          prompt_tokens: initialUsage.promptTokens + o3MiniUsage.promptTokens,
+          completion_tokens: initialUsage.completionTokens + o3MiniUsage.completionTokens,
           total_tokens:
             initialUsage.promptTokens +
             initialUsage.completionTokens +
-            gpt4Usage.promptTokens +
-            gpt4Usage.completionTokens,
+            o3MiniUsage.promptTokens +
+            o3MiniUsage.completionTokens,
         },
       };
     }
@@ -91,13 +91,13 @@ export async function twoStepAIProcess<T>({
       data: parsedOutput,
       error: null,
       usage: {
-        prompt_tokens: initialUsage.promptTokens + gpt4Usage.promptTokens,
-        completion_tokens: initialUsage.completionTokens + gpt4Usage.completionTokens,
+        prompt_tokens: initialUsage.promptTokens + o3MiniUsage.promptTokens,
+        completion_tokens: initialUsage.completionTokens + o3MiniUsage.completionTokens,
         total_tokens:
           initialUsage.promptTokens +
           initialUsage.completionTokens +
-          gpt4Usage.promptTokens +
-          gpt4Usage.completionTokens,
+          o3MiniUsage.promptTokens +
+          o3MiniUsage.completionTokens,
       },
     };
   } catch (error) {
@@ -114,7 +114,7 @@ export async function twoStepAIProcess<T>({
 }
 
 /**
- * Performs a single-step AI process using GPT-4o to generate structured output directly.
+ * Performs a single-step AI process using o3-mini to generate structured output directly.
  * @param params Parameters for the single-step AI process
  * @returns The structured output and usage statistics
  */

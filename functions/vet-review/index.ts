@@ -49,7 +49,7 @@ export const handler = Sentry.wrapHandler(async () => {
       `;
 
       const completion = await getOpenAiClientOld(config.supportEmail).beta.chat.completions.parse({
-        model: "gpt-4o",
+        model: "o3-mini",
         messages: [
           {
             role: "system",

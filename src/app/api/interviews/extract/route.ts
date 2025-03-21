@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { cvText, jobDescriptionText, interviewId } = extractRequestSchema.parse(body);
 
-    const model = getOpenAiClient(email)("gpt-4o");
+    const model = getOpenAiClient(email)("o3-mini");
 
     // Run extractions in parallel
     const [candidateDetailsResult, jobDescriptionResult] = await Promise.all([
