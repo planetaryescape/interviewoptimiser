@@ -12,7 +12,7 @@ const CandidateDetailsSchema = z.object({
   location: z.string(),
   currentRole: z.string(),
   professionalSummary: z.string(),
-  linkedinUrl: z.string().optional(),
+  linkedinUrl: z.string(),
   portfolioUrl: z.string().optional(),
   otherUrls: z.array(z.string()).optional(),
 });
@@ -61,12 +61,12 @@ export async function extractCandidateDetails({
          - Extract a brief summary of their professional profile, career objectives, or personal statement
          - This should be a concise representation of how they describe themselves professionally
 
-      5. Online Presence (if available):
-         - LinkedIn URL
-         - Portfolio/personal website URL
-         - Any other professional online profiles mentioned
+      5. Online Presence:
+         - LinkedIn URL (required - if not found in the CV, use an empty string that indicates "Not provided")
+         - Portfolio/personal website URL (if available)
+         - Any other professional online profiles mentioned (if available)
 
-      Do not fabricate or guess information that isn't clearly stated in the CV. If certain information is not available, return an empty string or appropriate placeholder.
+      Do not fabricate or guess information that isn't clearly stated in the CV. For LinkedIn URL, which is required, use "Not provided" if it's not in the CV.
 
       CV Text: ${submittedCVText}
 

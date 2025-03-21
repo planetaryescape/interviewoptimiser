@@ -81,7 +81,7 @@ export function InterviewController() {
         .map((m: any) => ({
           role: m.type === "user_message" ? "user" : "assistant",
           content: m.message?.content || "",
-          prosody: m.type === "user_message" ? m.models.prosody.scores : undefined,
+          prosody: m.type === "user_message" ? m.models?.prosody?.scores : undefined,
         }));
 
       setMessages(storeCompatibleMessages);
@@ -203,7 +203,7 @@ export function InterviewController() {
             .map((m: any) => ({
               role: m.type === "user_message" ? "user" : "assistant",
               content: m.message?.content || "",
-              prosody: m.type === "user_message" ? m.models.prosody.scores : undefined,
+              prosody: m.type === "user_message" ? m.models?.prosody?.scores : undefined,
             }))
         ),
       });
@@ -244,7 +244,7 @@ export function InterviewController() {
               .map((m: any) => ({
                 role: m.type === "user_message" ? "user" : "assistant",
                 content: m.message?.content || "",
-                prosody: m.type === "user_message" ? m.models.prosody.scores : undefined,
+                prosody: m.type === "user_message" ? m.models?.prosody?.scores : undefined,
               }))
           ),
         });

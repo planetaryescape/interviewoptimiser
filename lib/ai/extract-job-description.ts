@@ -23,7 +23,7 @@ export const StructuredJobDescriptionSchema = JobDescriptionSchema.extend({
   seniority: z.string(),
   industry: z.string(),
   keyTechnologies: z.array(z.string()),
-  keywords: z.array(z.string()).optional(),
+  keywords: z.array(z.string()),
 }).omit({
   id: true,
   interviewId: true,
@@ -102,6 +102,12 @@ export async function extractJobDescription({
          - List each as a separate item
          - Be precise with version numbers if mentioned (e.g., "Python 3.8" not just "Python")
          - Include exact technology names as they appear, as ATS systems often screen for these
+
+      10. Keywords:
+         - Extract all important keywords and phrases that would be relevant for ATS matching
+         - Include industry-specific terms, buzzwords, and important concepts mentioned in the job description
+         - List each as a separate item
+         - This is required and should not be left empty
 
       Important:
       - Extract the information EXACTLY as it appears in the job description

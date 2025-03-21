@@ -4,17 +4,17 @@ import type { CompletionUsage } from "openai/resources/completions.mjs";
 import { z } from "zod";
 import { logger } from "~/lib/logger";
 
+const experienceSchema = z.object({
+  title: z.string(),
+  company: z.string(),
+  location: z.string(),
+  startDate: z.string(),
+  endDate: z.string().nullable(),
+  description: z.string(),
+});
+
 const ExtendedOriginalCVSchema = z.object({
-  experiences: z.array(
-    z.object({
-      title: z.string(),
-      company: z.string(),
-      location: z.string(),
-      startDate: z.string(),
-      endDate: z.string().optional(),
-      description: z.string(),
-    })
-  ),
+  experiences: z.array(experienceSchema),
   skills: z.array(
     z.object({
       skill: z.string(),
@@ -43,23 +43,14 @@ export const StructuredOriginalCVSchema = ExtendedOriginalCVSchema.extend({
   summary: z.string(),
   isPublic: z.boolean().optional(),
   isOriginal: z.boolean().optional(),
-  experiences: z.array(
-    z.object({
-      title: z.string(),
-      company: z.string(),
-      location: z.string(),
-      startDate: z.string(),
-      endDate: z.string().optional(),
-      description: z.string(),
-    })
-  ),
+  experiences: z.array(experienceSchema),
   educations: z.array(
     z.object({
       degree: z.string(),
       school: z.string(),
       location: z.string(),
       startDate: z.string(),
-      endDate: z.string().optional(),
+      endDate: z.string().nullable(),
     })
   ),
   skills: z.array(
@@ -122,7 +113,7 @@ export async function extractOriginalCV({
          - Company name
          - Location
          - Start date (in the format provided in the CV)
-         - End date (in the format provided in the CV, or leave empty if current)
+         - End date (in the format provided in the CV, or use null if current)
          - Job description (preserve bullet points and formatting as much as possible)
 
       4. Education:
@@ -131,7 +122,7 @@ export async function extractOriginalCV({
          - School/university name
          - Location
          - Start date
-         - End date (or leave empty if current)
+         - End date (or use null if current)
 
       5. Skills:
          - List all skills mentioned in the CV
@@ -148,6 +139,7 @@ export async function extractOriginalCV({
       - Do not add any information that is not explicitly stated in the CV
       - If certain information is not available, use reasonable defaults based on the candidate details provided
       - Set isOriginal to true in the output
+      - For current positions or education without an end date, use null instead of omitting the field
 
       CV Text:
       ${submittedCVText}
