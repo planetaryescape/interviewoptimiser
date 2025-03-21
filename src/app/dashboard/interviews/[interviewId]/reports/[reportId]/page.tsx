@@ -27,7 +27,6 @@ import {
   ubuntu,
   workSans,
 } from "@/app/fonts";
-import { Badge } from "@/components/badge";
 import { Expressions } from "@/components/expressions";
 import PagePreview from "@/components/page-preview";
 import { PagePreviewToolbar, marginSizes, paperSizes } from "@/components/page-preview-toolbar";
@@ -58,24 +57,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMeasure } from "@uidotdev/usehooks";
 import "easymde/dist/easymde.min.css";
 import saveAs from "file-saver";
-import {
-  ArrowUpCircle,
-  Briefcase,
-  CheckCircle,
-  Clock,
-  Code,
-  Copy,
-  FileSearch,
-  MessageCircle,
-  MessageSquare,
-  Puzzle,
-  Target,
-  ThumbsUp,
-  Timer,
-  User,
-  UserCircle,
-  Users,
-} from "lucide-react";
+import { Code, Copy, FileSearch, MessageCircle, Puzzle, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { use, useState } from "react";
@@ -441,116 +423,150 @@ export default function InterviewReportPage(props: {
           headingFont={headingFont}
           noBorder
         >
-          {/* Header Section */}
-          <header className="text-center mb-12">
-            <div className="bg-gradient-to-b from-blue-50 to-white px-4 pb-8 pt-12 rounded-b-3xl shadow-sm">
-              <Image
-                src="https://interviewoptimiser.com/logo.png"
-                alt={`${config.projectName} Logo`}
-                width={160}
-                height={160}
-                className="mx-auto mb-6"
-              />
-              <h1 className={cn("text-4xl font-bold text-gray-900 mb-3", headingFont)}>
-                Interview Assessment Report
-              </h1>
-              <p className="text-xl text-gray-600 mb-6">
-                {interview?.data.candidate} • {interview?.data.role}
-              </p>
-              <div className="flex justify-center gap-6 text-sm text-gray-500">
-                <div className="flex items-center">
-                  <Clock className="w-4 h-4 mr-1.5" />
-                  {new Date(interview?.data.createdAt ?? "").toLocaleDateString()}
+          {/* Header Section - Redesigned to be minimalist */}
+          <header className="mb-16 border-b border-gray-200 pb-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <div className="flex items-center mr-4 border-r border-gray-200 pr-4">
+                  <Image
+                    src="https://interviewoptimiser.com/logo.png"
+                    alt={`${config.projectName} Logo`}
+                    width={40}
+                    height={40}
+                    className="opacity-80"
+                  />
                 </div>
-                <div className="flex items-center">
-                  <Timer className="w-4 h-4 mr-1.5" />
+                <div className="flex flex-col">
+                  <span className="text-xs uppercase tracking-widest text-gray-600 font-medium">
+                    Confidential Assessment
+                  </span>
+                  <h1
+                    className={cn("text-2xl font-medium text-gray-900 tracking-tight", headingFont)}
+                  >
+                    Interview Performance Evaluation
+                  </h1>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-xs uppercase tracking-widest text-gray-600 mb-1">Reference</p>
+                <p className="text-sm font-medium text-gray-700 font-mono">
+                  IO-{idHandler.encode(interview?.sys.id ?? 0)}
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-between items-end">
+              <div className="max-w-sm">
+                <div className="grid grid-cols-2 gap-x-12 gap-y-3 text-sm">
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-gray-600 mb-1">
+                      Candidate
+                    </p>
+                    <p className="font-medium text-gray-800">{interview?.data.candidate}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-gray-600 mb-1">Position</p>
+                    <p className="font-medium text-gray-800">{interview?.data.role}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-gray-600 mb-1">
+                      Organization
+                    </p>
+                    <p className="font-medium text-gray-800">{interview?.data.company}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-gray-600 mb-1">Date</p>
+                    <p className="font-medium text-gray-800">
+                      {new Date(interview?.data.createdAt ?? "").toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-xs uppercase tracking-widest text-gray-600 mb-1">Duration</p>
+                <p className="font-medium text-gray-800">
                   {interview?.data.actualTime ?? 0} minutes
-                </div>
-                <div className="flex items-center">
-                  <MessageSquare className="w-4 h-4 mr-1.5" />
-                  Technical Interview
-                </div>
+                </p>
               </div>
             </div>
           </header>
 
-          {/* Executive Summary */}
-          <section className="mb-12">
-            <div className="flex items-center gap-6 mb-8">
-              <div className="flex-1">
-                <h2 className={cn("text-2xl font-semibold mb-4 text-gray-800", headingFont)}>
+          {/* Executive Summary - Redesigned for better information hierarchy */}
+          <section className="mb-16">
+            <div className="flex flex-col">
+              <div>
+                <h2
+                  className={cn(
+                    "text-base font-semibold text-gray-800 uppercase tracking-widest border-b border-gray-300 pb-2 mb-6 w-full",
+                    headingFont
+                  )}
+                >
                   Executive Summary
                 </h2>
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  components={remarkMarkdownComponents}
-                  className="text-gray-700 leading-relaxed"
-                >
-                  {report.data.generalAssessment}
-                </ReactMarkdown>
-              </div>
-              <div className="flex flex-col items-center bg-blue-50 p-6 rounded-2xl min-w-[200px]">
-                <div className="text-5xl font-bold text-blue-600 mb-2">
-                  {report.data.overallScore}%
+                <div className="flex gap-8">
+                  <div className="flex-1 max-w-prose">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        ...remarkMarkdownComponents,
+                        p: ({ node, ...props }) => (
+                          <p className="mb-4 text-gray-700 leading-relaxed text-sm" {...props} />
+                        ),
+                      }}
+                      className="text-gray-700"
+                    >
+                      {report.data.generalAssessment}
+                    </ReactMarkdown>
+                  </div>
+                  <div className="w-40 flex flex-col items-center border-l border-gray-200 pl-6">
+                    <div
+                      className="mb-3"
+                      aria-label={`Overall score: ${report.data.overallScore}%`}
+                    >
+                      <div className="rounded-full w-20 h-20 border-2 border-gray-300 flex items-center justify-center">
+                        <div className="text-2xl font-semibold text-gray-800">
+                          {report.data.overallScore}%
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-600 uppercase tracking-widest text-center mb-3">
+                      Overall Assessment
+                    </div>
+                    <div>
+                      {report.data.overallScore >= 80 ? (
+                        <div className="bg-gray-100 border-2 border-gray-700 text-gray-800 text-xs px-3 py-0.5 font-medium rounded">
+                          Distinguished
+                        </div>
+                      ) : report.data.overallScore >= 60 ? (
+                        <div className="bg-gray-100 border border-gray-500 text-gray-800 text-xs px-3 py-0.5 font-medium rounded">
+                          Proficient
+                        </div>
+                      ) : (
+                        <div className="bg-gray-100 border border-gray-400 text-gray-800 text-xs px-3 py-0.5 font-medium rounded">
+                          Developing
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-sm text-gray-600 text-center">Overall Performance Score</div>
-                <div className="mt-4">
-                  {report.data.overallScore >= 80 ? (
-                    <Badge variant="success" className="font-medium">
-                      Excellent
-                    </Badge>
-                  ) : report.data.overallScore >= 60 ? (
-                    <Badge variant="warning" className="font-medium">
-                      Good
-                    </Badge>
-                  ) : (
-                    <Badge variant="destructive" className="font-medium">
-                      Needs Improvement
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Candidate Profile */}
-          <section className="mb-12 bg-gray-50 p-6 rounded-xl">
-            <h2 className={cn("text-2xl font-semibold mb-6 text-gray-800", headingFont)}>
-              Candidate Profile
-            </h2>
-            <div className="grid grid-cols-3 gap-8">
-              <div className="space-y-2">
-                <div className="flex items-center text-blue-600 mb-2">
-                  <User className="w-5 h-5 mr-2" />
-                  <span className="text-sm font-medium">Candidate</span>
-                </div>
-                <p className="font-medium text-gray-900">{interview?.data.candidate}</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center text-blue-600 mb-2">
-                  <Briefcase className="w-5 h-5 mr-2" />
-                  <span className="text-sm font-medium">Company</span>
-                </div>
-                <p className="font-medium text-gray-900">{interview?.data.company}</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center text-blue-600 mb-2">
-                  <UserCircle className="w-5 h-5 mr-2" />
-                  <span className="text-sm font-medium">Role</span>
-                </div>
-                <p className="font-medium text-gray-900">{interview?.data.role}</p>
               </div>
             </div>
           </section>
 
-          {/* Detailed Assessment */}
-          <section className="mb-12">
+          {/* Detailed Assessment - Redesigned with proper typographic hierarchy */}
+          <section className="mb-16 bg-gray-50 py-8 px-8 border-y border-gray-200">
             <h2
-              className={cn("text-2xl font-semibold mb-6 text-gray-800 border-b pb-2", headingFont)}
+              className={cn(
+                "text-base font-semibold text-gray-800 uppercase tracking-widest border-b border-gray-300 pb-2 mb-8 w-full",
+                headingFont
+              )}
             >
-              Detailed Assessment
+              Competency Assessment
             </h2>
-            <div className="grid grid-cols-2 gap-8">
+            <div className="space-y-10">
               {[
                 {
                   title: "Technical Knowledge",
@@ -579,40 +595,54 @@ export default function InterviewReportPage(props: {
               ].map((item, index) => (
                 <div
                   key={item.title}
-                  className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm"
+                  className="border-b border-gray-200 pb-8 last:border-0 last:pb-0"
                 >
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="p-3 bg-blue-50 rounded-lg">
-                      <item.icon className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className={cn("text-lg font-semibold text-gray-800", headingFont)}>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center">
+                      <div className="mr-3 p-1.5 bg-white rounded-sm border border-gray-300">
+                        <item.icon className="w-4 h-4 text-gray-600" />
+                      </div>
+                      <h3 className={cn("text-base font-semibold text-gray-800", headingFont)}>
                         {item.title}
                       </h3>
-                      <div className="flex items-center mt-1">
-                        <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <div className="flex items-center mb-1" aria-label={`Score: ${item.score}%`}>
+                        <span className="text-sm font-medium text-gray-700 mr-2">
+                          {item.score}%
+                        </span>
+                        <div className="w-24 h-2 bg-gray-200 rounded-sm overflow-hidden">
                           <div
                             className={cn(
-                              "h-full rounded-full",
+                              "h-full",
                               item.score >= 80
-                                ? "bg-green-500"
+                                ? "bg-gray-700"
                                 : item.score >= 60
-                                  ? "bg-yellow-500"
-                                  : "bg-red-500"
+                                  ? "bg-gray-500"
+                                  : "bg-gray-400"
                             )}
                             style={{ width: `${item.score}%` }}
                           />
                         </div>
-                        <span className="ml-3 text-sm font-medium text-gray-600">
-                          {item.score}%
-                        </span>
                       </div>
+                      <span className="text-xs uppercase tracking-wider text-gray-600">
+                        {item.score >= 80
+                          ? "Distinguished"
+                          : item.score >= 60
+                            ? "Proficient"
+                            : "Developing"}
+                      </span>
                     </div>
                   </div>
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
-                    components={remarkMarkdownComponents}
-                    className="text-gray-600 text-sm leading-relaxed"
+                    components={{
+                      ...remarkMarkdownComponents,
+                      p: ({ node, ...props }) => (
+                        <p className="mb-4 text-gray-700 leading-relaxed text-sm" {...props} />
+                      ),
+                    }}
+                    className="text-gray-700 text-sm leading-relaxed pl-9 max-w-prose"
                   >
                     {item.content}
                   </ReactMarkdown>
@@ -621,51 +651,52 @@ export default function InterviewReportPage(props: {
             </div>
           </section>
 
-          {/* Strengths and Areas for Improvement */}
-          <section className="mb-12">
+          {/* Strengths and Areas for Improvement - Redesigned with subtle visual cues */}
+          <section className="mb-16">
             <h2
-              className={cn("text-2xl font-semibold mb-6 text-gray-800 border-b pb-2", headingFont)}
+              className={cn(
+                "text-base font-semibold text-gray-800 uppercase tracking-widest border-b border-gray-300 pb-2 mb-8 w-full",
+                headingFont
+              )}
             >
               Key Observations
             </h2>
             <div className="grid grid-cols-2 gap-8">
-              <div className="bg-green-50 p-6 rounded-xl border border-green-100">
+              <div className="border-l-4 border-gray-700 pl-6 pt-1">
                 <h3
                   className={cn(
-                    "text-lg font-semibold text-green-800 mb-4 flex items-center gap-2",
+                    "text-sm font-semibold text-gray-800 mb-5 uppercase tracking-wider",
                     headingFont
                   )}
                 >
-                  <ThumbsUp className="w-5 h-5" />
                   Areas of Strength
                 </h3>
-                <ul className="space-y-3">
+                <ul className="space-y-4 text-sm">
                   {JSON.parse(report.data.areasOfStrength).map(
                     (strength: string, index: number) => (
-                      <li key={strength} className="flex items-start gap-3 text-green-900">
-                        <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-                        <span>{strength}</span>
+                      <li key={strength} className="flex items-start gap-3">
+                        <span className="text-gray-600 font-mono text-xs mt-0.5">{index + 1}.</span>
+                        <span className="text-gray-700">{strength}</span>
                       </li>
                     )
                   )}
                 </ul>
               </div>
-              <div className="bg-amber-50 p-6 rounded-xl border border-amber-100">
+              <div className="border-l-4 border-gray-300 pl-6 pt-1">
                 <h3
                   className={cn(
-                    "text-lg font-semibold text-amber-800 mb-4 flex items-center gap-2",
+                    "text-sm font-semibold text-gray-800 mb-5 uppercase tracking-wider",
                     headingFont
                   )}
                 >
-                  <Target className="w-5 h-5" />
-                  Areas for Improvement
+                  Areas for Development
                 </h3>
-                <ul className="space-y-3">
+                <ul className="space-y-4 text-sm">
                   {JSON.parse(report.data.areasForImprovement).map(
                     (area: string, index: number) => (
-                      <li key={area} className="flex items-start gap-3 text-amber-900">
-                        <ArrowUpCircle className="w-5 h-5 text-amber-600 mt-0.5" />
-                        <span>{area}</span>
+                      <li key={area} className="flex items-start gap-3">
+                        <span className="text-gray-600 font-mono text-xs mt-0.5">{index + 1}.</span>
+                        <span className="text-gray-700">{area}</span>
                       </li>
                     )
                   )}
@@ -674,73 +705,77 @@ export default function InterviewReportPage(props: {
             </div>
           </section>
 
-          {/* Action Plan */}
-          <section className="mb-12">
+          {/* Action Plan - Redesigned for academic credibility */}
+          <section className="mb-16 bg-gray-50 py-8 border-y border-gray-200">
             <h2
-              className={cn("text-2xl font-semibold mb-6 text-gray-800 border-b pb-2", headingFont)}
+              className={cn(
+                "text-base font-semibold text-gray-800 uppercase tracking-widest border-b border-gray-300 pb-2 mb-6 mx-8 w-auto",
+                headingFont
+              )}
             >
-              Recommended Action Plan
+              Professional Development Recommendations
             </h2>
-            <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
-              <ol className="space-y-4">
+            <div className="px-8">
+              <ol className="space-y-5 list-decimal pl-5 counter-reset text-gray-700">
                 {JSON.parse(report.data.actionableNextSteps).map((step: string, index: number) => (
-                  <li key={step} className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-medium">
-                      {index + 1}
-                    </div>
-                    <div className="flex-1 bg-white p-4 rounded-lg shadow-sm">
-                      <p className="text-gray-700">{step}</p>
-                    </div>
+                  <li key={step} className="pl-2 text-sm">
+                    <p className="leading-relaxed">{step}</p>
                   </li>
                 ))}
               </ol>
             </div>
           </section>
 
-          {/* Prosody Analysis */}
+          {/* Prosody Analysis - Redesigned for academic style */}
           {includeTranscript && (
-            <section className="mb-12">
+            <section className="mb-16">
               <h2
                 className={cn(
-                  "text-2xl font-semibold mb-6 text-gray-800 border-b pb-2",
+                  "text-base font-semibold text-gray-800 uppercase tracking-widest border-b border-gray-300 pb-2 mb-6 w-full",
                   headingFont
                 )}
               >
-                Voice Characteristics Analysis
+                Communication Pattern Analysis
               </h2>
-              <div className="bg-white p-6 rounded-xl border border-gray-100">
-                <p className="text-gray-600 mb-6 text-center max-w-2xl mx-auto">
-                  This analysis shows the top emotional and tonal patterns detected in your
-                  responses during the interview. The further a point extends from the center, the
-                  more prevalent that characteristic was in your speech.
+              <div className="border border-gray-200 p-8">
+                <p className="text-gray-700 mb-8 text-sm max-w-prose leading-relaxed">
+                  The following analysis presents a quantitative assessment of vocal characteristics
+                  exhibited during the interview. The data visualization below illustrates the
+                  prevalence of each characteristic, with the radial distance from center
+                  representing frequency of occurrence in the candidate&apos;s responses.
                 </p>
-                <div className="w-full">
+                <div
+                  className="w-full mb-8"
+                  aria-label="Vocal characteristics chart showing the prevalence of different speech patterns"
+                >
                   <RadialProsodyChart
                     data={aggregateProsodyData(report?.data.transcript ?? "[]")}
                   />
                 </div>
-                <div className="mt-6 text-sm text-gray-500 text-center">
+                <div className="mt-8 text-xs text-gray-600 italic border-t border-gray-200 pt-4">
                   <p>
-                    Values represent the percentage of responses where each characteristic was
-                    significantly detected. Only the top 6 most prevalent characteristics are shown.
+                    <span className="font-semibold">Methodology note:</span> Values represent
+                    percentage of responses where each characteristic was detected at significant
+                    levels. Analysis is limited to the six most prevalent characteristics for
+                    clarity of presentation.
                   </p>
                 </div>
               </div>
             </section>
           )}
 
-          {/* Interview Transcript (if included) */}
+          {/* Interview Transcript - Redesigned for better readability */}
           {includeTranscript && (
-            <section className="mb-12">
+            <section className="mb-16 bg-gray-50 py-8 border-y border-gray-200">
               <h2
                 className={cn(
-                  "text-2xl font-semibold mb-6 text-gray-800 border-b pb-2",
+                  "text-base font-semibold text-gray-800 uppercase tracking-widest border-b border-gray-300 pb-2 mb-6 mx-8 w-auto",
                   headingFont
                 )}
               >
                 Interview Transcript
               </h2>
-              <div className="bg-gray-50 p-6 rounded-xl space-y-4">
+              <div className="px-8 space-y-4 text-sm">
                 {JSON.parse(report?.data.transcript ?? "[]").map(
                   (
                     message: {
@@ -758,31 +793,35 @@ export default function InterviewReportPage(props: {
                       <div
                         key={message.content}
                         className={cn(
-                          "p-4 rounded-lg",
-                          persona === "Interviewer" ? "bg-blue-50 ml-4" : "bg-white mr-4"
+                          "p-4 border-l-2",
+                          persona === "Interviewer"
+                            ? "border-gray-400 ml-4 bg-white"
+                            : "border-gray-600 mr-4"
                         )}
                       >
-                        <div className="flex items-center gap-2 mb-2">
-                          {persona === "Interviewer" ? (
-                            <UserCircle className="w-5 h-5 text-blue-600" />
-                          ) : (
-                            <User className="w-5 h-5 text-green-600" />
-                          )}
+                        <div className="mb-2">
                           <span
                             className={cn(
-                              "font-medium",
-                              persona === "Interviewer" ? "text-blue-600" : "text-green-600"
+                              "font-medium text-xs uppercase tracking-wider",
+                              persona === "Interviewer" ? "text-gray-600" : "text-gray-700"
                             )}
                           >
                             {persona}
                           </span>
                         </div>
-                        <p className="text-gray-700">{message.content?.split("{")?.[0] ?? ""}</p>
-                        {persona === "Candidate" && Object.keys(message.prosody).length > 0 && (
+                        <p className="text-gray-700 leading-relaxed mb-2">
+                          {message.content?.split("{")?.[0] ?? ""}
+                        </p>
+                        {persona === "Candidate" &&
+                        message.prosody &&
+                        Object.keys(message.prosody).length > 0 ? (
                           <div className="mt-2 pt-2 border-t border-gray-200">
+                            <p className="text-xs uppercase tracking-wider text-gray-600 mb-2">
+                              Vocal characteristics
+                            </p>
                             <Expressions values={message.prosody} withScores={false} />
                           </div>
-                        )}
+                        ) : null}
                       </div>
                     );
                   }
@@ -791,17 +830,23 @@ export default function InterviewReportPage(props: {
             </section>
           )}
 
-          {/* Footer */}
-          <footer className="text-center text-gray-500 text-sm mt-12 pt-6 border-t">
-            <div className="flex justify-center items-center gap-4">
-              <Image
-                src="https://interviewoptimiser.com/logo.png"
-                alt={`${config.projectName} Logo`}
-                width={24}
-                height={24}
-                className="opacity-50"
-              />
-              <p>Generated by Interview Optimiser on {new Date().toLocaleDateString()}</p>
+          {/* Footer - Redesigned to be minimalist */}
+          <footer className="text-gray-500 text-xs mt-16 pt-4 border-t border-gray-200">
+            <div className="flex justify-between items-center">
+              <div className="text-left text-xs uppercase tracking-wider">
+                Confidential Document
+              </div>
+              <div>
+                <p className="font-mono">
+                  {config.projectName} •{" "}
+                  {new Date().toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}{" "}
+                  • Ref: IO-{idHandler.encode(report?.sys.id ?? 0)}
+                </p>
+              </div>
             </div>
           </footer>
         </PagePreview>
