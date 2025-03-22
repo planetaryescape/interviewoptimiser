@@ -42,6 +42,7 @@ export function InterviewController() {
   const params = useParams();
   const queryClient = useQueryClient();
   const lastDecrementTimeRef = useRef<number>(0);
+  const endingInterviewRef = useRef(false);
 
   const callDurationTimestamp = useActiveInterviewCallDuration();
   const totalTime = useActiveInterviewTotalTime();
@@ -107,7 +108,9 @@ export function InterviewController() {
       queryClient.invalidateQueries({
         queryKey: ["interview", params.interviewId],
       });
-      setInterviewEnded(true);
+      if (!interviewEnded) {
+        setInterviewEnded(true);
+      }
     },
     onError: (error) => {
       sendAssistantInput("hang_up");
@@ -117,7 +120,9 @@ export function InterviewController() {
         Sentry.captureException(error);
       });
       toast.error("Error updating interview. Please try again.");
-      setInterviewEnded(true);
+      if (!interviewEnded) {
+        setInterviewEnded(true);
+      }
     },
   });
 
@@ -184,6 +189,7 @@ export function InterviewController() {
   useEffect(() => {
     if (status.value !== "connected") return;
     if (!callDurationTimestamp) return;
+    if (interviewEnded || endingInterviewRef.current) return;
 
     const elapsedTime = unformatTime(callDurationTimestamp);
 
@@ -194,7 +200,8 @@ export function InterviewController() {
     }
 
     // End interview
-    if (elapsedTime === totalTime && !interviewEnded) {
+    if (elapsedTime === totalTime && !interviewEnded && !endingInterviewRef.current) {
+      endingInterviewRef.current = true;
       handleUpdateInterview({
         actualTime: Math.floor(elapsedTime / 60),
         transcript: JSON.stringify(
@@ -207,7 +214,6 @@ export function InterviewController() {
             }))
         ),
       });
-      setInterviewEnded(true);
     }
   }, [
     status.value,
@@ -219,7 +225,6 @@ export function InterviewController() {
     handleSendUserInput,
     handleUpdateInterview,
     markWrapUpSent,
-    setInterviewEnded,
   ]);
 
   // Usage tracking

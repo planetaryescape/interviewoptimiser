@@ -11,6 +11,7 @@ const experienceSchema = z.object({
   startDate: z.string(),
   endDate: z.string().nullable(),
   description: z.string(),
+  current: z.boolean(),
 });
 
 const ExtendedOriginalCVSchema = z.object({
@@ -113,6 +114,7 @@ export async function extractOriginalCV({
          - Start date (in the format provided in the CV)
          - End date (in the format provided in the CV, or use null if current)
          - Job description (preserve bullet points and formatting as much as possible)
+         - Current (true if the position is currently held, false otherwise). If the end date is not provided, use true.
 
       4. Education:
          For each entry, extract:
