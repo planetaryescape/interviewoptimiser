@@ -47,6 +47,8 @@ const ExtendedReportSchema = ReportSchema.extend({
   createdAt: true,
   updatedAt: true,
   transcript: true,
+  isPublic: true,
+  isCompleted: true,
 });
 
 export type InterviewReport = z.infer<typeof ExtendedReportSchema>;

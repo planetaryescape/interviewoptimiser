@@ -14,7 +14,7 @@ const CandidateDetailsSchema = z.object({
   professionalSummary: z.string(),
   linkedinUrl: z.string(),
   portfolioUrl: z.string(),
-  otherUrls: z.array(z.string()).optional(),
+  otherUrls: z.array(z.string()),
 });
 
 export type CandidateDetails = z.infer<typeof CandidateDetailsSchema>;
@@ -62,11 +62,11 @@ export async function extractCandidateDetails({
          - This should be a concise representation of how they describe themselves professionally
 
       5. Online Presence:
-         - LinkedIn URL (required - if not found in the CV, use "")
-         - Portfolio/personal website URL (required - if not found in the CV, use "")
-         - Any other professional online profiles mentioned (if available)
+         - LinkedIn URL (required - if not found in the CV, use "Not provided")
+         - Portfolio/personal website URL (required - if not found in the CV, use "Not provided")
+         - Other professional online profiles (required - provide as an array, use empty array [] if none found)
 
-      Do not fabricate or guess information that isn't clearly stated in the CV. For both LinkedIn URL and portfolio URL, which are required, use "Not provided" if they're not in the CV.
+      Do not fabricate or guess information that isn't clearly stated in the CV. For both LinkedIn URL and portfolio URL, which are required, use "Not provided" if they're not in the CV. For other URLs, always include an array even if empty.
 
       CV Text: ${submittedCVText}
 
@@ -86,6 +86,14 @@ export async function extractCandidateDetails({
         ...(userEmail && { "Helicone-User-Id": userEmail }),
       },
     });
+
+    // Ensure required fields have default values if not provided
+    if (!structuredOutput.portfolioUrl) {
+      structuredOutput.portfolioUrl = "Not provided";
+    }
+    if (!Array.isArray(structuredOutput.otherUrls)) {
+      structuredOutput.otherUrls = [];
+    }
 
     // Validate the output against the schema - use parse instead of safeParse to throw errors
     const validatedOutput = CandidateDetailsSchema.parse(structuredOutput);
