@@ -93,6 +93,7 @@ export default function ClientComponent({
 
   const timeout = useRef<number | null>(null);
   const ref = useRef<ComponentRef<typeof Messages> | null>(null);
+  const hasGeneratedReportRef = useRef(false);
 
   // optional: use configId from environment variable
   const configId = process.env.NEXT_PUBLIC_HUME_CONFIG_ID;
@@ -101,7 +102,8 @@ export default function ClientComponent({
   const [showTakeover, setShowTakeover] = useState(false);
 
   useEffect(() => {
-    if (interviewEnded) {
+    if (interviewEnded && !hasGeneratedReportRef.current) {
+      hasGeneratedReportRef.current = true;
       setShowTakeover(true);
       generateReportMutation.mutate();
     }
