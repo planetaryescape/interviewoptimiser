@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   PolarAngleAxis,
   PolarGrid,
@@ -11,6 +12,53 @@ import {
 interface RadialProsodyChartProps {
   data: { name: string; value: number }[];
 }
+
+// Custom shape for curved radar
+const CurvedRadarShape = (props: any) => {
+  const { points, fill, stroke, fillOpacity } = props;
+
+  // Create path with bezier curves between points
+  const pathData = useMemo(() => {
+    if (!points || points.length < 3) return "";
+
+    const pathPoints = [...points]; // Work with all points
+    let path = `M ${pathPoints[0].x} ${pathPoints[0].y}`;
+
+    // Create a smooth curve through all points using cubic bezier curves
+    for (let i = 0; i < pathPoints.length; i++) {
+      const current = pathPoints[i];
+      const next = pathPoints[(i + 1) % pathPoints.length];
+
+      // Calculate control points for bezier curve
+      // Use a tension factor to control curve smoothness (0.2 = smoother)
+      const tension = 0.2;
+
+      // Previous and next points (wrapping around for closed shape)
+      const prev = pathPoints[(i - 1 + pathPoints.length) % pathPoints.length];
+      const nextNext = pathPoints[(i + 2) % pathPoints.length];
+
+      // First control point
+      const cp1x = current.x + (next.x - prev.x) * tension;
+      const cp1y = current.y + (next.y - prev.y) * tension;
+
+      // Second control point
+      const cp2x = next.x - (nextNext.x - current.x) * tension;
+      const cp2y = next.y - (nextNext.y - current.y) * tension;
+
+      // Add cubic bezier curve
+      path += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${next.x} ${next.y}`;
+    }
+
+    // Close the path
+    path += " Z";
+
+    return path;
+  }, [points]);
+
+  return (
+    <path d={pathData} fill={fill} fillOpacity={fillOpacity} stroke={stroke} strokeWidth={2} />
+  );
+};
 
 export function RadialProsodyChart({ data }: RadialProsodyChartProps) {
   // Calculate max value with padding
@@ -72,6 +120,8 @@ export function RadialProsodyChart({ data }: RadialProsodyChartProps) {
               strokeWidth: 2,
               stroke: colors.primary,
             }}
+            isAnimationActive={true}
+            shape={<CurvedRadarShape />}
           />
           <Tooltip
             content={({ active, payload }) => {
