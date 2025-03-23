@@ -113,7 +113,7 @@ export function Controls() {
               {isMuted ? <MicOff className={"size-4"} /> : <Mic className={"size-4"} />}
             </Toggle>
 
-            <div className={"relative grid h-8 w-48 shrink grow-0"}>
+            <div className={"relative grid h-12 w-48 shrink grow-0"}>
               <MicFFT fft={micFft} className={"fill-current"} />
             </div>
 
