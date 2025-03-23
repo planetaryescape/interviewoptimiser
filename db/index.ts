@@ -8,7 +8,7 @@ export const db = drizzle({
   connection: {
     url: connectionString,
     max: isDev ? 1 : undefined,
-    timeout: 10000, // 10 seconds
+    idle_timeout: 10000, // 10 seconds
   },
   schema,
   casing: "snake_case",
