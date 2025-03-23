@@ -424,10 +424,10 @@ export default function InterviewReportPage(props: {
           noBorder
         >
           {/* Header Section - Redesigned to be minimalist */}
-          <header className="mb-16 border-b border-gray-200 pb-6">
+          <header className="mb-16 border-b border-slate-200 pb-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center">
-                <div className="flex items-center mr-4 border-r border-gray-200 pr-4">
+                <div className="flex items-center mr-4 border-r border-slate-200 pr-4">
                   <Image
                     src="https://interviewoptimiser.com/logo.png"
                     alt={`${config.projectName} Logo`}
@@ -437,19 +437,22 @@ export default function InterviewReportPage(props: {
                   />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs uppercase tracking-widest text-gray-600 font-medium">
+                  <span className="text-xs uppercase tracking-widest text-slate-500 font-medium">
                     Confidential Assessment
                   </span>
                   <h1
-                    className={cn("text-2xl font-medium text-gray-900 tracking-tight", headingFont)}
+                    className={cn(
+                      "text-2xl font-medium text-slate-800 tracking-tight",
+                      headingFont
+                    )}
                   >
                     Interview Performance Evaluation
                   </h1>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xs uppercase tracking-widest text-gray-600 mb-1">Reference</p>
-                <p className="text-sm font-medium text-gray-700 font-mono">
+                <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Reference</p>
+                <p className="text-sm font-medium text-slate-700 font-mono">
                   IO-{idHandler.encode(interview?.sys.id ?? 0)}
                 </p>
               </div>
@@ -458,24 +461,26 @@ export default function InterviewReportPage(props: {
               <div className="max-w-sm">
                 <div className="grid grid-cols-2 gap-x-12 gap-y-3 text-sm">
                   <div>
-                    <p className="text-xs uppercase tracking-widest text-gray-600 mb-1">
+                    <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">
                       Candidate
                     </p>
-                    <p className="font-medium text-gray-800">{interview?.data.candidate}</p>
+                    <p className="font-medium text-slate-800">{interview?.data.candidate}</p>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-widest text-gray-600 mb-1">Position</p>
-                    <p className="font-medium text-gray-800">{interview?.data.role}</p>
+                    <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">
+                      Position
+                    </p>
+                    <p className="font-medium text-slate-800">{interview?.data.role}</p>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-widest text-gray-600 mb-1">
+                    <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">
                       Organization
                     </p>
-                    <p className="font-medium text-gray-800">{interview?.data.company}</p>
+                    <p className="font-medium text-slate-800">{interview?.data.company}</p>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-widest text-gray-600 mb-1">Date</p>
-                    <p className="font-medium text-gray-800">
+                    <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Date</p>
+                    <p className="font-medium text-slate-800">
                       {new Date(interview?.data.createdAt ?? "").toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
@@ -486,8 +491,8 @@ export default function InterviewReportPage(props: {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xs uppercase tracking-widest text-gray-600 mb-1">Duration</p>
-                <p className="font-medium text-gray-800">
+                <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Duration</p>
+                <p className="font-medium text-slate-800">
                   {interview?.data.actualTime ?? 0} minutes
                 </p>
               </div>
@@ -500,7 +505,7 @@ export default function InterviewReportPage(props: {
               <div>
                 <h2
                   className={cn(
-                    "text-base font-semibold text-gray-800 uppercase tracking-widest border-b border-gray-300 pb-2 mb-6 w-full",
+                    "text-base font-semibold text-blue-800 uppercase tracking-widest border-b border-slate-300 pb-2 mb-6 w-full",
                     headingFont
                   )}
                 >
@@ -513,39 +518,39 @@ export default function InterviewReportPage(props: {
                       components={{
                         ...remarkMarkdownComponents,
                         p: ({ node, ...props }) => (
-                          <p className="mb-4 text-gray-700 leading-relaxed text-sm" {...props} />
+                          <p className="mb-4 text-slate-700 leading-relaxed text-sm" {...props} />
                         ),
                       }}
-                      className="text-gray-700"
+                      className="text-slate-700"
                     >
                       {report.data.generalAssessment}
                     </ReactMarkdown>
                   </div>
-                  <div className="w-40 flex flex-col items-center border-l border-gray-200 pl-6">
+                  <div className="w-40 flex flex-col items-center border-l border-slate-200 pl-6">
                     <div
                       className="mb-3"
                       aria-label={`Overall score: ${report.data.overallScore}%`}
                     >
-                      <div className="rounded-full w-20 h-20 border-2 border-gray-300 flex items-center justify-center">
-                        <div className="text-2xl font-semibold text-gray-800">
+                      <div className="rounded-full w-20 h-20 border-2 border-blue-200 bg-blue-50 flex items-center justify-center">
+                        <div className="text-2xl font-semibold text-blue-800">
                           {report.data.overallScore}%
                         </div>
                       </div>
                     </div>
-                    <div className="text-xs text-gray-600 uppercase tracking-widest text-center mb-3">
+                    <div className="text-xs text-slate-600 uppercase tracking-widest text-center mb-3">
                       Overall Assessment
                     </div>
                     <div>
                       {report.data.overallScore >= 80 ? (
-                        <div className="bg-gray-100 border-2 border-gray-700 text-gray-800 text-xs px-3 py-0.5 font-medium rounded">
+                        <div className="bg-green-50 border border-green-200 text-green-800 text-xs px-3 py-0.5 font-medium rounded">
                           Distinguished
                         </div>
                       ) : report.data.overallScore >= 60 ? (
-                        <div className="bg-gray-100 border border-gray-500 text-gray-800 text-xs px-3 py-0.5 font-medium rounded">
+                        <div className="bg-blue-50 border border-blue-200 text-blue-800 text-xs px-3 py-0.5 font-medium rounded">
                           Proficient
                         </div>
                       ) : (
-                        <div className="bg-gray-100 border border-gray-400 text-gray-800 text-xs px-3 py-0.5 font-medium rounded">
+                        <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs px-3 py-0.5 font-medium rounded">
                           Developing
                         </div>
                       )}
@@ -557,10 +562,10 @@ export default function InterviewReportPage(props: {
           </section>
 
           {/* Detailed Assessment - Redesigned with proper typographic hierarchy */}
-          <section className="mb-16 bg-gray-50 py-8 px-8 border-y border-gray-200">
+          <section className="mb-16 bg-slate-50 py-8 px-8 border-y border-slate-200">
             <h2
               className={cn(
-                "text-base font-semibold text-gray-800 uppercase tracking-widest border-b border-gray-300 pb-2 mb-8 w-full",
+                "text-base font-semibold text-blue-800 uppercase tracking-widest border-b border-slate-300 pb-2 mb-8 w-full",
                 headingFont
               )}
             >
@@ -595,37 +600,37 @@ export default function InterviewReportPage(props: {
               ].map((item, index) => (
                 <div
                   key={item.title}
-                  className="border-b border-gray-200 pb-8 last:border-0 last:pb-0"
+                  className="border-b border-slate-200 pb-8 last:border-0 last:pb-0"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center">
-                      <div className="mr-3 p-1.5 bg-white rounded-sm border border-gray-300">
-                        <item.icon className="w-4 h-4 text-gray-600" />
+                      <div className="mr-3 p-1.5 bg-white rounded-sm border border-slate-300">
+                        <item.icon className="w-4 h-4 text-blue-600" />
                       </div>
-                      <h3 className={cn("text-base font-semibold text-gray-800", headingFont)}>
+                      <h3 className={cn("text-base font-semibold text-slate-800", headingFont)}>
                         {item.title}
                       </h3>
                     </div>
                     <div className="flex flex-col items-end">
                       <div className="flex items-center mb-1" aria-label={`Score: ${item.score}%`}>
-                        <span className="text-sm font-medium text-gray-700 mr-2">
+                        <span className="text-sm font-medium text-slate-700 mr-2">
                           {item.score}%
                         </span>
-                        <div className="w-24 h-2 bg-gray-200 rounded-sm overflow-hidden">
+                        <div className="w-24 h-2 bg-slate-200 rounded-sm overflow-hidden">
                           <div
                             className={cn(
                               "h-full",
                               item.score >= 80
-                                ? "bg-gray-700"
+                                ? "bg-green-600"
                                 : item.score >= 60
-                                  ? "bg-gray-500"
-                                  : "bg-gray-400"
+                                  ? "bg-blue-600"
+                                  : "bg-amber-500"
                             )}
                             style={{ width: `${item.score}%` }}
                           />
                         </div>
                       </div>
-                      <span className="text-xs uppercase tracking-wider text-gray-600">
+                      <span className="text-xs uppercase tracking-wider text-slate-600">
                         {item.score >= 80
                           ? "Distinguished"
                           : item.score >= 60
@@ -639,10 +644,10 @@ export default function InterviewReportPage(props: {
                     components={{
                       ...remarkMarkdownComponents,
                       p: ({ node, ...props }) => (
-                        <p className="mb-4 text-gray-700 leading-relaxed text-sm" {...props} />
+                        <p className="mb-4 text-slate-700 leading-relaxed text-sm" {...props} />
                       ),
                     }}
-                    className="text-gray-700 text-sm leading-relaxed pl-9 max-w-prose"
+                    className="text-slate-700 text-sm leading-relaxed pl-9 max-w-prose"
                   >
                     {item.content}
                   </ReactMarkdown>
@@ -655,17 +660,17 @@ export default function InterviewReportPage(props: {
           <section className="mb-16">
             <h2
               className={cn(
-                "text-base font-semibold text-gray-800 uppercase tracking-widest border-b border-gray-300 pb-2 mb-8 w-full",
+                "text-base font-semibold text-blue-800 uppercase tracking-widest border-b border-slate-300 pb-2 mb-8 w-full",
                 headingFont
               )}
             >
               Key Observations
             </h2>
             <div className="grid grid-cols-2 gap-8">
-              <div className="border-l-4 border-gray-700 pl-6 pt-1">
+              <div className="border-l-4 border-green-600 pl-6 pt-1">
                 <h3
                   className={cn(
-                    "text-sm font-semibold text-gray-800 mb-5 uppercase tracking-wider",
+                    "text-sm font-semibold text-green-800 mb-5 uppercase tracking-wider",
                     headingFont
                   )}
                 >
@@ -675,17 +680,19 @@ export default function InterviewReportPage(props: {
                   {JSON.parse(report.data.areasOfStrength).map(
                     (strength: string, index: number) => (
                       <li key={strength} className="flex items-start gap-3">
-                        <span className="text-gray-600 font-mono text-xs mt-0.5">{index + 1}.</span>
-                        <span className="text-gray-700">{strength}</span>
+                        <span className="text-green-600 font-mono text-xs mt-0.5">
+                          {index + 1}.
+                        </span>
+                        <span className="text-slate-700">{strength}</span>
                       </li>
                     )
                   )}
                 </ul>
               </div>
-              <div className="border-l-4 border-gray-300 pl-6 pt-1">
+              <div className="border-l-4 border-amber-500 pl-6 pt-1">
                 <h3
                   className={cn(
-                    "text-sm font-semibold text-gray-800 mb-5 uppercase tracking-wider",
+                    "text-sm font-semibold text-amber-800 mb-5 uppercase tracking-wider",
                     headingFont
                   )}
                 >
@@ -695,8 +702,10 @@ export default function InterviewReportPage(props: {
                   {JSON.parse(report.data.areasForImprovement).map(
                     (area: string, index: number) => (
                       <li key={area} className="flex items-start gap-3">
-                        <span className="text-gray-600 font-mono text-xs mt-0.5">{index + 1}.</span>
-                        <span className="text-gray-700">{area}</span>
+                        <span className="text-amber-600 font-mono text-xs mt-0.5">
+                          {index + 1}.
+                        </span>
+                        <span className="text-slate-700">{area}</span>
                       </li>
                     )
                   )}
@@ -706,17 +715,17 @@ export default function InterviewReportPage(props: {
           </section>
 
           {/* Action Plan - Redesigned for academic credibility */}
-          <section className="mb-16 bg-gray-50 py-8 border-y border-gray-200">
+          <section className="mb-16 bg-slate-50 py-8 border-y border-slate-200">
             <h2
               className={cn(
-                "text-base font-semibold text-gray-800 uppercase tracking-widest border-b border-gray-300 pb-2 mb-6 mx-8 w-auto",
+                "text-base font-semibold text-blue-800 uppercase tracking-widest border-b border-slate-300 pb-2 mb-6 mx-8 w-auto",
                 headingFont
               )}
             >
               Professional Development Recommendations
             </h2>
             <div className="px-8">
-              <ol className="space-y-5 list-decimal pl-5 counter-reset text-gray-700">
+              <ol className="space-y-5 list-decimal pl-5 counter-reset text-slate-700">
                 {JSON.parse(report.data.actionableNextSteps).map((step: string, index: number) => (
                   <li key={step} className="pl-2 text-sm">
                     <p className="leading-relaxed">{step}</p>
@@ -731,14 +740,14 @@ export default function InterviewReportPage(props: {
             <section className="mb-16">
               <h2
                 className={cn(
-                  "text-base font-semibold text-gray-800 uppercase tracking-widest border-b border-gray-300 pb-2 mb-6 w-full",
+                  "text-base font-semibold text-blue-800 uppercase tracking-widest border-b border-slate-300 pb-2 mb-6 w-full",
                   headingFont
                 )}
               >
                 Communication Pattern Analysis
               </h2>
-              <div className="border border-gray-200 p-8">
-                <p className="text-gray-700 mb-8 text-sm max-w-prose leading-relaxed">
+              <div className="border border-slate-200 p-8">
+                <p className="text-slate-700 mb-8 text-sm max-w-prose leading-relaxed">
                   The following analysis presents a quantitative assessment of vocal characteristics
                   exhibited during the interview. The data visualization below illustrates the
                   prevalence of each characteristic, with the radial distance from center
@@ -752,7 +761,7 @@ export default function InterviewReportPage(props: {
                     data={aggregateProsodyData(report?.data.transcript ?? "[]")}
                   />
                 </div>
-                <div className="mt-8 text-xs text-gray-600 italic border-t border-gray-200 pt-4">
+                <div className="mt-8 text-xs text-slate-600 italic border-t border-slate-200 pt-4">
                   <p>
                     <span className="font-semibold">Methodology note:</span> Values represent
                     percentage of responses where each characteristic was detected at significant
@@ -766,10 +775,10 @@ export default function InterviewReportPage(props: {
 
           {/* Interview Transcript - Redesigned for better readability */}
           {includeTranscript && (
-            <section className="mb-16 bg-gray-50 py-8 border-y border-gray-200">
+            <section className="mb-16 bg-slate-50 py-8 border-y border-slate-200">
               <h2
                 className={cn(
-                  "text-base font-semibold text-gray-800 uppercase tracking-widest border-b border-gray-300 pb-2 mb-6 mx-8 w-auto",
+                  "text-base font-semibold text-blue-800 uppercase tracking-widest border-b border-slate-300 pb-2 mb-6 mx-8 w-auto",
                   headingFont
                 )}
               >
@@ -795,28 +804,28 @@ export default function InterviewReportPage(props: {
                         className={cn(
                           "p-4 border-l-2",
                           persona === "Interviewer"
-                            ? "border-gray-400 ml-4 bg-white"
-                            : "border-gray-600 mr-4"
+                            ? "border-blue-400 ml-4 bg-white"
+                            : "border-blue-600 mr-4"
                         )}
                       >
                         <div className="mb-2">
                           <span
                             className={cn(
                               "font-medium text-xs uppercase tracking-wider",
-                              persona === "Interviewer" ? "text-gray-600" : "text-gray-700"
+                              persona === "Interviewer" ? "text-blue-600" : "text-blue-800"
                             )}
                           >
                             {persona}
                           </span>
                         </div>
-                        <p className="text-gray-700 leading-relaxed mb-2">
+                        <p className="text-slate-700 leading-relaxed mb-2">
                           {message.content?.split("{")?.[0] ?? ""}
                         </p>
                         {persona === "Candidate" &&
                         message.prosody &&
                         Object.keys(message.prosody).length > 0 ? (
-                          <div className="mt-2 pt-2 border-t border-gray-200">
-                            <p className="text-xs uppercase tracking-wider text-gray-600 mb-2">
+                          <div className="mt-2 pt-2 border-t border-slate-200">
+                            <p className="text-xs uppercase tracking-wider text-slate-600 mb-2">
                               Vocal characteristics
                             </p>
                             <Expressions values={message.prosody} withScores={false} />
@@ -831,7 +840,7 @@ export default function InterviewReportPage(props: {
           )}
 
           {/* Footer - Redesigned to be minimalist */}
-          <footer className="text-gray-500 text-xs mt-16 pt-4 border-t border-gray-200">
+          <footer className="text-slate-500 text-xs mt-16 pt-4 border-t border-slate-200">
             <div className="flex justify-between items-center">
               <div className="text-left text-xs uppercase tracking-wider">
                 Confidential Document
@@ -847,6 +856,7 @@ export default function InterviewReportPage(props: {
                   • Ref: IO-{idHandler.encode(report?.sys.id ?? 0)}
                 </p>
               </div>
+              <div className="text-right text-xs uppercase tracking-wider">Page 1</div>
             </div>
           </footer>
         </PagePreview>
