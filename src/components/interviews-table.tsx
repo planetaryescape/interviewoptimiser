@@ -28,14 +28,19 @@ import { cn } from "@/lib/utils";
 import { idHandler } from "@/lib/utils/idHandler";
 import { Loader2, MoreVertical } from "lucide-react";
 import Link from "next/link";
-import type { Interview } from "~/db/schema";
+import type { InferResultType } from "~/db/helpers";
+
+type InterviewWithCandidateDetailsAndJobDescription = InferResultType<
+  "interviews",
+  {
+    candidateDetails: true;
+    jobDescription: true;
+    report: true;
+  }
+>;
 
 interface InterviewsTableProps {
-  interviews: Array<
-    Interview & {
-      id?: number;
-    }
-  >;
+  interviews: Array<InterviewWithCandidateDetailsAndJobDescription>;
   onDelete?: (id: number) => void;
   deletingId: number | null;
 }
@@ -62,9 +67,13 @@ export const InterviewsTable = ({ interviews, onDelete, deletingId }: Interviews
             >
               <TableCell>
                 <div>
-                  <div className="font-medium">{interview.role || "Role Not Specified"}</div>
+                  <div className="font-medium">
+                    {interview.jobDescription?.role || interview.role || "Role Not Specified"}
+                  </div>
                   <div className="text-sm text-muted-foreground">
-                    {interview.company || "Company Not Specified"}
+                    {interview.jobDescription?.company ||
+                      interview.company ||
+                      "Company Not Specified"}
                   </div>
                 </div>
               </TableCell>

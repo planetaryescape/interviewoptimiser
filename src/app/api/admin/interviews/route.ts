@@ -38,6 +38,8 @@ export async function GET(request: NextRequest) {
       orderBy: desc(interviews.createdAt),
       with: {
         report: true,
+        candidateDetails: true,
+        jobDescription: true,
       },
     });
 
