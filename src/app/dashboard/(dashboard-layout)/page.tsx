@@ -24,11 +24,21 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import type { InferResultType } from "~/db/helpers";
 import type { Customisation, Interview, User } from "~/db/schema";
+
+type InterviewWithCandidateDetailsAndJobDescription = InferResultType<
+  "interviews",
+  {
+    candidateDetails: true;
+    jobDescription: true;
+    report: true;
+  }
+>;
 
 async function fetchInterviews() {
   const repository = await getRepository<
-    Interview & {
+    InterviewWithCandidateDetailsAndJobDescription & {
       id?: number;
       user?: User & { customization?: Customisation };
     }

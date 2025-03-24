@@ -25,19 +25,26 @@ import { idHandler } from "@/lib/utils/idHandler";
 import { Building2, Calendar, Loader2, MoreVertical, User2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import type { Interview, Report } from "~/db/schema";
+import type { InferResultType } from "~/db/helpers";
 import { Skeleton } from "./ui/skeleton";
 
+type InterviewWithCandidateDetailsAndJobDescription = InferResultType<
+  "interviews",
+  {
+    candidateDetails: true;
+    jobDescription: true;
+    report: true;
+  }
+>;
+
 interface InterviewCardProps {
-  interview: Interview & {
-    id?: number;
-    report?: Report;
-  };
+  interview: InterviewWithCandidateDetailsAndJobDescription;
   onDelete?: (id: number) => void;
   deletingId: number | null;
 }
 
 export const InterviewCard = ({ interview, onDelete, deletingId }: InterviewCardProps) => {
+  console.log("interview:", interview);
   const [open, setOpen] = useState(false);
   const hasReport = Boolean(interview.report);
 
@@ -60,11 +67,13 @@ export const InterviewCard = ({ interview, onDelete, deletingId }: InterviewCard
         ) : (
           <CardTitle className="space-y-1">
             <h3 className="text-xl font-semibold tracking-tight">
-              {interview.role || "Role Not Specified"}
+              {interview.jobDescription?.role || interview.role || "Role Not Specified"}
             </h3>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Building2 className="h-4 w-4" />
-              <span>{interview.company || "Company Not Specified"}</span>
+              <span>
+                {interview.jobDescription?.company || interview.company || "Company Not Specified"}
+              </span>
             </div>
           </CardTitle>
         )}
@@ -80,7 +89,11 @@ export const InterviewCard = ({ interview, onDelete, deletingId }: InterviewCard
           <CardDescription className="space-y-4">
             <div className="flex items-center gap-2 text-sm">
               <User2 className="h-4 w-4 text-muted-foreground" />
-              <span>{interview.candidate || "Candidate Name Not Available"}</span>
+              <span>
+                {interview.candidateDetails?.name ||
+                  interview.candidate ||
+                  "Candidate Name Not Available"}
+              </span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="h-4 w-4 text-muted-foreground" />

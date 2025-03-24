@@ -1,14 +1,19 @@
 import { BackgroundGradient as AnotherBackgroundGradient } from "@/components/background-gradient";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { Interview } from "~/db/schema";
+import type { InferResultType } from "~/db/helpers";
 import { InterviewCard } from "./interview-card";
 
+type InterviewWithCandidateDetailsAndJobDescription = InferResultType<
+  "interviews",
+  {
+    candidateDetails: true;
+    jobDescription: true;
+    report: true;
+  }
+>;
+
 interface InterviewsGridProps {
-  interviews: Array<
-    Interview & {
-      id?: number;
-    }
-  >;
+  interviews: Array<InterviewWithCandidateDetailsAndJobDescription>;
   onDelete?: (id: number) => void;
   deletingId: number | null;
 }

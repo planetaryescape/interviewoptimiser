@@ -2,10 +2,11 @@ import { getUserFromClerkId } from "@/lib/auth";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
+import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "~/db";
-import { candidateDetails, jobDescriptions } from "~/db/schema";
+import { candidateDetails, interviews, jobDescriptions } from "~/db/schema";
 import { extractCandidateDetails } from "~/lib/ai/extract-candidate-details";
 import { extractJobDescription } from "~/lib/ai/extract-job-description";
 import { extractKeyQuestions } from "~/lib/ai/extract-key-questions";
@@ -86,6 +87,15 @@ export async function POST(request: NextRequest) {
           interviewId,
         })
         .returning();
+
+      await tx
+        .update(interviews)
+        .set({
+          candidate: candidateDetailsRecord.name,
+          company: jobDescriptionRecord.company,
+          role: jobDescriptionRecord.role,
+        })
+        .where(eq(interviews.id, interviewId));
 
       return [candidateDetailsRecord, jobDescriptionRecord];
     });
