@@ -429,10 +429,10 @@ export default function InterviewReportPage(props: {
               <div className="flex items-center">
                 <div className="flex items-center mr-4 border-r border-slate-200 pr-4">
                   <Image
-                    src="https://interviewoptimiser.com/logo.png"
+                    src="/logo.png"
                     alt={`${config.projectName} Logo`}
-                    width={40}
-                    height={40}
+                    width={56}
+                    height={56}
                     className="opacity-80"
                   />
                 </div>
