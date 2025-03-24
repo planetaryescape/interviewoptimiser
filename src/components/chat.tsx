@@ -119,17 +119,17 @@ export default function ClientComponent({
         sessionSettings={{
           type: "session_settings",
           systemPrompt: createInterviewInstructions({
-            cvText: interview?.data.submittedCVText ?? "",
+            cvText: interview?.data?.submittedCVText ?? "",
             structuredCandidateDetails: interview?.data
-              .candidateDetails as unknown as CandidateDetails,
-            structuredJobDescription: interview?.data.jobDescription as unknown as z.infer<
+              ?.candidateDetails as unknown as CandidateDetails,
+            structuredJobDescription: interview?.data?.jobDescription as unknown as z.infer<
               typeof StructuredJobDescriptionWithKeyQuestionsSchema
             >,
-            duration: interview?.data.duration ?? 15,
-            interviewType: interview?.data.type ?? "behavioral",
+            duration: interview?.data?.duration ?? 15,
+            interviewType: interview?.data?.type ?? "behavioral",
           }),
           context: {
-            text: `You are an AI interviewer called Interview Optimiser. You are conducting a mock interview with ${interview?.data.candidateDetails.name} to help them prepare for a ${interview?.data.jobDescription.role} job at ${interview?.data.jobDescription.company}. Your goal is to ask relevant, insightful questions based on the candidate data and job role information, focusing on ${interview?.data.type} questions.
+            text: `You are an AI interviewer called Interview Optimiser. You are conducting a mock interview with ${interview?.data?.candidateDetails.name} to help them prepare for a ${interview?.data?.jobDescription.role} job at ${interview?.data?.jobDescription.company}. Your goal is to ask relevant, insightful questions based on the candidate data and job role information, focusing on ${interview?.data?.type} questions.
 
             Do not interrupt the candidate; always let them finish their thoughts. If the candidate's response seems incomplete, use affirming interjections like "uh-huh" to encourage them to continue. Use positive reinforcement and adjust the difficulty of questions based on the candidate's performance, allowing them to expand and providing feedback when necessary.`,
             type: "persistent",
@@ -153,7 +153,7 @@ export default function ClientComponent({
         }}
       >
         <TimerHume
-          totalTime={(interview?.data.duration ?? 15) * 60}
+          totalTime={(interview?.data?.duration ?? 15) * 60}
           setInterviewEnded={setInterviewEnded}
         />
         {interviewStarted ? (
