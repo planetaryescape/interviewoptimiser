@@ -91,6 +91,7 @@ export default function CreateInterview() {
           cvText: interview.submittedCVText,
           jobDescriptionText: interview.jobDescriptionText,
           interviewId: createdInterview.sys.id,
+          interviewType: interview.type,
         }),
       });
 

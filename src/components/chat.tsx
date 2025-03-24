@@ -5,7 +5,10 @@ import {
   useActiveInterviewActions,
   useActiveInterviewEnded,
 } from "@/stores/useActiveInterviewStore";
-import { createInterviewInstructions } from "@/utils/conversation_config";
+import {
+  type StructuredJobDescriptionWithKeyQuestionsSchema,
+  createInterviewInstructions,
+} from "@/utils/conversation_config";
 import { VoiceProvider } from "@humeai/voice-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
@@ -15,7 +18,6 @@ import { toast } from "sonner";
 import type { z } from "zod";
 import type { InferResultType } from "~/db/helpers";
 import type { CandidateDetails } from "~/lib/ai/extract-candidate-details";
-import type { StructuredJobDescriptionSchema } from "~/lib/ai/extract-job-description";
 import { Controls } from "./controls";
 import { GeneratingReportTakeover } from "./generating-report-takeover";
 import { Messages } from "./messages";
@@ -121,7 +123,7 @@ export default function ClientComponent({
             structuredCandidateDetails: interview?.data
               .candidateDetails as unknown as CandidateDetails,
             structuredJobDescription: interview?.data.jobDescription as unknown as z.infer<
-              typeof StructuredJobDescriptionSchema
+              typeof StructuredJobDescriptionWithKeyQuestionsSchema
             >,
             duration: interview?.data.duration ?? 15,
             interviewType: interview?.data.type ?? "behavioral",
