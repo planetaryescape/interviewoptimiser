@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useActiveInterviewEnded } from "@/stores/useActiveInterviewStore";
 import { useVoice } from "@humeai/voice-react";
 import { motion } from "framer-motion";
-import { ChevronRight, Home, MessageCircle, Mic, Sparkles, Target } from "lucide-react";
-import Link from "next/link";
+import { MessageCircle, Mic, Sparkles, Target } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 
@@ -55,27 +54,6 @@ export default function InterviewPlaceholder({
 
   return (
     <div className="h-full flex flex-col">
-      {/* Breadcrumbs */}
-      <div className="px-4 py-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center text-sm text-muted-foreground">
-          <Link
-            href="/dashboard"
-            className="flex items-center hover:text-foreground transition-colors"
-          >
-            <Home className="h-4 w-4" />
-          </Link>
-          <ChevronRight className="h-4 w-4 mx-2" />
-          <Link
-            href={`/dashboard/interviews/${interviewId}/reports`}
-            className="hover:text-foreground transition-colors"
-          >
-            Reports
-          </Link>
-          <ChevronRight className="h-4 w-4 mx-2" />
-          <span className="text-foreground">Interview</span>
-        </div>
-      </div>
-
       {/* Main Content - Using grid for perfect centering and spacing */}
       <div className="flex-1 grid place-items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background">
         {/* Animated Background Elements */}
