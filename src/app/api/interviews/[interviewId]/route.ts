@@ -50,6 +50,7 @@ export async function GET(
     }
 
     logger.info({ id: userInterview.id }, "Successfully retrieved interview with report");
+    // return NextResponse.json(userInterview);
     return NextResponse.json(formatEntity(userInterview, "interview"));
   } catch (error) {
     Sentry.withScope((scope) => {
