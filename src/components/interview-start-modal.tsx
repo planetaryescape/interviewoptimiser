@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 import { MessageSquare, Mic, Pause, Volume2 } from "lucide-react";
 import Link from "next/link";
@@ -39,13 +39,16 @@ export function InterviewStartModal({ isOpen, onClose, onStart }: InterviewStart
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl">
+        <DialogTitle>Before you begin your interview</DialogTitle>
+        <DialogDescription>
+          Please review these guidelines to ensure the best interview experience.
+        </DialogDescription>
+
         <div className="relative overflow-hidden rounded-lg p-6">
           {/* Animated background gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-background animate-gradient" />
 
           <div className="relative z-10">
-            <h2 className="text-2xl font-bold text-center mb-6">Before you begin your interview</h2>
-
             <div className="grid sm:grid-cols-2 gap-4 mb-8">
               {guidelines.map((item, index) => (
                 <motion.div
@@ -72,7 +75,7 @@ export function InterviewStartModal({ isOpen, onClose, onStart }: InterviewStart
               <Link href="/privacy-policy" className="text-primary hover:underline">
                 Privacy Policy
               </Link>
-              .div
+              .
             </div>
 
             <div className="flex justify-end space-x-3">

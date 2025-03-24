@@ -2,6 +2,7 @@
 
 import { InterviewStartModal } from "@/components/interview-start-modal";
 import { Button } from "@/components/ui/button";
+import { useInterview } from "@/hooks/useInterview";
 import { useActiveInterviewEnded } from "@/stores/useActiveInterviewStore";
 import { useVoice } from "@humeai/voice-react";
 import { motion } from "framer-motion";
@@ -16,9 +17,10 @@ export default function InterviewPlaceholder({
 }) {
   const [showModal, setShowModal] = useState(false);
   const params = useParams();
-  const interviewId = params.interviewId;
+  const interviewId = params.interviewId as string;
   const { connect, status } = useVoice();
   const interviewEnded = useActiveInterviewEnded();
+  const { data: interview, isLoading, error } = useInterview(interviewId);
 
   const features = [
     {
@@ -51,6 +53,22 @@ export default function InterviewPlaceholder({
       }
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading interview details...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-destructive">Failed to load interview details</div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col">
@@ -93,11 +111,35 @@ export default function InterviewPlaceholder({
             className="text-center space-y-4"
           >
             <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-              Ready for Your Interview
+              {interview?.candidateDetails?.name
+                ? `Hello ${interview.candidateDetails.name}!`
+                : "Welcome!"}
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Experience a realistic interview simulation powered by advanced AI
-            </p>
+            <div className="text-xl text-muted-foreground max-w-2xl mx-auto space-y-2">
+              <p>
+                You&apos;re about to start a
+                {interview?.duration ? ` ${interview.duration} minute` : ""}{" "}
+                {interview?.type ? interview.type.replace("_", " ") : "practice"} interview
+                {interview?.jobDescription?.role || interview?.jobDescription?.company ? (
+                  <>
+                    {" "}
+                    for
+                    {interview?.jobDescription?.role
+                      ? ` the role of ${interview.jobDescription.role}`
+                      : ""}
+                    {interview?.jobDescription?.company
+                      ? ` at ${interview.jobDescription.company}`
+                      : ""}
+                  </>
+                ) : null}
+                .
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {interview?.jobDescription?.role
+                  ? "We'll be focusing on questions related to your experience and skills that match the role requirements."
+                  : "We'll be focusing on questions to help you improve your interview skills."}
+              </p>
+            </div>
           </motion.div>
 
           {/* Features Grid */}

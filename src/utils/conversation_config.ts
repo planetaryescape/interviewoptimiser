@@ -151,13 +151,26 @@ ${JSON.stringify(structuredCandidateDetails, null, 2)}
 ${JSON.stringify(structuredJobDescription, null, 2)}
 </structured_job_description>
 
-<key_questions>
+${
+  structuredJobDescription.keyQuestions?.length
+    ? `<key_questions>
 These are the 5 key questions that MUST be asked during the interview. They have been specifically generated for this role and are crucial for assessing the candidate's suitability:
 
 ${structuredJobDescription.keyQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n")}
 
 Make sure to ask ALL of these questions during the interview. These questions are essential for gathering the information needed to write an effective evaluation report. Space them out naturally throughout the interview, and ask appropriate follow-up questions based on the candidate's responses.
-</key_questions>
+</key_questions>`
+    : `<example_questions>
+Here are some example questions typically asked in a ${interviewType} interview. Feel free to adapt these or ask other relevant questions based on the candidate's responses:
+
+${interviewTypes
+  .find((type) => type.type === interviewType)
+  ?.exampleQuestions.map((q, i) => `${i + 1}. ${q}`)
+  .join("\n")}
+
+These questions are examples to guide the interview. Feel free to modify them or ask other relevant questions based on the conversation flow and the candidate's responses.
+</example_questions>`
+}
       `;
     }
   }
