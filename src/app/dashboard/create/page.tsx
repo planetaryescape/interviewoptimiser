@@ -177,20 +177,6 @@ export default function CreateInterview() {
     }
   };
 
-  const title =
-    step === 1
-      ? "Let's start with your CV"
-      : step === 2
-        ? "Now, tell us about the job"
-        : "Final details";
-
-  const subtitle =
-    step === 1
-      ? "We'll use your CV to understand your experience and tailor the interview questions."
-      : step === 2
-        ? "Share the job description to help us create relevant interview questions."
-        : "Help us customize your interview experience.";
-
   return (
     <div className="relative flex flex-col h-full overflow-y-auto pb-[env(safe-area-inset-bottom)]">
       <div className="sticky top-0 z-50 bg-background border-b">
