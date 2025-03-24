@@ -33,8 +33,8 @@ export function Step3AdditionalInfo() {
   const { setDuration } = useCreateInterviewActions();
 
   const selectedInterviewType =
-    interviewTypes.find((type) => type.type.toLowerCase().replace(/\s+/g, "_") === interviewType) ||
-    interviewTypes.find((type) => type.type.toLowerCase().replace(/\s+/g, "_") === "behavioral");
+    interviewTypes.find((type) => type.type === interviewType) ||
+    interviewTypes.find((type) => type.type === "behavioral");
 
   return (
     <div className="space-y-6 bg-card rounded-xl border shadow-md overflow-hidden">
@@ -79,11 +79,11 @@ export function Step3AdditionalInfo() {
                 </SelectTrigger>
                 <SelectContent>
                   {interviewTypes.map((type) => (
-                    <SelectItem
-                      key={type.type}
-                      value={type.type.toLowerCase().replace(/\s+/g, "_")}
-                    >
-                      {type.type}
+                    <SelectItem key={type.type} value={type.type}>
+                      {type.type
+                        .split("_")
+                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(" ")}
                     </SelectItem>
                   ))}
                 </SelectContent>
