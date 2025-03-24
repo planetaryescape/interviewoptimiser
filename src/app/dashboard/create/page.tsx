@@ -167,7 +167,6 @@ export default function CreateInterview() {
 
       await createInterviewMutation.mutateAsync(interview);
     } catch (error) {
-      console.log("error:", error);
       Sentry.withScope((scope) => {
         scope.setExtra("context", "handleConfirmSubmit");
         scope.setExtra("error", error);
