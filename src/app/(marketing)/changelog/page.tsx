@@ -50,60 +50,88 @@ export default function ChangelogPage() {
 
   if (isLoading || !isLoaded) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <ParticleSwarmLoader />
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <ParticleSwarmLoader className="h-16 w-16" />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-foreground">Changelog</h1>
-      <div className="relative">
-        {/* Timeline */}
-        <div className="absolute h-full top-0 bottom-0 left-4 md:left-1/2 w-0.5 bg-gray-200 dark:bg-gray-700" />
+    <div className="container mx-auto px-4 py-16 max-w-4xl">
+      <header className="mb-16 text-center">
+        <h1 className="text-4xl font-bold mb-4 tracking-tight text-foreground">Changelog</h1>
+        <p className="text-gray-600 dark:text-gray-400 max-w-lg mx-auto">
+          Track our product updates and improvements as we build a better experience for you.
+        </p>
+      </header>
 
-        {/* Changelog items */}
-        {changelogs?.data.map((changelog, index) => (
-          <div
+      <div className="space-y-12">
+        {changelogs?.data.map((changelog) => (
+          <article
             key={changelog.sys.id}
-            className={`flex items-center mb-8 ${index % 2 === 0 && "md:flex-row-reverse"}`}
+            className="relative pl-8 sm:pl-12 border-l-2 border-gray-200 dark:border-gray-800"
           >
-            <div className="w-full md:w-1/2 pl-8 md:px-4">
-              <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
-                <p className="text-gray-600 dark:text-gray-400 mb-2">
-                  {new Date(changelog.data.date).toLocaleDateString()}
-                </p>
-                <h3 className="text-xl font-semibold mb-2 text-foreground">
-                  {changelog.data.title}
-                </h3>
-                <Suspense fallback={null}>
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={remarkMarkdownComponents}
-                    className="text-gray-800 dark:text-gray-200"
-                  >
+            {/* Date marker */}
+            <div className="absolute left-0 flex items-center justify-center -translate-x-1/2 rounded-full w-10 h-10 border border-gray-200 dark:border-gray-800 bg-background shadow-sm">
+              <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                {new Date(changelog.data.date).toLocaleDateString(undefined, { month: "short" })}
+              </span>
+            </div>
+
+            <div className="group relative">
+              {/* Date */}
+              <time className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 block tracking-wide">
+                {new Date(changelog.data.date).toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </time>
+
+              {/* Title */}
+              <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-foreground tracking-tight">
+                {changelog.data.title}
+              </h2>
+
+              {/* Content */}
+              <div className="prose prose-gray dark:prose-invert prose-sm sm:prose-base max-w-none">
+                <Suspense
+                  fallback={
+                    <div className="h-6 bg-gray-100 dark:bg-gray-800 animate-pulse rounded w-2/3 my-4" />
+                  }
+                >
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={remarkMarkdownComponents}>
                     {changelog.data.content}
                   </ReactMarkdown>
                 </Suspense>
-                <div className="flex items-center justify-between mt-2">
-                  <p className="text-gray-500 dark:text-gray-400">Likes: {changelog.data.likes}</p>
-                  {user && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => likeMutation.mutate(changelog.sys.id ?? 0)}
-                      disabled={likeMutation.isPending}
-                    >
-                      <ThumbsUp className="mr-2 h-4 w-4" />
-                      Like
-                    </Button>
-                  )}
-                </div>
+              </div>
+
+              {/* Likes */}
+              <div className="flex items-center mt-6 pt-4 border-t border-gray-100 dark:border-gray-800">
+                <span
+                  aria-label={`${changelog.data.likes} likes`}
+                  className="flex items-center text-sm font-medium text-gray-600 dark:text-gray-400"
+                >
+                  <ThumbsUp className="h-4 w-4 mr-1 opacity-70" />
+                  {changelog.data.likes}
+                </span>
+
+                {user && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ml-4 text-gray-600 dark:text-gray-400 hover:text-primary"
+                    onClick={() => likeMutation.mutate(changelog.sys.id ?? 0)}
+                    disabled={likeMutation.isPending}
+                    aria-label="Like this update"
+                  >
+                    <ThumbsUp className="mr-2 h-4 w-4" />
+                    Like
+                  </Button>
+                )}
               </div>
             </div>
-            <div className="w-4 h-4 bg-blue-500 rounded-full absolute left-4 md:left-1/2 transform -translate-x-1/2" />
-          </div>
+          </article>
         ))}
       </div>
     </div>
