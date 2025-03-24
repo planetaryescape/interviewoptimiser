@@ -32,6 +32,32 @@ export default function PrivacyPolicy() {
           personalization and essential communication with you. We never sell your data.
         </p>
         <p>
+          <b>Interview Data:</b> During the interview process, we collect and process:
+        </p>
+        <ul>
+          <li>Audio recordings of your interview sessions</li>
+          <li>Transcriptions of the interview conversations</li>
+          <li>Interview responses and assessment results</li>
+        </ul>
+        <p>
+          <b>CV Data:</b> We collect and process the CV content you provide to:
+        </p>
+        <ul>
+          <li>Tailor interview questions to your unique professional profile</li>
+          <li>Generate personalized interview reports and feedback</li>
+          <li>Optimize the interview experience based on your background</li>
+        </ul>
+        <p>
+          <b>Usage Data:</b> We collect information about how you interact with our platform,
+          including:
+        </p>
+        <ul>
+          <li>Browser types and versions</li>
+          <li>Access times and duration</li>
+          <li>Pages viewed and navigation patterns</li>
+          <li>Technical information about your device and internet connection</li>
+        </ul>
+        <p>
           <b>Voluntary Correspondence:</b> We retain questions or assistance requests, including
           your email, for future reference.
         </p>
@@ -39,23 +65,48 @@ export default function PrivacyPolicy() {
           <b>Marketing Communications:</b> Your email is processed for direct marketing and support.
           You can unsubscribe anytime, and we promptly delete your information upon request.
         </p>
-        <h2>Data Collection</h2>
+        <h2>How We Use Your Information</h2>
+        <p>We use the collected information for the following purposes:</p>
+        <ul>
+          <li>
+            <b>Interview Processing:</b> To conduct, analyze, and provide feedback on your interview
+            sessions
+          </li>
+          <li>
+            <b>Platform Improvement:</b> To enhance our interview algorithms and user experience
+          </li>
+          <li>
+            <b>System Analytics:</b> To monitor and optimize platform performance and functionality
+          </li>
+          <li>
+            <b>Technical Support:</b> To assist with any technical issues or queries
+          </li>
+          <li>
+            <b>Service Enhancement:</b> To improve our interview questions and assessment accuracy
+          </li>
+        </ul>
+        <h2>Data Sharing</h2>
         <p>
-          {config.projectName} collects personal data in the form of uploaded CV content. This data
-          is provided voluntarily by the user to optimize CV content. No additional personal data is
-          collected without user consent.
+          We do not share your personal information, interview recordings, transcriptions, or CV
+          data with external parties. Your data is used solely for providing and improving our
+          services. We may share anonymized, aggregated data for analytics purposes, but this will
+          never include personally identifiable information.
         </p>
-        <h2>Data Usage</h2>
+        <h2>Data Security</h2>
         <p>
-          The CV data you provide is used solely for the purpose of optimizing your CV. We do not
-          use your data for any other purposes unless you provide explicit consent for such use.
+          We are committed to maintaining the security and confidentiality of your data.{" "}
+          {config.projectName} employs industry-standard security measures, including encryption and
+          restricted access, to protect your information. However, while we strive to protect your
+          data, no transmission or storage system is completely secure. We advise users to take
+          steps to safeguard their own information when using online services.
         </p>
         <h2>Data Retention and Deletion</h2>
         <p>
-          Your CV data is stored securely and retained for as long as you maintain your account or
-          until you choose to delete it. You may delete any uploaded CV or your entire account at
-          any time. Deleting your account will permanently remove all personal data associated with
-          it from our systems.
+          Your interview recordings, transcriptions, CV data, and other personal information are
+          stored securely and retained for as long as you maintain your account or until you choose
+          to delete it. You may delete any uploaded CV, interview recordings, or your entire account
+          at any time. Deleting your account will permanently remove all personal data associated
+          with it from our systems.
         </p>
         <h2>User Rights</h2>
         <p>
