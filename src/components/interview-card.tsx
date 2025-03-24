@@ -44,7 +44,6 @@ interface InterviewCardProps {
 }
 
 export const InterviewCard = ({ interview, onDelete, deletingId }: InterviewCardProps) => {
-  console.log("interview:", interview);
   const [open, setOpen] = useState(false);
   const hasReport = Boolean(interview.report);
 

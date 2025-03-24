@@ -36,7 +36,6 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url);
 
     const organizationId = Number.parseInt(url.searchParams.get("organizationId") ?? "");
-    console.log("organizationId:", organizationId);
 
     const userInvitations = await db
       .select()

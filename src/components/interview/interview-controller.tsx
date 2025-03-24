@@ -138,7 +138,6 @@ export function InterviewController() {
       });
     },
     onError: (error) => {
-      console.log("error:", error);
       Sentry.withScope((scope) => {
         scope.setContext("params", params);
         scope.setExtra("error", error);
@@ -238,8 +237,6 @@ export function InterviewController() {
 
         // Decrement minutes used
         decrementMutation.mutate();
-
-        console.log("messages:", messages);
 
         partialTranscriptMutation.mutate({
           actualTime: Math.floor(currentTime / 60),
