@@ -5,19 +5,14 @@ import {
   useActiveInterviewActions,
   useActiveInterviewEnded,
 } from "@/stores/useActiveInterviewStore";
-import {
-  type StructuredJobDescriptionWithKeyQuestionsSchema,
-  createInterviewInstructions,
-} from "@/utils/conversation_config";
+import { createInterviewInstructions } from "@/utils/conversation_config";
 import { VoiceProvider } from "@humeai/voice-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import { type ComponentRef, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import type { z } from "zod";
 import type { InferResultType } from "~/db/helpers";
-import type { CandidateDetails } from "~/lib/ai/extract-candidate-details";
 import { Controls } from "./controls";
 import { GeneratingReportTakeover } from "./generating-report-takeover";
 import { Messages } from "./messages";
@@ -120,11 +115,38 @@ export default function ClientComponent({
           type: "session_settings",
           systemPrompt: createInterviewInstructions({
             cvText: interview?.data?.submittedCVText ?? "",
-            structuredCandidateDetails: interview?.data
-              ?.candidateDetails as unknown as CandidateDetails,
-            structuredJobDescription: interview?.data?.jobDescription as unknown as z.infer<
-              typeof StructuredJobDescriptionWithKeyQuestionsSchema
-            >,
+            structuredCandidateDetails: {
+              ...interview?.data?.candidateDetails,
+              location: interview?.data?.candidateDetails?.location ?? "",
+              name: interview?.data?.candidateDetails?.name ?? "",
+              email: interview?.data?.candidateDetails?.email ?? "",
+              phone: interview?.data?.candidateDetails?.phone ?? "",
+              currentRole: interview?.data?.candidateDetails?.currentRole ?? "",
+              professionalSummary: interview?.data?.candidateDetails?.professionalSummary ?? "",
+              linkedinUrl: interview?.data?.candidateDetails?.linkedinUrl ?? "",
+              portfolioUrl: interview?.data?.candidateDetails?.portfolioUrl ?? "",
+              otherUrls: interview?.data?.candidateDetails?.otherUrls ?? [],
+            },
+            structuredJobDescription: {
+              ...interview?.data?.jobDescription,
+              role: interview?.data?.jobDescription?.role ?? "",
+              seniority: interview?.data?.jobDescription?.seniority ?? "",
+              company: interview?.data?.jobDescription?.company ?? "",
+              employmentType: interview?.data?.jobDescription?.employmentType ?? "",
+              location: interview?.data?.jobDescription?.location ?? "",
+              industry: interview?.data?.jobDescription?.industry ?? "",
+              requiredQualifications: interview?.data?.jobDescription?.requiredQualifications ?? [],
+              requiredExperience: interview?.data?.jobDescription?.requiredExperience ?? [],
+              requiredSkills: interview?.data?.jobDescription?.requiredSkills ?? [],
+              preferredQualifications:
+                interview?.data?.jobDescription?.preferredQualifications ?? [],
+              preferredSkills: interview?.data?.jobDescription?.preferredSkills ?? [],
+              responsibilities: interview?.data?.jobDescription?.responsibilities ?? [],
+              benefits: interview?.data?.jobDescription?.benefits ?? [],
+              keyTechnologies: interview?.data?.jobDescription?.keyTechnologies ?? [],
+              keywords: interview?.data?.jobDescription?.keywords ?? [],
+              keyQuestions: interview?.data?.jobDescription?.keyQuestions ?? [],
+            },
             duration: interview?.data?.duration ?? 15,
             interviewType: interview?.data?.type ?? "behavioral",
           }),
