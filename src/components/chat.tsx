@@ -1,6 +1,5 @@
 "use client";
 
-import type { Entity } from "@/lib/utils/formatEntity";
 import {
   useActiveInterviewActions,
   useActiveInterviewEnded,
@@ -10,7 +9,7 @@ import { VoiceProvider } from "@humeai/voice-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
-import { type ComponentRef, useEffect, useRef, useState } from "react";
+import { type ComponentRef, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { InferResultType } from "~/db/helpers";
 import { Controls } from "./controls";
@@ -40,7 +39,9 @@ export default function ClientComponent({
   const interviewEnded = useActiveInterviewEnded();
   const { setInterviewEnded } = useActiveInterviewActions();
 
-  const { data: interview } = useQuery<Entity<InterviewWithCandidateDetailsAndJobDescription>>({
+  const { data: interview } = useQuery<any>({
+    // | InterviewWithCandidateDetailsAndJobDescription
+    // | Entity<InterviewWithCandidateDetailsAndJobDescription>
     queryKey: ["interview", id],
     queryFn: async () => {
       const response = await fetch(`/api/interviews/${id}`);
@@ -106,6 +107,94 @@ export default function ClientComponent({
     }
   }, [interviewEnded, generateReportMutation]);
 
+  const systemPrompt = useMemo(() => {
+    return createInterviewInstructions({
+      cvText: interview?.data?.submittedCVText ?? "",
+      structuredCandidateDetails: {
+        ...interview?.data?.candidateDetails,
+        location:
+          interview?.data?.candidateDetails?.location ?? interview?.candidateDetails.location ?? "",
+        name: interview?.data?.candidateDetails?.name ?? interview?.candidateDetails.name ?? "",
+        email: interview?.data?.candidateDetails?.email ?? interview?.candidateDetails.email ?? "",
+        phone: interview?.data?.candidateDetails?.phone ?? interview?.candidateDetails.phone ?? "",
+        currentRole:
+          interview?.data?.candidateDetails?.currentRole ??
+          interview?.candidateDetails.currentRole ??
+          "",
+        professionalSummary:
+          interview?.data?.candidateDetails?.professionalSummary ??
+          interview?.candidateDetails.professionalSummary ??
+          "",
+        linkedinUrl:
+          interview?.data?.candidateDetails?.linkedinUrl ??
+          interview?.candidateDetails.linkedinUrl ??
+          "",
+        portfolioUrl:
+          interview?.data?.candidateDetails?.portfolioUrl ??
+          interview?.candidateDetails.portfolioUrl ??
+          "",
+        otherUrls:
+          interview?.data?.candidateDetails?.otherUrls ??
+          interview?.candidateDetails.otherUrls ??
+          [],
+      },
+      structuredJobDescription: {
+        ...interview?.data?.jobDescription,
+        role: interview?.data?.jobDescription?.role ?? interview?.jobDescription.role ?? "",
+        seniority:
+          interview?.data?.jobDescription?.seniority ?? interview?.jobDescription.seniority ?? "",
+        company:
+          interview?.data?.jobDescription?.company ?? interview?.jobDescription.company ?? "",
+        employmentType:
+          interview?.data?.jobDescription?.employmentType ??
+          interview?.jobDescription.employmentType ??
+          "",
+        location:
+          interview?.data?.jobDescription?.location ?? interview?.jobDescription.location ?? "",
+        industry:
+          interview?.data?.jobDescription?.industry ?? interview?.jobDescription.industry ?? "",
+        requiredQualifications:
+          interview?.data?.jobDescription?.requiredQualifications ??
+          interview?.jobDescription.requiredQualifications ??
+          [],
+        requiredExperience:
+          interview?.data?.jobDescription?.requiredExperience ??
+          interview?.jobDescription.requiredExperience ??
+          [],
+        requiredSkills:
+          interview?.data?.jobDescription?.requiredSkills ??
+          interview?.jobDescription.requiredSkills ??
+          [],
+        preferredQualifications:
+          interview?.data?.jobDescription?.preferredQualifications ??
+          interview?.jobDescription.preferredQualifications ??
+          [],
+        preferredSkills:
+          interview?.data?.jobDescription?.preferredSkills ??
+          interview?.jobDescription.preferredSkills ??
+          [],
+        responsibilities:
+          interview?.data?.jobDescription?.responsibilities ??
+          interview?.jobDescription.responsibilities ??
+          [],
+        benefits:
+          interview?.data?.jobDescription?.benefits ?? interview?.jobDescription.benefits ?? [],
+        keyTechnologies:
+          interview?.data?.jobDescription?.keyTechnologies ??
+          interview?.jobDescription.keyTechnologies ??
+          [],
+        keywords:
+          interview?.data?.jobDescription?.keywords ?? interview?.jobDescription.keywords ?? [],
+        keyQuestions:
+          interview?.data?.jobDescription?.keyQuestions ??
+          interview?.jobDescription.keyQuestions ??
+          [],
+      },
+      duration: interview?.data?.duration ?? interview?.duration ?? 15,
+      interviewType: interview?.data?.type ?? interview?.type ?? "behavioral",
+    });
+  }, [interview]);
+
   return (
     <div className={"relative grid grid-rows-[1fr_auto] mx-auto w-full overflow-auto h-full"}>
       <VoiceProvider
@@ -113,43 +202,7 @@ export default function ClientComponent({
         configId={configId}
         sessionSettings={{
           type: "session_settings",
-          systemPrompt: createInterviewInstructions({
-            cvText: interview?.data?.submittedCVText ?? "",
-            structuredCandidateDetails: {
-              ...interview?.data?.candidateDetails,
-              location: interview?.data?.candidateDetails?.location ?? "",
-              name: interview?.data?.candidateDetails?.name ?? "",
-              email: interview?.data?.candidateDetails?.email ?? "",
-              phone: interview?.data?.candidateDetails?.phone ?? "",
-              currentRole: interview?.data?.candidateDetails?.currentRole ?? "",
-              professionalSummary: interview?.data?.candidateDetails?.professionalSummary ?? "",
-              linkedinUrl: interview?.data?.candidateDetails?.linkedinUrl ?? "",
-              portfolioUrl: interview?.data?.candidateDetails?.portfolioUrl ?? "",
-              otherUrls: interview?.data?.candidateDetails?.otherUrls ?? [],
-            },
-            structuredJobDescription: {
-              ...interview?.data?.jobDescription,
-              role: interview?.data?.jobDescription?.role ?? "",
-              seniority: interview?.data?.jobDescription?.seniority ?? "",
-              company: interview?.data?.jobDescription?.company ?? "",
-              employmentType: interview?.data?.jobDescription?.employmentType ?? "",
-              location: interview?.data?.jobDescription?.location ?? "",
-              industry: interview?.data?.jobDescription?.industry ?? "",
-              requiredQualifications: interview?.data?.jobDescription?.requiredQualifications ?? [],
-              requiredExperience: interview?.data?.jobDescription?.requiredExperience ?? [],
-              requiredSkills: interview?.data?.jobDescription?.requiredSkills ?? [],
-              preferredQualifications:
-                interview?.data?.jobDescription?.preferredQualifications ?? [],
-              preferredSkills: interview?.data?.jobDescription?.preferredSkills ?? [],
-              responsibilities: interview?.data?.jobDescription?.responsibilities ?? [],
-              benefits: interview?.data?.jobDescription?.benefits ?? [],
-              keyTechnologies: interview?.data?.jobDescription?.keyTechnologies ?? [],
-              keywords: interview?.data?.jobDescription?.keywords ?? [],
-              keyQuestions: interview?.data?.jobDescription?.keyQuestions ?? [],
-            },
-            duration: interview?.data?.duration ?? 15,
-            interviewType: interview?.data?.type ?? "behavioral",
-          }),
+          systemPrompt,
           context: {
             text: `You are an AI interviewer called Interview Optimiser. You are conducting a mock interview with ${interview?.data?.candidateDetails.name} to help them prepare for a ${interview?.data?.jobDescription.role} job at ${interview?.data?.jobDescription.company}. Your goal is to ask relevant, insightful questions based on the candidate data and job role information, focusing on ${interview?.data?.type} questions.
 

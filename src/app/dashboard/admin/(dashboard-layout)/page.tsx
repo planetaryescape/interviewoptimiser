@@ -12,10 +12,25 @@ import { FileText, Grid, List } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import type { Interview } from "~/db/schema";
+import type { InferResultType } from "~/db/helpers";
+import type { Customisation, Interview, User } from "~/db/schema";
+
+type InterviewWithCandidateDetailsAndJobDescription = InferResultType<
+  "interviews",
+  {
+    candidateDetails: true;
+    jobDescription: true;
+    report: true;
+  }
+>;
 
 async function fetchInterviews() {
-  const repository = await getRepository<Interview>("admin/interviews", true);
+  const repository = await getRepository<
+    InterviewWithCandidateDetailsAndJobDescription & {
+      id?: number;
+      user?: User & { customization?: Customisation };
+    }
+  >("admin/interviews", true);
   return repository.getAll();
 }
 
@@ -29,7 +44,7 @@ export default function InterviewsSection() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["interviews-admin"],
+    queryKey: ["interviews"],
     queryFn: fetchInterviews,
     refetchInterval: 3000,
   });
