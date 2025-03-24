@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
-type InterviewType =
+export type InterviewType =
   | "behavioral"
   | "technical"
   | "case_study"

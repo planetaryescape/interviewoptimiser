@@ -8,6 +8,7 @@ import { db } from "~/db";
 import { candidateDetails, jobDescriptions } from "~/db/schema";
 import { extractCandidateDetails } from "~/lib/ai/extract-candidate-details";
 import { extractJobDescription } from "~/lib/ai/extract-job-description";
+import { extractKeyQuestions } from "~/lib/ai/extract-key-questions";
 import { logger } from "~/lib/logger";
 import { getOpenAiClient } from "~/lib/openai";
 
@@ -17,6 +18,7 @@ const extractRequestSchema = z.object({
   cvText: z.string(),
   jobDescriptionText: z.string(),
   interviewId: z.number(),
+  interviewType: z.string(),
 });
 
 export async function POST(request: NextRequest) {
@@ -39,7 +41,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { cvText, jobDescriptionText, interviewId } = extractRequestSchema.parse(body);
+    const { cvText, jobDescriptionText, interviewId, interviewType } =
+      extractRequestSchema.parse(body);
 
     const model = getOpenAiClient(email)("o3-mini");
 
@@ -57,6 +60,14 @@ export async function POST(request: NextRequest) {
       }),
     ]);
 
+    // Extract key questions based on the job description
+    const keyQuestionsResult = await extractKeyQuestions({
+      model,
+      jobDescriptionData: jobDescriptionResult.data,
+      userEmail: email,
+      interviewType,
+    });
+
     // Save both results in a transaction
     const [savedCandidateDetails, savedJobDescription] = await db.transaction(async (tx) => {
       const [candidateDetailsRecord] = await tx
@@ -71,6 +82,7 @@ export async function POST(request: NextRequest) {
         .insert(jobDescriptions)
         .values({
           ...jobDescriptionResult.data,
+          keyQuestions: keyQuestionsResult.data.keyQuestions,
           interviewId,
         })
         .returning();

@@ -25,6 +25,7 @@ export const jobDescriptions = pgTable(
     industry: p.text(),
     keyTechnologies: p.text().array(),
     keywords: p.text().array(),
+    keyQuestions: p.text().array(),
     createdAt: p.timestamp().defaultNow().notNull(),
     updatedAt: p.timestamp().defaultNow().notNull(),
   }),
