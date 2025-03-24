@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 import { MessageSquare, Mic, Pause, Volume2 } from "lucide-react";
+import Link from "next/link";
 
 type InterviewStartModalProps = {
   isOpen: boolean;
@@ -63,6 +64,15 @@ export function InterviewStartModal({ isOpen, onClose, onStart }: InterviewStart
                   </div>
                 </motion.div>
               ))}
+            </div>
+
+            <div className="text-sm text-muted-foreground text-center mb-6">
+              By starting the interview, you agree to the collection and processing of your data as
+              outlined in our{" "}
+              <Link href="/privacy-policy" className="text-primary hover:underline">
+                Privacy Policy
+              </Link>
+              .div
             </div>
 
             <div className="flex justify-end space-x-3">
