@@ -11,7 +11,7 @@ export interface InterviewType {
 
 export const interviewTypes: InterviewType[] = [
   {
-    type: "Behavioral Interview",
+    type: "behavioral",
     description:
       "A structured interview approach that evaluates past performance as a predictor of future success. Questions focus on specific situations from the candidate's experience, seeking detailed examples of how they handled challenges, demonstrated key competencies, and achieved measurable results. The STAR method (Situation, Task, Action, Result) is used to assess the depth and authenticity of responses.",
     exampleQuestions: [
@@ -23,7 +23,7 @@ export const interviewTypes: InterviewType[] = [
     ],
   },
   {
-    type: "Situational Interview",
+    type: "situational",
     description:
       "A forward-looking assessment method that presents candidates with realistic, role-specific scenarios to evaluate their decision-making process, problem-solving abilities, and alignment with organizational values. Questions are designed to reveal the candidate's analytical thinking, prioritization skills, and ability to balance multiple stakeholder needs while maintaining professional standards.",
     exampleQuestions: [
@@ -35,7 +35,7 @@ export const interviewTypes: InterviewType[] = [
     ],
   },
   {
-    type: "Technical Interview",
+    type: "technical",
     description:
       "A comprehensive evaluation of technical expertise, problem-solving methodology, and practical implementation skills. Goes beyond basic knowledge testing to assess system design capabilities, optimization strategies, best practices awareness, and the ability to make technical decisions considering business impact. Includes real-world scenarios, architecture discussions, and code quality evaluation.",
     exampleQuestions: [
@@ -47,7 +47,7 @@ export const interviewTypes: InterviewType[] = [
     ],
   },
   {
-    type: "Case Study Interview",
+    type: "case_study",
     description:
       "An in-depth analytical exercise that evaluates a candidate's ability to solve complex business problems through structured thinking, data analysis, and strategic recommendation development. Assesses the ability to identify key issues, analyze quantitative and qualitative data, develop actionable solutions, and communicate recommendations effectively to various stakeholders.",
     exampleQuestions: [
@@ -59,7 +59,7 @@ export const interviewTypes: InterviewType[] = [
     ],
   },
   {
-    type: "Competency-Based Interview",
+    type: "competency_based",
     description:
       "A systematic evaluation of specific skills, behaviors, and competencies critical for role success. Uses detailed exploration of past experiences to assess proficiency in key areas such as leadership, strategic thinking, stakeholder management, innovation, and adaptability. Questions are designed to evaluate both technical competencies and soft skills, with a focus on measuring proficiency levels and development potential.",
     exampleQuestions: [
@@ -71,7 +71,7 @@ export const interviewTypes: InterviewType[] = [
     ],
   },
   {
-    type: "Stress Interview",
+    type: "stress",
     description:
       "A controlled high-pressure evaluation designed to assess candidates' resilience, emotional intelligence, and performance under stress. Tests ability to maintain composure, think clearly, and communicate effectively in challenging situations. Evaluates stress management strategies, adaptability, and professional boundaries while maintaining ethical standards.",
     exampleQuestions: [
@@ -83,7 +83,7 @@ export const interviewTypes: InterviewType[] = [
     ],
   },
   {
-    type: "Cultural Fit Interview",
+    type: "cultural_fit",
     description:
       "A nuanced evaluation of alignment between candidate values, work preferences, and organizational culture. Assesses cultural add versus cultural fit, exploring how candidates can both thrive within and enhance company culture. Examines collaboration styles, communication preferences, ethical decision-making, and commitment to diversity and inclusion.",
     exampleQuestions: [
