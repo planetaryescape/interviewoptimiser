@@ -169,6 +169,13 @@
       "when": 1742790186247,
       "tag": "0023_clumsy_the_professor",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1746460656373,
+      "tag": "0024_wonderful_famine",
+      "breakpoints": true
     }
   ]
 }

@@ -11,6 +11,7 @@ export * from "./jobDescriptions";
 export * from "./jobs";
 export * from "./organizations";
 export * from "./pageSettings";
+export * from "./questionAnalysis";
 export * from "./reports";
 export * from "./reviews";
 export * from "./statistics";
