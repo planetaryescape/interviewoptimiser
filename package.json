@@ -37,8 +37,9 @@
   "dependencies": {
     "@ai-sdk/openai": "^1.2.6",
     "@aws-sdk/client-lambda": "^3.682.0",
-    "@aws-sdk/client-s3": "^3.685.0",
+    "@aws-sdk/client-s3": "^3.803.0",
     "@aws-sdk/client-sqs": "^3.682.0",
+    "@aws-sdk/cloudfront-signer": "^3.775.0",
     "@aws-sdk/s3-request-presigner": "^3.687.0",
     "@clerk/nextjs": "^6.2.0",
     "@discordjs/rest": "^2.4.0",
@@ -134,7 +135,7 @@
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "turndown": "^7.2.0",
-    "uuid": "^11.0.2",
+    "uuid": "^11.1.0",
     "zod": "^3.23.8",
     "zustand": "5.0.1"
   },

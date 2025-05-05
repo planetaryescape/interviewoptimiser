@@ -22,6 +22,20 @@ provider "aws" {
   max_retries = 3
 }
 
+# Provider for us-east-1 region (required for ACM certificates used with CloudFront)
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+
+  default_tags {
+    tags = local.tags
+  }
+
+  # Add retry mechanism
+  retry_mode  = "standard"
+  max_retries = 3
+}
+
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 

@@ -86,8 +86,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to generate report ID" }, { status: 500 });
     }
 
-    logger.info({ interviewId, url: API_GATEWAY_URL }, "Sending message to API Gateway");
-    const response = await fetch(API_GATEWAY_URL, {
+    // Configure the API requests
+    const reportRequest = fetch(API_GATEWAY_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -103,23 +103,73 @@ export async function POST(req: NextRequest) {
       }),
     });
 
-    const responseData = await response.json();
+    const audioRequest = fetch(API_GATEWAY_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": API_KEY || "",
+      },
+      body: JSON.stringify({
+        data: {
+          interviewId,
+        },
+        userId,
+        queueType: "save-interview-audio-to-s3",
+      }),
+    });
 
-    logger.info({ status: response.status, responseData }, "Received response from API Gateway");
+    // Execute both requests in parallel
+    logger.info({ interviewId }, "Sending parallel requests to API Gateway");
+    const [reportResponse, audioResponse] = await Promise.all([reportRequest, audioRequest]);
 
-    if (!response.ok) {
+    // Parse the JSON responses in parallel
+    const [reportResponseData, audioResponseData] = await Promise.all([
+      reportResponse.json(),
+      audioResponse.json(),
+    ]);
+
+    logger.info(
+      {
+        reportStatus: reportResponse.status,
+        audioStatus: audioResponse.status,
+      },
+      "Received responses from API Gateway"
+    );
+
+    // Check if either request failed
+    if (!reportResponse.ok || !audioResponse.ok) {
       logger.error(
         {
-          error: response.statusText,
-          status: response.status,
-          body: responseData,
+          reportError: reportResponse.ok ? null : reportResponse.statusText,
+          reportStatus: reportResponse.status,
+          reportBody: reportResponseData,
+          audioError: audioResponse.ok ? null : audioResponse.statusText,
+          audioStatus: audioResponse.status,
+          audioBody: audioResponseData,
         },
-        "Failed to queue report generation"
+        "Failed to queue one or more tasks"
       );
-      return NextResponse.json(responseData, { status: response.status });
+
+      // Return the first error
+      if (!reportResponse.ok) {
+        return NextResponse.json(reportResponseData, {
+          status: reportResponse.status,
+        });
+      } else {
+        return NextResponse.json(audioResponseData, {
+          status: audioResponse.status,
+        });
+      }
     }
 
-    return NextResponse.json({ message: "Report generation started" }, { status: 200 });
+    return NextResponse.json(
+      {
+        message: "Report generation and audio reconstruction started",
+        reportStatus: reportResponse.status,
+        audioStatus: audioResponse.status,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     Sentry.withScope((scope) => {
       scope.setExtra("context", "POST /api/generate");

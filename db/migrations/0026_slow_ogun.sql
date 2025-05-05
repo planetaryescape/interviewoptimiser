@@ -1,0 +1,1 @@
+ALTER TABLE "interviews" ADD COLUMN "interview_audio_url" text;
