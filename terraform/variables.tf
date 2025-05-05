@@ -12,6 +12,12 @@ variable "encryption_enabled" {
   default     = true
 }
 
+variable "environment" {
+  description = "Environment (dev, staging, prod)"
+  type        = string
+  default     = "prod"
+}
+
 variable "DATABASE_URL" {
   description = "Database URL"
   type        = string
@@ -39,5 +45,10 @@ variable "RESEND_API_KEY" {
 
 variable "DISCORD_BOT_TOKEN" {
   description = "Discord bot token"
+  type        = string
+}
+
+variable "HUME_API_KEY" {
+  description = "Hume AI API Key for voice and audio services"
   type        = string
 }

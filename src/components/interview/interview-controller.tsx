@@ -7,7 +7,6 @@ import {
   useActiveInterviewActions,
   useActiveInterviewCallDuration,
   useActiveInterviewEnded,
-  useActiveInterviewMessages,
   useActiveInterviewTotalTime,
   useActiveInterviewWrapUpSent,
 } from "@/stores/useActiveInterviewStore";
@@ -17,7 +16,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import type { Interview, NewInterview, User } from "~/db/schema";
+import type { ChatMetadata, Interview, NewChatMetadata, NewInterview, User } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 interface VoiceStatus {
   value: "disconnected" | "connecting" | "connected";
@@ -48,7 +48,6 @@ export function InterviewController() {
   const totalTime = useActiveInterviewTotalTime();
   const wrapUpSent = useActiveInterviewWrapUpSent();
   const interviewEnded = useActiveInterviewEnded();
-  const storeMessages = useActiveInterviewMessages();
 
   const {
     setCallDurationTimestamp,
@@ -65,7 +64,26 @@ export function InterviewController() {
     sendUserInput,
     sendAssistantInput,
     messages,
+    sendSessionSettings,
+    chatMetadata,
   } = useVoice();
+
+  const { mutate: createChatMetadata } = useMutation({
+    mutationFn: async (metadata: NewChatMetadata) => {
+      const chatMetadataRepo = await getRepository<ChatMetadata>("chatMetadata");
+      return await chatMetadataRepo.create({
+        ...metadata,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        customSessionId: metadata.customSessionId || null,
+        requestId: metadata.requestId || null,
+      });
+    },
+    onSuccess: () => {
+      // Request audio reconstruction after metadata is created
+      requestAudioReconstruction();
+    },
+  });
 
   // Update store with voice state
   useEffect(() => {
@@ -103,6 +121,17 @@ export function InterviewController() {
       return await interviewRepo.update(params.interviewId as string, interview);
     },
     onSuccess: () => {
+      if (chatMetadata) {
+        createChatMetadata({
+          ...chatMetadata,
+          chatGroupId: chatMetadata.chatGroupId || "",
+          chatId: chatMetadata.chatId || "",
+          interviewId: Number.parseInt(params.interviewId as string),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      }
+
       sendAssistantInput("hang_up");
       disconnect();
       queryClient.invalidateQueries({
@@ -123,6 +152,56 @@ export function InterviewController() {
       if (!interviewEnded) {
         setInterviewEnded(true);
       }
+
+      if (chatMetadata) {
+        createChatMetadata({
+          ...chatMetadata,
+          chatGroupId: chatMetadata.chatGroupId || "",
+          chatId: chatMetadata.chatId || "",
+          interviewId: Number.parseInt(params.interviewId as string),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      }
+    },
+  });
+
+  // Audio reconstruction mutation
+  const { mutate: requestAudioReconstruction } = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/interviews/${params.interviewId}/audio-reconstruction`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to initiate audio reconstruction");
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      logger.info(
+        { interviewId: params.interviewId, reconstructionId: data.data.reconstruction.id },
+        "Audio reconstruction initiated"
+      );
+    },
+    onError: (error) => {
+      Sentry.withScope((scope) => {
+        scope.setContext("params", params);
+        scope.setExtra("message", error instanceof Error ? error.message : "Unknown error");
+
+        Sentry.captureException(error);
+      });
+      logger.error(
+        {
+          message: error instanceof Error ? error.message : "Unknown error",
+          error,
+        },
+        "Error initiating audio reconstruction"
+      );
     },
   });
 
@@ -158,12 +237,35 @@ export function InterviewController() {
       if (updatedUser && updatedUser.data.minutes <= 0) {
         disconnect();
         toast.error("You've run out of minutes. The interview has been stopped.");
+
+        if (chatMetadata) {
+          createChatMetadata({
+            ...chatMetadata,
+            chatGroupId: chatMetadata.chatGroupId || "",
+            chatId: chatMetadata.chatId || "",
+            interviewId: Number.parseInt(params.interviewId as string),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
+        }
       }
+
       queryClient.invalidateQueries({ queryKey: ["user"] });
     },
     onError: (error) => {
       console.error("Error decrementing minutes:", error);
       toast.error("Failed to update remaining minutes");
+
+      if (chatMetadata) {
+        createChatMetadata({
+          ...chatMetadata,
+          chatGroupId: chatMetadata.chatGroupId || "",
+          chatId: chatMetadata.chatId || "",
+          interviewId: Number.parseInt(params.interviewId as string),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      }
     },
   });
 
@@ -195,6 +297,12 @@ export function InterviewController() {
     // One minute warning
     if (elapsedTime === totalTime - 60 && !wrapUpSent) {
       handleSendUserInput(ONE_MINUTE_LEFT_MESSAGE);
+      sendSessionSettings({
+        context: {
+          text: ONE_MINUTE_LEFT_MESSAGE,
+          type: "editable",
+        },
+      });
       markWrapUpSent();
     }
 
@@ -224,6 +332,7 @@ export function InterviewController() {
     handleSendUserInput,
     handleUpdateInterview,
     markWrapUpSent,
+    sendSessionSettings,
   ]);
 
   // Usage tracking

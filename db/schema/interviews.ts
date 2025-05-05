@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import { index, pgEnum, pgTable } from "drizzle-orm/pg-core";
 import { candidateDetails } from "./candidateDetails";
+import { chatMetadata } from "./chatMetadata";
 import { jobDescriptions } from "./jobDescriptions";
 import { reports } from "./reports";
 import { users } from "./users";
@@ -30,6 +31,7 @@ export const interviews = pgTable(
     candidate: p.text(),
     company: p.text(),
     role: p.text(),
+    interviewAudioUrl: p.text(),
     completed: p.boolean().notNull().default(false),
     createdAt: p.timestamp().defaultNow().notNull(),
     updatedAt: p.timestamp().defaultNow().notNull(),
@@ -52,6 +54,10 @@ export const interviewRelations = relations(interviews, ({ one, many }) => ({
   jobDescription: one(jobDescriptions, {
     fields: [interviews.id],
     references: [jobDescriptions.interviewId],
+  }),
+  chatMetadata: one(chatMetadata, {
+    fields: [interviews.id],
+    references: [chatMetadata.interviewId],
   }),
 }));
 
