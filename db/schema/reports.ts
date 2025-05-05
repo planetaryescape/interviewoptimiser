@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import { index, pgTable } from "drizzle-orm/pg-core";
 import { interviews } from "./interviews";
 import { pageSettings } from "./pageSettings";
+import { questionAnalysis } from "./questionAnalysis";
 
 export const reports = pgTable(
   "reports",
@@ -41,7 +42,7 @@ export const reports = pgTable(
   })
 );
 
-export const reportRelations = relations(reports, ({ one }) => ({
+export const reportRelations = relations(reports, ({ one, many }) => ({
   interview: one(interviews, {
     fields: [reports.interviewId],
     references: [interviews.id],
@@ -50,6 +51,7 @@ export const reportRelations = relations(reports, ({ one }) => ({
     fields: [reports.id],
     references: [pageSettings.reportId],
   }),
+  questionAnalyses: many(questionAnalysis),
 }));
 
 export type Report = typeof reports.$inferSelect;

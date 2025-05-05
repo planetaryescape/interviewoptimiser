@@ -1,6 +1,7 @@
 export type EntityType =
   | "empty"
   | "candidateDetails"
+  | "question-analysis"
   | "jobDescription"
   | "job-candidate"
   | "report"
