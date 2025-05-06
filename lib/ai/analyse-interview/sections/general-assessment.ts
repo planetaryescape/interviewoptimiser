@@ -85,6 +85,46 @@ ${value}
       .replace("{{JD}}", jobDescriptionText || "Not provided")
       .replace("{{ADDITIONAL_INFO}}", additionalInfo || "None");
 
+    // Add section-specific instructions
+    const sectionPrompt = `${enhancedUserPrompt}
+
+SPECIFIC GUIDANCE FOR GENERAL ASSESSMENT SYNTHESIS:
+
+1. CREATE A BALANCED SUMMARY:
+   - Synthesize findings from all section analyses while maintaining a balanced view
+   - Identify patterns across different assessment dimensions
+   - Highlight both consistent strengths and recurring weaknesses
+
+2. ADDRESS ROLE ALIGNMENT:
+   - Based on all sections, assess overall alignment with the specific role requirements
+   - Consider the relative importance of different aspects based on the role type
+   - Address both technical and interpersonal dimensions of fit
+
+3. PROVIDE HIRING GUIDANCE:
+   - Make a clear hiring recommendation (hire, do not hire, or consider with reservations)
+   - Justify your recommendation with specific evidence from across the assessment
+   - Note any special considerations that might affect the hiring decision
+
+4. PRIORITIZE DEVELOPMENT AREAS:
+   - Identify the 3-5 most critical areas for improvement based on all sections
+   - Prioritize these based on relevance to role success
+   - Acknowledge strengths that could be leveraged for development
+
+5. CALCULATE OVERALL SCORE:
+   - Use a weighted approach based on role requirements, not simple averaging
+   - Explain your weighting rationale clearly
+   - Ensure the overall score reflects performance across all dimensions appropriately
+
+IMPORTANT REMINDER ABOUT COVERAGE:
+- In your synthesis, be explicit about any areas that were not adequately covered in the interview
+- Do not assume competence or weakness in areas that weren't discussed
+- If making inferences about areas not directly assessed, clearly explain your reasoning and cite specific evidence
+- Weight your overall assessment and score toward areas that were adequately demonstrated
+- Acknowledge limitations in your assessment due to areas not covered
+
+Remember: This general assessment will serve as the executive summary of the entire interview analysis. Make it comprehensive, cohesive, and evidence-based, always maintaining the principles of Radical Candor.
+`;
+
     // Generate the structured output
     const { object: structuredOutput, usage } = await generateObject({
       model,
@@ -92,7 +132,7 @@ ${value}
       schemaName: "generalAssessmentAnalysis",
       schemaDescription: "Comprehensive synthesis of all interview analysis sections",
       system: GENERAL_ASSESSMENT_SYSTEM_PROMPT,
-      prompt: enhancedUserPrompt,
+      prompt: sectionPrompt,
       temperature: 0.5,
       headers: createRequestHeaders(userEmail),
     });

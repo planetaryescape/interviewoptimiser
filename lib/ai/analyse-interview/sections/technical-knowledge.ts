@@ -80,6 +80,12 @@ SPECIFIC GUIDANCE FOR TECHNICAL KNOWLEDGE ASSESSMENT:
    - Could they adapt their technical explanations to be understandable?
    - Did they bridge technical and business perspectives effectively?
 
+IMPORTANT REMINDER ABOUT COVERAGE:
+- Only assess technical areas that were actually discussed in the interview
+- For technical skills mentioned in the job description but not covered in the interview, clearly state: "This technical area was not covered in the interview"
+- If a technical area was touched on but not explored in depth, explicitly note the limited evidence available
+- When making inferences about technical skills not directly demonstrated, clearly explain your reasoning and provide specific evidence from the transcript
+
 Remember to reference specific examples from the transcript for each point in your assessment. Pay particular attention to the candidate's responses to technical questions, descriptions of past projects, and explanations of their approach to technical problems.
 `;
 

@@ -10,6 +10,8 @@ CORE PRINCIPLES:
 3. EXPLAIN IMPACT: For each strength or weakness, explain its real-world impact in a professional setting.
 4. PROVIDE ACTIONABLE GUIDANCE: All feedback must be concrete enough that the candidate can immediately begin improving.
 5. USE THE FULL SCORING RANGE: Do not cluster scores in the 70-90% range. Use the entire 0-100 scale deliberately.
+6. ONLY EVALUATE WHAT WAS COVERED: Do not make comments about skills or topics not discussed in the interview. For areas not covered, explicitly state "This area was not covered in sufficient depth to make an evaluation."
+7. WHEN MAKING INFERENCES: If you must make an inference about a skill not directly discussed, clearly explain your reasoning and cite the specific evidence from the interview that led to your conclusion.
 
 SCORING GUIDELINES:
 - 0-10: Critically deficient - Would actively harm team/company performance
@@ -67,6 +69,11 @@ TECHNICAL DIFFICULTIES: If audio quality or technical issues may have affected t
 - Focus more heavily on content analysis rather than delivery
 - Note if certain aspects couldn't be fairly evaluated due to technical issues
 
+TOPICS NOT COVERED:
+- If a specific skill or competency area is not adequately covered in the interview transcript, clearly state: "This aspect was not covered in sufficient depth in the interview to make a comprehensive evaluation."
+- Do not make assumptions about skills that weren't demonstrated or discussed in the interview.
+- If you need to make an inference about an area not directly discussed, clearly explain your reasoning and the specific evidence from the interview that supports your conclusion.
+
 STRUCTURED DATA:
 {{STRUCTURED_DATA}}
 
@@ -122,6 +129,7 @@ IMPORTANT GUIDELINES:
 - Be direct, honest, and specific - cite exact quotes from the transcript
 - Ensure criticism is actionable with clear guidance for improvement
 - Do not be overly generous in scoring - use the full range appropriately
+- If the question touches on areas not clearly demonstrated in the answer, note that these aspects cannot be evaluated rather than making assumptions
 
 STRUCTURED DATA:
 {{STRUCTURED_DATA}}
@@ -148,6 +156,8 @@ PRINCIPLES FOR SYNTHESIS:
 3. COMPREHENSIVE VIEW: Look at both technical competencies and soft skills
 4. EVIDENCE-BASED: Base your conclusions on specific evidence cited in the section reports
 5. OBJECTIVE SCORING: Calculate an overall score that fairly represents performance across all dimensions
+6. LIMIT TO AREAS COVERED: Only evaluate competencies and skills that were actually covered in the interview. For areas not adequately discussed, note that they couldn't be properly evaluated.
+7. TRANSPARENT REASONING: When making inferences about areas not directly addressed, clearly explain your reasoning and evidence.
 
 OVERALL SCORE CALCULATION GUIDANCE:
 - The overall score should NOT be a simple average of all section scores
@@ -155,6 +165,7 @@ OVERALL SCORE CALCULATION GUIDANCE:
 - Technical roles should weight technical knowledge and problem-solving more heavily
 - Management roles should weight communication, leadership, and adaptability more heavily
 - Customer-facing roles should weight communication and interpersonal skills more heavily
+- Only factor in scores for areas that were adequately covered in the interview
 
 Your general assessment should be comprehensive (500-800 words) and include:
 1. An executive summary of the candidate's performance (2-3 sentences)
@@ -162,6 +173,7 @@ Your general assessment should be comprehensive (500-800 words) and include:
 3. A clear hiring recommendation with justification
 4. An overall score (0-100) with explicit reasoning for how it was calculated
 5. At least 3 specific, evidence-based examples from the transcript that highlight key aspects of the candidate's performance
+6. Clear acknowledgment of any areas not adequately covered in the interview
 
 Your synthesis must maintain the principles of Radical Candor while providing a well-reasoned holistic view of the candidate.
 `;
@@ -183,6 +195,13 @@ YOUR GENERAL ASSESSMENT MUST INCLUDE:
 3. An overall score (0-100) that considers all dimensions but weights them appropriately for this specific role
 4. At least 3 specific examples from the transcript that illustrate key aspects of performance
 5. A balanced assessment of both strengths and weaknesses
+6. Clear acknowledgment of any competency areas not sufficiently covered in the interview
+
+IMPORTANT GUIDANCE:
+- Only evaluate competencies and skills that were actually covered in the interview
+- For areas not adequately discussed, note that they couldn't be properly evaluated
+- When making inferences about areas not directly addressed, clearly explain your reasoning
+- Base all conclusions on actual evidence from the interview
 
 SECTION ASSESSMENTS TO SYNTHESIZE:
 {{SECTION_RESULTS}}

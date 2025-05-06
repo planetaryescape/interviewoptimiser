@@ -35,7 +35,7 @@ export async function analyzeFitnessForRole({
     // Create section-specific prompt
     const sectionName = "FITNESS FOR ROLE";
     const sectionDescription =
-      "the candidate's fitness for the specific role based on their experience, skills, and interview responses";
+      "how well the candidate's skills, experience, and characteristics align with the specific role requirements";
 
     // Replace placeholders in the user prompt
     const enhancedUserPrompt = BASE_USER_PROMPT.replace("{{SECTION_NAME}}", sectionName)
@@ -50,27 +50,43 @@ export async function analyzeFitnessForRole({
 
 SPECIFIC GUIDANCE FOR FITNESS FOR ROLE ASSESSMENT:
 
-1. EVALUATE RELEVANCE OF EXPERIENCE:
-   - How well does the candidate's background align with the role requirements?
-   - Are there any significant gaps between their experience and what's needed?
-   - Do they demonstrate understanding of the specific challenges of this role?
+1. SKILL ALIGNMENT:
+   - How well do the candidate's demonstrated skills match the specific requirements of the role?
+   - Are there any critical skill gaps that would impact their ability to perform effectively?
+   - Did they provide evidence of skills that exceed the basic requirements in valuable ways?
 
-2. ASSESS SKILLS MATCH:
-   - Which required skills did the candidate clearly demonstrate?
-   - Which required skills were not evidenced or appeared weak?
-   - Did they show transferable skills that could compensate for gaps?
+2. EXPERIENCE RELEVANCE:
+   - How closely does their past experience align with the responsibilities of this position?
+   - Did they demonstrate understanding of the industry, market, or specific challenges?
+   - Have they successfully handled similar responsibilities or challenges in the past?
 
-3. CONSIDER GROWTH POTENTIAL:
-   - Based on their responses, how quickly could they adapt to this role?
-   - Did they demonstrate a learning mindset and adaptability?
-   - What development would be needed for them to excel in this position?
+3. MOTIVATION & INTEREST:
+   - Did they articulate genuine interest in this specific role, company, or industry?
+   - Did they demonstrate understanding of why this role fits their career path?
+   - Did they ask insightful questions about the position or express enthusiasm?
 
-4. ANALYZE CULTURAL/TEAM FIT:
-   - Did their values and work style align with what's needed in this role?
-   - Would their communication approach work in the target environment?
-   - Are there any red flags regarding their fit within the team/organization?
+4. CULTURAL ALIGNMENT:
+   - Based on their values and working style, how well might they fit the company culture?
+   - Did they demonstrate awareness of the company's mission, values, or culture?
+   - Are there any significant misalignments in work style or expectations?
 
-Remember to reference specific examples from the transcript for each point in your assessment. Be thorough but focused specifically on role fitness.
+5. GROWTH POTENTIAL:
+   - Did they show capacity to develop in areas where they may currently have gaps?
+   - Did they demonstrate learning agility and adaptability relevant to the role?
+   - How might their career trajectory align with future needs of the role/team?
+
+6. COMPARATIVE ADVANTAGE:
+   - What unique strengths or perspectives might they bring to this specific position?
+   - How do their attributes compare to typical candidates for similar roles?
+   - Did they demonstrate any exceptional qualities particularly valuable for this position?
+
+IMPORTANT REMINDER ABOUT COVERAGE:
+- Only assess how the candidate fits role requirements that were actually discussed in the interview
+- For requirements mentioned in the job description but not covered in the interview, clearly state: "This requirement was not covered in the interview"
+- If you make inferences about fitness for aspects of the role not directly discussed, clearly explain your reasoning based on specific evidence from the transcript
+- Focus your assessment on demonstrated skills and qualities, not assumptions about what they might know or do
+
+Remember to reference specific examples from the transcript for each point in your assessment. Consider the context of the role when evaluating responses, and focus on alignment rather than absolute performance.
 `;
 
     // Generate the structured output
