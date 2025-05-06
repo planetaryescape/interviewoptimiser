@@ -11,12 +11,10 @@ import { TimerDisplay } from "./interview/timer-display";
 
 export function TimerHume({
   totalTime,
-  setInterviewEnded,
 }: {
   totalTime: number;
-  setInterviewEnded: (interviewEnded: boolean) => void;
 }) {
-  const { setTotalTime } = useActiveInterviewActions();
+  const { setTotalTime, setInterviewEnded } = useActiveInterviewActions();
   const interviewEnded = useActiveInterviewEnded();
   const hasNotifiedParentRef = useRef(false);
 

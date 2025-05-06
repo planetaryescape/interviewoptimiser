@@ -2,10 +2,10 @@ import { getUserFromClerkId } from "@/lib/auth";
 import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
-import { chatMetadata, interviews } from "~/db/schema";
+import { chatMetadata, interviews, reports } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 /**
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { id: userId } = await getUserFromClerkId(clerkUserId);
+    const { id: userId, role } = await getUserFromClerkId(clerkUserId);
     if (!userId) {
       logger.warn({ clerkUserId }, "User not found in database");
       return NextResponse.json(formatErrorEntity("User not found"), {
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { interviewId, customSessionId, chatGroupId, chatId, requestId } = body;
+    const { customSessionId, chatGroupId, chatId, requestId, interviewId } = body;
 
     if (!interviewId) {
       logger.warn("Missing required field: interviewId");
@@ -66,38 +66,67 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    if (interview.userId !== userId) {
+    if (interview.userId !== userId && role !== "admin") {
       logger.warn({ interviewId, userId }, "Unauthorized access to interview");
       return NextResponse.json(formatErrorEntity("Unauthorized"), {
         status: 401,
       });
     }
 
-    // Check if metadata for this interview already exists
-    const existingMetadata = await db.query.chatMetadata.findFirst({
-      where: eq(chatMetadata.interviewId, interviewId),
+    const existingChatMetadata = await db.query.chatMetadata.findFirst({
+      where: and(
+        eq(chatMetadata.chatGroupId, chatGroupId),
+        eq(chatMetadata.chatId, chatId),
+        eq(chatMetadata.requestId, requestId)
+      ),
     });
 
-    if (existingMetadata) {
-      logger.warn({ interviewId }, "Chat metadata for this interview already exists");
-      return NextResponse.json(
-        formatErrorEntity("Chat metadata for this interview already exists"),
-        {
-          status: 409,
-        }
-      );
+    if (existingChatMetadata) {
+      logger.info({ interviewId }, "Chat metadata already exists");
+      return NextResponse.json(formatEntity(existingChatMetadata, "chatMetadata"), {
+        status: 200,
+      });
     }
 
-    const [newChatMetadata] = await db
-      .insert(chatMetadata)
-      .values({
-        interviewId,
-        customSessionId,
-        chatGroupId,
-        chatId,
-        requestId,
-      })
-      .returning();
+    const [newChatMetadata] = await db.transaction(async (tx) => {
+      const [createdReport] = await tx
+        .insert(reports)
+        .values({
+          interviewId,
+          generalAssessment: "",
+          overallScore: 0,
+          speakingSkills: "",
+          speakingSkillsScore: 0,
+          transcript: "",
+          areasOfStrength: "",
+          areasForImprovement: "",
+          actionableNextSteps: "",
+          communicationSkills: "",
+          communicationSkillsScore: 0,
+          problemSolvingSkills: "",
+          problemSolvingSkillsScore: 0,
+          technicalKnowledge: "",
+          technicalKnowledgeScore: 0,
+          teamwork: "",
+          teamworkScore: 0,
+          adaptability: "",
+          adaptabilityScore: 0,
+        })
+        .returning();
+
+      const [createdChatMetadata] = await db
+        .insert(chatMetadata)
+        .values({
+          reportId: createdReport.id,
+          customSessionId,
+          chatGroupId,
+          chatId,
+          requestId,
+        })
+        .returning();
+
+      return [createdChatMetadata];
+    });
 
     logger.info({ id: newChatMetadata.id }, "Successfully created chat metadata");
 
@@ -147,44 +176,47 @@ export async function GET(request: NextRequest) {
     }
 
     const url = new URL(request.url);
-    const interviewId = url.searchParams.get("interviewId");
+    const reportId = url.searchParams.get("reportId");
 
-    if (!interviewId) {
-      logger.info("No interviewId provided, getting all chat metadata");
-      return NextResponse.json(formatErrorEntity("Missing interviewId"), {
+    if (!reportId) {
+      logger.info("No reportId provided, getting all chat metadata");
+      return NextResponse.json(formatErrorEntity("Missing reportId"), {
         status: 400,
       });
     }
 
     // Check if the interview exists and belongs to the user
-    const interview = await db.query.interviews.findFirst({
-      where: eq(interviews.id, Number.parseInt(interviewId)),
+    const report = await db.query.reports.findFirst({
+      where: eq(reports.id, Number.parseInt(reportId)),
+      with: {
+        interview: true,
+      },
     });
 
-    if (!interview) {
-      logger.warn({ interviewId }, "Interview not found");
-      return NextResponse.json(formatErrorEntity("Interview not found"), {
+    if (!report) {
+      logger.warn({ reportId }, "Report not found");
+      return NextResponse.json(formatErrorEntity("Report not found"), {
         status: 404,
       });
     }
 
-    if (interview.userId !== userId && role !== "admin") {
-      logger.warn({ interviewId, userId }, "Unauthorized access to interview");
+    if (report.interview.userId !== userId && role !== "admin") {
+      logger.warn({ reportId, userId }, "Unauthorized access to report");
       return NextResponse.json(formatErrorEntity("Unauthorized"), {
         status: 401,
       });
     }
 
     const metadata = await db.query.chatMetadata.findFirst({
-      where: eq(chatMetadata.interviewId, Number.parseInt(interviewId)),
+      where: eq(chatMetadata.reportId, Number.parseInt(reportId)),
     });
 
     if (!metadata) {
-      logger.info({ interviewId }, "No chat metadata found for this interview");
+      logger.info({ reportId }, "No chat metadata found for this report");
       return NextResponse.json(formatEntityList([], "generic"));
     }
 
-    logger.info({ interviewId }, "Successfully retrieved chat metadata for interview");
+    logger.info({ reportId }, "Successfully retrieved chat metadata for report");
     return NextResponse.json(formatEntity(metadata, "chatMetadata"));
   } catch (error) {
     Sentry.withScope((scope) => {

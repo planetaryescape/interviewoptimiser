@@ -54,7 +54,7 @@ describe("TimerHume", () => {
   });
 
   it("renders correctly with connected status", () => {
-    render(<TimerHume totalTime={900} setInterviewEnded={mockSetInterviewEnded} />);
+    render(<TimerHume totalTime={900} />);
 
     // Should render the status indicator in connected state
     expect(screen.getByText("Live")).toBeInTheDocument();
@@ -69,7 +69,7 @@ describe("TimerHume", () => {
       status: { value: "disconnected" },
     });
 
-    render(<TimerHume totalTime={900} setInterviewEnded={mockSetInterviewEnded} />);
+    render(<TimerHume totalTime={900} />);
 
     // Should render the status indicator in disconnected state
     expect(screen.getByText("Ready")).toBeInTheDocument();

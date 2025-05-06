@@ -1,7 +1,9 @@
 "use client";
 
+import { idHandler } from "@/lib/utils/idHandler";
 import {
   useActiveInterviewActions,
+  useActiveInterviewChatMetadata,
   useActiveInterviewEnded,
 } from "@/stores/useActiveInterviewStore";
 import { createInterviewInstructions } from "@/utils/conversation_config";
@@ -37,7 +39,9 @@ export default function ClientComponent({
   const router = useRouter();
   const params = useParams();
   const interviewEnded = useActiveInterviewEnded();
-  const { setInterviewEnded } = useActiveInterviewActions();
+  const { resetState } = useActiveInterviewActions();
+
+  const activeInterviewChatMetadata = useActiveInterviewChatMetadata();
 
   const { data: interview } = useQuery<any>({
     // | InterviewWithCandidateDetailsAndJobDescription
@@ -61,7 +65,10 @@ export default function ClientComponent({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ interviewId: params.interviewId }),
+        body: JSON.stringify({
+          interviewId: params.interviewId,
+          reportId: idHandler.encode(activeInterviewChatMetadata?.reportId || 0),
+        }),
       });
 
       if (!response.ok) {
@@ -75,6 +82,7 @@ export default function ClientComponent({
         queryKey: ["interview", params.interviewId],
       });
       setShowTakeover(false);
+      resetState();
       router.push(`/dashboard/interviews/${params.interviewId}/reports`);
     },
     onError: (error) => {
@@ -246,10 +254,7 @@ export default function ClientComponent({
           }, 200);
         }}
       >
-        <TimerHume
-          totalTime={(interview?.data?.duration ?? 15) * 60}
-          setInterviewEnded={setInterviewEnded}
-        />
+        <TimerHume totalTime={(interview?.data?.duration ?? 15) * 60} />
         {interviewStarted ? (
           <Messages ref={ref} />
         ) : (

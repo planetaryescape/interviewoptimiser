@@ -1,6 +1,6 @@
 import { relations } from "drizzle-orm";
 import { pgTable } from "drizzle-orm/pg-core";
-import { interviews } from "./interviews";
+import { reports } from "./reports";
 
 /**
  * This table stores chat metadata for interviews
@@ -8,9 +8,9 @@ import { interviews } from "./interviews";
  */
 export const chatMetadata = pgTable("chat_metadata", (p) => ({
   id: p.serial().primaryKey(),
-  interviewId: p
+  reportId: p
     .integer()
-    .references(() => interviews.id)
+    .references(() => reports.id)
     .notNull(),
   customSessionId: p.text(),
   chatGroupId: p.text().notNull(),
@@ -21,9 +21,9 @@ export const chatMetadata = pgTable("chat_metadata", (p) => ({
 }));
 
 export const chatMetadataRelations = relations(chatMetadata, ({ one }) => ({
-  interview: one(interviews, {
-    fields: [chatMetadata.interviewId],
-    references: [interviews.id],
+  report: one(reports, {
+    fields: [chatMetadata.reportId],
+    references: [reports.id],
   }),
 }));
 

@@ -6,7 +6,7 @@ import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
-import { chatMetadata, interviews } from "~/db/schema";
+import { chatMetadata } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 /**
@@ -41,18 +41,6 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
     if (!metadata) {
       return NextResponse.json(formatErrorEntity("Chat metadata not found"), {
         status: 404,
-      });
-    }
-
-    // Check if the user has access to this metadata's interview
-    const interview = await db.query.interviews.findFirst({
-      where: eq(interviews.id, metadata.interviewId),
-    });
-
-    if (!interview || (interview.userId !== userId && role !== "admin")) {
-      logger.warn({ metadataId }, "Unauthorized access to chat metadata");
-      return NextResponse.json(formatErrorEntity("Unauthorized"), {
-        status: 401,
       });
     }
 
@@ -108,18 +96,6 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
     if (!metadata) {
       return NextResponse.json(formatErrorEntity("Chat metadata not found"), {
         status: 404,
-      });
-    }
-
-    // Check if the user has access to this metadata's interview
-    const interview = await db.query.interviews.findFirst({
-      where: eq(interviews.id, metadata.interviewId),
-    });
-
-    if (!interview || (interview.userId !== userId && role !== "admin")) {
-      logger.warn({ metadataId }, "Unauthorized access to chat metadata");
-      return NextResponse.json(formatErrorEntity("Unauthorized"), {
-        status: 401,
       });
     }
 
@@ -205,18 +181,6 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
     if (!metadata) {
       return NextResponse.json(formatErrorEntity("Chat metadata not found"), {
         status: 404,
-      });
-    }
-
-    // Check if the user has access to this metadata's interview
-    const interview = await db.query.interviews.findFirst({
-      where: eq(interviews.id, metadata.interviewId),
-    });
-
-    if (!interview || (interview.userId !== userId && role !== "admin")) {
-      logger.warn({ metadataId }, "Unauthorized access to chat metadata");
-      return NextResponse.json(formatErrorEntity("Unauthorized"), {
-        status: 401,
       });
     }
 
