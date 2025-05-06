@@ -28,6 +28,7 @@ import {
   workSans,
 } from "@/app/fonts";
 import { Expressions } from "@/components/expressions";
+import { AudioPlayer } from "@/components/interview/audio-player";
 import PagePreview from "@/components/page-preview";
 import { PagePreviewToolbar, marginSizes, paperSizes } from "@/components/page-preview-toolbar";
 import { RadialProsodyChart } from "@/components/radial-prosody-chart";
@@ -981,6 +982,13 @@ export default function InterviewReportPage(props: {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {/* Audio Player - fixed bottom bar */}
+      {interview?.data?.interviewAudioUrl !== undefined && (
+        <AudioPlayer
+          audioUrl={interview.data.interviewAudioUrl || undefined}
+          disabled={!interview.data.interviewAudioUrl}
+        />
+      )}
     </div>
   );
 }
