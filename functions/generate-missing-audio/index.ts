@@ -1,3 +1,4 @@
+import { requestChatAudioReconstruction } from "@/lib/utils/hume-audio-reconstruction";
 import * as Sentry from "@sentry/aws-serverless";
 import { eq, isNull } from "drizzle-orm";
 import { db } from "~/db";
@@ -16,7 +17,11 @@ export const handler = Sentry.wrapHandler(async () => {
 
     // Find interviews with chatMetadata and no interviewAudioUrl
     const interviewsToProcess = await db
-      .select({ id: interviews.id, userId: interviews.userId })
+      .select({
+        id: interviews.id,
+        userId: interviews.userId,
+        chatId: chatMetadata.chatId,
+      })
       .from(interviews)
       .innerJoin(chatMetadata, eq(chatMetadata.interviewId, interviews.id))
       .where(isNull(interviews.interviewAudioUrl));
@@ -46,30 +51,11 @@ export const handler = Sentry.wrapHandler(async () => {
     for (const interview of interviewsToProcess) {
       logger.info({ interviewId: interview.id }, "Requesting audio reconstruction");
       try {
-        // Request audio reconstruction (simulate GET /api/interviews/[interviewId]/audio-reconstruction)
-        const reconstructionResponse = await fetch(
-          `${apiGatewayUrl}/interviews/${interview.id}/audio-reconstruction`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
+        const reconstructionResponse = await requestChatAudioReconstruction(interview.chatId);
+        logger.info(
+          { interviewId: interview.id, reconstructionResponse },
+          "Audio reconstruction requested"
         );
-        const reconstructionData = await reconstructionResponse.json();
-        if (!reconstructionResponse.ok) {
-          logger.error(
-            {
-              interviewId: interview.id,
-              error: reconstructionResponse.statusText,
-              status: reconstructionResponse.status,
-              reconstructionData,
-            },
-            "Failed to request audio reconstruction"
-          );
-          continue;
-        }
-        logger.info({ interviewId: interview.id }, "Audio reconstruction requested");
       } catch (error) {
         Sentry.withScope((scope) => {
           scope.setExtra("context", "generateMissingAudio");
