@@ -1,6 +1,7 @@
 "use client";
 
 import { getRepository } from "@/lib/data/repositoryFactory";
+import { idHandler } from "@/lib/utils/idHandler";
 import { ONE_MINUTE_LEFT_MESSAGE } from "@/lib/utils/messageUtils";
 import { unformatTime } from "@/lib/utils/unformatTime";
 import {
@@ -73,6 +74,7 @@ export function InterviewController() {
       const chatMetadataRepo = await getRepository<ChatMetadata>("chat-metadata");
       return await chatMetadataRepo.create({
         ...metadata,
+        interviewId: idHandler.decode(params.interviewId as string),
         createdAt: new Date(),
         updatedAt: new Date(),
         customSessionId: metadata.customSessionId || null,
