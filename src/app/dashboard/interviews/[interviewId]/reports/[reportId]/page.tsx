@@ -983,10 +983,10 @@ export default function InterviewReportPage(props: {
         </AlertDialogContent>
       </AlertDialog>
       {/* Audio Player - fixed bottom bar */}
-      {interview?.data?.interviewAudioUrl !== undefined && (
+      {report?.data?.interviewAudioUrl !== undefined && (
         <AudioPlayer
-          audioUrl={interview.data.interviewAudioUrl || undefined}
-          disabled={!interview.data.interviewAudioUrl}
+          audioUrl={report.data.interviewAudioUrl || undefined}
+          disabled={!report.data.interviewAudioUrl}
         />
       )}
     </div>

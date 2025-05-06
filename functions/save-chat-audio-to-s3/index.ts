@@ -6,7 +6,7 @@ import type { SQSEvent, SQSRecord } from "aws-lambda";
 import { eq } from "drizzle-orm";
 import { config } from "~/config";
 import { db } from "~/db";
-import { chatMetadata, interviews } from "~/db/schema";
+import { chatMetadata, reports } from "~/db/schema";
 import { sendDiscordDM } from "~/lib/discord";
 import { logger } from "~/lib/logger";
 import { initSentry } from "../lib/sentry";
@@ -32,63 +32,63 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
     const failedRecords: SQSRecord[] = [];
 
     for (const record of event.Records) {
-      let interviewId = 0;
+      let reportId = 0;
       try {
         const {
-          data: { interviewId: id },
+          data: { reportId: id },
           userId,
         } = JSON.parse(record.body);
-        interviewId = id;
+        reportId = id;
 
         const user = await getUserFromId(userId);
-        logger.info({ interviewId }, "Processing chat audio save request");
+        logger.info({ reportId }, "Processing chat audio save request");
 
         // Get chat metadata for the interview
         const metadata = await db.query.chatMetadata.findFirst({
-          where: eq(chatMetadata.interviewId, interviewId),
+          where: eq(chatMetadata.reportId, reportId),
         });
 
         if (!metadata || !metadata.chatId) {
-          logger.error({ interviewId }, "No chat metadata found for this interview");
-          throw new Error("No chat metadata found for this interview");
+          logger.error({ reportId }, "No chat metadata found for this report");
+          throw new Error("No chat metadata found for this report");
         }
 
         // Poll for audio reconstruction status until complete
         logger.info(
-          { interviewId, chatId: metadata.chatId },
+          { reportId, chatId: metadata.chatId },
           "Polling for audio reconstruction status"
         );
         const reconstructionResponse = await pollAudioReconstructionStatus(metadata.chatId);
 
         if (!reconstructionResponse.signed_audio_url) {
-          logger.error({ interviewId }, "No signed audio URL in reconstruction response");
+          logger.error({ reportId }, "No signed audio URL in reconstruction response");
           throw new Error("No signed audio URL in reconstruction response");
         }
 
         // Download the audio file
-        logger.info({ interviewId }, "Downloading audio file");
+        logger.info({ reportId }, "Downloading audio file");
         const audioData = await downloadAudioFile(reconstructionResponse.signed_audio_url);
 
         // Upload the audio file to S3
-        logger.info({ interviewId, chatId: metadata.chatId }, "Uploading audio to S3");
+        logger.info({ reportId, chatId: metadata.chatId }, "Uploading audio to S3");
         const cloudFrontUrl = await uploadAudioToS3(
           audioData,
-          interviewId,
+          reportId,
           metadata.chatId,
           reconstructionResponse.filename
         );
 
         // Update the interview with the audio URL
-        logger.info({ interviewId, cloudFrontUrl }, "Updating interview with audio URL");
+        logger.info({ reportId, cloudFrontUrl }, "Updating interview with audio URL");
         await db
-          .update(interviews)
+          .update(reports)
           .set({
             interviewAudioUrl: cloudFrontUrl,
             updatedAt: new Date(),
           })
-          .where(eq(interviews.id, interviewId));
+          .where(eq(reports.id, reportId));
 
-        logger.info({ interviewId, cloudFrontUrl }, "Successfully saved chat audio to S3");
+        logger.info({ reportId, cloudFrontUrl }, "Successfully saved chat audio to S3");
 
         // Send notification
         await sendDiscordDM({
@@ -96,10 +96,8 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           metadata: {
             "User ID": userId,
             "User Email": user?.email ?? "Unknown",
-            "Interview ID": interviewId,
-            "Interview URL": `${
-              config.baseUrl
-            }/dashboard/interviews/${idHandler.encode(interviewId)}`,
+            "Report ID": reportId,
+            "Report URL": `${config.baseUrl}/dashboard/interviews/${idHandler.encode(reportId)}`,
             "Audio URL": cloudFrontUrl,
           },
         });
@@ -118,7 +116,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         logger.error(
           {
             error: error instanceof Error ? error.message : error,
-            interviewId,
+            reportId,
           },
           "Error processing chat audio save request"
         );
@@ -133,7 +131,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
               description: "Failed to save chat audio to S3",
               metadata: {
                 "Record ID": record.messageId,
-                "Interview ID": record.body ? JSON.parse(record.body).data?.interviewId : "unknown",
+                "Report ID": record.body ? JSON.parse(record.body).data?.reportId : "unknown",
                 Error: error instanceof Error ? error.message : JSON.stringify(error),
                 "Stack Trace": error instanceof Error ? error.stack : "N/A",
                 Timestamp: new Date().toISOString(),

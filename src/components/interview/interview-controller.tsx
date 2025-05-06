@@ -1,12 +1,12 @@
 "use client";
 
 import { getRepository } from "@/lib/data/repositoryFactory";
-import { idHandler } from "@/lib/utils/idHandler";
 import { ONE_MINUTE_LEFT_MESSAGE } from "@/lib/utils/messageUtils";
 import { unformatTime } from "@/lib/utils/unformatTime";
 import {
   useActiveInterviewActions,
   useActiveInterviewCallDuration,
+  useActiveInterviewChatMetadata,
   useActiveInterviewEnded,
   useActiveInterviewTotalTime,
   useActiveInterviewWrapUpSent,
@@ -17,7 +17,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import type { ChatMetadata, Interview, NewChatMetadata, NewInterview, User } from "~/db/schema";
+import type { Interview, NewChatMetadata, NewInterview, User } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 interface VoiceStatus {
@@ -56,7 +56,10 @@ export function InterviewController() {
     setConnectionStatus,
     markWrapUpSent,
     setMessages,
+    setActiveInterviewChatMetadata,
   } = useActiveInterviewActions();
+
+  const activeInterviewChatMetadata = useActiveInterviewChatMetadata();
 
   const {
     disconnect,
@@ -70,18 +73,35 @@ export function InterviewController() {
   } = useVoice();
 
   const { mutate: createChatMetadata } = useMutation({
-    mutationFn: async (metadata: NewChatMetadata) => {
-      const chatMetadataRepo = await getRepository<ChatMetadata>("chat-metadata");
+    mutationFn: async (
+      metadata: Omit<NewChatMetadata, "reportId"> & { interviewId: number; reportId?: number }
+    ) => {
+      const chatMetadataRepo = await getRepository<
+        Omit<NewChatMetadata, "reportId"> & { interviewId: number; reportId?: number }
+      >("chat-metadata");
       return await chatMetadataRepo.create({
         ...metadata,
-        interviewId: idHandler.decode(params.interviewId as string),
+        interviewId: Number.parseInt(params.interviewId as string),
         createdAt: new Date(),
         updatedAt: new Date(),
         customSessionId: metadata.customSessionId || null,
         requestId: metadata.requestId || null,
       });
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (!activeInterviewChatMetadata) {
+        setActiveInterviewChatMetadata({
+          ...data.data,
+          id: data.sys.id || 0,
+          createdAt: data.sys.createdAt ? new Date(data.sys.createdAt) : new Date(),
+          updatedAt: data.sys.updatedAt ? new Date(data.sys.updatedAt) : new Date(),
+          reportId: data.data.reportId || 0,
+          customSessionId: data.data.customSessionId || null,
+          chatGroupId: data.data.chatGroupId,
+          chatId: data.data.chatId,
+          requestId: data.data.requestId || null,
+        });
+      }
       // Request audio reconstruction after metadata is created
       requestAudioReconstruction();
     },

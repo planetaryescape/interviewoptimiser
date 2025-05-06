@@ -2,7 +2,7 @@ import { requestChatAudioReconstruction } from "@/lib/utils/hume-audio-reconstru
 import * as Sentry from "@sentry/aws-serverless";
 import { eq, isNull } from "drizzle-orm";
 import { db } from "~/db";
-import { chatMetadata, interviews } from "~/db/schema";
+import { chatMetadata, interviews, reports } from "~/db/schema";
 import { sendDiscordDM } from "~/lib/discord";
 import { logger } from "~/lib/logger";
 import { initSentry } from "../lib/sentry";
@@ -15,21 +15,22 @@ export const handler = Sentry.wrapHandler(async () => {
   try {
     logger.info("Checking for interviews with chatMetadata but missing audio");
 
-    // Find interviews with chatMetadata and no interviewAudioUrl
-    const interviewsToProcess = await db
+    // Find reports with chatMetadata and no interviewAudioUrl
+    const reportsToProcess = await db
       .select({
-        id: interviews.id,
+        id: reports.id,
         userId: interviews.userId,
         chatId: chatMetadata.chatId,
       })
-      .from(interviews)
-      .innerJoin(chatMetadata, eq(chatMetadata.interviewId, interviews.id))
-      .where(isNull(interviews.interviewAudioUrl));
+      .from(reports)
+      .innerJoin(interviews, eq(interviews.id, reports.interviewId))
+      .innerJoin(chatMetadata, eq(chatMetadata.reportId, reports.id))
+      .where(isNull(reports.interviewAudioUrl));
 
     logger.info(
       {
         message: "MONITORING",
-        count: interviewsToProcess.length,
+        count: reportsToProcess.length,
         unit: "Count",
         metric: "MissingAudio",
         lambda: "GenerateMissingAudio",
@@ -37,23 +38,23 @@ export const handler = Sentry.wrapHandler(async () => {
       "Missing audio metric"
     );
 
-    if (interviewsToProcess.length > 0) {
+    if (reportsToProcess.length > 0) {
       await sendDiscordDM({
-        title: "⚠️ Generating missing audio for interviews",
+        title: "⚠️ Generating missing audio for reports",
         metadata: {
-          Count: interviewsToProcess.length,
-          "Interview IDs": interviewsToProcess.map((i) => i.id).join(", "),
+          Count: reportsToProcess.length,
+          "Report IDs": reportsToProcess.map((r) => r.id).join(", "),
           Timestamp: new Date().toISOString(),
         },
       });
     }
 
-    for (const interview of interviewsToProcess) {
-      logger.info({ interviewId: interview.id }, "Requesting audio reconstruction");
+    for (const report of reportsToProcess) {
+      logger.info({ reportId: report.id }, "Requesting audio reconstruction");
       try {
-        const reconstructionResponse = await requestChatAudioReconstruction(interview.chatId);
+        const reconstructionResponse = await requestChatAudioReconstruction(report.chatId);
         logger.info(
-          { interviewId: interview.id, reconstructionResponse },
+          { reportId: report.id, reconstructionResponse },
           "Audio reconstruction requested"
         );
       } catch (error) {
@@ -61,10 +62,10 @@ export const handler = Sentry.wrapHandler(async () => {
           scope.setExtra("context", "generateMissingAudio");
           scope.setExtra("error", error);
           scope.setExtra("message", error instanceof Error ? error.message : error);
-          scope.setExtra("interviewId", interview.id);
+          scope.setExtra("reportId", report.id);
           Sentry.captureException(error);
         });
-        logger.error({ error, interviewId: interview.id }, "Error requesting audio reconstruction");
+        logger.error({ error, reportId: report.id }, "Error requesting audio reconstruction");
         continue;
       }
 
@@ -77,9 +78,9 @@ export const handler = Sentry.wrapHandler(async () => {
           },
           body: JSON.stringify({
             data: {
-              interviewId: interview.id,
+              reportId: report.id,
             },
-            userId: interview.userId,
+            userId: report.userId,
             queueType: "save-interview-audio-to-s3",
           }),
         });
@@ -87,7 +88,7 @@ export const handler = Sentry.wrapHandler(async () => {
         if (!queueResponse.ok) {
           logger.error(
             {
-              interviewId: interview.id,
+              reportId: report.id,
               error: queueResponse.statusText,
               status: queueResponse.status,
               queueData,
@@ -95,23 +96,23 @@ export const handler = Sentry.wrapHandler(async () => {
             "Failed to queue save-audio-to-s3"
           );
         }
-        logger.info({ interviewId: interview.id }, "Queued save-audio-to-s3");
+        logger.info({ reportId: report.id }, "Queued save-audio-to-s3");
       } catch (error) {
         Sentry.withScope((scope) => {
           scope.setExtra("context", "generateMissingAudio");
           scope.setExtra("error", error);
           scope.setExtra("message", error instanceof Error ? error.message : error);
-          scope.setExtra("interviewId", interview.id);
+          scope.setExtra("reportId", report.id);
           Sentry.captureException(error);
         });
-        logger.error({ error, interviewId: interview.id }, "Error queueing save-audio-to-s3");
+        logger.error({ error, reportId: report.id }, "Error queueing save-audio-to-s3");
       }
     }
 
     return {
       statusCode: 200,
       body: JSON.stringify({
-        message: `Processed ${interviewsToProcess.length} interviews with missing audio`,
+        message: `Processed ${reportsToProcess.length} reports with missing audio`,
       }),
     };
   } catch (error) {
