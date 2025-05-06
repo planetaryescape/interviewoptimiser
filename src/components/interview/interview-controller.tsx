@@ -70,7 +70,7 @@ export function InterviewController() {
 
   const { mutate: createChatMetadata } = useMutation({
     mutationFn: async (metadata: NewChatMetadata) => {
-      const chatMetadataRepo = await getRepository<ChatMetadata>("chatMetadata");
+      const chatMetadataRepo = await getRepository<ChatMetadata>("chat-metadata");
       return await chatMetadataRepo.create({
         ...metadata,
         createdAt: new Date(),
