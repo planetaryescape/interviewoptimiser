@@ -71,11 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     const existingChatMetadata = await db.query.chatMetadata.findFirst({
-      where: and(
-        eq(chatMetadata.chatGroupId, chatGroupId),
-        eq(chatMetadata.chatId, chatId),
-        eq(chatMetadata.requestId, requestId)
-      ),
+      where: and(eq(chatMetadata.chatId, chatId)),
     });
 
     if (existingChatMetadata) {
