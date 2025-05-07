@@ -60,15 +60,20 @@ export default function ClientComponent({
 
   const generateReportMutation = useMutation({
     mutationFn: async () => {
+      const body = {
+        interviewId: params.interviewId,
+        reportId: idHandler.encode(activeInterviewChatMetadata?.reportId || 0),
+      };
+
+      console.log("body", body);
+      console.log("activeInterviewChatMetadata:", activeInterviewChatMetadata);
+
       const response = await fetch("/api/report", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          interviewId: params.interviewId,
-          reportId: idHandler.encode(activeInterviewChatMetadata?.reportId || 0),
-        }),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
