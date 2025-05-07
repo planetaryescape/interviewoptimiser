@@ -1,5 +1,6 @@
 import { getUserFromClerkId } from "@/lib/auth";
 import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
+import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { and, eq } from "drizzle-orm";
@@ -9,7 +10,13 @@ import { chatMetadata, interviews, reports } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 /**
- * Creates a new chat metadata entry
+ * Creates a new chat metadata entry in an idempotent way.
+ *
+ * If a chat metadata record with the same chatGroupId, chatId, and requestId already exists,
+ * returns the existing record and does not create a new report or chat metadata entry.
+ * Otherwise, creates a new report and a new chat metadata entry, linking them appropriately.
+ *
+ * This endpoint is idempotent: repeated POSTs with the same identifiers will not create duplicates.
  */
 export async function POST(request: NextRequest) {
   logger.info("POST request received at /api/chat-metadata");
@@ -31,14 +38,22 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { customSessionId, chatGroupId, chatId, requestId, interviewId } = body;
+    const {
+      customSessionId,
+      chatGroupId,
+      chatId,
+      requestId,
+      interviewId: interviewIdString,
+    } = body;
 
-    if (!interviewId) {
+    if (!interviewIdString) {
       logger.warn("Missing required field: interviewId");
       return NextResponse.json(formatErrorEntity("Missing required field: interviewId"), {
         status: 400,
       });
     }
+
+    const interviewId = idHandler.decode(interviewIdString);
 
     if (!chatGroupId) {
       logger.warn("Missing required field: chatGroupId");

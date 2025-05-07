@@ -20,25 +20,6 @@ import { toast } from "sonner";
 import type { Interview, NewChatMetadata, NewInterview, User } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
-interface VoiceStatus {
-  value: "disconnected" | "connecting" | "connected";
-  reason?: string;
-  sendUserInput: (message: string) => void;
-  messages: any[];
-}
-
-interface VoiceMessage {
-  type: string;
-  message: {
-    content: string;
-    prosody: {
-      scores: {
-        [key: string]: number;
-      };
-    };
-  };
-}
-
 export function InterviewController() {
   const params = useParams();
   const queryClient = useQueryClient();
@@ -74,14 +55,14 @@ export function InterviewController() {
 
   const { mutate: createChatMetadata } = useMutation({
     mutationFn: async (
-      metadata: Omit<NewChatMetadata, "reportId"> & { interviewId: number; reportId?: number }
+      metadata: Omit<NewChatMetadata, "reportId"> & { interviewId: string; reportId?: number }
     ) => {
       const chatMetadataRepo = await getRepository<
-        Omit<NewChatMetadata, "reportId"> & { interviewId: number; reportId?: number }
+        Omit<NewChatMetadata, "reportId"> & { interviewId: string; reportId?: number }
       >("chat-metadata");
       return await chatMetadataRepo.create({
         ...metadata,
-        interviewId: Number.parseInt(params.interviewId as string),
+        interviewId: params.interviewId as string,
         createdAt: new Date(),
         updatedAt: new Date(),
         customSessionId: metadata.customSessionId || null,
@@ -148,7 +129,7 @@ export function InterviewController() {
           ...chatMetadata,
           chatGroupId: chatMetadata.chatGroupId || "",
           chatId: chatMetadata.chatId || "",
-          interviewId: Number.parseInt(params.interviewId as string),
+          interviewId: params.interviewId as string,
           createdAt: new Date(),
           updatedAt: new Date(),
         });
@@ -180,7 +161,7 @@ export function InterviewController() {
           ...chatMetadata,
           chatGroupId: chatMetadata.chatGroupId || "",
           chatId: chatMetadata.chatId || "",
-          interviewId: Number.parseInt(params.interviewId as string),
+          interviewId: params.interviewId as string,
           createdAt: new Date(),
           updatedAt: new Date(),
         });
@@ -237,6 +218,17 @@ export function InterviewController() {
       queryClient.invalidateQueries({
         queryKey: ["interview", params.interviewId],
       });
+
+      if (chatMetadata) {
+        createChatMetadata({
+          ...chatMetadata,
+          chatGroupId: chatMetadata.chatGroupId || "",
+          chatId: chatMetadata.chatId || "",
+          interviewId: params.interviewId as string,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      }
     },
     onError: (error) => {
       Sentry.withScope((scope) => {
@@ -245,6 +237,17 @@ export function InterviewController() {
         Sentry.captureException(error);
       });
       toast.error("Error updating interview. Please try again.");
+
+      if (chatMetadata) {
+        createChatMetadata({
+          ...chatMetadata,
+          chatGroupId: chatMetadata.chatGroupId || "",
+          chatId: chatMetadata.chatId || "",
+          interviewId: params.interviewId as string,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      }
     },
   });
 
@@ -265,7 +268,7 @@ export function InterviewController() {
             ...chatMetadata,
             chatGroupId: chatMetadata.chatGroupId || "",
             chatId: chatMetadata.chatId || "",
-            interviewId: Number.parseInt(params.interviewId as string),
+            interviewId: params.interviewId as string,
             createdAt: new Date(),
             updatedAt: new Date(),
           });
@@ -283,7 +286,7 @@ export function InterviewController() {
           ...chatMetadata,
           chatGroupId: chatMetadata.chatGroupId || "",
           chatId: chatMetadata.chatId || "",
-          interviewId: Number.parseInt(params.interviewId as string),
+          interviewId: params.interviewId as string,
           createdAt: new Date(),
           updatedAt: new Date(),
         });
