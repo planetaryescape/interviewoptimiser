@@ -6,7 +6,7 @@ import * as Sentry from "@sentry/nextjs";
 import { and, eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
-import { chatMetadata, interviews, reports } from "~/db/schema";
+import { chatMetadata, reports } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 /**
@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
     }
 
     const interviewId = idHandler.decode(interviewIdString);
+    console.log("interviewId:", interviewId);
 
     if (!chatGroupId) {
       logger.warn("Missing required field: chatGroupId");
@@ -66,25 +67,6 @@ export async function POST(request: NextRequest) {
       logger.warn("Missing required field: chatId");
       return NextResponse.json(formatErrorEntity("Missing required field: chatId"), {
         status: 400,
-      });
-    }
-
-    // Check if the interview exists and belongs to the user
-    const interview = await db.query.interviews.findFirst({
-      where: eq(interviews.id, interviewId),
-    });
-
-    if (!interview) {
-      logger.warn({ interviewId }, "Interview not found");
-      return NextResponse.json(formatErrorEntity("Interview not found"), {
-        status: 404,
-      });
-    }
-
-    if (interview.userId !== userId && role !== "admin") {
-      logger.warn({ interviewId, userId }, "Unauthorized access to interview");
-      return NextResponse.json(formatErrorEntity("Unauthorized"), {
-        status: 401,
       });
     }
 
