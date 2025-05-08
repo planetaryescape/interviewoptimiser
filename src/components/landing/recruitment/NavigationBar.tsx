@@ -13,7 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const LOGO_PATH = "/logo.svg";
+const LOGO_PATH = "/logo.png";
 const LOGO_ALT = "Interview Optimiser Logo";
 
 export default function NavigationBar() {
