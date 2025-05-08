@@ -1,21 +1,23 @@
 "use client";
 
-import { Header } from "@/components/header";
+import { DashboardHeader } from "@/components/dashboard-header";
 import { ClerkProvider } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
 import type { ReactNode } from "react";
 import { Toaster } from "sonner";
 
-export default function LandingPage({ children }: { children: ReactNode }) {
+export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { theme } = useTheme();
 
   return (
-    <div className="max-h-screen min-h-screen grid grid-rows-[auto_1fr] overflow-hidden">
+    <div className="flex flex-col relative min-h-screen">
       <ClerkProvider dynamic>
-        <Header className="row-span-1" />
+        <div className="fixed top-0 left-0 right-0 z-[9999]">
+          <DashboardHeader />
+        </div>
       </ClerkProvider>
 
-      <main className="text-muted-foreground row-span-1 overflow-hidden">{children}</main>
+      <main className="flex-grow pt-16 overflow-auto">{children}</main>
 
       <Toaster
         position="top-center"

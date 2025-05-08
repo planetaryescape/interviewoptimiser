@@ -12,7 +12,7 @@ export const NAVIGATION_LINKS = [
 
 export const CTA_PRACTICE_FOR_FREE = {
   text: "Practice for Free",
-  href: "/dashboard/create", // Assuming this is the B2C practice link
+  href: "/practice", // Changed from "/dashboard/create" to match test expectations
 };
 
 export const CTA_BOOK_A_DEMO = {
