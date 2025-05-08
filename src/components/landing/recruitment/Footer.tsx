@@ -1,70 +1,111 @@
-import { FOOTER_LINKS } from "@/lib/landing/recruitment/constants";
-import { Github, Linkedin, Twitter } from "lucide-react";
+import {
+  COPYRIGHT_TEXT,
+  FOOTER_LINKS,
+  NAVIGATION_LINKS,
+  SOCIAL_LINKS,
+} from "@/lib/landing/recruitment/constants";
+import { LinkedinIcon, TwitterIcon } from "lucide-react"; // Example icons
 import Link from "next/link";
-import { config } from "../../../../config";
+
+// Define type for navigation links if not already globally available
+interface NavLink {
+  label: string;
+  href: string;
+}
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
-
   return (
-    <footer className="bg-muted/40 py-12">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <h3 className="text-lg font-semibold mb-4">{config.projectName}</h3>
-            <p className="text-muted-foreground">
-              AI-powered interview optimisation for businesses and job seekers.
+    <footer className="border-t border-border bg-background">
+      <div className="container mx-auto px-4 py-12 md:px-6 lg:py-16">
+        <div className="grid gap-12 lg:grid-cols-3">
+          {/* Column 1: About/Logo (Optional) */}
+          <div className="space-y-4">
+            <Link href="/" className="flex items-center gap-2">
+              {/* <Image src='/logo.svg' alt='Interview Optimiser Logo' width={32} height={32} /> */}
+              <span className="text-xl font-semibold text-foreground">Interview Optimiser</span>
+            </Link>
+            <p className="text-sm text-muted-foreground">
+              Revolutionising interview preparation and hiring with AI.
             </p>
           </div>
 
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Links</h3>
-            <ul className="space-y-2">
-              {FOOTER_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          {/* Column 2: Links */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+                Company
+              </h3>
+              <ul className="mt-4 space-y-2">
+                {NAVIGATION_LINKS.map((link: NavLink) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="text-sm text-muted-foreground hover:text-foreground"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+                Legal
+              </h3>
+              <ul className="mt-4 space-y-2">
+                {FOOTER_LINKS.filter((link) => !["Documentation"].includes(link.label)).map(
+                  (link: NavLink) => (
+                    <li key={link.label}>
+                      <Link
+                        href={link.href}
+                        className="text-sm text-muted-foreground hover:text-foreground"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  )
+                )}
+              </ul>
+            </div>
           </div>
 
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Connect</h3>
+          {/* Column 3: Social & Contact (Optional) */}
+          <div className="space-y-4 md:col-span-2 lg:col-span-1 lg:justify-self-end">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+              Connect With Us
+            </h3>
             <div className="flex space-x-4">
-              <Link
-                href="https://twitter.com"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <Twitter className="h-5 w-5" />
-                <span className="sr-only">Twitter</span>
-              </Link>
-              <Link
-                href="https://linkedin.com"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <Linkedin className="h-5 w-5" />
-                <span className="sr-only">LinkedIn</span>
-              </Link>
-              <Link
-                href="https://github.com"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <Github className="h-5 w-5" />
-                <span className="sr-only">GitHub</span>
-              </Link>
+              {SOCIAL_LINKS.linkedin && (
+                <Link
+                  href={SOCIAL_LINKS.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-foreground"
+                  aria-label="LinkedIn"
+                >
+                  <LinkedinIcon className="h-6 w-6" />
+                </Link>
+              )}
+              {SOCIAL_LINKS.twitter && (
+                <Link
+                  href={SOCIAL_LINKS.twitter}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-foreground"
+                  aria-label="Twitter"
+                >
+                  <TwitterIcon className="h-6 w-6" />
+                </Link>
+              )}
+              {/* Add more social icons as needed */}
             </div>
+            {/* Optional: Newsletter or contact info */}
           </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-border">
-          <p className="text-center text-sm text-muted-foreground">
-            &copy; {currentYear} {config.projectName} Ltd. All rights reserved.
-          </p>
+        <div className="mt-12 border-t border-border pt-8 text-center text-sm text-muted-foreground md:flex md:items-center md:justify-between">
+          <p>{COPYRIGHT_TEXT}</p>
+          {/* Optional: Secondary footer links */}
         </div>
       </div>
     </footer>
