@@ -3,10 +3,17 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { BarChart3, FileUp, Link as LinkIcon, Trophy } from "lucide-react";
+import { useState } from "react";
 import SectionTitle from "../ui/SectionTitle";
 import SectionWrapper from "../ui/SectionWrapper";
+import ScorecardModal from "./ScorecardModal";
 
 export default function HowItWorksSection() {
+  const [isScorecardModalOpen, setIsScorecardModalOpen] = useState(false);
+
+  const openScorecardModal = () => setIsScorecardModalOpen(true);
+  const closeScorecardModal = () => setIsScorecardModalOpen(false);
+
   const steps = [
     {
       id: "step-1",
@@ -39,7 +46,7 @@ export default function HowItWorksSection() {
   ];
 
   return (
-    <SectionWrapper className="bg-muted/20 relative overflow-hidden" id="how-it-works">
+    <SectionWrapper className="bg-muted/20 relative overflow-hidden" id="how-it-works-business">
       {/* Background pattern */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-grid-pattern opacity-5" />
@@ -120,6 +127,15 @@ export default function HowItWorksSection() {
                 <span className="text-primary">Step {index + 1}:</span> {step.title}
               </h3>
               <p className="text-muted-foreground">{step.description}</p>
+              {index === 3 && (
+                <Button
+                  variant="link"
+                  className="mt-2 text-primary p-0 h-auto font-medium"
+                  onClick={openScorecardModal}
+                >
+                  View Sample Scorecard
+                </Button>
+              )}
             </motion.div>
           </motion.div>
         ))}
@@ -132,7 +148,11 @@ export default function HowItWorksSection() {
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.5, delay: 0.8 }}
       >
-        <Button variant="outline" className="relative overflow-hidden group">
+        <Button
+          variant="outline"
+          className="relative overflow-hidden group"
+          onClick={openScorecardModal}
+        >
           <span className="relative z-10">View Sample Scorecard</span>
           <span className="absolute inset-0 bg-primary/5 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300" />
         </Button>
@@ -140,6 +160,9 @@ export default function HowItWorksSection() {
           See an anonymised example of our detailed candidate reports
         </p>
       </motion.div>
+
+      {/* Scorecard Modal */}
+      <ScorecardModal isOpen={isScorecardModalOpen} onClose={closeScorecardModal} />
     </SectionWrapper>
   );
 }

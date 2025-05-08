@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { CTA } from "@/lib/landing/recruitment/constants";
+import { CTA_PRACTICE_FOR_FREE } from "@/lib/landing/recruitment/constants";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import SectionWrapper from "../ui/SectionWrapper";
@@ -117,14 +117,14 @@ export default function CandidatePracticeZone() {
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
         >
           <Button size="lg" asChild className="relative overflow-hidden">
-            <Link href={CTA.b2c.href}>
+            <Link href={CTA_PRACTICE_FOR_FREE.href}>
               <motion.span
                 className="absolute inset-0 bg-primary/10"
                 initial={{ scale: 0 }}
                 whileHover={{ scale: 1 }}
                 transition={{ duration: 0.3 }}
               />
-              {CTA.b2c.label}
+              {CTA_PRACTICE_FOR_FREE.text}
             </Link>
           </Button>
         </motion.div>
