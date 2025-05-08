@@ -10,21 +10,25 @@ import { useState } from "react";
 
 interface HeroCopyProps {
   onOpenDemoModal: () => void;
+  centerAligned?: boolean;
 }
 
-export default function HeroCopy({ onOpenDemoModal }: HeroCopyProps) {
+export default function HeroCopy({ onOpenDemoModal, centerAligned = false }: HeroCopyProps) {
   const [isHoveredPrimary, setIsHoveredPrimary] = useState(false);
   const [isHoveredSecondary, setIsHoveredSecondary] = useState(false);
 
   return (
     <motion.div
-      className="space-y-6"
+      className={cn("space-y-8", centerAligned && "text-center")}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
       <motion.h1
-        className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight"
+        className={cn(
+          "text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight",
+          centerAligned && "mx-auto max-w-6xl"
+        )}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.7 }}
@@ -32,7 +36,10 @@ export default function HeroCopy({ onOpenDemoModal }: HeroCopyProps) {
         Live, adaptive AI interviews—at any scale.
       </motion.h1>
       <motion.p
-        className="text-xl text-muted-foreground"
+        className={cn(
+          "text-xl md:text-2xl text-muted-foreground",
+          centerAligned && "mx-auto max-w-3xl"
+        )}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.7 }}
@@ -41,7 +48,7 @@ export default function HeroCopy({ onOpenDemoModal }: HeroCopyProps) {
         talent your competitors miss.
       </motion.p>
       <motion.div
-        className="flex flex-wrap gap-4 pt-4"
+        className={cn("flex flex-wrap gap-4 pt-4", centerAligned && "justify-center")}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6, duration: 0.7 }}
@@ -87,7 +94,7 @@ export default function HeroCopy({ onOpenDemoModal }: HeroCopyProps) {
         </Button>
       </motion.div>
       <motion.div
-        className="pt-2"
+        className={cn("pt-2", centerAligned && "flex justify-center")}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8, duration: 0.7 }}
@@ -100,7 +107,7 @@ export default function HeroCopy({ onOpenDemoModal }: HeroCopyProps) {
         </Link>
       </motion.div>
       <motion.div
-        className="pt-2"
+        className={cn("pt-2", centerAligned && "flex justify-center")}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 0.7 }}
