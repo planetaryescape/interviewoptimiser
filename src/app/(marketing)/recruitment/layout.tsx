@@ -21,14 +21,28 @@ export const metadata: Metadata = {
     description: "Scale your screening, cut hiring time, and discover top talent.",
     url: `${config.baseUrl}/recruitment`,
     siteName: config.projectName,
-    images: [{ url: "/images/recruitment/og-recruitment.jpg", width: 1200, height: 630 }],
+    images: [
+      {
+        url: "/api/og/recruitment",
+        width: 1200,
+        height: 630,
+        alt: "AI-Powered Recruitment with Interview Optimiser",
+      },
+    ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: `AI-Powered Interview Optimisation | ${config.projectName}`,
     description: "Revolutionise your hiring with AI-driven interviews.",
-    images: ["/images/recruitment/twitter-recruitment.jpg"],
+    images: [
+      {
+        url: "/api/og/recruitment/twitter",
+        width: 1200,
+        height: 600,
+        alt: "AI-Powered Recruitment with Interview Optimiser",
+      },
+    ],
   },
   alternates: {
     canonical: `${config.baseUrl}/recruitment`,

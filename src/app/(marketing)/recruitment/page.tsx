@@ -16,7 +16,7 @@ import { Suspense } from "react";
 export default function RecruitmentPage() {
   return (
     <>
-      <SchemaMarkup />
+      <SchemaMarkup includeProductSchema={true} />
 
       <Suspense fallback={null}>
         <HeroSection />
