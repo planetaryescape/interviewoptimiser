@@ -1,9 +1,14 @@
+import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
 interface StatCardProps {
   count: string;
   label: string;
   delay?: number;
+}
+
+interface HeroBadgeRowProps {
+  centerAligned?: boolean;
 }
 
 function StatCard({ count, label, delay = 0 }: StatCardProps) {
@@ -27,26 +32,31 @@ const STATS = {
   PROFESSIONALS_SERVED: "120+",
 };
 
-export default function HeroBadgeRow() {
+export default function HeroBadgeRow({ centerAligned = false }: HeroBadgeRowProps) {
   return (
     <motion.div
-      className="w-full mt-8 md:mt-12"
+      className={cn("w-full mt-8 md:mt-12", centerAligned ? "text-center" : "")}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 1.2, duration: 0.7 }}
     >
-      <div className="text-center mb-2 text-sm font-medium text-muted-foreground">
+      <div className="text-center mb-4 text-sm font-medium text-muted-foreground">
         Our AI: Proven & Engaging
       </div>
-      <div className="flex flex-wrap justify-center items-center gap-2 md:gap-8">
+      <div
+        className={cn(
+          "flex items-center justify-center",
+          centerAligned ? "justify-center" : "justify-start"
+        )}
+      >
         <StatCard count={STATS.INTERVIEWS_CONDUCTED} label="AI Interviews Conducted" delay={0} />
-        <div className="hidden md:block h-10 w-px bg-border" aria-hidden="true" />
+        <div className="h-10 w-px bg-border mx-6" aria-hidden="true" />
         <StatCard
           count={STATS.MINUTES_LOGGED}
           label="Minutes of Adaptive Dialogue Logged"
           delay={0.2}
         />
-        <div className="hidden md:block h-10 w-px bg-border" aria-hidden="true" />
+        <div className="h-10 w-px bg-border mx-6" aria-hidden="true" />
         <StatCard
           count={STATS.PROFESSIONALS_SERVED}
           label="Professionals Advancing Their Careers"
