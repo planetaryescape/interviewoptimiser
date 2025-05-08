@@ -1,3 +1,4 @@
+import SchemaMarkup from "@/components/landing/recruitment/SchemaMarkup";
 import B2BTestimonialsSection from "@/components/landing/recruitment/sections/B2BTestimonialsSection";
 import CandidatePracticeZone from "@/components/landing/recruitment/sections/CandidatePracticeZone";
 import ContactFormSection from "@/components/landing/recruitment/sections/ContactFormSection";
@@ -15,6 +16,8 @@ import { Suspense } from "react";
 export default function RecruitmentPage() {
   return (
     <>
+      <SchemaMarkup />
+
       <Suspense fallback={null}>
         <HeroSection />
       </Suspense>

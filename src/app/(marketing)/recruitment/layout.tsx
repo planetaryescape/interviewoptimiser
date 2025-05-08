@@ -5,6 +5,7 @@ import { config } from "../../../../config";
 import Footer from "@/components/landing/recruitment/Footer";
 // Components will be created in subsequent steps
 import NavigationBar from "@/components/landing/recruitment/NavigationBar";
+import SchemaMarkup from "@/components/landing/recruitment/SchemaMarkup";
 
 // Choose primary font for the page
 const fontSans = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -20,18 +21,18 @@ export const metadata: Metadata = {
     description: "Scale your screening, cut hiring time, and discover top talent.",
     url: `${config.baseUrl}/recruitment`,
     siteName: config.projectName,
-    // images: [{ url: `${config.baseUrl}/og-recruitment.jpg`, width: 1200, height: 630 }],
+    images: [{ url: "/images/recruitment/og-recruitment.jpg", width: 1200, height: 630 }],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: `AI-Powered Interview Optimisation | ${config.projectName}`,
     description: "Revolutionise your hiring with AI-driven interviews.",
-    // images: [`${config.baseUrl}/twitter-recruitment.jpg`],
+    images: ["/images/recruitment/twitter-recruitment.jpg"],
   },
-  // alternates: {
-  //   canonical: `${config.baseUrl}/recruitment`,
-  // },
+  alternates: {
+    canonical: `${config.baseUrl}/recruitment`,
+  },
 };
 
 export const viewport: Viewport = {
@@ -49,6 +50,8 @@ export default function RecruitmentLayout({
   return (
     // This layout assumes ThemeProvider is in a higher-level root layout
     <div className={`flex flex-col min-h-screen ${fontSans.variable} font-sans antialiased`}>
+      {/* Organization and WebSite schema markup */}
+      <SchemaMarkup />
       <NavigationBar />
       <main className="flex-grow">{children}</main>
       <Footer />
