@@ -5,9 +5,13 @@ interface SchemaMarkupProps {
     question: string;
     answer: string;
   }>;
+  includeProductSchema?: boolean;
 }
 
-export default function SchemaMarkup({ faqs = [] }: SchemaMarkupProps) {
+export default function SchemaMarkup({
+  faqs = [],
+  includeProductSchema = false,
+}: SchemaMarkupProps) {
   // Organization Schema
   const organizationSchema = {
     "@context": "https://schema.org",
@@ -89,10 +93,12 @@ export default function SchemaMarkup({ faqs = [] }: SchemaMarkupProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
-      />
+      {includeProductSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+        />
+      )}
       {faqSchema && (
         <script
           type="application/ld+json"

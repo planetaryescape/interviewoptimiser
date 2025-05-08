@@ -71,9 +71,6 @@ export default function FAQSection() {
 
   return (
     <SectionWrapper className="bg-muted/20" id="faq">
-      {/* FAQ Schema Markup */}
-      <SchemaMarkup faqs={faqs} />
-
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -82,6 +79,9 @@ export default function FAQSection() {
       >
         <SectionTitle>Frequently Asked Questions</SectionTitle>
       </motion.div>
+
+      {/* Add FAQ Schema Markup */}
+      <SchemaMarkup faqs={faqs} />
 
       <motion.div
         className="max-w-3xl mx-auto mt-8"
