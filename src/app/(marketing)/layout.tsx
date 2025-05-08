@@ -16,7 +16,7 @@ export default function LandingPage({ children }: { children: ReactNode }) {
   const isRecruitmentPage = pathname === "/recruitment";
 
   return (
-    <div className="flex flex-col relative">
+    <div className="flex flex-col relative min-h-screen">
       <ClerkProvider dynamic>
         {!isRecruitmentPage && (
           <div className="fixed top-0 left-0 right-0 z-[9999]">
@@ -27,7 +27,11 @@ export default function LandingPage({ children }: { children: ReactNode }) {
 
       <main className={`flex-grow ${!isRecruitmentPage ? "pt-16" : ""}`}>{children}</main>
 
-      {!isRecruitmentPage && <Footer />}
+      {!isRecruitmentPage && (
+        <div className="mt-auto">
+          <Footer />
+        </div>
+      )}
 
       <Toaster
         position="top-center"
