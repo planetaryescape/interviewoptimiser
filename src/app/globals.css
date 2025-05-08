@@ -91,27 +91,28 @@
   }
 }
 
+@layer components {
+  body {
+    @apply text-style-body-base bg-background text-foreground;
+    /* font-family is now applied by text-style-body-base which uses theme.fontFamily.sans */
+    /* background-color is now bg-background which maps to hsl(var(--background)) */
+    /* text-foreground maps to hsl(var(--foreground)) */
+  }
+
+  /* Remove or adjust global h1-h6 styles if they conflict with new text utilities */
+  /* For now, we'll rely on applying text-style-h1 etc. explicitly */
+  /*
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-headingPrimary; // Example, adjust as needed or remove if applying styles directly
+  }
+  */
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
   line-height: 1.5;
-}
-
-body {
-  padding: env(safe-area-inset-top, 20px) env(safe-area-inset-right, 20px)
-    env(safe-area-inset-bottom, 20px) env(safe-area-inset-left, 20px);
-  font-family: var(--font-montserrat), sans-serif;
-  background-color: hsl(var(--gradient));
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-raleway), sans-serif;
 }
 
 .EasyMDEContainer .CodeMirror {

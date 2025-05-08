@@ -67,11 +67,13 @@ const SocialProofContent = () => {
           />
         ))}
       </div>
-      <p className="text-sm">
+      <p className="text-style-body-small">
         Join{" "}
-        <span className="font-bold">{statistics?.usersCount?.toLocaleString() ?? "our"} users</span>{" "}
+        <span className="font-bold text-style-body-small">
+          {statistics?.usersCount?.toLocaleString() ?? "our"} users
+        </span>{" "}
         who have spent over{" "}
-        <span className="font-bold">
+        <span className="font-bold text-style-body-small">
           {statistics?.minutesCount?.toLocaleString() ?? "many"} minutes
         </span>{" "}
         mastering their interview skills
@@ -117,13 +119,13 @@ export function Hero() {
             </div>
 
             <div className="space-y-4">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
+              <h1 className="text-style-display text-foreground">
                 Real Voice AI Interviews with{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-pink-500">
                   Emotional Intelligence
                 </span>
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground">
+              <p className="text-style-body-lead text-muted-foreground">
                 Experience true-to-life interview practice with voice-to-voice AI that adapts to
                 your responses, analyzes your delivery, and provides personalized feedback on both
                 what you say and how you say it.

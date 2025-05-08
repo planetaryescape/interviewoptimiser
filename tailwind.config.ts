@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 const config: Config = {
   darkMode: ["class"],
@@ -51,6 +52,22 @@ const config: Config = {
         geistSans: ["var(--font-geist-sans)", "sans-serif"],
         geistMono: ["var(--font-geist-mono)", "monospace"],
         display: ["var(--font-display)", "system-ui", "sans-serif"],
+        sans: ["var(--font-geist-sans)", "Helvetica", "Arial", "sans-serif"],
+        headingPrimary: ["var(--font-oswald)", "Impact", "sans-serif"],
+        headingSecondary: ["var(--font-montserrat)", "Helvetica", "Arial", "sans-serif"],
+      },
+      fontSize: {
+        xs: ["0.875rem", { lineHeight: "1.25rem" }],
+        sm: ["1rem", { lineHeight: "1.5rem" }],
+        base: ["1.125rem", { lineHeight: "1.75rem" }],
+        lg: ["1.25rem", { lineHeight: "1.75rem" }],
+        xl: ["1.5rem", { lineHeight: "2rem" }],
+        "2xl": ["1.875rem", { lineHeight: "2.25rem" }],
+        "3xl": ["2.25rem", { lineHeight: "2.5rem" }],
+        "4xl": ["3rem", { lineHeight: "1.2" }],
+        "5xl": ["3.75rem", { lineHeight: "1.15" }],
+        "6xl": ["4.5rem", { lineHeight: "1.1" }],
+        "7xl": ["5.625rem", { lineHeight: "1.05" }],
       },
       colors: {
         background: "hsl(var(--background))",
@@ -174,7 +191,101 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require("@tailwindcss/typography"),
+    plugin(({ addComponents, theme }) => {
+      addComponents({
+        ".text-style-display": {
+          fontFamily: theme("fontFamily.headingPrimary"),
+          fontSize: theme("fontSize.5xl"),
+          fontWeight: theme("fontWeight.bold"),
+          lineHeight: "1.05",
+          letterSpacing: theme("letterSpacing.tight"),
+          "@screen sm": {
+            fontSize: theme("fontSize.6xl"),
+          },
+          "@screen lg": {
+            fontSize: theme("fontSize.7xl"),
+          },
+        },
+        ".text-style-h1": {
+          fontFamily: theme("fontFamily.headingPrimary"),
+          fontSize: theme("fontSize.3xl"),
+          fontWeight: theme("fontWeight.bold"),
+          lineHeight: "1.2",
+          letterSpacing: theme("letterSpacing.tight"),
+          "@screen sm": {
+            fontSize: theme("fontSize.4xl"),
+          },
+          "@screen lg": {
+            fontSize: theme("fontSize.5xl"),
+          },
+        },
+        ".text-style-h2": {
+          fontFamily: theme("fontFamily.headingPrimary"),
+          fontSize: theme("fontSize.2xl"),
+          fontWeight: theme("fontWeight.semibold"),
+          lineHeight: "1.25",
+          letterSpacing: theme("letterSpacing.tight"),
+          "@screen sm": {
+            fontSize: theme("fontSize.3xl"),
+          },
+          "@screen lg": {
+            fontSize: theme("fontSize.4xl"),
+          },
+        },
+        ".text-style-h3": {
+          fontFamily: theme("fontFamily.headingSecondary"),
+          fontSize: theme("fontSize.xl"),
+          fontWeight: theme("fontWeight.semibold"),
+          lineHeight: "1.3",
+          "@screen sm": {
+            fontSize: theme("fontSize.2xl"),
+          },
+          "@screen lg": {
+            fontSize: theme("fontSize.3xl"),
+          },
+        },
+        ".text-style-h4": {
+          fontFamily: theme("fontFamily.headingSecondary"),
+          fontSize: theme("fontSize.lg"),
+          fontWeight: theme("fontWeight.semibold"),
+          lineHeight: "1.35",
+          "@screen sm": {
+            fontSize: theme("fontSize.xl"),
+          },
+          "@screen lg": {
+            fontSize: theme("fontSize.2xl"),
+          },
+        },
+        ".text-style-body-lead": {
+          fontFamily: theme("fontFamily.sans"),
+          fontSize: theme("fontSize.lg"),
+          fontWeight: theme("fontWeight.normal"),
+          lineHeight: "1.65",
+        },
+        ".text-style-body-base": {
+          fontFamily: theme("fontFamily.sans"),
+          fontSize: theme("fontSize.base"),
+          fontWeight: theme("fontWeight.normal"),
+          lineHeight: "1.7",
+        },
+        ".text-style-body-small": {
+          fontFamily: theme("fontFamily.sans"),
+          fontSize: theme("fontSize.sm"),
+          fontWeight: theme("fontWeight.normal"),
+          lineHeight: "1.6",
+        },
+        ".text-style-caption": {
+          fontFamily: theme("fontFamily.sans"),
+          fontSize: theme("fontSize.xs"),
+          fontWeight: theme("fontWeight.normal"),
+          lineHeight: "1.5",
+        },
+      });
+    }),
+  ],
 };
 
 export default config;

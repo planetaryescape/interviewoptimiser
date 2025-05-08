@@ -1,5 +1,6 @@
 "use client";
 
+import { SectionTitle } from "@/components/common/section-title";
 import { Button } from "@/components/ui/button";
 import type { EntityList } from "@/lib/utils/formatEntity";
 import { useQuery } from "@tanstack/react-query";
@@ -61,8 +62,10 @@ export function TestimonialsSection() {
       <div className="container px-4 md:px-6 mx-auto">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">What Our Users Say</h2>
-            <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
+            <SectionTitle as="h2" variant="h2" className="tracking-tighter">
+              What Our Users Say
+            </SectionTitle>
+            <p className="max-w-[900px] text-style-body-lead text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
               Don&apos;t just take our word for it. Here&apos;s what people are saying about{" "}
               {config.projectName}.
             </p>
@@ -107,14 +110,16 @@ export function TestimonialsSection() {
 
         <div className="mt-12 space-y-6 text-center">
           <div className="max-w-2xl mx-auto space-y-2">
-            <h3 className="text-xl font-semibold">Have You Used {config.projectName}?</h3>
-            <p className="text-muted-foreground">
+            <SectionTitle as="h3" variant="h3" className="text-foreground">
+              Have You Used {config.projectName}?
+            </SectionTitle>
+            <p className="text-style-body-base text-muted-foreground">
               Your feedback helps us improve and helps others make informed decisions. Whether you
               had a great experience or see room for improvement, we&apos;d love to hear your
               thoughts.
             </p>
           </div>
-          <Button asChild variant="outline" className="group">
+          <Button asChild variant="outline" className="group text-style-body-base">
             <Link href="/submit-testimonial" className="flex items-center gap-2">
               Share Your Experience
               <StarIcon className="h-4 w-4 transition-transform group-hover:scale-110" />
