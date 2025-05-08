@@ -110,9 +110,9 @@ export function Hero() {
   }, [theme]);
 
   return (
-    <div className="relative overflow-hidden min-h-[90vh] flex flex-col justify-center">
-      <div className="max-w-max mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-        <div className="flex flex-col items-center text-center pb-12">
+    <div className="relative overflow-hidden min-h-[calc(100vh-4rem)] flex flex-col justify-center">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+        <div className="flex flex-col items-center text-center">
           <div className="space-y-8 w-full">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20 mx-auto">
@@ -186,7 +186,7 @@ export function Hero() {
 
             {/* Video Section */}
             <div className="w-full mt-12">
-              <div className="relative z-50 max-w-8xl mx-auto">
+              <div className="relative z-10 max-w-6xl mx-auto">
                 <HeroVideoDialog
                   className="dark:hidden block w-full max-h-[550px] aspect-[16/9]"
                   animationStyle="from-center"
