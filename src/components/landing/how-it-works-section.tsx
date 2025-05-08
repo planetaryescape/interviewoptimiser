@@ -1,5 +1,6 @@
 "use client";
 
+import { SectionTitle } from "@/components/common/section-title";
 import { motion } from "framer-motion";
 
 export function HowItWorksSection() {
@@ -29,15 +30,17 @@ export function HowItWorksSection() {
   return (
     <section id="how-it-works" className="relative w-full py-12 md:py-24 lg:py-32">
       <div className="container mx-auto px-4 md:px-6">
-        <motion.h2
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-3xl font-bold sm:text-4xl md:text-5xl mb-8"
+          className="mb-8"
         >
-          How It Works
-        </motion.h2>
+          <SectionTitle as="h2" variant="h2" className="text-center">
+            How It Works
+          </SectionTitle>
+        </motion.div>
         <div className="grid gap-x-10 gap-y-4 md:grid-cols-2 lg:grid-cols-4 grid-rows-[auto_1fr] my-16">
           {steps.map((step, index) => (
             <motion.div
@@ -59,11 +62,17 @@ export function HowItWorksSection() {
                 >
                   {index + 1}
                 </motion.div>
-                <h3 className="text-foreground text-xl font-semibold mb-2 group-hover:text-primary transition-colors duration-300">
+                <SectionTitle
+                  as="h3"
+                  variant="h3"
+                  className="text-left group-hover:text-primary transition-colors duration-300"
+                >
                   {step.title}
-                </h3>
+                </SectionTitle>
               </div>
-              <p className="row-span-1 text-left text-muted-foreground">{step.description}</p>
+              <p className="row-span-1 text-left text-style-body-base text-muted-foreground">
+                {step.description}
+              </p>
               <motion.div
                 animate={{
                   rotate: [0, 360],

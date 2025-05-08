@@ -132,7 +132,9 @@ export default function RootLayout({
                   </ClerkProvider>
                 </Suspense>
                 {/* <ConditionalBlackFridayBanner /> */}
-                {children}
+                <main className="min-h-screen flex flex-col p-[env(safe-area-inset-top,1.25rem)_env(safe-area-inset-right,1.25rem)_env(safe-area-inset-bottom,1.25rem)_env(safe-area-inset-left,1.25rem)]">
+                  {children}
+                </main>
               </ThemeProvider>
               <SpeedInsights />
             </CSPostHogProvider>

@@ -1,6 +1,7 @@
 "use client";
 
 import { BackgroundGradient } from "@/components/background-gradient";
+import { SectionTitle } from "@/components/common/section-title";
 import NumberTicker from "@/components/ui/number-ticker";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
@@ -25,11 +26,11 @@ const StatisticItem = ({
   >
     <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/5 rounded-xl blur-xl group-hover:blur-2xl transition-all duration-500" />
     <div className="relative flex flex-col items-center justify-center space-y-4 p-6 backdrop-blur-sm rounded-xl border border-primary/10 hover:border-primary/20 transition-colors">
-      <h3 className="text-4xl md:text-7xl font-bold bg-gradient-to-r from-primary to-primary/50 bg-clip-text text-transparent text-center">
+      <h3 className="text-style-h3 text-center bg-gradient-to-r from-primary to-primary/50 bg-clip-text text-transparent">
         <NumberTicker value={value} />
       </h3>
       <div className="h-0.5 w-12 bg-gradient-to-r from-primary to-transparent" />
-      <p className="text-lg md:text-xl font-medium text-muted-foreground text-center">{label}</p>
+      <p className="text-style-body-base text-muted-foreground text-center">{label}</p>
     </div>
   </motion.div>
 );
@@ -99,10 +100,14 @@ export function SocialProofSection() {
         className="container relative mx-auto px-4 md:px-6"
       >
         <div className="text-center mb-16 space-y-4">
-          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-primary/50 bg-clip-text text-transparent">
+          <SectionTitle
+            as="h2"
+            variant="h2"
+            className="bg-gradient-to-r from-primary to-primary/50 bg-clip-text text-transparent"
+          >
             Our Growing Impact
-          </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          </SectionTitle>
+          <p className="text-style-body-lead text-muted-foreground max-w-2xl mx-auto">
             Join our community of professionals who are transforming their interview preparation
             journey with us.
           </p>
