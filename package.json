@@ -96,7 +96,7 @@
     "embla-carousel-react": "^8.6.0",
     "esbuild": "^0.24.0",
     "file-saver": "^2.0.5",
-    "framer-motion": "12.0.0-alpha.1",
+    "framer-motion": "^12.10.4",
     "hashids": "^2.3.0",
     "html-docx-js": "^0.3.1",
     "html-to-docx": "^1.8.0",
