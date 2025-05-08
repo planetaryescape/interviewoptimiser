@@ -8,7 +8,7 @@ import { CreditCard } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { config } from "~/config";
 import { Badge } from "./badge";
 import { FeedbackModal } from "./feedback-modal";
@@ -17,6 +17,7 @@ import { ThemeToggle } from "./theme-toggle";
 
 export function Header({ className }: { className?: string }) {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const { data: user } = useUser();
   const isDashboard = pathname.startsWith("/dashboard");
@@ -29,11 +30,24 @@ export function Header({ className }: { className?: string }) {
   const showOptimiseButton =
     !isDashboardLanding && !isLandingPage && !isCreatePage && !isInterviewPage;
 
+  // Add scroll listener to detect when page is scrolled
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 80);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <header
       className={cn(
-        "sticky top-0 w-full border-b backdrop-blur-sm transition-all",
-        isDashboard ? "bg-card/80 border-border" : "bg-background/80 border-border/40",
+        "w-full border-b transition-all duration-300 ease-in-out",
+        isScrolled
+          ? "bg-card/95 backdrop-blur-lg shadow-sm border-border"
+          : isDashboard
+            ? "bg-card/95 border-border"
+            : "bg-background/95 border-border/40",
         className
       )}
     >
@@ -41,7 +55,7 @@ export function Header({ className }: { className?: string }) {
         <div className="relative flex h-16 items-center justify-between">
           <Link
             href="/"
-            className="flex items-center space-x-3 transition-opacity hover:opacity-90"
+            className="flex items-center space-x-3 transition-all duration-300 hover:opacity-90"
           >
             <Image
               src="/logo.png"
