@@ -4,14 +4,13 @@ export interface NavigationLink {
 }
 
 export interface CTALink {
-  label: string;
+  text: string;
   href: string;
 }
 
 export interface SocialLink {
-  label: string;
+  platform: string;
   href: string;
-  icon: string;
 }
 
 export interface FooterLink {
@@ -42,9 +41,10 @@ export interface FAQItem {
 }
 
 export interface StepItem {
+  id: string;
   title: string;
   description: string;
-  icon: string;
+  icon: React.ReactNode;
 }
 
 export interface FeatureCard {
@@ -56,4 +56,9 @@ export interface FeatureCard {
 export interface StatItem {
   value: string;
   label: string;
+}
+
+export interface NavItem {
+  label: string;
+  href: string;
 }
