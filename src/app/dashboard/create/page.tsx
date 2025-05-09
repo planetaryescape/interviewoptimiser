@@ -45,6 +45,7 @@ export default function CreateInterview() {
   } = useCreateInterviewActions();
 
   const [animateStep, setAnimateStep] = useState<number | null>(null);
+  const [animationDir, setAnimationDir] = useState(0);
   const { data: user } = useUser();
   const router = useRouter();
 
@@ -76,15 +77,18 @@ export default function CreateInterview() {
 
   const handleNextStep = () => {
     if (step === 1 && canProceedToStep2) {
+      setAnimationDir(1);
       setAnimateStep(1);
       setStep(2);
     } else if (step === 2 && canProceedToStep3) {
+      setAnimationDir(1);
       setAnimateStep(2);
       setStep(3);
     }
   };
 
   const handleBack = () => {
+    setAnimationDir(-1);
     setStep(Math.max(1, step - 1));
   };
 
@@ -118,7 +122,7 @@ export default function CreateInterview() {
       />
 
       {/* Main content */}
-      <ContentArea />
+      <ContentArea animationDir={animationDir} />
 
       {/* Modals */}
       <ConfirmationModal
