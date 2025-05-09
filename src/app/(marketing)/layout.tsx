@@ -17,21 +17,11 @@ export default function LandingPage({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex flex-col relative min-h-screen">
-      <ClerkProvider dynamic>
-        {!isRecruitmentPage && (
-          <div className="fixed top-0 left-0 right-0 z-[9999]">
-            <Header />
-          </div>
-        )}
-      </ClerkProvider>
+      <ClerkProvider dynamic>{!isRecruitmentPage && <Header />}</ClerkProvider>
 
-      <main className={`flex-grow ${!isRecruitmentPage ? "pt-16" : ""}`}>{children}</main>
+      <main className="flex-grow">{children}</main>
 
-      {!isRecruitmentPage && (
-        <div className="mt-auto">
-          <Footer />
-        </div>
-      )}
+      {!isRecruitmentPage && <Footer />}
 
       <Toaster
         position="top-center"
