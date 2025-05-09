@@ -52,7 +52,7 @@ export const PricingPlanButton = ({
           : "bg-primary/10 text-primary hover:bg-primary/20"
       )}
     >
-      Get started
+      Buy
     </Button>
   );
 };

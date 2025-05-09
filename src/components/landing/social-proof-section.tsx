@@ -25,11 +25,11 @@ const StatisticItem = ({
   >
     <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/5 rounded-xl blur-xl group-hover:blur-2xl transition-all duration-500" />
     <div className="relative flex flex-col items-center justify-center space-y-4 p-6 backdrop-blur-sm rounded-xl border border-primary/10 hover:border-primary/20 transition-colors">
-      <h3 className="text-4xl md:text-7xl font-bold bg-gradient-to-r from-primary to-primary/50 bg-clip-text text-transparent text-center">
+      <h3 className="text-style-h2 font-headingSecondary font-bold text-center bg-gradient-to-r from-primary to-primary/50 bg-clip-text text-transparent">
         <NumberTicker value={value} />
       </h3>
       <div className="h-0.5 w-12 bg-gradient-to-r from-primary to-transparent" />
-      <p className="text-lg md:text-xl font-medium text-muted-foreground text-center">{label}</p>
+      <p className="text-style-body-base text-muted-foreground text-center">{label}</p>
     </div>
   </motion.div>
 );
@@ -50,32 +50,44 @@ const StatisticsContentSkeleton = () => (
   </>
 );
 
+interface StatisticsResponse {
+  data?: {
+    minutesCount?: number;
+    interviewsCount?: number;
+    usersCount?: number;
+  };
+}
+
 const StatisticsContent = () => {
   noStore();
-  const { data: response, isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["statistics"],
-    queryFn: async () => {
+    queryFn: async (): Promise<StatisticsResponse> => {
       const res = await fetch("/api/public/statistics");
       if (!res.ok) {
         throw new Error("Failed to fetch statistics");
       }
       return res.json();
     },
+    staleTime: 1000 * 60 * 60, // Consider data fresh for 1 hour
+    gcTime: 1000 * 60 * 60 * 24, // Keep data in cache for 24 hours
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    refetchOnMount: false, // Don't refetch when component mounts if data is available and not stale
   });
 
   if (isLoading) {
     return <StatisticsContentSkeleton />;
   }
 
-  const statistics = response?.data;
+  const statistics = data?.data || {};
 
   const stats = [
     {
-      value: statistics?.minutesCount ?? 0,
+      value: statistics.minutesCount ?? 0,
       label: "Minutes of Interview Practice",
     },
-    { value: statistics?.interviewsCount ?? 0, label: "Successful Interviews" },
-    { value: statistics?.usersCount ?? 0, label: "Career Journeys Enhanced" },
+    { value: statistics.interviewsCount ?? 0, label: "Successful Interviews" },
+    { value: statistics.usersCount ?? 0, label: "Career Journeys Enhanced" },
   ];
 
   return (
@@ -99,10 +111,10 @@ export function SocialProofSection() {
         className="container relative mx-auto px-4 md:px-6"
       >
         <div className="text-center mb-16 space-y-4">
-          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-primary/50 bg-clip-text text-transparent">
+          <h2 className="text-style-h2 bg-gradient-to-r from-primary to-primary/50 bg-clip-text text-transparent">
             Our Growing Impact
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-style-body-lead text-muted-foreground max-w-2xl mx-auto">
             Join our community of professionals who are transforming their interview preparation
             journey with us.
           </p>
