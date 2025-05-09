@@ -25,7 +25,7 @@ const StatisticItem = ({
   >
     <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/5 rounded-xl blur-xl group-hover:blur-2xl transition-all duration-500" />
     <div className="relative flex flex-col items-center justify-center space-y-4 p-6 backdrop-blur-sm rounded-xl border border-primary/10 hover:border-primary/20 transition-colors">
-      <h3 className="text-style-h3 text-center bg-gradient-to-r from-primary to-primary/50 bg-clip-text text-transparent">
+      <h3 className="text-style-h2 font-headingSecondary font-bold text-center bg-gradient-to-r from-primary to-primary/50 bg-clip-text text-transparent">
         <NumberTicker value={value} />
       </h3>
       <div className="h-0.5 w-12 bg-gradient-to-r from-primary to-transparent" />

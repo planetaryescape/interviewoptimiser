@@ -44,8 +44,8 @@ export function DifferentiatorsSection() {
               </div>
 
               <div className="pt-8">
-                <h3 className="text-style-h3 mb-4 text-center">{item.title}</h3>
-                <p className="text-style-body-base text-muted-foreground leading-relaxed">
+                <h3 className="text-style-h5 mb-4 text-center">{item.title}</h3>
+                <p className="text-style-body-base text-center text-muted-foreground leading-relaxed">
                   {item.description}
                 </p>
               </div>
