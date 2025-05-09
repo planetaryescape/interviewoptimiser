@@ -59,7 +59,7 @@ export function HowItWorksSection() {
                 >
                   {index + 1}
                 </motion.div>
-                <h3 className="text-style-h4 text-left font-medium group-hover:text-primary transition-colors duration-300">
+                <h3 className="text-style-h5 text-left font-medium group-hover:text-primary transition-colors duration-300">
                   {step.title}
                 </h3>
               </div>
