@@ -29,10 +29,10 @@ export function DashboardSidebar() {
       href={href}
       className={cn(
         "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
-        "hover:bg-white/10 active:bg-white/15",
+        "hover:bg-muted/50 active:bg-muted/70",
         pathname === href
-          ? "bg-white/15 text-primary font-medium"
-          : "text-white/80 hover:text-white"
+          ? "bg-muted/70 text-primary font-medium"
+          : "text-muted-foreground hover:text-foreground"
       )}
     >
       <Icon className="h-4 w-4" />
@@ -41,13 +41,13 @@ export function DashboardSidebar() {
   );
 
   return (
-    <aside className="w-64 relative hidden md:flex flex-col justify-between bg-[#1b2230] border-r border-white/10">
+    <aside className="w-64 relative hidden md:flex flex-col justify-between bg-card border-r border-border">
       <div className="relative flex-1 flex flex-col min-h-0">
         <div className="flex-1 flex flex-col pt-8 pb-4 px-4">
           <div className="flex flex-col space-y-1 mb-6">
-            <div className="flex items-center text-white mb-2 px-3">
+            <div className="flex items-center text-foreground mb-2 px-3">
               <Home className="h-4 w-4 mr-2 text-primary" />
-              <span className="font-semibold text-white">Interviews</span>
+              <span className="font-semibold text-foreground">Interviews</span>
             </div>
             <NavItem href="/dashboard" icon={Home}>
               Interviews
@@ -59,7 +59,7 @@ export function DashboardSidebar() {
             {isAdmin && (
               <>
                 <div className="mt-6 mb-2 px-3">
-                  <p className="text-xs font-medium text-white/70">Admin</p>
+                  <p className="text-xs font-medium text-muted-foreground">Admin</p>
                 </div>
                 <NavItem href="/dashboard/admin" icon={BarChart3}>
                   Interviews
@@ -74,7 +74,7 @@ export function DashboardSidebar() {
             )}
 
             <div className="mt-6 mb-2 px-3">
-              <p className="text-xs font-medium text-white/70">Settings</p>
+              <p className="text-xs font-medium text-muted-foreground">Settings</p>
             </div>
             <NavItem href="/dashboard/settings" icon={Cog}>
               Settings
@@ -83,10 +83,10 @@ export function DashboardSidebar() {
         </div>
 
         <div className="relative p-4">
-          <div className="rounded-lg border border-white/10 bg-black/20 p-4">
+          <div className="rounded-lg border border-border bg-muted/20 p-4">
             <Button
               variant="ghost"
-              className="w-full justify-start text-white hover:bg-white/10"
+              className="w-full justify-start hover:bg-muted/50"
               onClick={() => setIsFeedbackModalOpen(true)}
             >
               <MessageSquare className="mr-2 h-4 w-4" />
