@@ -50,32 +50,44 @@ const StatisticsContentSkeleton = () => (
   </>
 );
 
+interface StatisticsResponse {
+  data?: {
+    minutesCount?: number;
+    interviewsCount?: number;
+    usersCount?: number;
+  };
+}
+
 const StatisticsContent = () => {
   noStore();
-  const { data: response, isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["statistics"],
-    queryFn: async () => {
+    queryFn: async (): Promise<StatisticsResponse> => {
       const res = await fetch("/api/public/statistics");
       if (!res.ok) {
         throw new Error("Failed to fetch statistics");
       }
       return res.json();
     },
+    staleTime: 1000 * 60 * 60, // Consider data fresh for 1 hour
+    gcTime: 1000 * 60 * 60 * 24, // Keep data in cache for 24 hours
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    refetchOnMount: false, // Don't refetch when component mounts if data is available and not stale
   });
 
   if (isLoading) {
     return <StatisticsContentSkeleton />;
   }
 
-  const statistics = response?.data;
+  const statistics = data?.data || {};
 
   const stats = [
     {
-      value: statistics?.minutesCount ?? 0,
+      value: statistics.minutesCount ?? 0,
       label: "Minutes of Interview Practice",
     },
-    { value: statistics?.interviewsCount ?? 0, label: "Successful Interviews" },
-    { value: statistics?.usersCount ?? 0, label: "Career Journeys Enhanced" },
+    { value: statistics.interviewsCount ?? 0, label: "Successful Interviews" },
+    { value: statistics.usersCount ?? 0, label: "Career Journeys Enhanced" },
   ];
 
   return (

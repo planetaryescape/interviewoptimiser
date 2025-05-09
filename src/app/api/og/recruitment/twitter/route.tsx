@@ -4,6 +4,9 @@ import { config } from "../../../../../../config";
 export const runtime = "edge";
 export const contentType = "image/png";
 
+// Set correct type for the route handler to fix type error
+export type ImageResponseType = ImageResponse;
+
 // Image metadata - Twitter recommends 2:1 aspect ratio
 export const size = {
   width: 1200,

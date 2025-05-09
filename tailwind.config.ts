@@ -126,6 +126,25 @@ const config: Config = {
             opacity: "0.5",
           },
         },
+        float: {
+          "0%, 100%": {
+            transform: "translateY(0px)",
+          },
+          "50%": {
+            transform: "translateY(-10px)",
+          },
+        },
+        gradient: {
+          "0%": {
+            backgroundPosition: "0% 50%",
+          },
+          "50%": {
+            backgroundPosition: "100% 50%",
+          },
+          "100%": {
+            backgroundPosition: "0% 50%",
+          },
+        },
         meteor: {
           "0%": {
             transform: "rotate(215deg) translateX(0)",
@@ -177,6 +196,7 @@ const config: Config = {
       },
       animation: {
         breathe: "breathe 2s ease-in-out infinite",
+        float: "float 3s ease-in-out infinite",
         "meteor-effect": "meteor 5s linear infinite",
         buttonheartbeat: "buttonheartbeat 2s infinite ease-in-out",
         "border-beam": "border-beam calc(var(--duration)*1s) infinite linear",
