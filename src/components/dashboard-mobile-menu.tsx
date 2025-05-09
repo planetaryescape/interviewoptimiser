@@ -36,8 +36,8 @@ export function DashboardMobileMenu({ onFeedbackClick }: DashboardMobileMenuProp
       className={cn(
         "px-3 py-3 rounded-md transition-colors text-base flex items-center",
         pathname === href
-          ? "bg-primary/10 text-primary font-medium"
-          : "text-muted-foreground hover:text-primary hover:bg-muted"
+          ? "bg-primary/20 text-primary font-medium"
+          : "text-white/80 hover:text-white hover:bg-white/10"
       )}
     >
       {children}
@@ -48,7 +48,7 @@ export function DashboardMobileMenu({ onFeedbackClick }: DashboardMobileMenuProp
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button
-          className="md:hidden relative"
+          className="md:hidden relative text-white"
           variant="ghost"
           size="sm"
           aria-label="Open dashboard menu"
@@ -56,9 +56,12 @@ export function DashboardMobileMenu({ onFeedbackClick }: DashboardMobileMenuProp
           <Menu className="w-5 h-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-full max-w-[300px] p-0">
+      <SheetContent
+        side="right"
+        className="w-full max-w-[300px] p-0 bg-[#1e2736] border-l border-white/20"
+      >
         <div className="flex flex-col h-full overflow-y-auto">
-          <div className="p-6 border-b border-border/50">
+          <div className="p-6 border-b border-white/20">
             <Link href="/dashboard" className="flex items-center gap-2 mb-6" onClick={closeMenu}>
               <Image
                 src="/logo.png"
@@ -67,9 +70,9 @@ export function DashboardMobileMenu({ onFeedbackClick }: DashboardMobileMenuProp
                 height={32}
                 className="rounded-lg"
               />
-              <span className="font-semibold text-foreground">{config.projectName}</span>
+              <span className="font-semibold text-white">{config.projectName}</span>
             </Link>
-            <SheetTitle className="text-lg font-display">Dashboard</SheetTitle>
+            <SheetTitle className="text-lg font-display text-white">Dashboard</SheetTitle>
           </div>
 
           <div className="flex-1 p-6">
@@ -88,7 +91,7 @@ export function DashboardMobileMenu({ onFeedbackClick }: DashboardMobileMenuProp
                 </>
               )}
 
-              <div className="my-2 border-t border-border/30" />
+              <div className="my-2 border-t border-white/20" />
 
               <NavLink href="/pricing">Buy Minutes</NavLink>
               <NavLink href="/feature-requests">Feature Requests</NavLink>
@@ -97,13 +100,13 @@ export function DashboardMobileMenu({ onFeedbackClick }: DashboardMobileMenuProp
             </nav>
           </div>
 
-          <div className="p-6 border-t border-border/50 bg-muted/50 mt-auto">
+          <div className="p-6 border-t border-white/20 bg-black/20 mt-auto">
             <div className="flex flex-col space-y-4">
               {user && (
-                <div className="flex items-center justify-between p-3 rounded-lg bg-background/80">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-white/10">
                   <div className="flex items-center gap-2">
-                    <CreditCard className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Minutes</span>
+                    <CreditCard className="h-4 w-4 text-white/80" />
+                    <span className="text-sm text-white/80">Minutes</span>
                   </div>
                   <Badge variant="secondary" className="font-medium">
                     {user.minutes}
@@ -113,7 +116,7 @@ export function DashboardMobileMenu({ onFeedbackClick }: DashboardMobileMenuProp
 
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full border-white/20 text-white hover:bg-white/10"
                 onClick={() => {
                   onFeedbackClick();
                   setIsOpen(false);
