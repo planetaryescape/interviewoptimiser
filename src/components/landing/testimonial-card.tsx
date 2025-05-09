@@ -61,7 +61,7 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
             </div>
 
             <div>
-              <h3 className="text-style-h4 text-foreground">{testimonial.data.name}</h3>
+              <h3 className="text-style-h5 text-foreground">{testimonial.data.name}</h3>
               <div className="flex items-center gap-4 mt-1.5">
                 {testimonial.data.twitterUsername && (
                   <Link
