@@ -1,4 +1,3 @@
-import { SectionTitle } from "@/components/common/section-title";
 import { Brain, Mic, Target } from "lucide-react";
 import { config } from "~/config";
 
@@ -26,9 +25,9 @@ export function DifferentiatorsSection() {
     <section className="relative w-full py-24 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-t border-b border-primary/50 dark:from-primary/5 dark:via-primary/2 dark:to-primary/5">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-16">
-          <SectionTitle variant="h2" as="h2" className="mb-4">
+          <h2 className="text-style-h2 text-foreground mb-4">
             What Sets <span className="text-primary">{config.projectName}</span> Apart?
-          </SectionTitle>
+          </h2>
           <div className="w-24 h-1 bg-primary mx-auto rounded-full" />
         </div>
 
@@ -45,9 +44,7 @@ export function DifferentiatorsSection() {
               </div>
 
               <div className="pt-8">
-                <SectionTitle variant="h3" as="h3" className="mb-4 text-center">
-                  {item.title}
-                </SectionTitle>
+                <h3 className="text-style-h3 mb-4 text-center">{item.title}</h3>
                 <p className="text-style-body-base text-muted-foreground leading-relaxed">
                   {item.description}
                 </p>

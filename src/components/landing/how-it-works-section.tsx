@@ -1,6 +1,5 @@
 "use client";
 
-import { SectionTitle } from "@/components/common/section-title";
 import { motion } from "framer-motion";
 
 export function HowItWorksSection() {
@@ -37,9 +36,7 @@ export function HowItWorksSection() {
           transition={{ duration: 0.5 }}
           className="mb-8"
         >
-          <SectionTitle as="h2" variant="h2" className="text-center">
-            How It Works
-          </SectionTitle>
+          <h2 className="text-style-h2 text-foreground text-center">How It Works</h2>
         </motion.div>
         <div className="grid gap-x-10 gap-y-4 md:grid-cols-2 lg:grid-cols-4 grid-rows-[auto_1fr] my-16">
           {steps.map((step, index) => (
@@ -62,13 +59,9 @@ export function HowItWorksSection() {
                 >
                   {index + 1}
                 </motion.div>
-                <SectionTitle
-                  as="h3"
-                  variant="h3"
-                  className="text-left group-hover:text-primary transition-colors duration-300"
-                >
+                <h3 className="text-style-h4 text-left font-medium group-hover:text-primary transition-colors duration-300">
                   {step.title}
-                </SectionTitle>
+                </h3>
               </div>
               <p className="row-span-1 text-left text-style-body-base text-muted-foreground">
                 {step.description}
