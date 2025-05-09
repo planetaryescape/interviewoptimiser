@@ -1,6 +1,5 @@
 "use client";
 
-import { SectionTitle } from "@/components/common/section-title";
 import { Button } from "@/components/ui/button";
 import type { EntityList } from "@/lib/utils/formatEntity";
 import { useQuery } from "@tanstack/react-query";
@@ -23,6 +22,7 @@ async function getTestimonials() {
 
 export function TestimonialsSection() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" }, [
+    // @ts-expect-error - The type definitions for embla-carousel-autoplay are incompatible with embla-carousel-react
     Autoplay({ delay: 5000, stopOnInteraction: true }),
   ]);
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false);
@@ -62,9 +62,7 @@ export function TestimonialsSection() {
       <div className="container px-4 md:px-6 mx-auto">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
-            <SectionTitle as="h2" variant="h2" className="tracking-tighter">
-              What Our Users Say
-            </SectionTitle>
+            <h2 className="text-style-h2 text-foreground tracking-tighter">What Our Users Say</h2>
             <p className="max-w-[900px] text-style-body-lead text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
               Don&apos;t just take our word for it. Here&apos;s what people are saying about{" "}
               {config.projectName}.
@@ -110,9 +108,7 @@ export function TestimonialsSection() {
 
         <div className="mt-12 space-y-6 text-center">
           <div className="max-w-2xl mx-auto space-y-2">
-            <SectionTitle as="h3" variant="h3" className="text-foreground">
-              Have You Used {config.projectName}?
-            </SectionTitle>
+            <h3 className="text-style-h3 text-foreground">Have You Used {config.projectName}?</h3>
             <p className="text-style-body-base text-muted-foreground">
               Your feedback helps us improve and helps others make informed decisions. Whether you
               had a great experience or see room for improvement, we&apos;d love to hear your

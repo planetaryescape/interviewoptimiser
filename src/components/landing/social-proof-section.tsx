@@ -1,7 +1,6 @@
 "use client";
 
 import { BackgroundGradient } from "@/components/background-gradient";
-import { SectionTitle } from "@/components/common/section-title";
 import NumberTicker from "@/components/ui/number-ticker";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
@@ -100,13 +99,9 @@ export function SocialProofSection() {
         className="container relative mx-auto px-4 md:px-6"
       >
         <div className="text-center mb-16 space-y-4">
-          <SectionTitle
-            as="h2"
-            variant="h2"
-            className="bg-gradient-to-r from-primary to-primary/50 bg-clip-text text-transparent"
-          >
+          <h2 className="text-style-h2 bg-gradient-to-r from-primary to-primary/50 bg-clip-text text-transparent">
             Our Growing Impact
-          </SectionTitle>
+          </h2>
           <p className="text-style-body-lead text-muted-foreground max-w-2xl mx-auto">
             Join our community of professionals who are transforming their interview preparation
             journey with us.

@@ -1,7 +1,6 @@
 "use client";
 
 import { BackgroundGradient } from "@/components/background-gradient";
-import { SectionTitle } from "@/components/common/section-title";
 import { motion } from "framer-motion";
 import { Brain, ChartLine, Clock, MessageSquare, Mic, Shield, Target, Zap } from "lucide-react";
 import { useState } from "react";
@@ -172,13 +171,9 @@ export function FAQSection() {
     <section className="relative w-full py-12 md:py-24 lg:py-32 border-t border-b border-primary/50">
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-2xl mx-auto text-center mb-12">
-          <SectionTitle
-            as="h2"
-            variant="h2"
-            className="mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80"
-          >
+          <h2 className="text-style-h2 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">
             Frequently Asked Questions
-          </SectionTitle>
+          </h2>
           <p className="text-style-body-lead text-muted-foreground">
             Everything you need to know about {config.projectName}. Can&apos;t find the answer
             you&apos;re looking for? Reach out to our support team.
