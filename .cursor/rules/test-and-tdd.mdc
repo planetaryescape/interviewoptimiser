@@ -1,6 +1,6 @@
 ---
-description: Write tests and update tests whenever you make changes
-globs: *.tsx, *.ts
+description:
+globs:
 alwaysApply: false
 ---
 

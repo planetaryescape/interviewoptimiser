@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardDescription, CardTitle } from "@/components/acertenity-card";
+import { Card, CardTitle } from "@/components/acertenity-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardHeader } from "@/components/ui/card";
@@ -17,7 +17,8 @@ import { idHandler } from "@/lib/utils/idHandler";
 import { useAuth } from "@clerk/nextjs";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ThumbsUp } from "lucide-react";
+import { motion } from "framer-motion";
+import { Calendar, ThumbsUp, User } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
@@ -101,78 +102,100 @@ export function FeatureRequestCard({
   };
 
   return (
-    <Card className={cn("transition-all duration-300 flex flex-col relative")}>
-      <div className="absolute top-2 right-2">
-        <div className="text-xs">
+    <motion.div whileHover={{ y: -3 }} transition={{ duration: 0.2 }}>
+      <Card
+        className={cn(
+          "h-full border-none shadow-md overflow-hidden flex flex-col relative bg-card/60 backdrop-blur-sm"
+        )}
+      >
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary/30 to-primary/10" />
+        <div className="absolute top-4 right-4 z-10">
           <Badge
             variant="secondary"
-            className={cn("capitalize", getStatusColor(featureRequest.status))}
+            className={cn("capitalize shadow-sm", getStatusColor(featureRequest.status))}
           >
             {featureRequest.status.replace("_", " ")}
           </Badge>
         </div>
-      </div>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-semibold mb-1">
-          {featureRequest.title || "Untitled Feature Request"}
-        </CardTitle>
-        {isAdmin && featureRequest.user && (
-          <p className="text-sm text-muted-foreground">
-            Submitted by: {featureRequest.user.username}
-          </p>
-        )}
-        <time className="text-sm text-muted-foreground">
-          Date: {new Date(featureRequest.createdAt).toLocaleDateString()}
-        </time>
-      </CardHeader>
-      <CardContent>
-        <CardDescription>
-          <div className="space-y-3">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              components={remarkMarkdownComponents}
-              className="text-sm text-card-foreground"
-            >
-              {featureRequest.content}
-            </ReactMarkdown>
+
+        <CardHeader className="pb-2 pt-6">
+          <CardTitle className="text-xl font-medium mb-2 pr-28">
+            {featureRequest.title || "Untitled Feature Request"}
+          </CardTitle>
+
+          <div className="flex flex-col space-y-1.5 text-sm">
+            {isAdmin && featureRequest.user && (
+              <div className="flex items-center text-muted-foreground">
+                <User className="h-3.5 w-3.5 mr-1.5 text-primary/70" />
+                <span>{featureRequest.user.username}</span>
+              </div>
+            )}
+            <div className="flex items-center text-muted-foreground">
+              <Calendar className="h-3.5 w-3.5 mr-1.5 text-primary/70" />
+              <time>{new Date(featureRequest.createdAt).toLocaleDateString()}</time>
+            </div>
           </div>
-        </CardDescription>
-      </CardContent>
-      <div className="mt-auto p-4 bg-muted/50 border-t border-gray-300 dark:border-gray-700 flex justify-between items-center">
-        <p className="text-sm text-muted-foreground">{featureRequest.likesCount} likes</p>
-        {isAdmin ? (
-          <Select
-            onValueChange={(value) =>
-              updateStatusMutation.mutate({
-                id: featureRequest.id,
-                status: value,
-              })
-            }
-            defaultValue={featureRequest.status}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Change status" />
-            </SelectTrigger>
-            <SelectContent>
-              {featureRequestStatusEnum.enumValues.map((status) => (
-                <SelectItem key={status} value={status}>
-                  {status.replace("_", " ")}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        ) : userId ? (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => voteMutation.mutate(featureRequest.id)}
-            disabled={voteMutation.isPending || featureRequest.hasVoted}
-          >
-            <ThumbsUp className="mr-2 h-4 w-4" />
-            {featureRequest.hasVoted ? "Voted" : "Vote"}
-          </Button>
-        ) : null}
-      </div>
-    </Card>
+        </CardHeader>
+
+        <CardContent className="pb-4 flex-grow">
+          <div className="bg-muted/30 rounded-md p-3 max-h-60 overflow-auto">
+            <div className="space-y-3">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={remarkMarkdownComponents}
+                className="text-sm text-card-foreground prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-headings:my-2"
+              >
+                {featureRequest.content}
+              </ReactMarkdown>
+            </div>
+          </div>
+        </CardContent>
+
+        <div className="p-4 border-t border-border/40 flex justify-between items-center bg-gradient-to-b from-muted/10 to-muted/30">
+          <div className="flex items-center space-x-1.5">
+            <ThumbsUp className="h-4 w-4 text-primary/70" />
+            <span className="text-sm font-medium">{featureRequest.likesCount}</span>
+          </div>
+
+          {isAdmin ? (
+            <Select
+              onValueChange={(value) =>
+                updateStatusMutation.mutate({
+                  id: featureRequest.id,
+                  status: value,
+                })
+              }
+              defaultValue={featureRequest.status}
+            >
+              <SelectTrigger className="w-[180px] h-9 bg-background/80 border-primary/20">
+                <SelectValue placeholder="Change status" />
+              </SelectTrigger>
+              <SelectContent>
+                {featureRequestStatusEnum.enumValues.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {status.replace("_", " ")}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : userId ? (
+            <Button
+              variant={featureRequest.hasVoted ? "secondary" : "default"}
+              size="sm"
+              onClick={() => voteMutation.mutate(featureRequest.id)}
+              disabled={voteMutation.isPending || featureRequest.hasVoted}
+              className={
+                featureRequest.hasVoted
+                  ? "bg-muted/70"
+                  : "bg-gradient-to-r from-primary to-primary/90"
+              }
+            >
+              <ThumbsUp className="mr-2 h-4 w-4" />
+              {featureRequest.hasVoted ? "Voted" : "Vote"}
+            </Button>
+          ) : null}
+        </div>
+      </Card>
+    </motion.div>
   );
 }

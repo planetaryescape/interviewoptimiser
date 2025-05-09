@@ -25,7 +25,7 @@ export function DifferentiatorsSection() {
     <section className="relative w-full py-24 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-t border-b border-primary/50 dark:from-primary/5 dark:via-primary/2 dark:to-primary/5">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold sm:text-4xl md:text-5xl mb-4 dark:text-white">
+          <h2 className="text-style-h2 text-foreground mb-4">
             What Sets <span className="text-primary">{config.projectName}</span> Apart?
           </h2>
           <div className="w-24 h-1 bg-primary mx-auto rounded-full" />
@@ -44,10 +44,8 @@ export function DifferentiatorsSection() {
               </div>
 
               <div className="pt-8">
-                <h3 className="text-xl font-semibold mb-4 text-center dark:text-white">
-                  {item.title}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                <h3 className="text-style-h5 mb-4 text-center">{item.title}</h3>
+                <p className="text-style-body-base text-center text-muted-foreground leading-relaxed">
                   {item.description}
                 </p>
               </div>

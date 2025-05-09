@@ -101,7 +101,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html className="size-screen overflow-hidden" lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <ClerkProvider
         publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "pk_test_JA=="}
         dynamic
@@ -109,7 +109,7 @@ export default function RootLayout({
         <body
           suppressHydrationWarning
           className={cn(
-            "antialiased size-screen bg-background text-foreground overflow-auto",
+            "antialiased bg-background text-foreground",
             geistMono.variable,
             geistSans.variable,
             oswald.variable,
@@ -132,7 +132,9 @@ export default function RootLayout({
                   </ClerkProvider>
                 </Suspense>
                 {/* <ConditionalBlackFridayBanner /> */}
-                {children}
+                <main className="min-h-screen flex flex-col p-[env(safe-area-inset-top,1.25rem)_env(safe-area-inset-right,1.25rem)_env(safe-area-inset-bottom,1.25rem)_env(safe-area-inset-left,1.25rem)]">
+                  {children}
+                </main>
               </ThemeProvider>
               <SpeedInsights />
             </CSPostHogProvider>

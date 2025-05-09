@@ -35,7 +35,7 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
             <div className="font-serif text-6xl text-primary/20 absolute -top-6 -left-3 select-none">
               {'"'}
             </div>
-            <p className="text-base text-foreground/90 leading-relaxed pl-3">
+            <p className="text-style-body-base text-foreground/90 leading-relaxed pl-3">
               {testimonial.data.comment}
             </p>
           </blockquote>
@@ -61,7 +61,7 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
             </div>
 
             <div>
-              <h3 className="font-semibold text-lg text-foreground">{testimonial.data.name}</h3>
+              <h3 className="text-style-h5 text-foreground">{testimonial.data.name}</h3>
               <div className="flex items-center gap-4 mt-1.5">
                 {testimonial.data.twitterUsername && (
                   <Link
@@ -69,8 +69,8 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className={cn(
-                      "flex items-center gap-1.5 text-sm",
-                      "text-muted-foreground hover:text-primary",
+                      "flex items-center gap-1.5",
+                      "text-style-caption text-muted-foreground hover:text-primary",
                       "transition-all duration-200 hover:-translate-y-0.5"
                     )}
                   >
@@ -84,8 +84,8 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className={cn(
-                      "flex items-center gap-1.5 text-sm",
-                      "text-muted-foreground hover:text-primary",
+                      "flex items-center gap-1.5",
+                      "text-style-caption text-muted-foreground hover:text-primary",
                       "transition-all duration-200 hover:-translate-y-0.5"
                     )}
                   >
