@@ -44,7 +44,7 @@ export function DashboardHeader({ className }: { className?: string }) {
         className
       )}
     >
-      <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
+      <div className="mx-auto px-4 md:px-8">
         <div className="relative flex h-16 items-center justify-between">
           <Link
             href="/dashboard"
