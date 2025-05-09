@@ -39,14 +39,12 @@ export function DashboardHeader({ className }: { className?: string }) {
   return (
     <header
       className={cn(
-        "w-full border-b transition-all duration-300 ease-in-out",
-        isScrolled
-          ? "bg-card/95 backdrop-blur-lg shadow-sm border-border"
-          : "bg-card/95 border-border",
+        "w-full border-b transition-all duration-300 ease-in-out bg-[#1e2736] text-white border-white/10",
+        isScrolled ? "backdrop-blur-lg shadow-sm" : "",
         className
       )}
     >
-      <div className="mx-auto px-4">
+      <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
         <div className="relative flex h-16 items-center justify-between">
           <Link
             href="/dashboard"
@@ -70,7 +68,7 @@ export function DashboardHeader({ className }: { className?: string }) {
                 "px-3 py-2 text-sm rounded-md transition-colors",
                 pathname === "/dashboard"
                   ? "text-primary font-medium"
-                  : "text-muted-foreground hover:text-primary hover:bg-muted"
+                  : "text-white/80 hover:text-white hover:bg-white/10"
               )}
               href="/dashboard"
             >
@@ -82,7 +80,7 @@ export function DashboardHeader({ className }: { className?: string }) {
                 "px-3 py-2 text-sm rounded-md transition-colors",
                 pathname === "/dashboard/jobs"
                   ? "text-primary font-medium"
-                  : "text-muted-foreground hover:text-primary hover:bg-muted"
+                  : "text-white/80 hover:text-white hover:bg-white/10"
               )}
               href="/dashboard/jobs"
             >
@@ -94,7 +92,7 @@ export function DashboardHeader({ className }: { className?: string }) {
                 "px-3 py-2 text-sm rounded-md transition-colors",
                 pathname === "/dashboard/settings"
                   ? "text-primary font-medium"
-                  : "text-muted-foreground hover:text-primary hover:bg-muted"
+                  : "text-white/80 hover:text-white hover:bg-white/10"
               )}
               href="/dashboard/settings"
             >
@@ -106,7 +104,7 @@ export function DashboardHeader({ className }: { className?: string }) {
                 "px-3 py-2 text-sm rounded-md transition-colors",
                 pathname === "/pricing"
                   ? "text-primary font-medium"
-                  : "text-muted-foreground hover:text-primary hover:bg-muted"
+                  : "text-white/80 hover:text-white hover:bg-white/10"
               )}
               href="/pricing"
             >
@@ -118,7 +116,7 @@ export function DashboardHeader({ className }: { className?: string }) {
                 "px-3 py-2 text-sm rounded-md transition-colors",
                 pathname === "/feature-requests"
                   ? "text-primary font-medium"
-                  : "text-muted-foreground hover:text-primary hover:bg-muted"
+                  : "text-white/80 hover:text-white hover:bg-white/10"
               )}
               href="/feature-requests"
             >
@@ -128,9 +126,9 @@ export function DashboardHeader({ className }: { className?: string }) {
 
           <div className="flex items-center space-x-4">
             {user && (
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted rounded-md">
-                <CreditCard className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Minutes:</span>
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-md">
+                <CreditCard className="h-4 w-4 text-white/80" />
+                <span className="text-sm text-white/80">Minutes:</span>
                 <Badge variant="warning" className="font-medium">
                   {user.minutes}
                 </Badge>

@@ -1,6 +1,7 @@
 "use client";
 
 import { DashboardHeader } from "@/components/dashboard-header";
+import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { ClerkProvider } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
 import type { ReactNode } from "react";
@@ -10,14 +11,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { theme } = useTheme();
 
   return (
-    <div className="flex flex-col relative min-h-screen">
+    <div className="flex flex-col w-full min-h-screen bg-[#222a38]">
       <ClerkProvider dynamic>
         <div className="fixed top-0 left-0 right-0 z-[9999]">
           <DashboardHeader />
         </div>
       </ClerkProvider>
 
-      <main className="flex-grow pt-16 overflow-auto">{children}</main>
+      <div className="flex flex-1 pt-16">
+        <DashboardSidebar />
+
+        <main className="flex-1 overflow-auto bg-[#222a38] text-white/90">{children}</main>
+      </div>
 
       <Toaster
         position="top-center"
