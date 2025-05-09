@@ -297,6 +297,18 @@ const config: Config = {
             fontSize: theme("fontSize.2xl"),
           },
         },
+        ".text-style-h5": {
+          fontFamily: theme("fontFamily.headingSecondary"),
+          fontSize: theme("fontSize.base"),
+          fontWeight: theme("fontWeight.semibold"),
+          lineHeight: "1.2",
+          "@screen sm": {
+            fontSize: theme("fontSize.lg"),
+          },
+          "@screen lg": {
+            fontSize: theme("fontSize.xl"),
+          },
+        },
         ".text-style-body-lead": {
           fontFamily: theme("fontFamily.sans"),
           fontSize: theme("fontSize.lg"),
