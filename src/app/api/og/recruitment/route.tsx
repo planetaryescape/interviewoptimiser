@@ -1,17 +1,16 @@
 import { ImageResponse } from "next/og";
 import { config } from "../../../../../config";
 
-export const runtime = "edge";
 export const contentType = "image/png";
 
 // Image metadata
-export const size = {
+const size = {
   width: 1200,
   height: 630,
 };
 
 // Image generation
-export default async function GET() {
+export async function GET() {
   try {
     // Font
     const interFont = await fetch(

@@ -260,13 +260,14 @@ export function ReportCard({ report, interviewId }: ReportCardProps) {
                             <Progress
                               value={skill.score}
                               className="h-1.5"
-                              indicatorClassName={
-                                skillScoreInfo.color === "green"
-                                  ? "bg-green-500"
-                                  : skillScoreInfo.color === "yellow"
-                                    ? "bg-yellow-500"
-                                    : "bg-red-500"
-                              }
+                              style={{
+                                backgroundColor:
+                                  skillScoreInfo.color === "green"
+                                    ? "rgb(34 197 94)"
+                                    : skillScoreInfo.color === "yellow"
+                                      ? "rgb(234 179 8)"
+                                      : "rgb(239 68 68)",
+                              }}
                             />
                           </div>
                         </TooltipTrigger>
