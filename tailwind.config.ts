@@ -17,6 +17,9 @@ const config: Config = {
       },
     },
     extend: {
+      screens: {
+        xs: "480px",
+      },
       fontFamily: {
         aller: ["var(--font-aller)", "sans-serif"],
         arial: ["Arial", "sans-serif"],
@@ -145,6 +148,20 @@ const config: Config = {
             backgroundPosition: "0% 50%",
           },
         },
+        "step-complete": {
+          "0%": {
+            transform: "scale(1)",
+            boxShadow: "0 0 0 0 hsla(var(--primary) / 0.2)",
+          },
+          "50%": {
+            transform: "scale(1.05)",
+            boxShadow: "0 0 0 10px hsla(var(--primary) / 0)",
+          },
+          "100%": {
+            transform: "scale(1)",
+            boxShadow: "0 0 0 0 hsla(var(--primary) / 0)",
+          },
+        },
         meteor: {
           "0%": {
             transform: "rotate(215deg) translateX(0)",
@@ -202,6 +219,7 @@ const config: Config = {
         "border-beam": "border-beam calc(var(--duration)*1s) infinite linear",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "step-complete": "step-complete 0.5s ease-out forwards",
       },
       backgroundImage: {
         "custom-gradient": "var(--gradient)",
