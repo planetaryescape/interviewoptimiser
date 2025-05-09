@@ -4,11 +4,14 @@ import { DashboardHeader } from "@/components/dashboard-header";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { ClerkProvider } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { Toaster } from "sonner";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { theme } = useTheme();
+  const pathname = usePathname();
+  const showSidebar = !pathname.includes("/dashboard/create");
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-[#222a38]">
@@ -19,7 +22,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </ClerkProvider>
 
       <div className="flex flex-1 pt-16">
-        <DashboardSidebar />
+        {showSidebar && <DashboardSidebar />}
 
         <main className="flex-1 overflow-auto bg-[#222a38] text-white/90">{children}</main>
       </div>
