@@ -19,7 +19,7 @@ import {
 } from "@/stores/createInterviewStore";
 import { interviewTypes } from "@/utils/conversation_config";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Clock, CreditCard, MessageSquare, PlusCircle, Settings } from "lucide-react";
+import { ChevronDown, Clock, MessageSquare, PlusCircle, Settings } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -111,10 +111,9 @@ export function Step3AdditionalInfo() {
                     {user && (
                       <div className="flex items-center gap-1.5">
                         <div className="flex items-center gap-1.5 py-1 px-2 rounded-md border border-border/60 bg-background/80">
-                          <CreditCard className="h-3.5 w-3.5 text-muted-foreground" />
                           <span className="text-xs text-muted-foreground">Available:</span>
                           <Badge
-                            variant={hasEnoughMinutes ? "default" : "destructive"}
+                            variant={hasEnoughMinutes ? "secondary" : "destructive"}
                             className="font-medium text-xs py-0 h-5"
                           >
                             {user.minutes} minutes
@@ -184,7 +183,7 @@ export function Step3AdditionalInfo() {
 
                   <div className="space-y-4">
                     <div className="flex items-center gap-4">
-                      <div className="bg-primary/20 text-primary px-3 py-2 rounded w-[90px] text-center flex-shrink-0">
+                      <div className="bg-primary/20 text-primary px-3 py-2 rounded w-[120px] text-center flex-shrink-0">
                         <span className="text-sm font-medium">3-5 min</span>
                       </div>
                       <span className="text-sm text-muted-foreground">
@@ -192,7 +191,7 @@ export function Step3AdditionalInfo() {
                       </span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className="bg-primary/20 text-primary px-3 py-2 rounded w-[90px] text-center flex-shrink-0">
+                      <div className="bg-primary/20 text-primary px-3 py-2 rounded w-[120px] text-center flex-shrink-0">
                         <span className="text-sm font-medium">10-15 min</span>
                       </div>
                       <span className="text-sm text-muted-foreground">
@@ -200,7 +199,7 @@ export function Step3AdditionalInfo() {
                       </span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className="bg-primary/20 text-primary px-3 py-2 rounded w-[90px] text-center flex-shrink-0">
+                      <div className="bg-primary/20 text-primary px-3 py-2 rounded w-[120px] text-center flex-shrink-0">
                         <span className="text-sm font-medium">20-30 min</span>
                       </div>
                       <span className="text-sm text-muted-foreground">
@@ -229,7 +228,7 @@ export function Step3AdditionalInfo() {
                 onChange={(e) => setAdditionalInfo(e.target.value)}
                 className="min-h-[180px] resize-none bg-background border-border"
                 placeholder={
-                  "Examples:\n- Conduct the interview in French\n- Use British English\n- Focus on leadership experience\n- Include questions about specific projects"
+                  "Examples:\n- Use British English\n- Focus on leadership experience\n- Include questions about specific projects"
                 }
               />
 
