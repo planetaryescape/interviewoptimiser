@@ -226,7 +226,7 @@ export function Step3AdditionalInfo() {
                 value={additionalInfo}
                 maxLength={config.maxTextLengths.additionalInfo}
                 onChange={(e) => setAdditionalInfo(e.target.value)}
-                className="min-h-[180px] resize-none bg-background border-border"
+                className="min-h-[120px] resize-none bg-background border-border"
                 placeholder={
                   "Examples:\n- Use British English\n- Focus on leadership experience\n- Include questions about specific projects"
                 }

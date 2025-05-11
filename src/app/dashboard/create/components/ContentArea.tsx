@@ -19,6 +19,7 @@ export function ContentArea({ animationDir }: ContentAreaProps) {
   const router = useRouter();
   const [contentHeight, setContentHeight] = useState<number>(0);
   const contentRef = useRef<HTMLDivElement>(null);
+  const contentWrapperRef = useRef<HTMLDivElement>(null);
   const controls = useAnimationControls();
 
   // Content mapping
@@ -59,12 +60,22 @@ export function ContentArea({ animationDir }: ContentAreaProps) {
       if (contentRef.current) {
         const newHeight = contentRef.current.scrollHeight;
         setContentHeight(newHeight);
-        controls.start({ height: newHeight });
+        controls.start({
+          height: newHeight,
+          transition: {
+            type: "spring",
+            stiffness: 250,
+            damping: 25,
+            duration: 0.25,
+          },
+        });
       }
     };
 
     // Initial measurement
-    updateHeight();
+    const timer = setTimeout(() => {
+      updateHeight();
+    }, 100); // Small delay to ensure content is rendered
 
     // Set up a mutation observer to detect content changes
     const observer = new MutationObserver(updateHeight);
@@ -80,28 +91,22 @@ export function ContentArea({ animationDir }: ContentAreaProps) {
     window.addEventListener("resize", updateHeight);
 
     return () => {
+      clearTimeout(timer);
       observer.disconnect();
       window.removeEventListener("resize", updateHeight);
     };
   }, [controls]);
 
   return (
-    <div className="flex-1 flex flex-col justify-center items-center w-full px-4 md:px-6 lg:px-8 py-16 mt-16 min-h-[calc(100vh-64px)]">
+    <div className="flex-1 flex flex-col justify-center items-center w-full px-4 md:px-6 lg:px-8 py-16 mt-16">
       {/* Main content box */}
       <div className="bg-card/95 backdrop-blur-md rounded-xl shadow-xl border border-border/40 overflow-hidden w-full max-w-7xl animate-in fade-in slide-in-from-bottom-8 duration-500">
         <motion.div
+          ref={contentWrapperRef}
           className="relative overflow-hidden"
           initial={{ height: "auto" }}
           animate={controls}
-          transition={{
-            height: {
-              type: "spring",
-              stiffness: 150,
-              damping: 18,
-              duration: 0.4,
-            },
-          }}
-          style={{ minHeight: "calc(100vh - 300px)" }}
+          style={{ height: contentHeight || "auto" }}
         >
           <AnimatePresence initial={false} custom={animationDir} mode="sync">
             <motion.div

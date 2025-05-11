@@ -126,7 +126,7 @@ export function Step1CV() {
                   }
                 }}
                 className={cn(
-                  "min-h-[350px] resize-none bg-background border-border focus:ring-1 focus:ring-primary/30",
+                  "min-h-[200px] resize-none bg-background border-border focus:ring-1 focus:ring-primary/30",
                   showStep1Error && "border-destructive focus:ring-destructive/30"
                 )}
                 placeholder="Paste your CV content here..."
