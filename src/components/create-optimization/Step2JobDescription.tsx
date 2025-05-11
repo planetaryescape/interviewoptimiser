@@ -187,7 +187,7 @@ export function Step2JobDescription() {
                   }
                 }}
                 className={cn(
-                  "min-h-[350px] resize-none bg-background border-border focus:ring-1 focus:ring-primary/30",
+                  "min-h-[200px] resize-none bg-background border-border focus:ring-1 focus:ring-primary/30",
                   showStep2Error && "border-destructive focus:ring-destructive/30"
                 )}
                 placeholder="Paste the job description here..."
