@@ -64,10 +64,8 @@ export const InterviewCard = ({ interview, onDelete, deletingId }: InterviewCard
             </div>
           </CardTitle>
         ) : (
-          <CardTitle className="space-y-1">
-            <h3 className="text-xl font-semibold tracking-tight">
-              {interview.jobDescription?.role || interview.role || "Role Not Specified"}
-            </h3>
+          <CardTitle className="space-y-1 text-xl font-semibold tracking-tight">
+            {interview.jobDescription?.role || interview.role || "Role Not Specified"}
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Building2 className="h-4 w-4" />
               <span>
