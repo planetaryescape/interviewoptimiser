@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useUser } from "@/hooks/useUser";
 import { cn } from "@/lib/utils";
-import { CreditCard, Menu } from "lucide-react";
+import { UserButton } from "@clerk/nextjs";
+import { CreditCard, MenuIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { config } from "~/config";
+import { ThemeToggle } from "./theme-toggle";
 import { Badge } from "./ui/badge";
 
 interface DashboardMobileMenuProps {
@@ -34,7 +36,7 @@ export function DashboardMobileMenu({ onFeedbackClick }: DashboardMobileMenuProp
       href={href}
       onClick={closeMenu}
       className={cn(
-        "px-3 py-3 rounded-md transition-colors text-base flex items-center",
+        "px-3 py-3 rounded-md transition-colors text-sm font-medium",
         pathname === href
           ? "bg-primary/20 text-primary font-medium"
           : "text-white/80 hover:text-white hover:bg-white/10"
@@ -48,35 +50,49 @@ export function DashboardMobileMenu({ onFeedbackClick }: DashboardMobileMenuProp
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button
-          className="md:hidden relative text-white"
+          className="md:hidden text-white"
           variant="ghost"
-          size="sm"
+          size="icon"
           aria-label="Open dashboard menu"
         >
-          <Menu className="w-5 h-5" />
+          <MenuIcon className="h-5 w-5" />
+          <span className="sr-only">Toggle Menu</span>
         </Button>
       </SheetTrigger>
       <SheetContent
         side="right"
-        className="w-full max-w-[300px] p-0 bg-[#1e2736] border-l border-white/20"
+        className="w-full sm:max-w-xs p-0 bg-[#1e2736] border-l border-white/20"
       >
-        <div className="flex flex-col h-full overflow-y-auto">
+        <div className="flex flex-col h-full">
           <div className="p-6 border-b border-white/20">
-            <Link href="/dashboard" className="flex items-center gap-2 mb-6" onClick={closeMenu}>
-              <Image
-                src="/logo.png"
-                alt={`${config.projectName} Logo`}
-                width={32}
-                height={32}
-                className="rounded-lg"
-              />
-              <span className="font-semibold text-white">{config.projectName}</span>
-            </Link>
-            <SheetTitle className="text-lg font-display text-white">Dashboard</SheetTitle>
+            <div className="flex items-center justify-between mb-6">
+              <Link href="/dashboard" className="flex items-center gap-2" onClick={closeMenu}>
+                <Image
+                  src="/logo.png"
+                  alt={`${config.projectName} Logo`}
+                  width={32}
+                  height={32}
+                  className="rounded-lg"
+                />
+                <span className="font-semibold text-white">{config.projectName}</span>
+              </Link>
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <UserButton
+                  afterSignOutUrl="/"
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-8 h-8",
+                    },
+                  }}
+                />
+              </div>
+            </div>
+            <SheetTitle className="text-lg font-medium text-white">Dashboard</SheetTitle>
           </div>
 
-          <div className="flex-1 p-6">
-            <nav className="flex flex-col space-y-2">
+          <div className="flex-1 p-6 overflow-y-auto">
+            <nav className="flex flex-col space-y-3">
               <NavLink href="/dashboard">Dashboard</NavLink>
               <NavLink href="/dashboard/jobs">Job Descriptions</NavLink>
               <NavLink href="/dashboard/settings">Settings</NavLink>
@@ -91,7 +107,7 @@ export function DashboardMobileMenu({ onFeedbackClick }: DashboardMobileMenuProp
                 </>
               )}
 
-              <div className="my-2 border-t border-white/20" />
+              <div className="my-3 border-t border-white/20" />
 
               <NavLink href="/pricing">Buy Minutes</NavLink>
               <NavLink href="/feature-requests">Feature Requests</NavLink>
@@ -100,7 +116,7 @@ export function DashboardMobileMenu({ onFeedbackClick }: DashboardMobileMenuProp
             </nav>
           </div>
 
-          <div className="p-6 border-t border-white/20 bg-black/20 mt-auto">
+          <div className="mt-auto p-6 border-t border-white/20 bg-black/20">
             <div className="flex flex-col space-y-4">
               {user && (
                 <div className="flex items-center justify-between p-3 rounded-lg bg-white/10">
