@@ -5,30 +5,18 @@
 ## Persona
 
 - You are an expert software engineer with extensive experience in SaaS and distributed systems and frontend. You are very well knowledgeable in both frontend and backend technologies.
-- ALWAYS run the tests after you make changes so that you check that what you did didn't break the application. If the tests fail, iterate until you get green tests.
 
 ## Documentation Handling
 
 - Always read relevant documentation in `/docs` before suggesting changes
-- Start responses with "(docs referenced...)" when documentation has been consulted.
-- After your responses, always consult the documentation again to see if there's anything that needs to be updated based on the changes made. We don't want the code and the documentation to drift.
-- End responses with "(docs updated...)" after making documentation changes.
-- Update all affected documentation files when making changes
+- After your responses, always consult the documentation again to see if there's anything that needs to be updated based on the changes made and then update the documentation. We don't want the code and the documentation to drift.
+- Update all affected documentation files when making changes.
 
 ## General instructions
 
-- Bun has it's own test command, so when you want to run the test script in package.json, please use `bun run test ...` and not `bun test ...`
-- Generate code that follows the project's established patterns. Always check for examples of existing items in the codebase whenever you're given a task so that you stick to conventions. For example, if asked for a new API endpoint, first check other existing API endpoints so that you get examples of project conventions.
-- Include all necessary imports and dependencies
 - Add appropriate error handling
-- Write concise, technical TypeScript code with accurate examples.
-- Use functional and declarative programming patterns; avoid classes.
-- Prefer iteration and modularization over code duplication. But if you don't have a proper abstraction then writing similar code twice is fine.
 - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
-- use kebab case for route directories (e.g., `api/hello-world/route`). use kebab case for components (e.g. `components/link-button.tsx`)
 - Favor named exports for components.
-- Use TypeScript for all code.
-- Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
 - Use ShadCN UI and Tailwind for components and styling.
 - Implement responsive design with Tailwind CSS; use a mobile-first approach.
 - Use `next/image` package for images.
@@ -114,16 +102,6 @@
 ## Important
 
 - Always run the tests after you make changes so that you check that what you did didn't break the application. If the tests fail, iterate until you get green tests.
-- Always check for examples of existing items in the codebase whenever you're given a task so that you stick to conventions. For example, if asked for a new API endpoint, first check other existing API endpoints so that you get examples of project conventions.
-- Always use functional react components with named exports
-- don't use React.FC for typing the functions, rather type the props directly
-- Prefer named exports when creating react components
-- Use tailwind for styles
-- If there's already a tailwind.config.ts file, update that don't create a new tailwind.config.js file
-- When using NextJS please write code for the app router.
-- In NextJS please write code for NextJS 15+.
-- In NextJS, use server components by default and only use client components when necessary
-- In NextJS, prefer API endpoints to server actions.
 - Use encoded values for special characters in HTML/JSX
   - &apos; for apostrophe
   - &quot; for quotation marks
@@ -135,14 +113,6 @@
 
 ## Special Cases
 
-- Always document your functions well. When working in js/ts use JSDoc to write it.
-- Prefer named exports when working in JS/TS.
-- When generating database schema, please always prefer to create lookup and reference tables and related tables instead of using the json or jsonb data type.
-- When creating new database tables always include the id, createdAt and updatedAt fields and any table relations if any.
-- When creating terraform files, first check if there's a /terraform directory, it there is then either update the files in there or create any new terraform files in that directory.
-- Node package installation snippets should use bun where possible.
-- When running tests with bun, remember that bun has it's own `bun test` command, so if you want to use the test script from package.json then use `bun run test` so that you use the correct command.
-- We are using Vitest for tests and NOT Jest. There are similarities in Vitest and Jest so don't get confused and start using Jest things.
 - In NextJS 15, dynamic APIs like params are now async, please always make them async and accept them as promises in props. Here's some documentation on it <https://nextjs.org/blog/next-15>. Here are some examples:
 
 ```typescript
