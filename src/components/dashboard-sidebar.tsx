@@ -1,11 +1,10 @@
 "use client";
 
-import { BackgroundGradient } from "@/components/background-gradient";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/hooks/useUser";
 import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
-import { BarChart3, Cog, Home, MessageSquare, ScrollText, Star } from "lucide-react";
+import { BarChart3, Cog, FileText, Home, MessageSquare, ScrollText, Star } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -30,10 +29,10 @@ export function DashboardSidebar() {
       href={href}
       className={cn(
         "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
-        "hover:bg-primary/10 active:bg-primary/15",
+        "hover:bg-muted/50 active:bg-muted/70",
         pathname === href
-          ? "bg-primary/15 text-primary font-medium"
-          : "text-muted-foreground hover:text-primary"
+          ? "bg-muted/70 text-primary font-medium"
+          : "text-muted-foreground hover:text-foreground"
       )}
     >
       <Icon className="h-4 w-4" />
@@ -42,19 +41,19 @@ export function DashboardSidebar() {
   );
 
   return (
-    <aside className="w-64 relative hidden md:flex flex-col justify-between">
-      <div
-        className={cn(
-          "absolute inset-0 bg-gradient-to-b from-background to-muted/50",
-          "border-r border-border/50 backdrop-blur-sm"
-        )}
-      />
-
+    <aside className="w-64 relative hidden md:flex flex-col justify-between bg-card border-r border-border">
       <div className="relative flex-1 flex flex-col min-h-0">
         <div className="flex-1 flex flex-col pt-8 pb-4 px-4">
-          <div className="flex flex-col space-y-1">
+          <div className="flex flex-col space-y-1 mb-6">
+            <div className="flex items-center text-foreground mb-2 px-3">
+              <Home className="h-4 w-4 mr-2 text-primary" />
+              <span className="font-semibold text-foreground">Interviews</span>
+            </div>
             <NavItem href="/dashboard" icon={Home}>
               Interviews
+            </NavItem>
+            <NavItem href="/dashboard/jobs" icon={FileText}>
+              Job Descriptions
             </NavItem>
 
             {isAdmin && (
@@ -84,10 +83,10 @@ export function DashboardSidebar() {
         </div>
 
         <div className="relative p-4">
-          <div className="rounded-lg border border-border/50 bg-card/30 p-4">
+          <div className="rounded-lg border border-border bg-muted/20 p-4">
             <Button
               variant="ghost"
-              className="w-full justify-start hover:bg-primary/10"
+              className="w-full justify-start hover:bg-muted/50"
               onClick={() => setIsFeedbackModalOpen(true)}
             >
               <MessageSquare className="mr-2 h-4 w-4" />
@@ -100,8 +99,6 @@ export function DashboardSidebar() {
       <ClerkProvider dynamic>
         <FeedbackModal isOpen={isFeedbackModalOpen} onClose={() => setIsFeedbackModalOpen(false)} />
       </ClerkProvider>
-
-      <BackgroundGradient degrees={Math.random() * 360} />
     </aside>
   );
 }

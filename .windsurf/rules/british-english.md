@@ -1,0 +1,9 @@
+---
+trigger: model_decision
+description: Use British English in this repository for all copy and names
+globs: 
+---
+
+# Your rule content
+
+- Use British English in this repository for all copy and names. As you can see the project is called CV Optimiser with an S and optimisations with an S. And so everything in the project that is names or copy should use British Spellings. 

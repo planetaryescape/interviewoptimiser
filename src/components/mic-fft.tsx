@@ -23,20 +23,21 @@ export function MicFFT({
           >
             <title>Audio Frequency Visualization</title>
             {Array.from({ length: 24 }).map((_, index) => {
-              const value = (fft[index] ?? 0) / 2;
-              const h = Math.min(Math.max(height * value, 4), height);
+              const value = (fft[index] ?? 0) / 4;
+              const h = Math.min(Math.max(height * value, 2), height);
+              const yOffset = height * 0.5 - h * 0.5;
+
               return (
                 <motion.rect
-                  key={`fft-bar-${index + 1}-${h}`}
+                  key={`mic-fft-${
+                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                    index
+                  }`}
                   height={h}
-                  width={3}
-                  x={index * 5}
-                  y={height - h}
-                  fill="currentColor"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2, delay: index * 0.01 }}
+                  width={2}
+                  x={2 + (index * width - 4) / 24}
+                  y={yOffset}
+                  rx={4}
                 />
               );
             })}

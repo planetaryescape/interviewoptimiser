@@ -1,5 +1,6 @@
 export * from "./candidateDetails";
 export * from "./changelogs";
+export * from "./chatMetadata";
 export * from "./countries";
 export * from "./customisations";
 export * from "./featureRequestLikes";
@@ -11,6 +12,7 @@ export * from "./jobDescriptions";
 export * from "./jobs";
 export * from "./organizations";
 export * from "./pageSettings";
+export * from "./questionAnalysis";
 export * from "./reports";
 export * from "./reviews";
 export * from "./statistics";

@@ -5,6 +5,9 @@ import { db } from "~/db";
 import { statistics } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
+// Define cache control options
+export const revalidate = 3600; // Revalidate every hour (3600 seconds)
+
 export async function GET() {
   logger.info("GET request received at /api/public/statistics");
 
@@ -30,7 +33,16 @@ export async function GET() {
       "Successfully retrieved statistics"
     );
 
-    return NextResponse.json(formatEntity(stats, "statistics"));
+    // Create response with the formatted statistics data
+    const response = NextResponse.json(formatEntity(stats, "statistics"));
+
+    // Set cache control headers
+    response.headers.set(
+      "Cache-Control",
+      "public, s-maxage=3600, stale-while-revalidate=86400"
+    );
+
+    return response;
   } catch (error) {
     Sentry.withScope((scope) => {
       scope.setExtra("context", "GET /api/public/statistics");

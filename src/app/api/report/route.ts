@@ -3,11 +3,8 @@ import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
-import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { config } from "~/config";
-import { db } from "~/db";
-import { interviews, reports } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 const API_GATEWAY_URL = config.apiGatewayUrlAddToQueue;
@@ -17,9 +14,10 @@ const API_KEY = process.env.INTERVIEWOPTIMISER_API_KEY;
 export async function POST(req: NextRequest) {
   try {
     logger.info("Received request at /api/report");
-    const { interviewId: interviewIdString } = await req.json();
+    const { interviewId: interviewIdString, reportId: reportIdString } = await req.json();
     const interviewId = idHandler.decode(interviewIdString);
-    logger.info({ interviewId }, "Interview ID for report generation");
+    const reportId = idHandler.decode(reportIdString);
+    logger.info({ interviewId, reportId }, "Interview ID and report ID for report generation");
 
     const { userId: clerkUserId } = getAuth(req);
     if (!clerkUserId) {
@@ -33,61 +31,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const reportId = await db.transaction(async (tx) => {
-      const interview = await tx
-        .select({
-          transcript: interviews.transcript,
-        })
-        .from(interviews)
-        .where(eq(interviews.id, interviewId))
-        .then(([interview]) => interview);
-
-      if (!interview) {
-        logger.error("Interview not found");
-        Sentry.withScope((scope) => {
-          scope.setExtra("interviewId", interviewId);
-          Sentry.captureException(new Error("Interview not found"));
-        });
-        return NextResponse.json({ error: "Interview not found" }, { status: 404 });
-      }
-
-      logger.info("Interview found");
-
-      const report = await tx
-        .insert(reports)
-        .values({
-          interviewId,
-          generalAssessment: "",
-          overallScore: 0,
-          speakingSkills: "",
-          speakingSkillsScore: 0,
-          transcript: interview?.transcript || "",
-          areasOfStrength: "",
-          areasForImprovement: "",
-          actionableNextSteps: "",
-          communicationSkills: "",
-          communicationSkillsScore: 0,
-          problemSolvingSkills: "",
-          problemSolvingSkillsScore: 0,
-          technicalKnowledge: "",
-          technicalKnowledgeScore: 0,
-          teamwork: "",
-          teamworkScore: 0,
-          adaptability: "",
-          adaptabilityScore: 0,
-        })
-        .returning();
-
-      return report[0].id;
-    });
-
     if (!reportId) {
-      logger.error("Failed to generate report ID");
-      return NextResponse.json({ error: "Failed to generate report ID" }, { status: 500 });
+      logger.error("Failed to decode report ID");
+      return NextResponse.json({ error: "Failed to decode report ID" }, { status: 500 });
     }
 
-    logger.info({ interviewId, url: API_GATEWAY_URL }, "Sending message to API Gateway");
-    const response = await fetch(API_GATEWAY_URL, {
+    // Configure the API requests
+    const reportRequest = fetch(API_GATEWAY_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -103,23 +53,74 @@ export async function POST(req: NextRequest) {
       }),
     });
 
-    const responseData = await response.json();
+    const audioRequest = fetch(API_GATEWAY_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": API_KEY || "",
+      },
+      body: JSON.stringify({
+        data: {
+          interviewId,
+          reportId,
+        },
+        userId,
+        queueType: "save-interview-audio-to-s3",
+      }),
+    });
 
-    logger.info({ status: response.status, responseData }, "Received response from API Gateway");
+    // Execute both requests in parallel
+    logger.info({ interviewId, reportId }, "Sending parallel requests to API Gateway");
+    const [reportResponse, audioResponse] = await Promise.all([reportRequest, audioRequest]);
 
-    if (!response.ok) {
+    // Parse the JSON responses in parallel
+    const [reportResponseData, audioResponseData] = await Promise.all([
+      reportResponse.json(),
+      audioResponse.json(),
+    ]);
+
+    logger.info(
+      {
+        reportStatus: reportResponse.status,
+        audioStatus: audioResponse.status,
+      },
+      "Received responses from API Gateway"
+    );
+
+    // Check if either request failed
+    if (!reportResponse.ok || !audioResponse.ok) {
       logger.error(
         {
-          error: response.statusText,
-          status: response.status,
-          body: responseData,
+          reportError: reportResponse.ok ? null : reportResponse.statusText,
+          reportStatus: reportResponse.status,
+          reportBody: reportResponseData,
+          audioError: audioResponse.ok ? null : audioResponse.statusText,
+          audioStatus: audioResponse.status,
+          audioBody: audioResponseData,
         },
-        "Failed to queue report generation"
+        "Failed to queue one or more tasks"
       );
-      return NextResponse.json(responseData, { status: response.status });
+
+      // Return the first error
+      if (!reportResponse.ok) {
+        return NextResponse.json(reportResponseData, {
+          status: reportResponse.status,
+        });
+      } else {
+        return NextResponse.json(audioResponseData, {
+          status: audioResponse.status,
+        });
+      }
     }
 
-    return NextResponse.json({ message: "Report generation started" }, { status: 200 });
+    return NextResponse.json(
+      {
+        message: "Report generation and audio reconstruction started",
+        reportStatus: reportResponse.status,
+        audioStatus: audioResponse.status,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     Sentry.withScope((scope) => {
       scope.setExtra("context", "POST /api/generate");

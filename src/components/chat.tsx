@@ -1,7 +1,9 @@
 "use client";
 
+import { idHandler } from "@/lib/utils/idHandler";
 import {
   useActiveInterviewActions,
+  useActiveInterviewChatMetadata,
   useActiveInterviewEnded,
 } from "@/stores/useActiveInterviewStore";
 import { createInterviewInstructions } from "@/utils/conversation_config";
@@ -37,7 +39,9 @@ export default function ClientComponent({
   const router = useRouter();
   const params = useParams();
   const interviewEnded = useActiveInterviewEnded();
-  const { setInterviewEnded } = useActiveInterviewActions();
+  const { resetState } = useActiveInterviewActions();
+
+  const activeInterviewChatMetadata = useActiveInterviewChatMetadata();
 
   const { data: interview } = useQuery<any>({
     // | InterviewWithCandidateDetailsAndJobDescription
@@ -56,12 +60,20 @@ export default function ClientComponent({
 
   const generateReportMutation = useMutation({
     mutationFn: async () => {
+      const body = {
+        interviewId: params.interviewId,
+        reportId: idHandler.encode(activeInterviewChatMetadata?.reportId || 0),
+      };
+
+      console.log("body", body);
+      console.log("activeInterviewChatMetadata:", activeInterviewChatMetadata);
+
       const response = await fetch("/api/report", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ interviewId: params.interviewId }),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
@@ -75,6 +87,7 @@ export default function ClientComponent({
         queryKey: ["interview", params.interviewId],
       });
       setShowTakeover(false);
+      resetState();
       router.push(`/dashboard/interviews/${params.interviewId}/reports`);
     },
     onError: (error) => {
@@ -204,9 +217,28 @@ export default function ClientComponent({
           type: "session_settings",
           systemPrompt,
           context: {
-            text: `You are an AI interviewer called Interview Optimiser. You are conducting a mock interview with ${interview?.data?.candidateDetails.name} to help them prepare for a ${interview?.data?.jobDescription.role} job at ${interview?.data?.jobDescription.company}. Your goal is to ask relevant, insightful questions based on the candidate data and job role information, focusing on ${interview?.data?.type} questions.
+            text: `You are an AI interviewer called Cora, the lead interviewer at Interview Optimiser. You are conducting a mock interview with ${interview?.data?.candidateDetails.name} to help them prepare for a ${interview?.data?.jobDescription.role} job at ${interview?.data?.jobDescription.company}. Your goal is to ask relevant, insightful questions based on the candidate data and job role information, focusing on ${interview?.data?.type} questions.
 
-            Do not interrupt the candidate; always let them finish their thoughts. If the candidate's response seems incomplete, use affirming interjections like "uh-huh" to encourage them to continue. Use positive reinforcement and adjust the difficulty of questions based on the candidate's performance, allowing them to expand and providing feedback when necessary.`,
+            Do not interrupt the candidate; always let them finish their thoughts. If the candidate's response seems incomplete, use affirming interjections like "uh-huh" to encourage them to continue. Use positive reinforcement and adjust the difficulty of questions based on the candidate's performance, allowing them to expand and providing feedback when necessary.
+
+            ${
+              interview?.data?.jobDescription?.keyQuestions?.length
+                ? `IMPORTANT: These are the 5 key questions that MUST be asked during the interview. They are the HIGHEST PRIORITY questions and should be asked before exploring other topics. These questions have been specifically generated for this role and are crucial for assessing the candidate's suitability:
+
+            ${interview?.data?.jobDescription?.keyQuestions
+              .map((q: string, i: number) => `${i + 1}. ${q}`)
+              .join("\n")}
+
+            IMPORTANT GUIDELINES FOR QUESTIONS:
+            1. Ask ALL of these key questions during the interview - they are mandatory and essential for the evaluation report
+            2. Space them naturally throughout the interview, but ensure they are all covered before exploring less critical topics
+            3. Ask follow-up questions based on the candidate's responses to these key questions
+            4. Only move to other questions when:
+               - The candidate's response to a key question naturally leads to a relevant follow-up topic
+               - All key questions have been thoroughly covered
+            5. Return to any key questions that weren't fully answered before concluding the interview`
+                : ""
+            }`,
             type: "persistent",
           },
         }}
@@ -227,10 +259,7 @@ export default function ClientComponent({
           }, 200);
         }}
       >
-        <TimerHume
-          totalTime={(interview?.data?.duration ?? 15) * 60}
-          setInterviewEnded={setInterviewEnded}
-        />
+        <TimerHume totalTime={(interview?.data?.duration ?? 15) * 60} />
         {interviewStarted ? (
           <Messages ref={ref} />
         ) : (
