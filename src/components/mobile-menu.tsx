@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useUser } from "@/hooks/useUser";
 import { cn } from "@/lib/utils";
-import { SignedIn, SignedOut } from "@clerk/nextjs";
-import { CreditCard, Menu } from "lucide-react";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { CreditCard, MenuIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -36,10 +36,10 @@ export function MobileMenu({ isDashboard, onFeedbackClick }: MobileMenuProps) {
       href={href}
       onClick={closeMenu}
       className={cn(
-        "px-3 py-3 rounded-md transition-colors text-base flex items-center",
+        "px-3 py-3 rounded-md transition-colors text-sm font-medium",
         pathname === href
           ? "bg-primary/10 text-primary font-medium"
-          : "text-muted-foreground hover:text-primary hover:bg-muted"
+          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
       )}
     >
       {children}
@@ -49,28 +49,43 @@ export function MobileMenu({ isDashboard, onFeedbackClick }: MobileMenuProps) {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button className="md:hidden relative" variant="ghost" size="sm" aria-label="Open menu">
-          <Menu className="w-5 h-5" />
+        <Button className="md:hidden" variant="ghost" size="icon" aria-label="Open menu">
+          <MenuIcon className="h-5 w-5" />
+          <span className="sr-only">Toggle Menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-full max-w-[300px] p-0">
-        <div className="flex flex-col h-full overflow-y-auto">
+      <SheetContent side="right" className="w-full sm:max-w-xs p-0">
+        <div className="flex flex-col h-full">
           <div className="p-6 border-b border-border/50">
-            <Link href="/" className="flex items-center gap-2 mb-6" onClick={closeMenu}>
-              <Image
-                src="/logo.png"
-                alt={`${config.projectName} Logo`}
-                width={32}
-                height={32}
-                className="rounded-lg"
-              />
-              <span className="font-semibold text-foreground">{config.projectName}</span>
-            </Link>
-            <SheetTitle className="text-lg font-display">Navigation</SheetTitle>
+            <div className="flex items-center justify-between mb-4">
+              <Link href="/" className="flex items-center gap-2" onClick={closeMenu}>
+                <Image
+                  src="/logo.png"
+                  alt={`${config.projectName} Logo`}
+                  width={32}
+                  height={32}
+                  className="rounded-lg"
+                />
+                <span className="font-semibold text-foreground">{config.projectName}</span>
+              </Link>
+              <div className="flex items-center gap-2">
+                <SignedIn>
+                  <UserButton
+                    afterSignOutUrl="/"
+                    appearance={{
+                      elements: {
+                        avatarBox: "w-8 h-8",
+                      },
+                    }}
+                  />
+                </SignedIn>
+              </div>
+            </div>
+            <SheetTitle className="sr-only">Navigation</SheetTitle>
           </div>
 
-          <div className="flex-1 p-6">
-            <nav className="flex flex-col space-y-2">
+          <div className="flex-1 p-6 overflow-y-auto">
+            <nav className="flex flex-col space-y-3">
               <NavLink href="/">Home</NavLink>
 
               {isDashboard && (
@@ -101,11 +116,11 @@ export function MobileMenu({ isDashboard, onFeedbackClick }: MobileMenuProps) {
             </nav>
           </div>
 
-          <div className="p-6 border-t border-border/50 bg-muted/50 mt-auto">
+          <div className="mt-auto p-6 border-t border-border/50 bg-muted/30">
             <div className="flex flex-col space-y-4">
               <SignedIn>
                 {user && (
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-background/80">
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-background">
                     <div className="flex items-center gap-2">
                       <CreditCard className="h-4 w-4 text-muted-foreground" />
                       <span className="text-sm text-muted-foreground">Minutes</span>
@@ -135,13 +150,13 @@ export function MobileMenu({ isDashboard, onFeedbackClick }: MobileMenuProps) {
               </SignedIn>
 
               <SignedOut>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3">
                   <Button asChild variant="default" className="w-full">
                     <Link href="/sign-up" onClick={closeMenu}>
                       Start Mock Interview
                     </Link>
                   </Button>
-                  <Button asChild variant="outline" className="w-full">
+                  <Button asChild variant="ghost" className="w-full">
                     <Link href="/sign-in" onClick={closeMenu}>
                       Sign In
                     </Link>
