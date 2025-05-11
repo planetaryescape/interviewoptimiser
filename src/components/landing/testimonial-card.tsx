@@ -17,7 +17,7 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
     <div className="relative p-px rounded-2xl bg-gradient-to-b from-primary/20 via-primary/10 to-transparent">
       <Card className="group relative h-full overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-background via-background/95 to-background/90 backdrop-blur-xl">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent" />
-        <BackgroundGradient degrees={Math.random() * 360} />
+        <BackgroundGradient degrees={212} />
 
         <div className="relative z-10 flex h-full flex-col gap-6 p-8">
           {/* Rating Display */}

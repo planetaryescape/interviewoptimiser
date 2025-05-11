@@ -191,7 +191,7 @@ export function FAQSection() {
           ))}
         </div>
       </div>
-      <BackgroundGradient degrees={Math.random() * 360} />
+      <BackgroundGradient degrees={212} />
     </section>
   );
 }

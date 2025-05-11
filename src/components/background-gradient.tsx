@@ -3,7 +3,7 @@
 import { useTheme } from "next-themes";
 
 export const BackgroundGradient = ({
-  degrees = Math.random() * 360,
+  degrees = 212,
 }: {
   degrees?: number;
 }) => {

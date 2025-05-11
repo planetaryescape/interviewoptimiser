@@ -20,7 +20,7 @@ export const Card = ({
     >
       {children}
 
-      <AnotherBackgroundGradient degrees={Math.random() * 360} />
+      <AnotherBackgroundGradient degrees={212} />
     </div>
   );
 };
