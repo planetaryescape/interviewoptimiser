@@ -6,7 +6,14 @@ import type { SQSEvent, SQSRecord } from "aws-lambda";
 import { eq, sql } from "drizzle-orm";
 import { config } from "~/config";
 import { db } from "~/db";
-import { candidateDetails, interviews, jobDescriptions, reports, statistics } from "~/db/schema";
+import {
+  candidateDetails,
+  interviews,
+  jobDescriptions,
+  questionAnalysis,
+  reports,
+  statistics,
+} from "~/db/schema";
 import { analyseInterview } from "~/lib/ai/analyse-interview";
 import { extractCandidateDetails } from "~/lib/ai/extract-candidate-details";
 import { extractJobDescription } from "~/lib/ai/extract-job-description";
@@ -125,6 +132,9 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           throw new Error("Failed to generate report");
         }
 
+        // Get the report ID
+        let updatedReportId: number;
+
         await db.transaction(async (tx) => {
           // Save structured job description to database if available
           if (structuredJobDescription?.data) {
@@ -171,7 +181,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           }
 
           // Update the report with generated analysis
-          await tx
+          const updatedReport = await tx
             .update(reports)
             .set({
               generalAssessment: generatedReport.data.generalAssessment,
@@ -193,7 +203,28 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
               actionableNextSteps: JSON.stringify(generatedReport.data.actionableNextSteps),
               isCompleted: true,
             })
-            .where(eq(reports.id, reportId));
+            .where(eq(reports.id, reportId))
+            .returning({ id: reports.id });
+
+          updatedReportId = updatedReport[0].id;
+
+          // Save question analyses to the database if available
+          if (generatedReport.questionAnalyses && generatedReport.questionAnalyses.length > 0) {
+            logger.info(
+              `Saving ${generatedReport.questionAnalyses.length} question analyses for report ID ${updatedReportId}`
+            );
+
+            // Insert each question analysis
+            for (const qa of generatedReport.questionAnalyses) {
+              await tx.insert(questionAnalysis).values({
+                reportId: updatedReportId,
+                question: qa.question,
+                analysis: qa.analysis,
+                score: qa.score,
+                isKeyQuestion: qa.isKeyQuestion,
+              });
+            }
+          }
 
           // Update the interview with candidate, company, and role information
           await tx

@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, uniqueIndex } from "drizzle-orm/pg-core";
+import { index, pgTable, uniqueIndex } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 export const images = pgTable(
@@ -25,12 +25,10 @@ export const images = pgTable(
       .$default(() => new Date())
       .notNull(),
   }),
-  (images) => ({
-    promptIdIdx: uniqueIndex("images_prompt_id_idx").on(images.promptId),
-    cloudinaryPublicIdIdx: uniqueIndex("images_cloudinary_public_id_idx").on(
-      images.cloudinaryPublicId
-    ),
-  })
+  (images) => [
+    index("images_prompt_id_idx").on(images.promptId),
+    uniqueIndex("images_cloudinary_public_id_idx").on(images.cloudinaryPublicId),
+  ]
 );
 
 export const imagesRelations = relations(images, ({ one }) => ({

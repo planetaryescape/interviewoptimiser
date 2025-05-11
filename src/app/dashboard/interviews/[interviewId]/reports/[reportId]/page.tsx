@@ -28,6 +28,7 @@ import {
   workSans,
 } from "@/app/fonts";
 import { Expressions } from "@/components/expressions";
+import { AudioPlayer } from "@/components/interview/audio-player";
 import PagePreview from "@/components/page-preview";
 import { PagePreviewToolbar, marginSizes, paperSizes } from "@/components/page-preview-toolbar";
 import { RadialProsodyChart } from "@/components/radial-prosody-chart";
@@ -51,6 +52,7 @@ import { getPagePreviewHtml } from "@/lib/getPagePreviewHtml";
 import { prepareHtml } from "@/lib/prepareHtml";
 import { mmToPx, remToPx } from "@/lib/unit-conversions";
 import { cn } from "@/lib/utils";
+import type { EntityList } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -65,7 +67,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 import { config } from "~/config";
-import type { Interview, PageSettings, Report } from "~/db/schema";
+import type { Interview, PageSettings, QuestionAnalysis, Report } from "~/db/schema";
 
 function aggregateProsodyData(transcript: string) {
   const messages = JSON.parse(transcript || "[]");
@@ -122,6 +124,20 @@ export default function InterviewReportPage(props: {
       );
       return await reportRepo.getById(params.reportId);
     },
+  });
+
+  const { data: questionAnalyses, isLoading: questionAnalysesIsLoading } = useQuery<
+    EntityList<QuestionAnalysis>
+  >({
+    queryKey: ["questionAnalyses", params.reportId],
+    queryFn: async () => {
+      const response = await fetch(`/api/reports/${params.reportId}/question-analyses`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch question analyses");
+      }
+      return response.json();
+    },
+    enabled: !!params.reportId,
   });
 
   const { mutate: exportDocument, isPending: isExporting } = useMutation({
@@ -333,7 +349,13 @@ export default function InterviewReportPage(props: {
     generateReportMutation.mutate();
   };
 
-  if (isLoading || interviewIsPending || reportIsLoading || reportIsPending)
+  if (
+    isLoading ||
+    interviewIsPending ||
+    reportIsLoading ||
+    reportIsPending ||
+    questionAnalysesIsLoading
+  )
     return (
       <div className="size-full flex items-center justify-center">
         <ParticleSwarmLoader />
@@ -735,6 +757,65 @@ export default function InterviewReportPage(props: {
             </div>
           </section>
 
+          {/* Key Question Analysis - Professional academic style */}
+          {questionAnalyses?.data?.length && questionAnalyses?.data?.length > 0 && (
+            <section className="mb-16">
+              <h2
+                className={cn(
+                  "text-base font-semibold text-blue-800 uppercase tracking-widest border-b border-slate-300 pb-2 mb-6 w-full",
+                  headingFont
+                )}
+              >
+                Key Question Analysis
+              </h2>
+              <div className="space-y-6">
+                {questionAnalyses.data.map((item) => (
+                  <div key={item.data.id} className="border border-slate-200 rounded-sm">
+                    <div className="bg-slate-50 p-4 border-b border-slate-200">
+                      <div className="flex justify-between items-center">
+                        <h3 className={cn("text-sm font-semibold text-slate-800", headingFont)}>
+                          {item.data.question}
+                        </h3>
+                        <div className="flex items-center">
+                          <span className="text-sm font-medium text-slate-700 mr-2">
+                            {item.data.score}%
+                          </span>
+                          <div className="w-20 h-2 bg-slate-200 rounded-sm overflow-hidden">
+                            <div
+                              className={cn(
+                                "h-full",
+                                item.data.score >= 80
+                                  ? "bg-green-600"
+                                  : item.data.score >= 60
+                                    ? "bg-blue-600"
+                                    : "bg-amber-500"
+                              )}
+                              style={{ width: `${item.data.score}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          ...remarkMarkdownComponents,
+                          p: ({ node, ...props }) => (
+                            <p className="mb-4 text-slate-700 leading-relaxed text-sm" {...props} />
+                          ),
+                        }}
+                        className="text-slate-700 text-sm leading-relaxed"
+                      >
+                        {item.data.analysis}
+                      </ReactMarkdown>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* Prosody Analysis - Redesigned for academic style */}
           {includeTranscript && (
             <section className="mb-16">
@@ -901,6 +982,13 @@ export default function InterviewReportPage(props: {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {/* Audio Player - fixed bottom bar */}
+      {report?.data?.interviewAudioUrl !== undefined && (
+        <AudioPlayer
+          audioUrl={report.data.interviewAudioUrl || undefined}
+          disabled={!report.data.interviewAudioUrl}
+        />
+      )}
     </div>
   );
 }

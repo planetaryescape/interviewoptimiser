@@ -103,9 +103,9 @@ const FAQCard = ({
       >
         <div className="space-y-3">
           <div className="text-primary">{faq.icon}</div>
-          <h3 className="text-xl font-semibold text-foreground/90">{faq.question}</h3>
+          <h3 className="text-style-h4 text-foreground/90">{faq.question}</h3>
           {!isActive && (
-            <p className="text-foreground/60 text-sm font-medium">Click to learn more →</p>
+            <p className="text-style-caption text-muted-foreground">Click to learn more →</p>
           )}
         </div>
 
@@ -113,7 +113,7 @@ const FAQCard = ({
           className={`overflow-hidden transition-all duration-300
           ${isActive ? "opacity-100 max-h-96" : "opacity-0 max-h-0 md:max-h-none md:opacity-0"}`}
         >
-          <p className="text-foreground/75 leading-relaxed">{faq.answer}</p>
+          <p className="text-style-body-base text-muted-foreground leading-relaxed">{faq.answer}</p>
         </div>
       </div>
     </div>
@@ -171,10 +171,10 @@ export function FAQSection() {
     <section className="relative w-full py-12 md:py-24 lg:py-32 border-t border-b border-primary/50">
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-2xl mx-auto text-center mb-12">
-          <h2 className="text-3xl font-bold sm:text-4xl md:text-5xl mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">
+          <h2 className="text-style-h2 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">
             Frequently Asked Questions
           </h2>
-          <p className="text-lg text-foreground/80">
+          <p className="text-style-body-lead text-muted-foreground">
             Everything you need to know about {config.projectName}. Can&apos;t find the answer
             you&apos;re looking for? Reach out to our support team.
           </p>

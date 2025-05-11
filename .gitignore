@@ -50,3 +50,7 @@ terraform/terraform.tfstate.backup
 **/public/worker**
 **/public/fallback**
 **/public/precache**
+
+
+# Cursor
+.cursor/mcp.json

@@ -2,6 +2,7 @@
 
 import { ConfirmationModal } from "@/components/create-optimization/ConfirmationModal";
 import { OutOfMinutesModal } from "@/components/create-optimization/OutOfMinutesModal";
+import { JobDetailsSheet } from "@/components/job-details-sheet";
 import { ReportCard } from "@/components/report-card";
 import { Button } from "@/components/ui/button";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
@@ -282,14 +283,21 @@ export default function InterviewReportsPage(props: {
               </div>
             </div>
 
-            <Button
-              onClick={handleRetakeInterview}
-              className="gap-2 sm:self-start"
-              variant="outline"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Retake Interview
-            </Button>
+            <div className="flex items-center gap-3">
+              <JobDetailsSheet
+                interviewId={params.interviewId}
+                variant="outline"
+                className="gap-2"
+              />
+              <Button
+                onClick={handleRetakeInterview}
+                className="gap-2 sm:self-start"
+                variant="default"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Retake Interview
+              </Button>
+            </div>
           </div>
         </div>
       </div>

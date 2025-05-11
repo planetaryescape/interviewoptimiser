@@ -1,6 +1,7 @@
 import { unformatTime } from "@/lib/utils/unformatTime";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
+import type { ChatMetadata } from "~/db/schema";
 
 interface Message {
   role: string;
@@ -15,6 +16,7 @@ interface ActiveInterviewState {
   interviewEnded: boolean;
   isConnected: boolean;
   messages: Message[];
+  activeInterviewChatMetadata: ChatMetadata | null;
 }
 
 interface ActiveInterviewActions {
@@ -24,6 +26,7 @@ interface ActiveInterviewActions {
   setConnectionStatus: (connected: boolean) => void;
   markWrapUpSent: () => void;
   setMessages: (messages: Message[]) => void;
+  setActiveInterviewChatMetadata: (chatMetadata: ChatMetadata | null) => void;
   resetState: () => void;
 }
 
@@ -35,6 +38,7 @@ const initialState: ActiveInterviewState = {
   interviewEnded: false,
   isConnected: false,
   messages: [],
+  activeInterviewChatMetadata: null,
 };
 
 export const useActiveInterviewStore = create(
@@ -50,6 +54,8 @@ export const useActiveInterviewStore = create(
         })),
       setTotalTime: (totalTime: number) => set({ totalTime }),
       setInterviewEnded: (interviewEnded: boolean) => set({ interviewEnded }),
+      setActiveInterviewChatMetadata: (chatMetadata: ChatMetadata | null) =>
+        set({ activeInterviewChatMetadata: chatMetadata }),
       setConnectionStatus: (isConnected: boolean) => set({ isConnected }),
       markWrapUpSent: () => set({ wrapUpSent: true }),
       setMessages: (messages: Message[]) => set({ messages }),
@@ -68,6 +74,8 @@ export const useActiveInterviewWrapUpSent = () =>
   useActiveInterviewStore((state) => state.wrapUpSent);
 export const useActiveInterviewEnded = () =>
   useActiveInterviewStore((state) => state.interviewEnded);
+export const useActiveInterviewChatMetadata = () =>
+  useActiveInterviewStore((state) => state.activeInterviewChatMetadata);
 export const useActiveInterviewIsConnected = () =>
   useActiveInterviewStore((state) => state.isConnected);
 export const useActiveInterviewMessages = () => useActiveInterviewStore((state) => state.messages);

@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 const config: Config = {
   darkMode: ["class"],
@@ -8,7 +9,17 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
     extend: {
+      screens: {
+        xs: "480px",
+      },
       fontFamily: {
         aller: ["var(--font-aller)", "sans-serif"],
         arial: ["Arial", "sans-serif"],
@@ -44,6 +55,22 @@ const config: Config = {
         geistSans: ["var(--font-geist-sans)", "sans-serif"],
         geistMono: ["var(--font-geist-mono)", "monospace"],
         display: ["var(--font-display)", "system-ui", "sans-serif"],
+        sans: ["var(--font-geist-sans)", "Helvetica", "Arial", "sans-serif"],
+        headingPrimary: ["var(--font-oswald)", "Impact", "sans-serif"],
+        headingSecondary: ["var(--font-montserrat)", "Helvetica", "Arial", "sans-serif"],
+      },
+      fontSize: {
+        xs: ["0.875rem", { lineHeight: "1.25rem" }],
+        sm: ["1rem", { lineHeight: "1.5rem" }],
+        base: ["1.125rem", { lineHeight: "1.75rem" }],
+        lg: ["1.25rem", { lineHeight: "1.75rem" }],
+        xl: ["1.5rem", { lineHeight: "2rem" }],
+        "2xl": ["1.875rem", { lineHeight: "2.25rem" }],
+        "3xl": ["2.25rem", { lineHeight: "2.5rem" }],
+        "4xl": ["3rem", { lineHeight: "1.2" }],
+        "5xl": ["3.75rem", { lineHeight: "1.15" }],
+        "6xl": ["4.5rem", { lineHeight: "1.1" }],
+        "7xl": ["5.625rem", { lineHeight: "1.05" }],
       },
       colors: {
         background: "hsl(var(--background))",
@@ -85,6 +112,7 @@ const config: Config = {
           "3": "hsl(var(--chart-3))",
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
+          "6": "hsl(var(--chart-6))",
         },
       },
       borderRadius: {
@@ -99,6 +127,39 @@ const config: Config = {
           },
           "50%": {
             opacity: "0.5",
+          },
+        },
+        float: {
+          "0%, 100%": {
+            transform: "translateY(0px)",
+          },
+          "50%": {
+            transform: "translateY(-10px)",
+          },
+        },
+        gradient: {
+          "0%": {
+            backgroundPosition: "0% 50%",
+          },
+          "50%": {
+            backgroundPosition: "100% 50%",
+          },
+          "100%": {
+            backgroundPosition: "0% 50%",
+          },
+        },
+        "step-complete": {
+          "0%": {
+            transform: "scale(1)",
+            boxShadow: "0 0 0 0 hsla(var(--primary) / 0.2)",
+          },
+          "50%": {
+            transform: "scale(1.05)",
+            boxShadow: "0 0 0 10px hsla(var(--primary) / 0)",
+          },
+          "100%": {
+            transform: "scale(1)",
+            boxShadow: "0 0 0 0 hsla(var(--primary) / 0)",
           },
         },
         meteor: {
@@ -152,14 +213,129 @@ const config: Config = {
       },
       animation: {
         breathe: "breathe 2s ease-in-out infinite",
+        float: "float 3s ease-in-out infinite",
         "meteor-effect": "meteor 5s linear infinite",
         buttonheartbeat: "buttonheartbeat 2s infinite ease-in-out",
         "border-beam": "border-beam calc(var(--duration)*1s) infinite linear",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "step-complete": "step-complete 0.5s ease-out forwards",
+      },
+      backgroundImage: {
+        "custom-gradient": "var(--gradient)",
+      },
+      spacing: {
+        baseline: "4px",
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require("@tailwindcss/typography"),
+    plugin(({ addComponents, theme }) => {
+      addComponents({
+        ".text-style-display": {
+          fontFamily: theme("fontFamily.headingPrimary"),
+          fontSize: theme("fontSize.5xl"),
+          fontWeight: theme("fontWeight.bold"),
+          lineHeight: "1.05",
+          letterSpacing: theme("letterSpacing.tight"),
+          "@screen sm": {
+            fontSize: theme("fontSize.6xl"),
+          },
+          "@screen lg": {
+            fontSize: theme("fontSize.7xl"),
+          },
+        },
+        ".text-style-h1": {
+          fontFamily: theme("fontFamily.headingPrimary"),
+          fontSize: theme("fontSize.3xl"),
+          fontWeight: theme("fontWeight.bold"),
+          lineHeight: "1.2",
+          letterSpacing: theme("letterSpacing.tight"),
+          "@screen sm": {
+            fontSize: theme("fontSize.4xl"),
+          },
+          "@screen lg": {
+            fontSize: theme("fontSize.5xl"),
+          },
+        },
+        ".text-style-h2": {
+          fontFamily: theme("fontFamily.headingPrimary"),
+          fontSize: theme("fontSize.2xl"),
+          fontWeight: theme("fontWeight.semibold"),
+          lineHeight: "1.25",
+          letterSpacing: theme("letterSpacing.tight"),
+          "@screen sm": {
+            fontSize: theme("fontSize.3xl"),
+          },
+          "@screen lg": {
+            fontSize: theme("fontSize.4xl"),
+          },
+        },
+        ".text-style-h3": {
+          fontFamily: theme("fontFamily.headingSecondary"),
+          fontSize: theme("fontSize.xl"),
+          fontWeight: theme("fontWeight.semibold"),
+          lineHeight: "1.3",
+          "@screen sm": {
+            fontSize: theme("fontSize.2xl"),
+          },
+          "@screen lg": {
+            fontSize: theme("fontSize.3xl"),
+          },
+        },
+        ".text-style-h4": {
+          fontFamily: theme("fontFamily.headingSecondary"),
+          fontSize: theme("fontSize.lg"),
+          fontWeight: theme("fontWeight.semibold"),
+          lineHeight: "1.35",
+          "@screen sm": {
+            fontSize: theme("fontSize.xl"),
+          },
+          "@screen lg": {
+            fontSize: theme("fontSize.2xl"),
+          },
+        },
+        ".text-style-h5": {
+          fontFamily: theme("fontFamily.headingSecondary"),
+          fontSize: theme("fontSize.base"),
+          fontWeight: theme("fontWeight.semibold"),
+          lineHeight: "1.2",
+          "@screen sm": {
+            fontSize: theme("fontSize.lg"),
+          },
+          "@screen lg": {
+            fontSize: theme("fontSize.xl"),
+          },
+        },
+        ".text-style-body-lead": {
+          fontFamily: theme("fontFamily.sans"),
+          fontSize: theme("fontSize.lg"),
+          fontWeight: theme("fontWeight.normal"),
+          lineHeight: "1.65",
+        },
+        ".text-style-body-base": {
+          fontFamily: theme("fontFamily.sans"),
+          fontSize: theme("fontSize.base"),
+          fontWeight: theme("fontWeight.normal"),
+          lineHeight: "1.7",
+        },
+        ".text-style-body-small": {
+          fontFamily: theme("fontFamily.sans"),
+          fontSize: theme("fontSize.sm"),
+          fontWeight: theme("fontWeight.normal"),
+          lineHeight: "1.6",
+        },
+        ".text-style-caption": {
+          fontFamily: theme("fontFamily.sans"),
+          fontSize: theme("fontSize.xs"),
+          fontWeight: theme("fontWeight.normal"),
+          lineHeight: "1.5",
+        },
+      });
+    }),
+  ],
 };
+
 export default config;

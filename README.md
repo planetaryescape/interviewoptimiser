@@ -11,6 +11,7 @@ Interview Optimiser is an AI-powered interview practice platform that provides r
 - Detailed analytics on communication, technical knowledge, and problem-solving skills
 - Emotional and prosody analysis of responses
 - Personalized improvement recommendations
+- Complete interview audio recording and playback capabilities
 
 ### For Recruiters (B2B)
 
@@ -19,6 +20,7 @@ Interview Optimiser is an AI-powered interview practice platform that provides r
 - AI-driven candidate assessment based on specific job criteria
 - Time-saving pre-screening capabilities
 - Data-driven insights for hiring decisions
+- Interview recording archive for compliance and review
 
 ## Tech Stack
 
@@ -30,7 +32,7 @@ Interview Optimiser is an AI-powered interview practice platform that provides r
 - **Database**: PostgreSQL with Drizzle ORM
 - **Email**: ReactEmail & Resend
 - **Authentication**: Clerk
-- **Storage**: AWS S3
+- **Storage**: AWS S3 with CloudFront CDN
 - **Monitoring**: Sentry, Pino Logger
 - **AI & Voice**: OpenAI API, Hume AI Voice SDK
 - **Infrastructure**: AWS via Terraform
@@ -88,6 +90,7 @@ The application will be available at `http://localhost:3000`.
 - [Technical Specification](docs/technical-spec.md)
 - [Design Specification](docs/design-spec.md)
 - [Development Roadmap](docs/roadmap.md)
+- [Audio Recording System](docs/audio-recording.md)
 
 ## Testing
 

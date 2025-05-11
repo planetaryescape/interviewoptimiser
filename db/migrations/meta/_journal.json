@@ -169,6 +169,48 @@
       "when": 1742790186247,
       "tag": "0023_clumsy_the_professor",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1746460656373,
+      "tag": "0024_wonderful_famine",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1746473259800,
+      "tag": "0025_typical_dust",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1746485274131,
+      "tag": "0026_slow_ogun",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1746551764280,
+      "tag": "0027_normal_squadron_sinister",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1746554071469,
+      "tag": "0028_open_katie_power",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1746614761568,
+      "tag": "0029_natural_red_hulk",
+      "breakpoints": true
     }
   ]
 }
