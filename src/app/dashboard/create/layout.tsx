@@ -51,7 +51,7 @@ export default function CreateInterviewLayout({ children }: CreateInterviewLayou
       {/* Main content */}
       <main className={cn("flex-1 flex flex-col relative z-10")}>{children}</main>
 
-      <BackgroundGradient degrees={Math.random() * 360} />
+      <BackgroundGradient degrees={212} />
     </div>
   );
 }
