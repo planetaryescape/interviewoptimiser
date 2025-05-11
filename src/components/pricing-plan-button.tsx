@@ -46,13 +46,13 @@ export const PricingPlanButton = ({
     <Button
       onClick={() => handleCheckout(priceId)}
       className={cn(
-        `mt-8 block rounded-md px-3 py-2 text-center text-sm font-semibold shadow-sm transition-colors`,
+        "mt-8 block rounded-md px-3 py-2 text-center text-sm font-semibold shadow-sm transition-colors",
         recommended
           ? "bg-primary text-primary-foreground hover:bg-primary/90"
           : "bg-primary/10 text-primary hover:bg-primary/20"
       )}
     >
-      Get started
+      Buy
     </Button>
   );
 };

@@ -1,17 +1,13 @@
-import { db } from "@/db";
-import { jobs, organizationMembers } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { config } from "@/lib/config";
-import { logger } from "@/lib/logger";
-import {
-  formatEntity,
-  formatEntityList,
-  formatErrorEntity,
-} from "@/lib/utils/formatEntity";
+import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { and, eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { config } from "~/config";
+import { db } from "~/db";
+import { jobs, organizationMembers } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 async function checkOrganizationAccess(organizationId: number, userId: number) {
   const member = await db.query.organizationMembers.findFirst({
@@ -42,26 +38,19 @@ export async function GET(request: NextRequest) {
     logger.error("Missing organization ID", {
       searchParams: Object.fromEntries(searchParams),
     });
-    return NextResponse.json(
-      formatErrorEntity({ message: "Organization ID is required" }),
-      { status: 400 }
-    );
+    return NextResponse.json(formatErrorEntity({ message: "Organization ID is required" }), {
+      status: 400,
+    });
   }
 
   try {
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
-    const member = await checkOrganizationAccess(
-      parseInt(organizationId),
-      user.id
-    );
+    const member = await checkOrganizationAccess(Number.parseInt(organizationId), user.id);
     if (!member) {
       logger.error("User not authorized to access organization jobs", {
         userId: user.id,
@@ -77,7 +66,7 @@ export async function GET(request: NextRequest) {
 
     const organizationJobs = await db.query.jobs.findMany({
       where: and(
-        eq(jobs.organizationId, parseInt(organizationId)),
+        eq(jobs.organizationId, Number.parseInt(organizationId)),
         eq(jobs.isDeleted, false)
       ),
     });
@@ -111,10 +100,7 @@ export async function POST(request: NextRequest) {
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const json = await request.json();
@@ -129,10 +115,9 @@ export async function POST(request: NextRequest) {
 
     if (!organizationId || !title || !description || !interviewDuration) {
       logger.error("Missing required fields", { json });
-      return NextResponse.json(
-        formatErrorEntity({ message: "Missing required fields" }),
-        { status: 400 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Missing required fields" }), {
+        status: 400,
+      });
     }
 
     const member = await checkOrganizationAccess(organizationId, user.id);
@@ -161,7 +146,7 @@ export async function POST(request: NextRequest) {
           requirements,
           interviewDuration,
           assessmentCriteria,
-          shareableLink: ``,
+          shareableLink: "",
         })
         .returning();
 

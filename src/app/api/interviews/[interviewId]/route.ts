@@ -1,14 +1,14 @@
-import { db } from "@/db";
-import { interviews, reports } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { logger } from "@/lib/logger";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { interviews, reports } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 export async function GET(
   request: NextRequest,
@@ -18,9 +18,7 @@ export async function GET(
   logger.info("GET request received at /api/interviews/[interviewId]");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn(
-      "Unauthorized access attempt to GET /api/interviews/[interviewId]"
-    );
+    logger.warn("Unauthorized access attempt to GET /api/interviews/[interviewId]");
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -39,6 +37,10 @@ export async function GET(
 
     const userInterview = await db.query.interviews.findFirst({
       where: eq(interviews.id, interviewId),
+      with: {
+        candidateDetails: true,
+        jobDescription: true,
+      },
     });
 
     if (!userInterview) {
@@ -47,10 +49,8 @@ export async function GET(
       });
     }
 
-    logger.info(
-      { id: userInterview.id },
-      "Successfully retrieved interview with report"
-    );
+    logger.info({ id: userInterview.id }, "Successfully retrieved interview with report");
+    // return NextResponse.json(userInterview);
     return NextResponse.json(formatEntity(userInterview, "interview"));
   } catch (error) {
     Sentry.withScope((scope) => {
@@ -86,9 +86,7 @@ export async function PUT(
   logger.info("PUT request received at /api/interviews/[interviewId]");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn(
-      "Unauthorized access attempt to PUT /api/interviews/[interviewId]"
-    );
+    logger.warn("Unauthorized access attempt to PUT /api/interviews/[interviewId]");
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -114,10 +112,7 @@ export async function PUT(
     });
 
     if (!existingInterview || existingInterview.userId !== userId) {
-      logger.error(
-        { interviewId, userId },
-        "Interview not found or unauthorized"
-      );
+      logger.error({ interviewId, userId }, "Interview not found or unauthorized");
       return NextResponse.json(
         formatErrorEntity({
           message: "Interview not found or unauthorized",
@@ -175,9 +170,7 @@ export async function DELETE(
   logger.info("DELETE request received at /api/interviews/[interviewId]");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn(
-      "Unauthorized access attempt to DELETE /api/interviews/[interviewId]"
-    );
+    logger.warn("Unauthorized access attempt to DELETE /api/interviews/[interviewId]");
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -199,18 +192,12 @@ export async function DELETE(
       await tx.delete(reports).where(eq(reports.interviewId, interviewId));
 
       // Delete interview
-      const result = await tx
-        .delete(interviews)
-        .where(eq(interviews.id, interviewId))
-        .returning();
+      const result = await tx.delete(interviews).where(eq(interviews.id, interviewId)).returning();
 
       logger.info({ id: result[0].id }, "Successfully deleted interview");
     });
 
-    logger.info(
-      { interviewId },
-      "Successfully deleted interview and related data"
-    );
+    logger.info({ interviewId }, "Successfully deleted interview and related data");
     return NextResponse.json({ message: "Interview deleted successfully" });
   } catch (error) {
     Sentry.withScope((scope) => {

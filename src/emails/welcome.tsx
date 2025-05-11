@@ -1,4 +1,3 @@
-import { config } from "@/lib/config";
 import {
   Body,
   Button,
@@ -14,14 +13,13 @@ import {
   Text,
 } from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
+import { config } from "~/config";
 
 export const WelcomeEmail = ({ firstName }: { firstName?: string }) => {
   return (
     <Html>
       <Head />
-      <Preview>
-        Welcome to {config.projectName} - Optimise Your Interview Performance
-      </Preview>
+      <Preview>Welcome to {config.projectName} - Optimise Your Interview Performance</Preview>
       <Tailwind
         config={{
           theme: {
@@ -58,27 +56,23 @@ export const WelcomeEmail = ({ firstName }: { firstName?: string }) => {
                 <Text className="text-base">Hi {firstName ?? "there"},</Text>
 
                 <Text className="text-base">
-                  We&apos;re thrilled to have you join the {config.projectName}{" "}
-                  community. Our AI-powered platform is designed to help you
-                  prepare for interviews with tailored mock sessions and
-                  real-time feedback, ensuring you perform your best during any
+                  We&apos;re thrilled to have you join the {config.projectName} community. Our
+                  AI-powered platform is designed to help you prepare for interviews with tailored
+                  mock sessions and real-time feedback, ensuring you perform your best during any
                   interview.
                 </Text>
 
                 <Text className="text-base">
-                  You now have {config.startingFreeMinutes} free minutes to
-                  start improving your interview skills. Simply upload your CV,
-                  job description, and select an interview type to begin
-                  practicing in a realistic mock interview setting.
+                  You now have {config.startingFreeMinutes} free minutes to start improving your
+                  interview skills. Simply upload your CV, job description, and select an interview
+                  type to begin practicing in a realistic mock interview setting.
                 </Text>
 
                 {config.earlyBirdPromo.enabled && (
                   <Text className="text-base">
-                    As one of our first {config.earlyBirdPromo.userCount}{" "}
-                    sign-ups, you&apos;ll receive{" "}
-                    {config.earlyBirdPromo.minutes} minutes of additional free
-                    practice time! Start now and prepare to ace your next
-                    interview.
+                    As one of our first {config.earlyBirdPromo.userCount} sign-ups, you&apos;ll
+                    receive {config.earlyBirdPromo.minutes} minutes of additional free practice
+                    time! Start now and prepare to ace your next interview.
                   </Text>
                 )}
               </Row>
@@ -94,11 +88,8 @@ export const WelcomeEmail = ({ firstName }: { firstName?: string }) => {
             </Section>
             <Section>
               <Text className="text-base">
-                Thank you for joining us! If you have any questions, feel free
-                to contact{" "}
-                <Link href={`mailto:${config.supportEmail}`}>
-                  our support team
-                </Link>
+                Thank you for joining us! If you have any questions, feel free to contact{" "}
+                <Link href={`mailto:${config.supportEmail}`}>our support team</Link>
                 .
                 <br />
                 <br />– The {config.projectName} Team

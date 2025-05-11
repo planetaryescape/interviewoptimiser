@@ -1,10 +1,10 @@
 "use server";
 
 import { cleanUpText } from "@/lib/clean-up-text";
-import { logger } from "@/lib/logger";
 import * as Sentry from "@sentry/nextjs";
 import { load } from "cheerio";
 import TurndownService from "turndown";
+import { logger } from "~/lib/logger";
 
 export async function extractTextFromUrl(url: string): Promise<string> {
   try {

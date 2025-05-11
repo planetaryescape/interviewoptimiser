@@ -1,16 +1,12 @@
-import { db } from "@/db";
-import { organizationMembers, organizations } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { logger } from "@/lib/logger";
-import {
-  formatEntity,
-  formatEntityList,
-  formatErrorEntity,
-} from "@/lib/utils/formatEntity";
+import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { and, eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { organizationMembers, organizations } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 export async function GET(request: NextRequest) {
   logger.info("GET request received at /api/organizations");
@@ -27,10 +23,7 @@ export async function GET(request: NextRequest) {
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const userOrganizations = await db
@@ -55,9 +48,7 @@ export async function GET(request: NextRequest) {
       )
       .where(eq(organizations.isDeleted, false));
 
-    return NextResponse.json(
-      formatEntityList(userOrganizations, "organization")
-    );
+    return NextResponse.json(formatEntityList(userOrganizations, "organization"));
   } catch (error) {
     logger.error("Error fetching organizations", { error });
     Sentry.withScope((scope) => {
@@ -65,10 +56,9 @@ export async function GET(request: NextRequest) {
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
-    return NextResponse.json(
-      formatErrorEntity({ message: "Internal server error" }),
-      { status: 500 }
-    );
+    return NextResponse.json(formatErrorEntity({ message: "Internal server error" }), {
+      status: 500,
+    });
   }
 }
 
@@ -87,10 +77,7 @@ export async function POST(request: NextRequest) {
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const data = await request.json();
@@ -137,9 +124,8 @@ export async function POST(request: NextRequest) {
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
-    return NextResponse.json(
-      formatErrorEntity({ message: "Internal server error" }),
-      { status: 500 }
-    );
+    return NextResponse.json(formatErrorEntity({ message: "Internal server error" }), {
+      status: 500,
+    });
   }
 }

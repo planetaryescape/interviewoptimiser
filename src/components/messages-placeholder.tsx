@@ -2,44 +2,41 @@
 
 import { InterviewStartModal } from "@/components/interview-start-modal";
 import { Button } from "@/components/ui/button";
+import { useInterview } from "@/hooks/useInterview";
+import { useActiveInterviewEnded } from "@/stores/useActiveInterviewStore";
 import { useVoice } from "@humeai/voice-react";
 import { motion } from "framer-motion";
-import {
-  ChevronRight,
-  Home,
-  MessageCircle,
-  Mic,
-  Sparkles,
-  Target,
-} from "lucide-react";
-import Link from "next/link";
+import { MessageCircle, Mic, Sparkles, Target } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 
 export default function InterviewPlaceholder({
-  interviewEnded,
   setInterviewStarted,
 }: {
-  interviewEnded: boolean;
   setInterviewStarted: (value: boolean) => void;
 }) {
   const [showModal, setShowModal] = useState(false);
   const params = useParams();
-  const interviewId = params.interviewId;
+  const interviewId = params.interviewId as string;
   const { connect, status } = useVoice();
+  const interviewEnded = useActiveInterviewEnded();
+  const { data: interview, isLoading, error } = useInterview(interviewId);
 
   const features = [
     {
+      id: "voice",
       icon: Mic,
       title: "Real-time Voice Interaction",
       description: "Natural conversation with AI-powered responses",
     },
     {
+      id: "feedback",
       icon: Target,
       title: "Personalized Feedback",
       description: "Get instant insights on your performance",
     },
     {
+      id: "analysis",
       icon: Sparkles,
       title: "AI-Powered Analysis",
       description: "Comprehensive evaluation of your interview skills",
@@ -57,29 +54,24 @@ export default function InterviewPlaceholder({
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading interview details...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-destructive">Failed to load interview details</div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-full flex flex-col">
-      {/* Breadcrumbs */}
-      <div className="px-4 py-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center text-sm text-muted-foreground">
-          <Link
-            href="/dashboard"
-            className="flex items-center hover:text-foreground transition-colors"
-          >
-            <Home className="h-4 w-4" />
-          </Link>
-          <ChevronRight className="h-4 w-4 mx-2" />
-          <Link
-            href={`/dashboard/interviews/${interviewId}/reports`}
-            className="hover:text-foreground transition-colors"
-          >
-            Reports
-          </Link>
-          <ChevronRight className="h-4 w-4 mx-2" />
-          <span className="text-foreground">Interview</span>
-        </div>
-      </div>
-
       {/* Main Content - Using grid for perfect centering and spacing */}
       <div className="flex-1 grid place-items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background">
         {/* Animated Background Elements */}
@@ -87,7 +79,7 @@ export default function InterviewPlaceholder({
           <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
           {Array.from({ length: 6 }).map((_, i) => (
             <motion.div
-              key={i}
+              key={`bg-element-${i + 1}`}
               className="absolute rounded-full bg-primary/10 blur-3xl"
               style={{
                 width: Math.random() * 400 + 200,
@@ -102,7 +94,7 @@ export default function InterviewPlaceholder({
               }}
               transition={{
                 duration: 10,
-                repeat: Infinity,
+                repeat: Number.POSITIVE_INFINITY,
                 delay: i * 0.5,
               }}
             />
@@ -119,11 +111,35 @@ export default function InterviewPlaceholder({
             className="text-center space-y-4"
           >
             <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-              Ready for Your Interview
+              {interview?.candidateDetails?.name
+                ? `Hello ${interview.candidateDetails.name}!`
+                : "Welcome!"}
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Experience a realistic interview simulation powered by advanced AI
-            </p>
+            <div className="text-xl text-muted-foreground max-w-2xl mx-auto space-y-2">
+              <p>
+                You&apos;re about to start a
+                {interview?.duration ? ` ${interview.duration} minute` : ""}{" "}
+                {interview?.type ? interview.type.replace("_", " ") : "practice"} interview
+                {interview?.jobDescription?.role || interview?.jobDescription?.company ? (
+                  <>
+                    {" "}
+                    for
+                    {interview?.jobDescription?.role
+                      ? ` the role of ${interview.jobDescription.role}`
+                      : ""}
+                    {interview?.jobDescription?.company
+                      ? ` at ${interview.jobDescription.company}`
+                      : ""}
+                  </>
+                ) : null}
+                .
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {interview?.jobDescription?.role
+                  ? "We'll be focusing on questions related to your experience and skills that match the role requirements."
+                  : "We'll be focusing on questions to help you improve your interview skills."}
+              </p>
+            </div>
           </motion.div>
 
           {/* Features Grid */}
@@ -133,22 +149,18 @@ export default function InterviewPlaceholder({
             transition={{ duration: 0.5, delay: 0.2 }}
             className="grid md:grid-cols-3 gap-6 w-full"
           >
-            {features.map((feature, index) => (
+            {features.map((feature) => (
               <motion.div
-                key={index}
+                key={feature.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
                 className="group relative overflow-hidden rounded-2xl bg-gradient-to-b from-background to-primary/5 p-6 border border-primary/10 hover:border-primary/20 transition-colors"
               >
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <feature.icon className="h-8 w-8 text-primary mb-4 relative z-10" />
-                <h3 className="font-semibold mb-2 relative z-10">
-                  {feature.title}
-                </h3>
-                <p className="text-sm text-muted-foreground relative z-10">
-                  {feature.description}
-                </p>
+                <h3 className="font-semibold mb-2 relative z-10">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground relative z-10">{feature.description}</p>
               </motion.div>
             ))}
           </motion.div>

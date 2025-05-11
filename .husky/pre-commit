@@ -1,1 +1,4 @@
-bun run lint --fix
+#!/bin/sh
+
+# Run lint-staged to run linting and tests on staged files
+bun lint-staged

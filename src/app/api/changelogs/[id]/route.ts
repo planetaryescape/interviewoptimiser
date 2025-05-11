@@ -1,13 +1,13 @@
-import { db } from "@/db";
-import { changelogs } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { logger } from "@/lib/logger";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { eq, sql } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { changelogs } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 export async function PUT(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -43,10 +43,7 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
       });
     }
 
-    logger.info(
-      { changelogId: updatedChangelog.id },
-      "Successfully updated changelog likes"
-    );
+    logger.info({ changelogId: updatedChangelog.id }, "Successfully updated changelog likes");
     return NextResponse.json(formatEntity(updatedChangelog, "changelog"));
   } catch (error) {
     Sentry.withScope((scope) => {

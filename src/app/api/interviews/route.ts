@@ -1,18 +1,14 @@
-import { db } from "@/db";
-import { interviews } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { config } from "@/lib/config";
-import { logger } from "@/lib/logger";
 import { sanitiseUserInputText } from "@/lib/sanitiseUserInputText";
-import {
-  formatEntity,
-  formatEntityList,
-  formatErrorEntity,
-} from "@/lib/utils/formatEntity";
+import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { desc, eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { config } from "~/config";
+import { db } from "~/db";
+import { interviews } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 export async function POST(request: NextRequest) {
   logger.info("POST request received at /api/interviews");
@@ -34,13 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const {
-      submittedCVText,
-      jobDescriptionText,
-      additionalInfo,
-      duration,
-      type,
-    } = body;
+    const { submittedCVText, jobDescriptionText, additionalInfo, duration, type } = body;
     logger.info("Received interview data");
 
     const [newInterview] = await db.transaction(async (tx) => {
@@ -49,13 +39,10 @@ export async function POST(request: NextRequest) {
         truncate: true,
         maxLength: config.maxTextLengths.cv,
       });
-      const sanitisedJobDescriptionText = sanitiseUserInputText(
-        jobDescriptionText,
-        {
-          truncate: true,
-          maxLength: config.maxTextLengths.jobDescription,
-        }
-      );
+      const sanitisedJobDescriptionText = sanitiseUserInputText(jobDescriptionText, {
+        truncate: true,
+        maxLength: config.maxTextLengths.jobDescription,
+      });
       const sanitisedAdditionalInfo = sanitiseUserInputText(additionalInfo, {
         truncate: true,
         maxLength: config.maxTextLengths.additionalInfo,
@@ -74,10 +61,7 @@ export async function POST(request: NextRequest) {
         })
         .returning();
 
-      logger.info(
-        { interviewId: createdInterview.id },
-        "Successfully created new interview"
-      );
+      logger.info({ interviewId: createdInterview.id }, "Successfully created new interview");
 
       logger.info(
         {
@@ -89,10 +73,7 @@ export async function POST(request: NextRequest) {
       return [createdInterview];
     });
 
-    logger.info(
-      { interviewId: newInterview.id },
-      "Successfully created new interview"
-    );
+    logger.info({ interviewId: newInterview.id }, "Successfully created new interview");
 
     return NextResponse.json(formatEntity(newInterview, "interview"), {
       status: 201,
@@ -140,13 +121,12 @@ export async function GET(request: NextRequest) {
       orderBy: desc(interviews.createdAt),
       with: {
         report: true,
+        candidateDetails: true,
+        jobDescription: true,
       },
     });
 
-    logger.info(
-      { count: userInterviews.length },
-      "Successfully retrieved interviews"
-    );
+    logger.info({ count: userInterviews.length }, "Successfully retrieved interviews");
     return NextResponse.json(formatEntityList(userInterviews, "interview"));
   } catch (error) {
     Sentry.withScope((scope) => {

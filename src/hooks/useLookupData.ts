@@ -12,9 +12,7 @@ async function fetchLookupData(endpoint: string) {
   }));
 }
 
-export function useLookupData<T = { id: number; name: string }>(
-  endpoint: string
-) {
+export function useLookupData<T = { id: number; name: string }>(endpoint: string) {
   return useQuery<T[]>({
     queryKey: ["lookup", endpoint],
     queryFn: () => fetchLookupData(endpoint),

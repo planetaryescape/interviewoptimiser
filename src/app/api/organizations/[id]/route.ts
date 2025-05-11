@@ -1,13 +1,13 @@
-import { db } from "@/db";
-import { organizationMembers, organizations } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { logger } from "@/lib/logger";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { and, eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { organizationMembers, organizations } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 async function checkOrganizationAccess(organizationId: number, userId: number) {
   const member = await db.query.organizationMembers.findFirst({
@@ -20,10 +20,7 @@ async function checkOrganizationAccess(organizationId: number, userId: number) {
   return member;
 }
 
-export async function GET(
-  request: NextRequest,
-  props: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   logger.info("GET request received at /api/organizations/[id]", {
     id: params.id,
@@ -41,10 +38,7 @@ export async function GET(
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const organizationId = idHandler.decode(params.id);
@@ -63,18 +57,14 @@ export async function GET(
     }
 
     const organization = await db.query.organizations.findFirst({
-      where: and(
-        eq(organizations.id, organizationId),
-        eq(organizations.isDeleted, false)
-      ),
+      where: and(eq(organizations.id, organizationId), eq(organizations.isDeleted, false)),
     });
 
     if (!organization) {
       logger.error("Organization not found", { organizationId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "Organization not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Organization not found" }), {
+        status: 404,
+      });
     }
 
     logger.info("Successfully fetched organization", {
@@ -90,10 +80,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  props: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   logger.info("PUT request received at /api/organizations/[id]", {
     id: params.id,
@@ -111,10 +98,7 @@ export async function PUT(
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const organizationId = idHandler.decode(params.id);
@@ -138,10 +122,7 @@ export async function PUT(
 
     if (!name) {
       logger.error("Missing required fields", { json });
-      return NextResponse.json(
-        formatErrorEntity({ message: "Name is required" }),
-        { status: 400 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Name is required" }), { status: 400 });
     }
 
     const [organization] = await db
@@ -170,10 +151,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  props: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   logger.info("DELETE request received at /api/organizations/[id]", {
     id: params.id,
@@ -191,10 +169,7 @@ export async function DELETE(
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const organizationId = idHandler.decode(params.id);

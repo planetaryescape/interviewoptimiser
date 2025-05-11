@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import React from "react";
+import type React from "react";
 
 export const BackgroundGradient = ({
   children,
@@ -33,7 +33,7 @@ export const BackgroundGradient = ({
           animate
             ? {
                 duration: 5,
-                repeat: Infinity,
+                repeat: Number.POSITIVE_INFINITY,
                 repeatType: "reverse",
               }
             : undefined
@@ -54,7 +54,7 @@ export const BackgroundGradient = ({
           animate
             ? {
                 duration: 5,
-                repeat: Infinity,
+                repeat: Number.POSITIVE_INFINITY,
                 repeatType: "reverse",
               }
             : undefined
@@ -68,9 +68,7 @@ export const BackgroundGradient = ({
         )}
       />
 
-      <div className={cn("relative rounded-lg z-10", className)}>
-        {children}
-      </div>
+      <div className={cn("relative rounded-lg z-10", className)}>{children}</div>
     </div>
   );
 };

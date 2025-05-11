@@ -1,17 +1,13 @@
-import { db } from "@/db";
-import { jobCandidates, jobs, organizationMembers, users } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { logger } from "@/lib/logger";
-import {
-  formatEntity,
-  formatEntityList,
-  formatErrorEntity,
-} from "@/lib/utils/formatEntity";
+import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { and, eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { jobCandidates, jobs, organizationMembers, users } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 async function checkJobAccess(jobId: number, userId: number) {
   const job = await db.query.jobs.findFirst({
@@ -31,10 +27,7 @@ async function checkJobAccess(jobId: number, userId: number) {
   return { job, member };
 }
 
-export async function GET(
-  request: NextRequest,
-  props: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   logger.info("GET request received at /api/jobs/[id]/candidates", {
     id: params.id,
@@ -52,10 +45,7 @@ export async function GET(
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const jobId = idHandler.decode(params.id);
@@ -63,10 +53,7 @@ export async function GET(
 
     if (!access?.job) {
       logger.error("Job not found", { jobId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "Job not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Job not found" }), { status: 404 });
     }
 
     if (!access.member) {
@@ -98,9 +85,7 @@ export async function GET(
       })
       .from(jobCandidates)
       .innerJoin(users, eq(jobCandidates.userId, users.id))
-      .where(
-        and(eq(jobCandidates.jobId, jobId), eq(jobCandidates.isDeleted, false))
-      );
+      .where(and(eq(jobCandidates.jobId, jobId), eq(jobCandidates.isDeleted, false)));
 
     logger.info("Successfully fetched job candidates", {
       userId: user.id,
@@ -116,10 +101,7 @@ export async function GET(
   }
 }
 
-export async function POST(
-  request: NextRequest,
-  props: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   logger.info("POST request received at /api/jobs/[id]/candidates", {
     id: params.id,
@@ -137,10 +119,7 @@ export async function POST(
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const jobId = idHandler.decode(params.id);
@@ -148,10 +127,7 @@ export async function POST(
 
     if (!access?.job) {
       logger.error("Job not found", { jobId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "Job not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Job not found" }), { status: 404 });
     }
 
     if (!access.member || !["owner", "admin"].includes(access.member.role)) {
@@ -173,10 +149,9 @@ export async function POST(
 
     if (!email) {
       logger.error("Missing required fields", { json });
-      return NextResponse.json(
-        formatErrorEntity({ message: "Email is required" }),
-        { status: 400 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Email is required" }), {
+        status: 400,
+      });
     }
 
     const candidate = await db.query.users.findFirst({
@@ -185,17 +160,13 @@ export async function POST(
 
     if (!candidate) {
       logger.error("Candidate not found", { email });
-      return NextResponse.json(
-        formatErrorEntity({ message: "Candidate not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Candidate not found" }), {
+        status: 404,
+      });
     }
 
     const existingCandidate = await db.query.jobCandidates.findFirst({
-      where: and(
-        eq(jobCandidates.jobId, jobId),
-        eq(jobCandidates.userId, candidate.id)
-      ),
+      where: and(eq(jobCandidates.jobId, jobId), eq(jobCandidates.userId, candidate.id)),
     });
 
     if (existingCandidate) {

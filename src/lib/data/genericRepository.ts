@@ -1,4 +1,4 @@
-import { Entity, EntityList } from "../utils/formatEntity";
+import type { Entity, EntityList } from "../utils/formatEntity";
 
 export interface GenericRepository<T> {
   getAll(): Promise<EntityList<T>>;

@@ -59,15 +59,11 @@ export default function BlackFridayCheckout() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-4xl font-bold text-center mb-8">
-          🔥 Black Friday Special Offer
-        </h1>
+        <h1 className="text-4xl font-bold text-center mb-8">🔥 Black Friday Special Offer</h1>
 
         <Card className="p-6 md:p-8 space-y-6">
           <div className="space-y-4">
-            <h2 className="text-2xl font-semibold">
-              500 Minutes Package - Limited Time Offer
-            </h2>
+            <h2 className="text-2xl font-semibold">500 Minutes Package - Limited Time Offer</h2>
 
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-bold">$60</span>

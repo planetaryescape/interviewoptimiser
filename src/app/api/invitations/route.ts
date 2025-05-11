@@ -1,20 +1,16 @@
-import { db } from "@/db";
-import { invitations, organizationMembers } from "@/db/schema";
 import { InvitationEmail } from "@/emails/invitation";
 import { getUserFromClerkId, getUserFromEmail } from "@/lib/auth";
-import { config } from "@/lib/config";
-import { logger } from "@/lib/logger";
-import { resend } from "@/lib/resend";
-import {
-  formatEntity,
-  formatEntityList,
-  formatErrorEntity,
-} from "@/lib/utils/formatEntity";
+import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { addDays, format, isPast } from "date-fns";
 import { and, eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { config } from "~/config";
+import { db } from "~/db";
+import { invitations, organizationMembers } from "~/db/schema";
+import { logger } from "~/lib/logger";
+import { resend } from "~/lib/resend";
 
 // 7 days expiration
 const INVITATION_EXPIRY_DAYS = 7;
@@ -34,43 +30,35 @@ export async function GET(request: NextRequest) {
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id || !user.email) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const url = new URL(request.url);
 
-    const organizationId = parseInt(
-      url.searchParams.get("organizationId") ?? ""
-    );
+    const organizationId = Number.parseInt(url.searchParams.get("organizationId") ?? "");
 
     const userInvitations = await db
       .select()
       .from(invitations)
-      .where(
-        and(
-          eq(invitations.organizationId, organizationId),
-          eq(invitations.isDeleted, false)
-        )
-      );
+      .where(and(eq(invitations.organizationId, organizationId), eq(invitations.isDeleted, false)));
 
     return NextResponse.json(formatEntityList(userInvitations, "invitation"));
   } catch (error) {
-    logger.error("Error fetching invitations", {
-      error,
-      message: error instanceof Error ? error.message : "",
-    });
+    logger.error(
+      {
+        error,
+        message: error instanceof Error ? error.message : "",
+      },
+      "Error fetching invitations"
+    );
     Sentry.withScope((scope) => {
       scope.setExtra("context", "getInvitations");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
-    return NextResponse.json(
-      formatErrorEntity({ message: "Internal server error" }),
-      { status: 500 }
-    );
+    return NextResponse.json(formatErrorEntity({ message: "Internal server error" }), {
+      status: 500,
+    });
   }
 }
 
@@ -89,20 +77,16 @@ export async function POST(request: NextRequest) {
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id || !user.email) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const data = await request.json();
     const { email, organizationId, organizationName } = data;
 
     if (!email || !organizationId) {
-      return NextResponse.json(
-        formatErrorEntity({ message: "Missing required fields" }),
-        { status: 400 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Missing required fields" }), {
+        status: 400,
+      });
     }
 
     const userToAdd = await getUserFromEmail(email);
@@ -119,10 +103,9 @@ export async function POST(request: NextRequest) {
       );
 
     if (existingMember.length > 0) {
-      return NextResponse.json(
-        formatErrorEntity({ message: "User is already a member" }),
-        { status: 400 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User is already a member" }), {
+        status: 400,
+      });
     }
 
     // Check for existing pending invitation
@@ -139,10 +122,9 @@ export async function POST(request: NextRequest) {
       );
 
     if (existingInvitation.length > 0) {
-      return NextResponse.json(
-        formatErrorEntity({ message: "Invitation already exists" }),
-        { status: 400 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Invitation already exists" }), {
+        status: 400,
+      });
     }
 
     const expiresAt = addDays(new Date(), INVITATION_EXPIRY_DAYS);
@@ -175,16 +157,21 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(formatEntity(invitation, "invitation"));
   } catch (error) {
-    logger.error("Error creating invitation", { error });
+    logger.error(
+      {
+        error,
+        message: error instanceof Error ? error.message : "",
+      },
+      "Error creating invitation"
+    );
     Sentry.withScope((scope) => {
       scope.setExtra("context", "createInvitation");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
-    return NextResponse.json(
-      formatErrorEntity({ message: "Internal server error" }),
-      { status: 500 }
-    );
+    return NextResponse.json(formatErrorEntity({ message: "Internal server error" }), {
+      status: 500,
+    });
   }
 }
 
@@ -203,20 +190,16 @@ export async function PUT(request: NextRequest) {
     const user = await getUserFromClerkId(clerkUserId);
     if (!user || !user.id || !user.email) {
       logger.error("User not found", { clerkUserId });
-      return NextResponse.json(
-        formatErrorEntity({ message: "User not found" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
     }
 
     const data = await request.json();
     const { status, invitationId } = data;
 
     if (!invitationId || !status) {
-      return NextResponse.json(
-        formatErrorEntity({ message: "Missing required fields" }),
-        { status: 400 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Missing required fields" }), {
+        status: 400,
+      });
     }
 
     const invitation = await db
@@ -232,10 +215,9 @@ export async function PUT(request: NextRequest) {
       );
 
     if (invitation.length === 0) {
-      return NextResponse.json(
-        formatErrorEntity({ message: "Invalid invitation" }),
-        { status: 404 }
-      );
+      return NextResponse.json(formatErrorEntity({ message: "Invalid invitation" }), {
+        status: 404,
+      });
     }
 
     if (isPast(invitation[0].expiresAt)) {
@@ -275,15 +257,20 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(formatEntity(result.invitation, "invitation"));
   } catch (error) {
-    logger.error("Error updating invitation", { error });
+    logger.error(
+      {
+        error,
+        message: error instanceof Error ? error.message : "",
+      },
+      "Error updating invitation"
+    );
     Sentry.withScope((scope) => {
       scope.setExtra("context", "updateInvitation");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
-    return NextResponse.json(
-      formatErrorEntity({ message: "Internal server error" }),
-      { status: 500 }
-    );
+    return NextResponse.json(formatErrorEntity({ message: "Internal server error" }), {
+      status: 500,
+    });
   }
 }

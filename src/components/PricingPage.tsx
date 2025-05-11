@@ -1,16 +1,10 @@
 import { PricingCardFooter } from "@/components/PricingCardFooter";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { stripe } from "@/lib/stripe";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Check } from "lucide-react";
 import { Suspense } from "react";
-import Stripe from "stripe";
+import type Stripe from "stripe";
+import { stripe } from "~/lib/stripe";
 
 export async function PricingPlans() {
   const products = await stripe.products.list({
@@ -20,8 +14,8 @@ export async function PricingPlans() {
   const sortedProducts = (products.data || [])
     .filter((product) => product && typeof product === "object")
     .sort((a, b) => {
-      const minutesA = parseInt(a.metadata?.minutes || "0", 10);
-      const minutesB = parseInt(b.metadata?.minutes || "0", 10);
+      const minutesA = Number.parseInt(a.metadata?.minutes || "0", 10);
+      const minutesB = Number.parseInt(b.metadata?.minutes || "0", 10);
       return minutesA - minutesB;
     });
 
@@ -63,10 +57,7 @@ export async function PricingPlans() {
               )}
               <ul className="mt-6 space-y-4">
                 {product.marketing_features?.map((feature, featureIndex) => (
-                  <li
-                    key={featureIndex}
-                    className="grid grid-cols-[30px_1fr] items-center"
-                  >
+                  <li key={feature.name} className="grid grid-cols-[30px_1fr] items-center">
                     <Check className="h-5 w-5 text-green-500 mr-2" />
                     <span>{feature.name}</span>
                   </li>

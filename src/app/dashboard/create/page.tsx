@@ -1,22 +1,10 @@
 "use client";
 
-import { BackgroundGradient as AnotherBackgroundGradient } from "@/components/background-gradient";
 import { ConfirmationModal } from "@/components/create-optimization/ConfirmationModal";
 import { CreateInterviewErrorModal } from "@/components/create-optimization/CreateInterviewErrorModal";
 import { OutOfMinutesModal } from "@/components/create-optimization/OutOfMinutesModal";
 import { ProcessingTakeover } from "@/components/create-optimization/ProcessingTakeover";
-import { Step1CV } from "@/components/create-optimization/Step1CV";
-import { Step2JobDescription } from "@/components/create-optimization/Step2JobDescription";
-import { Step3AdditionalInfo } from "@/components/create-optimization/Step3AdditionalInfo";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { NewInterview } from "@/db/schema";
 import { useUser } from "@/hooks/useUser";
-import { config } from "@/lib/config";
-import { getRepository } from "@/lib/data/repositoryFactory";
-import { sanitiseUserInputText } from "@/lib/sanitiseUserInputText";
-import { cn } from "@/lib/utils";
-import { idHandler } from "@/lib/utils/idHandler";
 import {
   useCreateInterviewActions,
   useCreateInterviewAdditionalInfo,
@@ -30,12 +18,12 @@ import {
   useCreateInterviewShowTakeover,
   useCreateInterviewStep,
 } from "@/stores/createInterviewStore";
-import * as Sentry from "@sentry/nextjs";
-import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { usePostHog } from "posthog-js/react";
-import { toast } from "sonner";
+import { useEffect, useState } from "react";
+import { ContentArea } from "./components/ContentArea";
+import { CreateHeader } from "./components/CreateHeader";
+import { useInterviewSubmission } from "./hooks/useInterviewSubmission";
 
 export default function CreateInterview() {
   const step = useCreateInterviewStep();
@@ -45,235 +33,98 @@ export default function CreateInterview() {
   const showTakeover = useCreateInterviewShowTakeover();
   const isAlertDialogOpen = useCreateInterviewIsAlertDialogOpen();
   const isOutOfMinutesDialogOpen = useCreateInterviewIsOutOfMinutesDialogOpen();
-  const isScheduleErrorDialogOpen =
-    useCreateInterviewIsScheduleErrorDialogOpen();
-  const {
-    setStep,
-    setShowTakeover,
-    setIsAlertDialogOpen,
-    setIsOutOfMinutesDialogOpen,
-    setIsScheduleErrorDialogOpen,
-    resetStore,
-  } = useCreateInterviewActions();
+  const isScheduleErrorDialogOpen = useCreateInterviewIsScheduleErrorDialogOpen();
   const duration = useCreateInterviewDuration();
   const interviewType = useCreateInterviewInterviewType();
 
-  const router = useRouter();
-  const posthog = usePostHog();
-  const { data: user } = useUser();
+  const {
+    setStep,
+    setIsAlertDialogOpen,
+    setIsOutOfMinutesDialogOpen,
+    setIsScheduleErrorDialogOpen,
+  } = useCreateInterviewActions();
 
+  const [animateStep, setAnimateStep] = useState<number | null>(null);
+  const [animationDir, setAnimationDir] = useState(0);
+  const { data: user } = useUser();
+  const router = useRouter();
+
+  // Handle animation timing
+  useEffect(() => {
+    if (animateStep !== null) {
+      const timer = setTimeout(() => {
+        setAnimateStep(null);
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [animateStep]);
+
+  // Navigation and validation logic
   const canProceedToStep2 = cvText?.trim().length > 0;
   const canProceedToStep3 = jobDescriptionText?.trim().length > 0;
+  const canProceedToNextStep =
+    (step === 1 && canProceedToStep2) || (step === 2 && canProceedToStep3) || step === 3;
 
-  const handleNextStep = (currentStep: number) => {
-    if (currentStep === 1 && canProceedToStep2) {
+  const { isSubmitting, submitInterview, checkMinutes } = useInterviewSubmission({
+    userId: user?.id,
+    userMinutes: user?.minutes,
+    cvText,
+    jobDescriptionText,
+    additionalInfo,
+    duration,
+    interviewType,
+  });
+
+  const handleNextStep = () => {
+    if (step === 1 && canProceedToStep2) {
+      setAnimationDir(1);
+      setAnimateStep(1);
       setStep(2);
-    } else if (currentStep === 2 && canProceedToStep3) {
+    } else if (step === 2 && canProceedToStep3) {
+      setAnimationDir(1);
+      setAnimateStep(2);
       setStep(3);
     }
   };
 
   const handleBack = () => {
+    setAnimationDir(-1);
     setStep(Math.max(1, step - 1));
   };
 
-  const createInterviewMutation = useMutation({
-    mutationFn: async (interview: NewInterview) => {
-      const interviewRepository = await getRepository<NewInterview>(
-        "interviews",
-        true
-      );
-      return interviewRepository.create(interview);
-    },
-    onSuccess: (data) => {
-      toast.success("Interview created successfully");
-      setShowTakeover(true);
-      setTimeout(() => {
-        resetStore();
-        router.push(
-          `/dashboard/interviews/${idHandler.encode(data.sys.id ?? 0)}`
-        );
-        setShowTakeover(false);
-      }, 9000);
-    },
-    onError: (error) => {
-      Sentry.withScope((scope) => {
-        scope.setExtra("context", "createOptimizationMutation");
-        scope.setExtra("error", error);
-        scope.setExtra("message", error.message);
-
-        Sentry.captureException(error);
-      });
-      setIsScheduleErrorDialogOpen(true);
-    },
-  });
-
-  const handleSubmit = async () => {
-    if (!user || user.minutes <= 0 || user.minutes < duration) {
-      posthog.capture("out_of_minutes", {
-        userId: user?.id,
-      });
+  const handleSubmit = () => {
+    if (!checkMinutes()) {
       setIsOutOfMinutesDialogOpen(true);
     } else {
       setIsAlertDialogOpen(true);
     }
   };
 
-  const handleConfirmSubmit = async () => {
+  const handleConfirmSubmit = () => {
     setIsAlertDialogOpen(false);
-    setShowTakeover(true);
-    try {
-      if (!user || user.minutes <= 0 || user.minutes < duration) {
-        toast.error("You don't have enough minutes to create an interview.");
-        return;
-      }
-
-      if (!cvText?.trim() || !jobDescriptionText?.trim()) {
-        toast.error("Please provide both CV and job description.");
-        return;
-      }
-
-      const interview: NewInterview = {
-        submittedCVText: sanitiseUserInputText(cvText, {
-          truncate: true,
-          maxLength: config.maxTextLengths.cv,
-        }),
-        jobDescriptionText: sanitiseUserInputText(jobDescriptionText, {
-          truncate: true,
-          maxLength: config.maxTextLengths.jobDescription,
-        }),
-        additionalInfo: sanitiseUserInputText(additionalInfo, {
-          truncate: true,
-          maxLength: config.maxTextLengths.additionalInfo,
-        }),
-        userId: user?.id,
-        duration,
-        type: interviewType,
-      };
-
-      posthog.capture("create_interview", {
-        userId: user?.id,
-      });
-
-      await createInterviewMutation.mutateAsync(interview);
-    } catch (error) {
-      console.log("error:", error);
-      Sentry.withScope((scope) => {
-        scope.setExtra("context", "handleConfirmSubmit");
-        scope.setExtra("error", error);
-        Sentry.captureException(error);
-      });
-      toast.error(
-        "An error occurred while processing your request. Please try again."
-      );
-    }
+    submitInterview();
   };
 
-  const title =
-    step === 1
-      ? "Let's start with your CV"
-      : step === 2
-      ? "Now, tell us about the job"
-      : "Final details";
-
-  const subtitle =
-    step === 1
-      ? "We'll use your CV to understand your experience and tailor the interview questions."
-      : step === 2
-      ? "Share the job description to help us create relevant interview questions."
-      : "Help us customize your interview experience.";
+  const handleBuyMinutes = () => {
+    router.push("/pricing");
+  };
 
   return (
-    <div className="relative flex flex-col h-full overflow-y-auto pb-[env(safe-area-inset-bottom)]">
-      <div className="sticky top-0 z-50 bg-background border-b">
-        <div className="max-w-2xl mx-auto w-full px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Button
-              variant="outline"
-              disabled={step === 1}
-              onClick={handleBack}
-              size="sm"
-            >
-              Back
-            </Button>
+    <>
+      {/* Header with navigation controls */}
+      <CreateHeader
+        canProceedToNextStep={canProceedToNextStep}
+        isSubmitting={isSubmitting}
+        onBack={handleBack}
+        onNext={handleNextStep}
+        onSubmit={handleSubmit}
+        animateStep={animateStep}
+      />
 
-            <div className="flex items-center justify-center gap-2">
-              <div
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
-                  step === 1
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
-                )}
-              >
-                1
-              </div>
-              <div
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
-                  step === 2
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
-                )}
-              >
-                2
-              </div>
-              <div
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
-                  step === 3
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
-                )}
-              >
-                3
-              </div>
-            </div>
+      {/* Main content */}
+      <ContentArea animationDir={animationDir} />
 
-            <Button
-              size="sm"
-              disabled={
-                createInterviewMutation.isPending ||
-                (step === 2 && !canProceedToStep3) ||
-                (step === 1 && !canProceedToStep2)
-              }
-              onClick={() => {
-                if (step !== 3) {
-                  handleNextStep(step);
-                } else {
-                  handleSubmit();
-                }
-              }}
-            >
-              {createInterviewMutation.isPending
-                ? "Submitting..."
-                : step === 3
-                ? "Submit"
-                : "Next"}
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-1 container max-w-2xl mx-auto px-4 py-6 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-        <div className="mb-8">
-          <div className="text-center space-y-1">
-            <h1 className="text-2xl font-semibold">{title}</h1>
-            <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              {subtitle}
-            </p>
-          </div>
-        </div>
-
-        <Card>
-          <CardContent className="p-6">
-            {step === 1 && <Step1CV />}
-            {step === 2 && <Step2JobDescription />}
-            {step === 3 && <Step3AdditionalInfo />}
-          </CardContent>
-        </Card>
-      </div>
-
+      {/* Modals */}
       <ConfirmationModal
         isOpen={isAlertDialogOpen}
         onClose={() => setIsAlertDialogOpen(false)}
@@ -284,21 +135,19 @@ export default function CreateInterview() {
       <OutOfMinutesModal
         isOpen={isOutOfMinutesDialogOpen}
         onClose={() => setIsOutOfMinutesDialogOpen(false)}
-        onBuyMinutes={() => router.push("/pricing")}
+        onBuyMinutes={handleBuyMinutes}
       />
 
       <CreateInterviewErrorModal
         isOpen={isScheduleErrorDialogOpen}
-        onTryAgain={() => handleSubmit()}
+        onTryAgain={handleSubmit}
         onClose={() => {
           setIsScheduleErrorDialogOpen(false);
         }}
       />
 
-      <AnimatePresence>
-        {showTakeover && <ProcessingTakeover />}
-      </AnimatePresence>
-      <AnotherBackgroundGradient degrees={Math.random() * 360} />
-    </div>
+      {/* Processing takeover for success state */}
+      <AnimatePresence>{showTakeover && <ProcessingTakeover />}</AnimatePresence>
+    </>
   );
 }

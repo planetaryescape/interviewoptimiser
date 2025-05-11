@@ -1,13 +1,16 @@
-import { db } from "@/db";
-import { reports } from "@/db/schema";
-import { logger } from "@/lib/logger";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { reports } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
-export async function GET(_: NextRequest, props: { params: Promise<{ id: string }> }) {
+export async function GET(
+  _: NextRequest,
+  props: { params: Promise<{ id: string }> }
+) {
   const params = await props.params;
   logger.info("GET request received at /api/public/reports/[id]");
 

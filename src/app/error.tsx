@@ -24,7 +24,7 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html>
+    <html lang="en">
       <body>
         <div className="relative min-h-screen bg-background text-foreground">
           <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]" />
@@ -42,8 +42,7 @@ export default function GlobalError({
                   Something went wrong!
                 </h1>
                 <p className="text-lg text-muted-foreground max-w-md mx-auto">
-                  We apologize for the inconvenience. An unexpected error
-                  occurred.
+                  We apologize for the inconvenience. An unexpected error occurred.
                 </p>
               </div>
               <div className="flex items-center justify-center gap-4">

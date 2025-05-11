@@ -1,5 +1,3 @@
-import { logger } from "./logger";
-
 export function sanitiseUserInputText(
   text: string,
   options: {
@@ -7,7 +5,6 @@ export function sanitiseUserInputText(
     maxLength?: number;
   } = { truncate: true, maxLength: 15000 }
 ): string {
-  logger.info({ text: text.slice(0, 60) }, "Sanitising user input text");
   // Remove leading/trailing whitespace
   text = text?.trim();
 
@@ -18,7 +15,7 @@ export function sanitiseUserInputText(
   text = text.replace(/[\x00-\x1F\x7F-\x9F]/g, "");
 
   // Encode HTML special characters
-  text = text.replace(/[&<>"']/g, function (match) {
+  text = text.replace(/[&<>"']/g, (match) => {
     switch (match) {
       case "&":
         return "&amp;";
@@ -40,10 +37,7 @@ export function sanitiseUserInputText(
   const deduplicatedLines = Array.from(new Set(filteredLines));
 
   // Join lines, replace multiple spaces with a single space, and trim
-  const cleanedContent = deduplicatedLines
-    .join(" ")
-    .replace(/\s\s+/g, " ")
-    ?.trim();
+  const cleanedContent = deduplicatedLines.join(" ").replace(/\s\s+/g, " ")?.trim();
 
   if (options.truncate) {
     // Limit the length of the text

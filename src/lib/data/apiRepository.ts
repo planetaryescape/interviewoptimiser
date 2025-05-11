@@ -1,19 +1,14 @@
-import { Entity, EntityList } from "../utils/formatEntity";
-import { GenericRepository } from "./genericRepository";
+import type { Entity, EntityList } from "../utils/formatEntity";
+import type { GenericRepository } from "./genericRepository";
 
-export class ApiRepository<T extends { id?: number }>
-  implements GenericRepository<T>
-{
+export class ApiRepository<T extends { id?: number }> implements GenericRepository<T> {
   private baseUrl: string;
 
   constructor(private storeName: string) {
     this.baseUrl = `/api/${storeName}`;
   }
 
-  private async fetchWithErrorHandling(
-    url: string,
-    options?: RequestInit
-  ): Promise<any> {
+  private async fetchWithErrorHandling(url: string, options?: RequestInit): Promise<any> {
     const response = await fetch(url, options);
     if (!response.ok) {
       const errorData = await response.json();
@@ -74,9 +69,7 @@ export class ApiRepository<T extends { id?: number }>
 
   async count(): Promise<number> {
     try {
-      const response = await this.fetchWithErrorHandling(
-        `/api/public/${this.storeName}/count`
-      );
+      const response = await this.fetchWithErrorHandling(`/api/public/${this.storeName}/count`);
       return response.count;
     } catch (error) {
       console.error(`Error counting ${this.storeName}:`, error);

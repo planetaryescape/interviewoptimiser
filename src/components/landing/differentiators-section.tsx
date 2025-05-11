@@ -1,5 +1,5 @@
-import { config } from "@/lib/config";
 import { Brain, Mic, Target } from "lucide-react";
+import { config } from "~/config";
 
 export function DifferentiatorsSection() {
   const differentiators = [
@@ -16,7 +16,8 @@ export function DifferentiatorsSection() {
     {
       icon: Target,
       title: "Adaptive and Personalised Feedback",
-      description: `Our interviews adjust dynamically based on your responses, providing tailored questions specific to your role and industry. Post-interview, receive in-depth feedback on both your answers and delivery, helping you improve in real, practical ways.`,
+      description:
+        "Our interviews adjust dynamically based on your responses, providing tailored questions specific to your role and industry. Post-interview, receive in-depth feedback on both your answers and delivery, helping you improve in real, practical ways.",
     },
   ];
 
@@ -24,9 +25,8 @@ export function DifferentiatorsSection() {
     <section className="relative w-full py-24 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-t border-b border-primary/50 dark:from-primary/5 dark:via-primary/2 dark:to-primary/5">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold sm:text-4xl md:text-5xl mb-4 dark:text-white">
-            What Sets <span className="text-primary">{config.projectName}</span>{" "}
-            Apart?
+          <h2 className="text-style-h2 text-foreground mb-4">
+            What Sets <span className="text-primary">{config.projectName}</span> Apart?
           </h2>
           <div className="w-24 h-1 bg-primary mx-auto rounded-full" />
         </div>
@@ -34,7 +34,7 @@ export function DifferentiatorsSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {differentiators.map((item, index) => (
             <div
-              key={index}
+              key={item.title}
               className="relative group bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 transition-all duration-300 hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-1 dark:border dark:border-gray-800"
             >
               <div className="absolute -top-6 left-1/2 -translate-x-1/2">
@@ -44,10 +44,8 @@ export function DifferentiatorsSection() {
               </div>
 
               <div className="pt-8">
-                <h3 className="text-xl font-semibold mb-4 text-center dark:text-white">
-                  {item.title}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                <h3 className="text-style-h5 mb-4 text-center">{item.title}</h3>
+                <p className="text-style-body-base text-center text-muted-foreground leading-relaxed">
                   {item.description}
                 </p>
               </div>

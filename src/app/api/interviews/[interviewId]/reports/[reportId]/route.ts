@@ -1,22 +1,17 @@
-import { db } from "@/db";
-import { reports } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { logger } from "@/lib/logger";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { reports } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
-export async function GET(
-  request: NextRequest,
-  props: { params: Promise<{ reportId: string }> }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ reportId: string }> }) {
   const params = await props.params;
-  logger.info(
-    "GET request received at /api/interviews/[interviewId]/reports/[reportId]"
-  );
+  logger.info("GET request received at /api/interviews/[interviewId]/reports/[reportId]");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
     logger.warn(
@@ -51,17 +46,11 @@ export async function GET(
       });
     }
 
-    logger.info(
-      { id: userReport.id },
-      "Successfully retrieved report with page settings"
-    );
+    logger.info({ id: userReport.id }, "Successfully retrieved report with page settings");
     return NextResponse.json(formatEntity(userReport, "report"));
   } catch (error) {
     Sentry.withScope((scope) => {
-      scope.setExtra(
-        "context",
-        "GET /api/interviews/[interviewId]/reports/[reportId]"
-      );
+      scope.setExtra("context", "GET /api/interviews/[interviewId]/reports/[reportId]");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });

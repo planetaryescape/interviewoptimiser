@@ -1,15 +1,14 @@
-import { db } from "@/db";
-import { interviews, reports } from "@/db/schema";
-import { sendDiscordDM } from "@/lib/discord";
-import { logger } from "@/lib/logger";
-import { SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
 import * as Sentry from "@sentry/aws-serverless";
-import { and, eq, lt } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import { db } from "~/db";
+import { interviews, reports } from "~/db/schema";
+import { sendDiscordDM } from "~/lib/discord";
+import { logger } from "~/lib/logger";
 import { initSentry } from "../lib/sentry";
 
 initSentry();
 
-const sqs = new SQSClient({ region: process.env.LAMBDA_AWS_REGION });
+const apiGatewayUrl = process.env.API_GATEWAY_URL ?? "";
 
 export const handler = Sentry.wrapHandler(async () => {
   try {
@@ -22,8 +21,8 @@ export const handler = Sentry.wrapHandler(async () => {
       .from(reports)
       .where(
         and(
-          eq(reports.isCompleted, false),
-          lt(reports.createdAt, tenMinutesAgo)
+          eq(reports.isCompleted, false)
+          // lt(reports.createdAt, tenMinutesAgo)
         )
       );
 
@@ -69,31 +68,59 @@ export const handler = Sentry.wrapHandler(async () => {
           interviewId: report.interviewId,
         },
         userId: interview?.userId,
+        restart: true,
       };
 
-      const sendMessageCommand = new SendMessageCommand({
-        QueueUrl: process.env.SQS_QUEUE_URL,
-        MessageBody: JSON.stringify(message),
-      });
-
       try {
-        await sqs.send(sendMessageCommand);
-        logger.info({ reportId: report.id }, "Sent report to SQS queue");
+        const response = await fetch(apiGatewayUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...message,
+            queueType: "generate-report",
+          }),
+        });
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+          logger.error(
+            {
+              reportId: report.id,
+              error: response.statusText,
+              status: response.status,
+              responseData,
+              apiGatewayUrl,
+            },
+            "Failed to queue report regeneration"
+          );
+
+          await sendDiscordDM({
+            title: "⚠️ Regenerate Report Queue Error",
+            description: "Failed to queue report regeneration",
+            metadata: {
+              "Report ID": report.id,
+              Status: response.status,
+              Error: response.statusText,
+              Timestamp: new Date().toISOString(),
+            },
+          });
+
+          throw new Error(response.statusText);
+        }
+
+        logger.info({ reportId: report.id }, "Sent report to API Gateway");
       } catch (error) {
         Sentry.withScope((scope) => {
           scope.setExtra("context", "regenerateIncompleteReports");
           scope.setExtra("error", error);
-          scope.setExtra(
-            "message",
-            error instanceof Error ? error.message : error
-          );
+          scope.setExtra("message", error instanceof Error ? error.message : error);
           scope.setExtra("reportId", report.id);
           Sentry.captureException(error);
         });
-        logger.error(
-          { error, reportId: report.id },
-          "Error sending message to SQS queue"
-        );
+        logger.error({ error, reportId: report.id }, "Error sending message to API Gateway");
 
         await sendDiscordDM({
           title: "❌ Failed to regenerate report",

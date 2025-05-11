@@ -2,7 +2,7 @@
 
 import { BackgroundGradient as AnotherBackgroundGradient } from "@/components/background-gradient";
 import { cn } from "@/lib/utils";
-import React from "react";
+import type React from "react";
 
 export const Card = ({
   className,
@@ -33,12 +33,7 @@ export const CardTitle = ({
   className?: string;
 }) => {
   return (
-    <h3
-      className={cn(
-        "text-lg font-semibold text-gray-800 dark:text-white py-2",
-        className
-      )}
-    >
+    <h3 className={cn("text-lg font-semibold text-gray-800 dark:text-white py-2", className)}>
       {children}
     </h3>
   );

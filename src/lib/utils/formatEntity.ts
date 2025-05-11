@@ -1,5 +1,9 @@
 export type EntityType =
   | "empty"
+  | "chatMetadata"
+  | "candidateDetails"
+  | "question-analysis"
+  | "jobDescription"
   | "job-candidate"
   | "report"
   | "organization-member"
@@ -63,9 +67,7 @@ export type EntityList<T = unknown> = {
   data: Omit<Entity<T>, "success">[];
 };
 
-export const formatEntity = <
-  T extends { id?: number; [key: string]: any } | undefined
->(
+export const formatEntity = <T extends { id?: number; [key: string]: any } | undefined>(
   data: T,
   entity: EntityType,
   status: StatusType = "success"

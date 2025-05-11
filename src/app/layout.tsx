@@ -20,8 +20,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title:
-    "Interview Optimiser – The AI-Powered, Real-Time Interview Practice Tool",
+  title: "Interview Optimiser – The AI-Powered, Real-Time Interview Practice Tool",
   description:
     "Experience real, voice-to-voice interview practice with AI that adapts to your responses. Build confidence, enhance your delivery, and refine your skills with real-time feedback on prosody, confidence, and clarity. Start your journey with a free trial today!",
   keywords: [
@@ -43,8 +42,7 @@ export const metadata: Metadata = {
     "interview coaching",
   ],
   openGraph: {
-    title:
-      "Interview Optimiser – The AI-Powered, Real-Time Interview Practice Tool",
+    title: "Interview Optimiser – The AI-Powered, Real-Time Interview Practice Tool",
     description:
       "Elevate your interview skills with Interview Optimiser, the only mock interview tool offering real-time, voice-to-voice interaction. Experience adaptive, conversational AI that provides instant feedback on delivery, confidence, and vocal tone.",
     url: "https://www.interviewoptimiser.com",
@@ -62,8 +60,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title:
-      "Interview Optimiser – The AI-Powered, Real-Time Interview Practice Tool",
+    title: "Interview Optimiser – The AI-Powered, Real-Time Interview Practice Tool",
     description:
       "Gain confidence and skills with real-time, voice-based AI interview practice that adjusts to your responses. Perfect for anyone aiming for job interview success.",
     images: ["https://interviewoptimiser.com/api/og"],
@@ -104,21 +101,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      className="size-screen overflow-hidden"
-      lang="en"
-      suppressHydrationWarning
-    >
+    <html lang="en" suppressHydrationWarning>
       <ClerkProvider
-        publishableKey={
-          process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "pk_test_JA=="
-        }
+        publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "pk_test_JA=="}
         dynamic
       >
         <body
           suppressHydrationWarning
           className={cn(
-            `antialiased size-screen bg-background text-foreground overflow-auto`,
+            "antialiased bg-background text-foreground",
             geistMono.variable,
             geistSans.variable,
             oswald.variable,
@@ -141,7 +132,9 @@ export default function RootLayout({
                   </ClerkProvider>
                 </Suspense>
                 {/* <ConditionalBlackFridayBanner /> */}
-                {children}
+                <main className="min-h-screen flex flex-col p-[env(safe-area-inset-top,1.25rem)_env(safe-area-inset-right,1.25rem)_env(safe-area-inset-bottom,1.25rem)_env(safe-area-inset-left,1.25rem)]">
+                  {children}
+                </main>
               </ThemeProvider>
               <SpeedInsights />
             </CSPostHogProvider>

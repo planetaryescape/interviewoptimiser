@@ -40,6 +40,7 @@ terraform/artifacts
 terraform/.terraform
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
+
 # Sentry Config File
 .env.sentry-build-plugin
 
@@ -49,3 +50,7 @@ terraform/terraform.tfstate.backup
 **/public/worker**
 **/public/fallback**
 **/public/precache**
+
+
+# Cursor
+.cursor/mcp.json

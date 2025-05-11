@@ -1,4 +1,3 @@
-import { config } from "@/lib/config";
 import {
   Body,
   Button,
@@ -13,6 +12,7 @@ import {
   Text,
 } from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
+import { config } from "~/config";
 
 interface InvitationEmailProps {
   invitationLink: string;
@@ -64,15 +64,14 @@ export function InvitationEmail({
             <Section>
               <Row>
                 <Text className="text-base mt-8">
-                  You have been invited to join {organizationName} on{" "}
-                  {config.projectName}. As a member, you&apos;ll have access to
-                  the organization&apos;s interview resources, templates, and
-                  collaborative features.
+                  You have been invited to join {organizationName} on {config.projectName}. As a
+                  member, you&apos;ll have access to the organization&apos;s interview resources,
+                  templates, and collaborative features.
                 </Text>
 
                 <Text className="text-base">
-                  This invitation will expire on {expiresAt}. Click the button
-                  below to accept the invitation and join the organization.
+                  This invitation will expire on {expiresAt}. Click the button below to accept the
+                  invitation and join the organization.
                 </Text>
               </Row>
             </Section>
@@ -88,8 +87,8 @@ export function InvitationEmail({
 
             <Section>
               <Text className="text-base text-gray-600 mt-8">
-                This invitation was intended for you. If you were not expecting
-                this invitation, you can safely ignore this email.
+                This invitation was intended for you. If you were not expecting this invitation, you
+                can safely ignore this email.
                 <br />
                 <br />– The {config.projectName} Team
               </Text>

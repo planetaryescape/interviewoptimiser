@@ -1,12 +1,9 @@
 import { addDays, isAfter, isBefore } from "date-fns";
-import { config } from "../config";
+import { config } from "../../../config";
 
 export const isFomoDiscountActive = () => {
   const startDate = config.fomoDiscountPromoStartDate;
-  const endDate = addDays(
-    config.fomoDiscountPromoStartDate,
-    config.fomoDiscountPromoLengthInDays
-  );
+  const endDate = addDays(config.fomoDiscountPromoStartDate, config.fomoDiscountPromoLengthInDays);
   const today = new Date();
 
   const isAfterStartDate = isAfter(today, startDate);

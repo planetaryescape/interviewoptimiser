@@ -1,14 +1,14 @@
-import { db } from "@/db";
-import { customisations } from "@/db/schema";
 import { getUserFromClerkId } from "@/lib/auth";
-import { logger } from "@/lib/logger";
 import { sanitiseUserInputText } from "@/lib/sanitiseUserInputText";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { createInsertSchema } from "drizzle-zod";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "~/db";
+import { customisations } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 const updateCustomisationSchema = createInsertSchema(customisations).omit({
   id: true,
@@ -42,9 +42,7 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
 
     const data = {
       ...validatedData,
-      customInstructions: sanitiseUserInputText(
-        validatedData.customInstructions
-      ),
+      customInstructions: sanitiseUserInputText(validatedData.customInstructions),
     };
 
     const customisationId = idHandler.decode(params.id);
@@ -64,18 +62,13 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
 
     if (!updatedCustomization) {
       logger.warn({ userId }, "Failed to update customisation");
-      return NextResponse.json(
-        formatErrorEntity("Failed to update customisation"),
-        {
-          status: 500,
-        }
-      );
+      return NextResponse.json(formatErrorEntity("Failed to update customisation"), {
+        status: 500,
+      });
     }
 
     logger.info({ updatedCustomization }, "Successfully updated customisation");
-    return NextResponse.json(
-      formatEntity(updatedCustomization, "customisation")
-    );
+    return NextResponse.json(formatEntity(updatedCustomization, "customisation"));
   } catch (error) {
     Sentry.withScope((scope) => {
       scope.setExtra("context", "PUT /api/customisations/[id]");

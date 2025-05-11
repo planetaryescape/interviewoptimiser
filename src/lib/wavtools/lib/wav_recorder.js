@@ -1,6 +1,6 @@
-import { AudioProcessorSrc } from './worklets/audio_processor.js';
-import { AudioAnalysis } from './analysis/audio_analysis.js';
-import { WavPacker } from './wav_packer.js';
+import { AudioAnalysis } from "./analysis/audio_analysis.js";
+import { WavPacker } from "./wav_packer.js";
+import { AudioProcessorSrc } from "./worklets/audio_processor.js";
 
 /**
  * Decodes audio into a wav file
@@ -21,11 +21,7 @@ export class WavRecorder {
    * @param {{sampleRate?: number, outputToSpeakers?: boolean, debug?: boolean}} [options]
    * @returns {WavRecorder}
    */
-  constructor({
-    sampleRate = 44100,
-    outputToSpeakers = false,
-    debug = false,
-  } = {}) {
+  constructor({ sampleRate = 44100, outputToSpeakers = false, debug = false } = {}) {
     // Script source
     this.scriptSrc = AudioProcessorSrc;
     // Config
@@ -66,20 +62,16 @@ export class WavRecorder {
     let blob;
     if (audioData instanceof Blob) {
       if (fromSampleRate !== -1) {
-        throw new Error(
-          `Can not specify "fromSampleRate" when reading from Blob`,
-        );
+        throw new Error(`Can not specify "fromSampleRate" when reading from Blob`);
       }
       blob = audioData;
       arrayBuffer = await blob.arrayBuffer();
     } else if (audioData instanceof ArrayBuffer) {
       if (fromSampleRate !== -1) {
-        throw new Error(
-          `Can not specify "fromSampleRate" when reading from ArrayBuffer`,
-        );
+        throw new Error(`Can not specify "fromSampleRate" when reading from ArrayBuffer`);
       }
       arrayBuffer = audioData;
-      blob = new Blob([arrayBuffer], { type: 'audio/wav' });
+      blob = new Blob([arrayBuffer], { type: "audio/wav" });
     } else {
       let float32Array;
       let data;
@@ -91,16 +83,16 @@ export class WavRecorder {
         }
       } else if (audioData instanceof Float32Array) {
         float32Array = audioData;
-      } else if (audioData instanceof Array) {
+      } else if (Array.isArray(audioData)) {
         float32Array = new Float32Array(audioData);
       } else {
         throw new Error(
-          `"audioData" must be one of: Blob, Float32Arrray, Int16Array, ArrayBuffer, Array<number>`,
+          `"audioData" must be one of: Blob, Float32Arrray, Int16Array, ArrayBuffer, Array<number>`
         );
       }
       if (fromSampleRate === -1) {
         throw new Error(
-          `Must specify "fromSampleRate" when reading from Float32Array, In16Array or Array`,
+          `Must specify "fromSampleRate" when reading from Float32Array, In16Array or Array`
         );
       } else if (fromSampleRate < 3000) {
         throw new Error(`Minimum "fromSampleRate" is 3000 (3kHz)`);
@@ -134,9 +126,9 @@ export class WavRecorder {
    * @param {...any} arguments
    * @returns {true}
    */
-  log() {
+  log(...args) {
     if (this.debug) {
-      this.log(...arguments);
+      console.log(...args);
     }
     return true;
   }
@@ -155,11 +147,11 @@ export class WavRecorder {
    */
   getStatus() {
     if (!this.processor) {
-      return 'ended';
+      return "ended";
     } else if (!this.recording) {
-      return 'paused';
+      return "paused";
     } else {
-      return 'recording';
+      return "recording";
     }
   }
 
@@ -174,7 +166,7 @@ export class WavRecorder {
   async _event(name, data = {}, _processor = null) {
     _processor = _processor || this.processor;
     if (!_processor) {
-      throw new Error('Can not send events without recording first');
+      throw new Error("Can not send events without recording first");
     }
     const message = {
       event: name,
@@ -201,10 +193,7 @@ export class WavRecorder {
    */
   listenForDeviceChange(callback) {
     if (callback === null && this._deviceChangeCallback) {
-      navigator.mediaDevices.removeEventListener(
-        'devicechange',
-        this._deviceChangeCallback,
-      );
+      navigator.mediaDevices.removeEventListener("devicechange", this._deviceChangeCallback);
       this._deviceChangeCallback = null;
     } else if (callback !== null) {
       // Basically a debounce; we only want this called once when devices change
@@ -216,9 +205,9 @@ export class WavRecorder {
         devices
           .map((d) => d.deviceId)
           .sort()
-          .join(',');
+          .join(",");
       const cb = async () => {
-        let id = ++lastId;
+        const id = ++lastId;
         const devices = await this.listDevices();
         if (id === lastId) {
           if (serializeDevices(lastDevices) !== serializeDevices(devices)) {
@@ -227,7 +216,7 @@ export class WavRecorder {
           }
         }
       };
-      navigator.mediaDevices.addEventListener('devicechange', cb);
+      navigator.mediaDevices.addEventListener("devicechange", cb);
       cb();
       this._deviceChangeCallback = cb;
     }
@@ -240,19 +229,21 @@ export class WavRecorder {
    */
   async requestPermission() {
     const permissionStatus = await navigator.permissions.query({
-      name: 'microphone',
+      name: "microphone",
     });
-    if (permissionStatus.state === 'denied') {
-      window.alert('You must grant microphone access to use this feature.');
-    } else if (permissionStatus.state === 'prompt') {
+    if (permissionStatus.state === "denied") {
+      window.alert("You must grant microphone access to use this feature.");
+    } else if (permissionStatus.state === "prompt") {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: true,
         });
         const tracks = stream.getTracks();
-        tracks.forEach((track) => track.stop());
+        for (const track of tracks) {
+          track.stop();
+        }
       } catch (e) {
-        window.alert('You must grant microphone access to use this feature.');
+        window.alert("You must grant microphone access to use this feature.");
       }
     }
     return true;
@@ -263,25 +254,18 @@ export class WavRecorder {
    * @returns {Promise<Array<MediaDeviceInfo & {default: boolean}>>}
    */
   async listDevices() {
-    if (
-      !navigator.mediaDevices ||
-      !('enumerateDevices' in navigator.mediaDevices)
-    ) {
-      throw new Error('Could not request user devices');
+    if (!navigator.mediaDevices || !("enumerateDevices" in navigator.mediaDevices)) {
+      throw new Error("Could not request user devices");
     }
     await this.requestPermission();
     const devices = await navigator.mediaDevices.enumerateDevices();
-    const audioDevices = devices.filter(
-      (device) => device.kind === 'audioinput',
-    );
-    const defaultDeviceIndex = audioDevices.findIndex(
-      (device) => device.deviceId === 'default',
-    );
+    const audioDevices = devices.filter((device) => device.kind === "audioinput");
+    const defaultDeviceIndex = audioDevices.findIndex((device) => device.deviceId === "default");
     const deviceList = [];
     if (defaultDeviceIndex !== -1) {
       let defaultDevice = audioDevices.splice(defaultDeviceIndex, 1)[0];
-      let existingIndex = audioDevices.findIndex(
-        (device) => device.groupId === defaultDevice.groupId,
+      const existingIndex = audioDevices.findIndex(
+        (device) => device.groupId === defaultDevice.groupId
       );
       if (existingIndex !== -1) {
         defaultDevice = audioDevices.splice(existingIndex, 1)[0];
@@ -300,16 +284,11 @@ export class WavRecorder {
    */
   async begin(deviceId) {
     if (this.processor) {
-      throw new Error(
-        `Already connected: please call .end() to start a new session`,
-      );
+      throw new Error("Already connected: please call .end() to start a new session");
     }
 
-    if (
-      !navigator.mediaDevices ||
-      !('getUserMedia' in navigator.mediaDevices)
-    ) {
-      throw new Error('Could not request user media');
+    if (!navigator.mediaDevices || !("getUserMedia" in navigator.mediaDevices)) {
+      throw new Error("Could not request user media");
     }
     try {
       const config = { audio: true };
@@ -318,7 +297,7 @@ export class WavRecorder {
       }
       this.stream = await navigator.mediaDevices.getUserMedia(config);
     } catch (err) {
-      throw new Error('Could not start media stream');
+      throw new Error("Could not start media stream");
     }
 
     const context = new AudioContext({ sampleRate: this.sampleRate });
@@ -330,22 +309,19 @@ export class WavRecorder {
       console.error(e);
       throw new Error(`Could not add audioWorklet module: ${this.scriptSrc}`);
     }
-    const processor = new AudioWorkletNode(context, 'audio_processor');
+    const processor = new AudioWorkletNode(context, "audio_processor");
     processor.port.onmessage = (e) => {
       const { event, id, data } = e.data;
-      if (event === 'receipt') {
+      if (event === "receipt") {
         this.eventReceipts[id] = data;
-      } else if (event === 'chunk') {
+      } else if (event === "chunk") {
         if (this._chunkProcessorSize) {
           const buffer = this._chunkProcessorBuffer;
           this._chunkProcessorBuffer = {
             raw: WavPacker.mergeBuffers(buffer.raw, data.raw),
             mono: WavPacker.mergeBuffers(buffer.mono, data.mono),
           };
-          if (
-            this._chunkProcessorBuffer.mono.byteLength >=
-            this._chunkProcessorSize
-          ) {
+          if (this._chunkProcessorBuffer.mono.byteLength >= this._chunkProcessorSize) {
             this._chunkProcessor(this._chunkProcessorBuffer);
             this._chunkProcessorBuffer = {
               raw: new ArrayBuffer(0),
@@ -366,9 +342,9 @@ export class WavRecorder {
     if (this.outputToSpeakers) {
       // eslint-disable-next-line no-console
       console.warn(
-        'Warning: Output to speakers may affect sound quality,\n' +
-          'especially due to system audio feedback preventative measures.\n' +
-          'use only for debugging',
+        "Warning: Output to speakers may affect sound quality,\n" +
+          "especially due to system audio feedback preventative measures.\n" +
+          "use only for debugging"
       );
       analyser.connect(context.destination);
     }
@@ -387,13 +363,9 @@ export class WavRecorder {
    * @param {number} [maxDecibels] default -30
    * @returns {import('./analysis/audio_analysis.js').AudioAnalysisOutputType}
    */
-  getFrequencies(
-    analysisType = 'frequency',
-    minDecibels = -100,
-    maxDecibels = -30,
-  ) {
+  getFrequencies(analysisType = "frequency", minDecibels = -100, maxDecibels = -30) {
     if (!this.processor) {
-      throw new Error('Session ended: please call .begin() first');
+      throw new Error("Session ended: please call .begin() first");
     }
     return AudioAnalysis.getFrequencies(
       this.analyser,
@@ -401,7 +373,7 @@ export class WavRecorder {
       null,
       analysisType,
       minDecibels,
-      maxDecibels,
+      maxDecibels
     );
   }
 
@@ -412,15 +384,15 @@ export class WavRecorder {
    */
   async pause() {
     if (!this.processor) {
-      throw new Error('Session ended: please call .begin() first');
+      throw new Error("Session ended: please call .begin() first");
     } else if (!this.recording) {
-      throw new Error('Already paused: please call .record() first');
+      throw new Error("Already paused: please call .record() first");
     }
     if (this._chunkProcessorBuffer.raw.byteLength) {
       this._chunkProcessor(this._chunkProcessorBuffer);
     }
-    this.log('Pausing ...');
-    await this._event('stop');
+    this.log("Pausing ...");
+    await this._event("stop");
     this.recording = false;
     return true;
   }
@@ -433,11 +405,11 @@ export class WavRecorder {
    */
   async record(chunkProcessor = () => {}, chunkSize = 8192) {
     if (!this.processor) {
-      throw new Error('Session ended: please call .begin() first');
+      throw new Error("Session ended: please call .begin() first");
     } else if (this.recording) {
-      throw new Error('Already recording: please call .pause() first');
-    } else if (typeof chunkProcessor !== 'function') {
-      throw new Error(`chunkProcessor must be a function`);
+      throw new Error("Already recording: please call .pause() first");
+    } else if (typeof chunkProcessor !== "function") {
+      throw new Error("chunkProcessor must be a function");
     }
     this._chunkProcessor = chunkProcessor;
     this._chunkProcessorSize = chunkSize;
@@ -445,8 +417,8 @@ export class WavRecorder {
       raw: new ArrayBuffer(0),
       mono: new ArrayBuffer(0),
     };
-    this.log('Recording ...');
-    await this._event('start');
+    this.log("Recording ...");
+    await this._event("start");
     this.recording = true;
     return true;
   }
@@ -457,9 +429,9 @@ export class WavRecorder {
    */
   async clear() {
     if (!this.processor) {
-      throw new Error('Session ended: please call .begin() first');
+      throw new Error("Session ended: please call .begin() first");
     }
-    await this._event('clear');
+    await this._event("clear");
     return true;
   }
 
@@ -469,10 +441,10 @@ export class WavRecorder {
    */
   async read() {
     if (!this.processor) {
-      throw new Error('Session ended: please call .begin() first');
+      throw new Error("Session ended: please call .begin() first");
     }
-    this.log('Reading ...');
-    const result = await this._event('read');
+    this.log("Reading ...");
+    const result = await this._event("read");
     return result;
   }
 
@@ -483,15 +455,15 @@ export class WavRecorder {
    */
   async save(force = false) {
     if (!this.processor) {
-      throw new Error('Session ended: please call .begin() first');
+      throw new Error("Session ended: please call .begin() first");
     }
     if (!force && this.recording) {
       throw new Error(
-        'Currently recording: please call .pause() first, or call .save(true) to force',
+        "Currently recording: please call .pause() first, or call .save(true) to force"
       );
     }
-    this.log('Exporting ...');
-    const exportData = await this._event('export');
+    this.log("Exporting ...");
+    const exportData = await this._event("export");
     const packer = new WavPacker();
     const result = packer.pack(this.sampleRate, exportData.audio);
     return result;
@@ -503,19 +475,21 @@ export class WavRecorder {
    */
   async end() {
     if (!this.processor) {
-      throw new Error('Session ended: please call .begin() first');
+      throw new Error("Session ended: please call .begin() first");
     }
 
     const _processor = this.processor;
 
-    this.log('Stopping ...');
-    await this._event('stop');
+    this.log("Stopping ...");
+    await this._event("stop");
     this.recording = false;
     const tracks = this.stream.getTracks();
-    tracks.forEach((track) => track.stop());
+    for (const track of tracks) {
+      track.stop();
+    }
 
-    this.log('Exporting ...');
-    const exportData = await this._event('export', {}, _processor);
+    this.log("Exporting ...");
+    const exportData = await this._event("export", {}, _processor);
 
     this.processor.disconnect();
     this.source.disconnect();

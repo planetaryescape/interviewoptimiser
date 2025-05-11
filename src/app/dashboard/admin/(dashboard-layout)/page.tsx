@@ -4,7 +4,6 @@ import { InterviewsGrid } from "@/components/interviews-grid";
 import { InterviewsTable } from "@/components/interviews-table";
 import { Button } from "@/components/ui/button";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
-import { Interview } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
@@ -13,9 +12,25 @@ import { FileText, Grid, List } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import type { InferResultType } from "~/db/helpers";
+import type { Customisation, Interview, User } from "~/db/schema";
+
+type InterviewWithCandidateDetailsAndJobDescription = InferResultType<
+  "interviews",
+  {
+    candidateDetails: true;
+    jobDescription: true;
+    report: true;
+  }
+>;
 
 async function fetchInterviews() {
-  const repository = await getRepository<Interview>("admin/interviews", true);
+  const repository = await getRepository<
+    InterviewWithCandidateDetailsAndJobDescription & {
+      id?: number;
+      user?: User & { customization?: Customisation };
+    }
+  >("admin/interviews", true);
   return repository.getAll();
 }
 
@@ -29,20 +44,17 @@ export default function InterviewsSection() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["interviews-admin"],
+    queryKey: ["interviews"],
     queryFn: fetchInterviews,
     refetchInterval: 3000,
   });
 
-  const interviews = useMemo(
-    () => interviewsData?.data || [],
-    [interviewsData]
-  );
+  const interviews = useMemo(() => interviewsData?.data || [], [interviewsData]);
   const queryClient = useQueryClient();
 
   useEffect(() => {
     queryClient.invalidateQueries({ queryKey: ["user"] });
-  }, [interviews, queryClient]);
+  }, [queryClient]);
 
   const itemsPerPage = 9;
   const totalPages = Math.ceil(interviews.length / itemsPerPage);
@@ -54,10 +66,7 @@ export default function InterviewsSection() {
   const deleteOptimizationMutation = useMutation({
     mutationFn: async (id: number) => {
       setDeletingId(id);
-      const repository = await getRepository<Interview>(
-        "admin/interviews",
-        true
-      );
+      const repository = await getRepository<Interview>("admin/interviews", true);
       await repository.delete(idHandler.encode(id));
     },
     onSuccess: () => {
@@ -87,9 +96,7 @@ export default function InterviewsSection() {
     <div className="flex flex-col items-center justify-center h-full text-center p-8">
       <FileText className="w-16 h-16 text-muted-foreground mb-4" />
       <h3 className="text-2xl font-semibold mb-2">No interviews yet</h3>
-      <p className="text-muted-foreground mb-4">
-        Start by creating your first interview
-      </p>
+      <p className="text-muted-foreground mb-4">Start by creating your first interview</p>
       <Button asChild>
         <Link href="/dashboard/create">Create Your First Interview</Link>
       </Button>
@@ -99,20 +106,14 @@ export default function InterviewsSection() {
   return (
     <section className="h-full grid grid-rows-[auto_1fr_auto]">
       <div className="flex justify-between items-center mb-4 row-span-1">
-        <h2 className="text-2xl font-semibold text-foreground">
-          Interviews (Admin)
-        </h2>
+        <h2 className="text-2xl font-semibold text-foreground">Interviews (Admin)</h2>
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setViewMode(viewMode === "grid" ? "table" : "grid")}
           >
-            {viewMode === "grid" ? (
-              <Grid className="h-4 w-4" />
-            ) : (
-              <List className="h-4 w-4" />
-            )}
+            {viewMode === "grid" ? <Grid className="h-4 w-4" /> : <List className="h-4 w-4" />}
           </Button>
         </div>
       </div>
@@ -156,9 +157,7 @@ export default function InterviewsSection() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() =>
-                setCurrentPage((page) => Math.min(totalPages, page + 1))
-              }
+              onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
               disabled={currentPage === totalPages}
             >
               Next

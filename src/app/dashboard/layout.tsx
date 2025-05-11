@@ -1,23 +1,35 @@
 "use client";
 
-import { Header } from "@/components/header";
+import { DashboardHeader } from "@/components/dashboard-header";
+import { DashboardSidebar } from "@/components/dashboard-sidebar";
+import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
-import { ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
 import { Toaster } from "sonner";
 
-export default function LandingPage({ children }: { children: ReactNode }) {
+export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { theme } = useTheme();
+  const pathname = usePathname();
+  const showSidebar = !pathname.includes("/dashboard/create");
+  const showHeader = !pathname.includes("/dashboard/create");
 
   return (
-    <div className="max-h-screen min-h-screen grid grid-rows-[auto_1fr] overflow-hidden">
-      <ClerkProvider dynamic>
-        <Header className="row-span-1" />
-      </ClerkProvider>
+    <div className="flex flex-col w-full min-h-screen bg-background">
+      {showHeader && (
+        <ClerkProvider dynamic>
+          <div className="fixed top-0 left-0 right-0 z-[9999]">
+            <DashboardHeader />
+          </div>
+        </ClerkProvider>
+      )}
 
-      <main className="text-muted-foreground row-span-1 overflow-hidden">
-        {children}
-      </main>
+      <div className={cn("flex flex-1", showHeader && "pt-16")}>
+        {showSidebar && <DashboardSidebar />}
+
+        <main className="flex-1 overflow-auto bg-background text-foreground">{children}</main>
+      </div>
 
       <Toaster
         position="top-center"

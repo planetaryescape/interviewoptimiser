@@ -5,8 +5,6 @@ import { MultiSelect } from "@/components/multi-select";
 import { Button } from "@/components/ui/button";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 import { Toggle } from "@/components/ui/toggle";
-import { FeatureRequest } from "@/db/schema";
-import { featureRequestStatusEnum } from "@/db/schema/featureRequests";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -14,6 +12,8 @@ import { useQuery } from "@tanstack/react-query";
 import { FileText, Grid, List } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import type { FeatureRequest } from "~/db/schema";
+import { featureRequestStatusEnum } from "~/db/schema/featureRequests";
 
 const ITEMS_PER_PAGE = 9; // 3x3 grid
 
@@ -42,16 +42,11 @@ export default function AdminFeatureRequestsPage() {
     enabled: isAdmin,
   });
 
-  const featureRequests = useMemo(
-    () => featureRequestsData?.data || [],
-    [featureRequestsData]
-  );
+  const featureRequests = useMemo(() => featureRequestsData?.data || [], [featureRequestsData]);
 
   const filteredFeatureRequests = useMemo(() => {
     if (selectedStatuses.length === 0) return featureRequests;
-    return featureRequests.filter((fr) =>
-      selectedStatuses.includes(fr.data.status)
-    );
+    return featureRequests.filter((fr) => selectedStatuses.includes(fr.data.status));
   }, [featureRequests, selectedStatuses]);
 
   if (isUserLoading || isLoading || !isAdmin) {
@@ -89,9 +84,7 @@ export default function AdminFeatureRequestsPage() {
   return (
     <section className="h-full grid grid-rows-[auto_1fr_auto] overflow-auto">
       <div className="flex flex-col md:flex-row justify-between items-center mb-4 flex-wrap gap-4">
-        <h2 className="text-2xl font-semibold text-foreground">
-          Feature Requests (Admin)
-        </h2>
+        <h2 className="text-2xl font-semibold text-foreground">Feature Requests (Admin)</h2>
         <div className="flex justify-between w-full md:w-auto items-center space-x-4">
           <MultiSelect
             maxCount={0}
@@ -103,16 +96,10 @@ export default function AdminFeatureRequestsPage() {
             placeholder="Filter by status"
           />
           <div className="flex items-center space-x-2">
-            <Toggle
-              pressed={viewMode === "grid"}
-              onPressedChange={() => setViewMode("grid")}
-            >
+            <Toggle pressed={viewMode === "grid"} onPressedChange={() => setViewMode("grid")}>
               <Grid className="h-4 w-4" />
             </Toggle>
-            <Toggle
-              pressed={viewMode === "table"}
-              onPressedChange={() => setViewMode("table")}
-            >
+            <Toggle pressed={viewMode === "table"} onPressedChange={() => setViewMode("table")}>
               <List className="h-4 w-4" />
             </Toggle>
           </div>
@@ -157,9 +144,7 @@ export default function AdminFeatureRequestsPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() =>
-                setCurrentPage((page) => Math.min(totalPages, page + 1))
-              }
+              onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
               disabled={currentPage === totalPages}
             >
               Next

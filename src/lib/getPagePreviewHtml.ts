@@ -7,12 +7,7 @@ export function getPagePreviewHtml(elementId: string) {
   const clonedElement = originalElement.cloneNode(true) as HTMLElement;
 
   clonedElement.style.scale = "1";
-  clonedElement.classList.remove(
-    "border",
-    "border-gray-300",
-    "shadow-lg",
-    "overflow-hidden"
-  );
+  clonedElement.classList.remove("border", "border-gray-300", "shadow-lg", "overflow-hidden");
 
   const page0 = clonedElement.querySelector("#page-0");
 

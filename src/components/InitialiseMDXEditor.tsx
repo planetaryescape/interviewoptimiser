@@ -1,24 +1,24 @@
 "use client";
 
 import {
+  KitchenSinkToolbar,
+  MDXEditor,
+  type MDXEditorMethods,
+  type MDXEditorProps,
   codeBlockPlugin,
   codeMirrorPlugin,
   diffSourcePlugin,
   frontmatterPlugin,
   headingsPlugin,
   imagePlugin,
-  KitchenSinkToolbar,
   linkDialogPlugin,
   linkPlugin,
   listsPlugin,
   markdownShortcutPlugin,
-  MDXEditor,
   quotePlugin,
   tablePlugin,
   thematicBreakPlugin,
   toolbarPlugin,
-  type MDXEditorMethods,
-  type MDXEditorProps,
 } from "@mdxeditor/editor";
 import type { ForwardedRef } from "react";
 

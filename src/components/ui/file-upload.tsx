@@ -71,7 +71,9 @@ export const FileUpload = ({
   useEffect(() => {
     if (fileInputRef.current) {
       const dataTransfer = new DataTransfer();
-      files.forEach((file) => dataTransfer.items.add(file));
+      for (const file of files) {
+        dataTransfer.items.add(file);
+      }
       fileInputRef.current.files = dataTransfer.files;
     }
   }, [files]);
@@ -105,59 +107,36 @@ export const FileUpload = ({
             {files.length > 0 &&
               files.map((file, idx) => (
                 <motion.div
-                  key={"file" + idx}
-                  layoutId={idx === 0 ? "file-upload" : "file-upload-" + idx}
+                  key={`file-${file.name}-${file.size}`}
+                  layoutId={idx === 0 ? "file-upload" : `file-upload-${file.name}`}
                   className={cn(
-                    "relative overflow-hidden z-40 bg-white dark:bg-neutral-900 flex flex-col items-start justify-start md:h-24 p-4 mt-4 w-full mx-auto rounded-md",
-                    "shadow-sm"
+                    "relative flex items-center justify-between w-full p-4 mb-2 bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800",
+                    "hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
                   )}
                 >
-                  <div className="flex justify-between w-full items-center gap-4">
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      layout
-                      className="text-base text-neutral-700 dark:text-neutral-300 truncate max-w-xs"
-                    >
-                      {file.name}
-                    </motion.p>
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg">
+                      <IconUpload className="h-4 w-4 text-neutral-500" />
+                    </div>
+                    <div>
                       <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        layout
-                        className="rounded-lg px-2 py-1 w-fit flex-shrink-0 text-sm text-neutral-600 dark:bg-neutral-800 dark:text-white shadow-input"
+                        layout="position"
+                        className="text-sm font-medium text-neutral-900 dark:text-neutral-100"
                       >
+                        {file.name}
+                      </motion.p>
+                      <motion.p layout="position" className="text-xs text-neutral-500">
                         {(file.size / (1024 * 1024)).toFixed(2)} MB
                       </motion.p>
-                      <button
-                        onClick={(e) => handleRemoveFile(e, idx)}
-                        className="p-1 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                      >
-                        <X className="h-4 w-4 text-neutral-500" />
-                      </button>
                     </div>
                   </div>
-
-                  <div className="flex text-sm md:flex-row flex-col items-start md:items-center w-full mt-2 justify-between text-neutral-600 dark:text-neutral-400">
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      layout
-                      className="px-1 py-0.5 rounded-md bg-gray-100 dark:bg-neutral-800 "
-                    >
-                      {file.type}
-                    </motion.p>
-
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      layout
-                    >
-                      modified{" "}
-                      {new Date(file.lastModified).toLocaleDateString()}
-                    </motion.p>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => handleRemoveFile(e, idx)}
+                    className="p-1 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                  >
+                    <X className="h-4 w-4 text-neutral-500" />
+                  </button>
                 </motion.div>
               ))}
             {!files.length && (
@@ -195,7 +174,7 @@ export const FileUpload = ({
               <motion.div
                 variants={secondaryVariant}
                 className="absolute opacity-0 border border-dashed border-sky-400 inset-0 z-30 bg-transparent flex items-center justify-center h-32 mt-4 w-full max-w-[8rem] mx-auto rounded-md"
-              ></motion.div>
+              />
             )}
           </div>
         </div>
@@ -209,21 +188,23 @@ export function GridPattern() {
   const rows = 11;
   return (
     <div className="flex bg-gray-100 dark:bg-neutral-900 flex-shrink-0 flex-wrap justify-center items-center gap-x-px gap-y-px  scale-105">
-      {Array.from({ length: rows }).map((_, row) =>
-        Array.from({ length: columns }).map((_, col) => {
-          const index = row * columns + col;
+      <div className="grid grid-cols-4 gap-1">
+        {Array.from({ length: rows * columns }, (_, i) => {
+          const row = Math.floor(i / columns);
+          const col = i % columns;
           return (
             <div
-              key={`${col}-${row}`}
-              className={`w-10 h-10 flex flex-shrink-0 rounded-[2px] ${
-                index % 2 === 0
-                  ? "bg-gray-50 dark:bg-neutral-950"
-                  : "bg-gray-50 dark:bg-neutral-950 shadow-[0px_0px_1px_3px_rgba(255,255,255,1)_inset] dark:shadow-[0px_0px_1px_3px_rgba(0,0,0,1)_inset]"
-              }`}
+              key={`grid-cell-${row}-${col}`}
+              className={cn(
+                "w-10 h-10 flex flex-shrink-0 rounded-[2px]",
+                i % 2 === 0
+                  ? "bg-neutral-100 dark:bg-neutral-800"
+                  : "bg-neutral-50 dark:bg-neutral-900"
+              )}
             />
           );
-        })
-      )}
+        })}
+      </div>
     </div>
   );
 }

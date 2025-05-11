@@ -19,13 +19,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Organization } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import type { Organization } from "~/db/schema";
 
 const INDUSTRY_OPTIONS = [
   "Technology",
@@ -37,14 +37,7 @@ const INDUSTRY_OPTIONS = [
   "Other",
 ];
 
-const SIZE_OPTIONS = [
-  "1-10",
-  "11-50",
-  "51-200",
-  "201-500",
-  "501-1000",
-  "1000+",
-];
+const SIZE_OPTIONS = ["1-10", "11-50", "51-200", "201-500", "501-1000", "1000+"];
 
 type OrganizationDialogProps = {
   organization?: Organization;
@@ -52,11 +45,7 @@ type OrganizationDialogProps = {
   onSuccess?: () => void;
 };
 
-export function OrganizationDialog({
-  organization,
-  mode,
-  onSuccess,
-}: OrganizationDialogProps) {
+export function OrganizationDialog({ organization, mode, onSuccess }: OrganizationDialogProps) {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
@@ -69,9 +58,7 @@ export function OrganizationDialog({
 
   const { mutate: submitOrganization, isPending } = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const organizationRepo = await getRepository<Organization>(
-        "organizations"
-      );
+      const organizationRepo = await getRepository<Organization>("organizations");
       if (mode === "create") {
         return organizationRepo.create({
           ...data,
@@ -80,10 +67,7 @@ export function OrganizationDialog({
           isDeleted: false,
         });
       } else {
-        return organizationRepo.update(
-          idHandler.encode(organization!.id),
-          data
-        );
+        return organizationRepo.update(idHandler.encode(organization!.id), data);
       }
     },
     onSuccess: () => {
@@ -98,18 +82,13 @@ export function OrganizationDialog({
     },
     onError: (error) => {
       Sentry.withScope((scope) => {
-        scope.setExtra(
-          "context",
-          mode === "create" ? "createOrganization" : "updateOrganization"
-        );
+        scope.setExtra("context", mode === "create" ? "createOrganization" : "updateOrganization");
         scope.setExtra("error", error);
         scope.setExtra("message", error.message);
         Sentry.captureException(error);
       });
       toast.error(
-        mode === "create"
-          ? "Failed to create organization"
-          : "Failed to update organization",
+        mode === "create" ? "Failed to create organization" : "Failed to update organization",
         {
           position: "top-center",
           richColors: true,
@@ -154,9 +133,7 @@ export function OrganizationDialog({
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, name: e.target.value }))
-              }
+              onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
               placeholder="Enter organization name"
             />
           </div>
@@ -185,9 +162,7 @@ export function OrganizationDialog({
             <Input
               id="website"
               value={formData.website}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, website: e.target.value }))
-              }
+              onChange={(e) => setFormData((prev) => ({ ...prev, website: e.target.value }))}
               placeholder="Enter organization website"
             />
           </div>
@@ -198,9 +173,7 @@ export function OrganizationDialog({
             </label>
             <Select
               value={formData.industry}
-              onValueChange={(value) =>
-                setFormData((prev) => ({ ...prev, industry: value }))
-              }
+              onValueChange={(value) => setFormData((prev) => ({ ...prev, industry: value }))}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select industry" />
@@ -221,9 +194,7 @@ export function OrganizationDialog({
             </label>
             <Select
               value={formData.size}
-              onValueChange={(value) =>
-                setFormData((prev) => ({ ...prev, size: value }))
-              }
+              onValueChange={(value) => setFormData((prev) => ({ ...prev, size: value }))}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select company size" />
@@ -245,8 +216,8 @@ export function OrganizationDialog({
                   ? "Creating..."
                   : "Updating..."
                 : mode === "create"
-                ? "Create Organization"
-                : "Update Organization"}
+                  ? "Create Organization"
+                  : "Update Organization"}
             </Button>
           </DialogFooter>
         </form>

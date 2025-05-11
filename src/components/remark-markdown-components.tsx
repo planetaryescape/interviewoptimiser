@@ -1,5 +1,5 @@
 // @ts-expect-error react-markdown is not typed
-import { ReactMarkdownOptions } from "react-markdown/lib/react-markdown";
+import type { ReactMarkdownOptions } from "react-markdown/lib/react-markdown";
 
 export const remarkMarkdownComponents: ReactMarkdownOptions["components"] = {
   ul: ({ children }: { children: React.ReactNode }) => (
@@ -8,7 +8,5 @@ export const remarkMarkdownComponents: ReactMarkdownOptions["components"] = {
   ol: ({ children }: { children: React.ReactNode }) => (
     <ol className="list-decimal list-inside mb-4">{children}</ol>
   ),
-  p: ({ children }: { children: React.ReactNode }) => (
-    <p className="mb-4">{children}</p>
-  ),
+  p: ({ children }: { children: React.ReactNode }) => <p className="mb-4">{children}</p>,
 };

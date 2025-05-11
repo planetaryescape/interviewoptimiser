@@ -44,11 +44,7 @@ export function RadialProsodyChart({
           data={chartData}
           margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
         >
-          <PolarGrid
-            gridType="circle"
-            stroke="hsl(var(--muted-foreground))"
-            strokeOpacity={0.2}
-          />
+          <PolarGrid gridType="circle" stroke="hsl(var(--muted-foreground))" strokeOpacity={0.2} />
           <PolarAngleAxis
             dataKey="characteristic"
             tick={{

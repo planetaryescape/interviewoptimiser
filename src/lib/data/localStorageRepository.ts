@@ -1,15 +1,13 @@
 import {
-  Entity,
-  EntityList,
+  type Entity,
+  type EntityList,
   formatEntity,
   formatEntityList,
 } from "../utils/formatEntity";
 import { idHandler } from "../utils/idHandler";
-import { GenericRepository } from "./genericRepository";
+import type { GenericRepository } from "./genericRepository";
 
-export class LocalStorageRepository<T extends { id?: number }>
-  implements GenericRepository<T>
-{
+export class LocalStorageRepository<T extends { id?: number }> implements GenericRepository<T> {
   constructor(private readonly storageKey: string) {}
 
   private getItems(): T[] {
@@ -55,9 +53,7 @@ export class LocalStorageRepository<T extends { id?: number }>
 
   async delete(id: string): Promise<boolean> {
     const items = this.getItems();
-    const filteredItems = items.filter(
-      (item) => item.id !== idHandler.decode(id)
-    );
+    const filteredItems = items.filter((item) => item.id !== idHandler.decode(id));
     if (filteredItems.length === items.length) return false;
 
     this.setItems(filteredItems);

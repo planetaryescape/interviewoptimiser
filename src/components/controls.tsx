@@ -1,10 +1,10 @@
 "use client";
 
-import { Interview, NewInterview } from "@/db/schema";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
 import { formatMessage } from "@/lib/utils/messageUtils";
 import { unformatTime } from "@/lib/utils/unformatTime";
+import { useActiveInterviewActions } from "@/stores/useActiveInterviewStore";
 import { useVoice } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -13,16 +13,13 @@ import { Mic, MicOff } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
+import type { Interview, NewInterview } from "~/db/schema";
 import { MotionDiv } from "./common/motion";
 import { MicFFT } from "./mic-fft";
 import { Button } from "./ui/button";
 import { Toggle } from "./ui/toggle";
 
-export function Controls({
-  setInterviewEnded,
-}: {
-  setInterviewEnded: (ended: boolean) => void;
-}) {
+export function Controls() {
   const {
     disconnect,
     status,
@@ -37,14 +34,12 @@ export function Controls({
   } = useVoice();
   const params = useParams();
   const queryClient = useQueryClient();
+  const { setInterviewEnded } = useActiveInterviewActions();
 
   const { mutate: updateInterview } = useMutation({
     mutationFn: async (interview: Partial<NewInterview>) => {
       const interviewRepo = await getRepository<Interview>("interviews");
-      return await interviewRepo.update(
-        params.interviewId as string,
-        interview
-      );
+      return await interviewRepo.update(params.interviewId as string, interview);
     },
     onSuccess: () => {
       sendAssistantInput("hang_up");
@@ -76,7 +71,7 @@ export function Controls({
     return () => {
       initialUserMessageSentRef.current = false;
     };
-  }, [status.value]);
+  }, [status.value, sendUserInput]);
 
   return (
     <div
@@ -115,14 +110,10 @@ export function Controls({
                 }
               }}
             >
-              {isMuted ? (
-                <MicOff className={"size-4"} />
-              ) : (
-                <Mic className={"size-4"} />
-              )}
+              {isMuted ? <MicOff className={"size-4"} /> : <Mic className={"size-4"} />}
             </Toggle>
 
-            <div className={"relative grid h-8 w-48 shrink grow-0"}>
+            <div className={"relative grid h-12 w-48 shrink grow-0"}>
               <MicFFT fft={micFft} className={"fill-current"} />
             </div>
 
@@ -130,16 +121,11 @@ export function Controls({
               className={"flex items-center gap-1"}
               onClick={async () => {
                 await updateInterview({
-                  actualTime: Math.floor(
-                    unformatTime(callDurationTimestamp) / 60
-                  ),
+                  actualTime: Math.floor(unformatTime(callDurationTimestamp) / 60),
                   transcript: JSON.stringify(
                     messages
                       .map((msg) => {
-                        if (
-                          msg.type === "user_message" ||
-                          msg.type === "assistant_message"
-                        ) {
+                        if (msg.type === "user_message" || msg.type === "assistant_message") {
                           return {
                             role: msg.message.role,
                             content: formatMessage(msg.message.content),

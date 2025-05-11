@@ -6,9 +6,7 @@ import { Input } from "@/components/ui/input";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { Customisation, NewCustomisation } from "@/db/schema";
 import { useUser } from "@/hooks/useUser";
-import { config } from "@/lib/config";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { sanitiseUserInputText } from "@/lib/sanitiseUserInputText";
 import { idHandler } from "@/lib/utils/idHandler";
@@ -16,6 +14,8 @@ import * as Sentry from "@sentry/nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { config } from "~/config";
+import type { Customisation, NewCustomisation } from "~/db/schema";
 
 export function CustomisationSettings() {
   const { data: user, refetch, isLoading } = useUser();
@@ -38,25 +38,18 @@ export function CustomisationSettings() {
         email: user.customisation.email,
         address: user.customisation.address,
         phone: user.customisation.phone,
-        customInstructions: sanitiseUserInputText(
-          user.customisation.customInstructions
-        ),
+        customInstructions: sanitiseUserInputText(user.customisation.customInstructions),
       });
     }
   }, [user]);
 
-  const handleCustomisationChange = (
-    field: keyof Customisation,
-    value: string
-  ) => {
+  const handleCustomisationChange = (field: keyof Customisation, value: string) => {
     setCustomisation((prev) => ({ ...prev, [field]: value }));
   };
 
   const { mutate: saveCustomisations, isPending } = useMutation({
     mutationFn: async (updatedCustomisation: Partial<Customisation>) => {
-      const customisationRepo = await getRepository<Customisation>(
-        "customisations"
-      );
+      const customisationRepo = await getRepository<Customisation>("customisations");
       return customisationRepo.update(
         idHandler.encode(customisation.id ?? 0),
         updatedCustomisation
@@ -94,9 +87,7 @@ export function CustomisationSettings() {
   return (
     <section className="h-full grid grid-rows-[auto_1fr_auto]">
       <div className="flex justify-between items-center mb-4 row-span-1">
-        <h2 className="text-2xl font-semibold text-foreground">
-          Customization Settings
-        </h2>
+        <h2 className="text-2xl font-semibold text-foreground">Customization Settings</h2>
       </div>
       <Card className="dark:bg-gray-800 border-none">
         <CardContent className="space-y-4">
@@ -109,9 +100,7 @@ export function CustomisationSettings() {
                 <Input
                   id="name"
                   value={customisation.name || ""}
-                  onChange={(e) =>
-                    handleCustomisationChange("name", e.target.value)
-                  }
+                  onChange={(e) => handleCustomisationChange("name", e.target.value)}
                   className="dark:bg-gray-700 dark:text-white"
                 />
               </div>
@@ -122,9 +111,7 @@ export function CustomisationSettings() {
                 <Input
                   id="address"
                   value={customisation.address || ""}
-                  onChange={(e) =>
-                    handleCustomisationChange("address", e.target.value)
-                  }
+                  onChange={(e) => handleCustomisationChange("address", e.target.value)}
                   className="dark:bg-gray-700 dark:text-white"
                 />
               </div>
@@ -135,9 +122,7 @@ export function CustomisationSettings() {
                 <Input
                   id="phone"
                   value={customisation.phone || ""}
-                  onChange={(e) =>
-                    handleCustomisationChange("phone", e.target.value)
-                  }
+                  onChange={(e) => handleCustomisationChange("phone", e.target.value)}
                   className="dark:bg-gray-700 dark:text-white"
                 />
               </div>
@@ -148,9 +133,7 @@ export function CustomisationSettings() {
                 <Input
                   id="email"
                   value={customisation.email || ""}
-                  onChange={(e) =>
-                    handleCustomisationChange("email", e.target.value)
-                  }
+                  onChange={(e) => handleCustomisationChange("email", e.target.value)}
                   className="dark:bg-gray-700 dark:text-white"
                 />
               </div>
@@ -162,12 +145,7 @@ export function CustomisationSettings() {
                   id="instructions"
                   value={customisation.customInstructions || ""}
                   maxLength={config.maxTextLengths.customisations}
-                  onChange={(e) =>
-                    handleCustomisationChange(
-                      "customInstructions",
-                      e.target.value
-                    )
-                  }
+                  onChange={(e) => handleCustomisationChange("customInstructions", e.target.value)}
                   rows={4}
                   className="dark:bg-gray-700 dark:text-white"
                 />

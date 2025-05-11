@@ -37,8 +37,8 @@ export default function MarketingError({
             Oops! Something went wrong
           </h1>
           <p className="text-lg text-muted-foreground max-w-md">
-            We apologize for the inconvenience. An unexpected error occurred
-            while loading this page.
+            We apologize for the inconvenience. An unexpected error occurred while loading this
+            page.
           </p>
         </div>
         <div className="flex items-center gap-4">
