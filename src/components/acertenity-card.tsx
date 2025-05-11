@@ -47,14 +47,14 @@ export const CardDescription = ({
   className?: string;
 }) => {
   return (
-    <p
+    <div
       className={cn(
         "text-sm font-normal text-neutral-600 dark:text-neutral-400 max-w-sm",
         className
       )}
     >
       {children}
-    </p>
+    </div>
   );
 };
 
