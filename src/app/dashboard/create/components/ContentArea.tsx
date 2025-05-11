@@ -98,7 +98,7 @@ export function ContentArea({ animationDir }: ContentAreaProps) {
   }, [controls]);
 
   return (
-    <div className="flex-1 flex flex-col justify-center items-center w-full px-4 md:px-6 lg:px-8 py-16 mt-16">
+    <div className="flex-1 flex flex-col items-center w-full px-4 md:px-6 lg:px-8 py-8 md:py-16 mt-20 md:mt-16 justify-start md:justify-center">
       {/* Main content box */}
       <div className="bg-card/95 backdrop-blur-md rounded-xl shadow-xl border border-border/40 overflow-hidden w-full max-w-7xl animate-in fade-in slide-in-from-bottom-8 duration-500">
         <motion.div
