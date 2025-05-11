@@ -41,8 +41,8 @@ export default function CreateInterviewLayout({ children }: CreateInterviewLayou
         <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-repeat opacity-5" />
       </div>
 
-      {/* Theme toggle button */}
-      <div className="fixed top-4 right-4 z-[60]">
+      {/* Theme toggle button - hidden on mobile */}
+      <div className="fixed top-4 right-4 z-[60] hidden sm:block">
         <div className="bg-background/40 backdrop-blur-md p-2 rounded-full border border-border/30 shadow-sm">
           <ThemeToggle />
         </div>
