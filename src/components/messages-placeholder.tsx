@@ -3,24 +3,67 @@
 import { InterviewStartModal } from "@/components/interview-start-modal";
 import { Button } from "@/components/ui/button";
 import { useInterview } from "@/hooks/useInterview";
-import { useActiveInterviewEnded } from "@/stores/useActiveInterviewStore";
+import { getRepository } from "@/lib/data/repositoryFactory";
+import { idHandler } from "@/lib/utils/idHandler";
+import {
+  useActiveInterviewActions,
+  useActiveInterviewEnded,
+} from "@/stores/useActiveInterviewStore";
 import { useVoice } from "@humeai/voice-react";
+import * as Sentry from "@sentry/nextjs";
+import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { MessageCircle, Mic, Sparkles, Target } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import type { NewChat } from "~/db/schema";
 
-export default function InterviewPlaceholder({
-  setInterviewStarted,
-}: {
-  setInterviewStarted: (value: boolean) => void;
-}) {
+export default function InterviewPlaceholder() {
   const [showModal, setShowModal] = useState(false);
   const params = useParams();
   const interviewId = params.interviewId as string;
-  const { connect, status } = useVoice();
+  const { connect, status, chatMetadata } = useVoice();
   const interviewEnded = useActiveInterviewEnded();
   const { data: interview, isLoading, error } = useInterview(interviewId);
+  const { setInterviewStarted, setActiveInterviewChat } = useActiveInterviewActions();
+
+  const { mutateAsync: createChat } = useMutation({
+    mutationFn: async (metadata: NewChat) => {
+      const chatRepo = await getRepository<Omit<NewChat, "interviewId"> & { interviewId: string }>(
+        "chats"
+      );
+      return await chatRepo.create({
+        ...metadata,
+        interviewId: params.interviewId as string,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        customSessionId: metadata.customSessionId || null,
+        requestId: metadata.requestId || null,
+      });
+    },
+    onSuccess: (chat) => {
+      setInterviewStarted(true);
+      setActiveInterviewChat({
+        ...chat.data,
+        id: chat.data.id || 0,
+        actualTime: chat.data.actualTime || null,
+        transcript: chat.data.transcript || null,
+        interviewId: idHandler.decode(params.interviewId as string),
+        createdAt: chat.data.createdAt || new Date(),
+        updatedAt: chat.data.updatedAt || new Date(),
+        customSessionId: chat.data.customSessionId || null,
+        requestId: chat.data.requestId || null,
+      });
+    },
+    onError: (error) => {
+      toast.error("Error creating chat. Please try again.");
+      Sentry.withScope((scope) => {
+        scope.setContext("params", params);
+        Sentry.captureException(error);
+      });
+    },
+  });
 
   const features = [
     {
@@ -43,13 +86,29 @@ export default function InterviewPlaceholder({
     },
   ];
 
+  useEffect(() => {
+    console.log("chatMetadata", chatMetadata);
+    if (chatMetadata?.chatGroupId && chatMetadata.chatId) {
+      createChat({
+        interviewId: idHandler.decode(params.interviewId as string),
+        chatGroupId: chatMetadata?.chatGroupId || "",
+        customSessionId: chatMetadata?.customSessionId || "",
+        requestId: chatMetadata?.requestId || "",
+        humeChatId: chatMetadata?.chatId || "",
+      });
+    }
+  }, [chatMetadata, createChat, params.interviewId]);
+
   const handleStartInterview = async () => {
     if (status.value !== "connected") {
       try {
         await connect();
-        setInterviewStarted(true);
       } catch (error) {
-        console.error("Failed to connect:", error);
+        Sentry.withScope((scope) => {
+          scope.setContext("params", params);
+          Sentry.captureException(error);
+        });
+        toast.error("Error connecting to voice. Please try again.");
       }
     }
   };

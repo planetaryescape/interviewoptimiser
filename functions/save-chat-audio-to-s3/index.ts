@@ -6,7 +6,7 @@ import type { SQSEvent, SQSRecord } from "aws-lambda";
 import { eq } from "drizzle-orm";
 import { config } from "~/config";
 import { db } from "~/db";
-import { chatMetadata, reports } from "~/db/schema";
+import { reports } from "~/db/schema";
 import { sendDiscordDM } from "~/lib/discord";
 import { logger } from "~/lib/logger";
 import { initSentry } from "../lib/sentry";
@@ -35,30 +35,17 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
       let reportId = 0;
       try {
         const {
-          data: { reportId: id },
+          data: { reportId: id, chatId },
           userId,
         } = JSON.parse(record.body);
         reportId = id;
 
         const user = await getUserFromId(userId);
-        logger.info({ reportId }, "Processing chat audio save request");
-
-        // Get chat metadata for the interview
-        const metadata = await db.query.chatMetadata.findFirst({
-          where: eq(chatMetadata.reportId, reportId),
-        });
-
-        if (!metadata || !metadata.chatId) {
-          logger.error({ reportId }, "No chat metadata found for this report");
-          throw new Error("No chat metadata found for this report");
-        }
+        logger.info({ reportId, chatId }, "Processing chat audio save request");
 
         // Poll for audio reconstruction status until complete
-        logger.info(
-          { reportId, chatId: metadata.chatId },
-          "Polling for audio reconstruction status"
-        );
-        const reconstructionResponse = await pollAudioReconstructionStatus(metadata.chatId);
+        logger.info({ reportId, chatId }, "Polling for audio reconstruction status");
+        const reconstructionResponse = await pollAudioReconstructionStatus(chatId);
 
         if (!reconstructionResponse.signed_audio_url) {
           logger.error({ reportId }, "No signed audio URL in reconstruction response");
@@ -70,16 +57,16 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         const audioData = await downloadAudioFile(reconstructionResponse.signed_audio_url);
 
         // Upload the audio file to S3
-        logger.info({ reportId, chatId: metadata.chatId }, "Uploading audio to S3");
+        logger.info({ reportId, chatId }, "Uploading audio to S3");
         const cloudFrontUrl = await uploadAudioToS3(
           audioData,
-          reportId,
-          metadata.chatId,
+          chatId,
           reconstructionResponse.filename
         );
 
         // Update the interview with the audio URL
         logger.info({ reportId, cloudFrontUrl }, "Updating interview with audio URL");
+
         await db
           .update(reports)
           .set({

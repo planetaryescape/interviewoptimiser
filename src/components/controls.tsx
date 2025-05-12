@@ -2,9 +2,13 @@
 
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
-import { formatMessage } from "@/lib/utils/messageUtils";
+import { idHandler } from "@/lib/utils/idHandler";
+import { INTERVIEW_START_MESSAGE, formatMessage } from "@/lib/utils/messageUtils";
 import { unformatTime } from "@/lib/utils/unformatTime";
-import { useActiveInterviewActions } from "@/stores/useActiveInterviewStore";
+import {
+  useActiveInterviewActions,
+  useActiveInterviewChat,
+} from "@/stores/useActiveInterviewStore";
 import { useVoice } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -13,7 +17,7 @@ import { Mic, MicOff } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
-import type { Interview, NewInterview } from "~/db/schema";
+import type { NewChat } from "~/db/schema";
 import { MotionDiv } from "./common/motion";
 import { MicFFT } from "./mic-fft";
 import { Button } from "./ui/button";
@@ -35,11 +39,12 @@ export function Controls() {
   const params = useParams();
   const queryClient = useQueryClient();
   const { setInterviewEnded } = useActiveInterviewActions();
+  const activeInterviewChat = useActiveInterviewChat();
 
-  const { mutate: updateInterview } = useMutation({
-    mutationFn: async (interview: Partial<NewInterview>) => {
-      const interviewRepo = await getRepository<Interview>("interviews");
-      return await interviewRepo.update(params.interviewId as string, interview);
+  const { mutate: endChat } = useMutation({
+    mutationFn: async (chat: Partial<NewChat>) => {
+      const chatRepo = await getRepository<NewChat>("chats");
+      return await chatRepo.update(idHandler.encode(activeInterviewChat?.id ?? 0), chat);
     },
     onSuccess: () => {
       sendAssistantInput("hang_up");
@@ -56,7 +61,7 @@ export function Controls() {
         scope.setContext("params", params);
         Sentry.captureException(error);
       });
-      toast.error("Error updating interview. Please try again.");
+      toast.error("Error ending interview. Just be patient, we will try again.");
       setInterviewEnded(true);
     },
   });
@@ -66,7 +71,7 @@ export function Controls() {
   useEffect(() => {
     if (status.value === "connected" && !initialUserMessageSentRef.current) {
       initialUserMessageSentRef.current = true;
-      sendUserInput("I'm ready to start the interview");
+      sendUserInput(INTERVIEW_START_MESSAGE);
     }
     return () => {
       initialUserMessageSentRef.current = false;
@@ -120,7 +125,8 @@ export function Controls() {
             <Button
               className={"flex items-center gap-1"}
               onClick={async () => {
-                await updateInterview({
+                await endChat({
+                  ...activeInterviewChat,
                   actualTime: Math.floor(unformatTime(callDurationTimestamp) / 60),
                   transcript: JSON.stringify(
                     messages

@@ -49,7 +49,7 @@ export async function PUT(request: NextRequest) {
       });
     }
 
-    logger.info({ updatedUser }, "Successfully decremented user minutes");
+    logger.info({ userId, minutes: updatedUser.minutes }, "Successfully decremented user minutes");
     return NextResponse.json(formatEntity(updatedUser, "user"));
   } catch (error) {
     Sentry.withScope((scope) => {

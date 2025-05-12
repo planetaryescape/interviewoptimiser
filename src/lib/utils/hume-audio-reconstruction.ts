@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
 import { logger } from "~/lib/logger";
 
-export interface ChatMetadataWithInterview {
+export interface ChatWithInterview {
   id: number;
   interviewId: number;
   chatId: string;

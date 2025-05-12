@@ -1,6 +1,6 @@
 export type EntityType =
   | "empty"
-  | "chatMetadata"
+  | "chat"
   | "candidateDetails"
   | "question-analysis"
   | "jobDescription"

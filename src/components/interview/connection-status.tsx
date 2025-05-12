@@ -1,10 +1,11 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useActiveInterviewIsConnected } from "@/stores/useActiveInterviewStore";
+import { useVoice } from "@humeai/voice-react";
 
 export function ConnectionStatus() {
-  const isConnected = useActiveInterviewIsConnected();
+  const { status } = useVoice();
+  const isConnected = status.value === "connected";
 
   return (
     <div

@@ -1,8 +1,8 @@
 import { relations } from "drizzle-orm";
 import { index, pgEnum, pgTable } from "drizzle-orm/pg-core";
 import { candidateDetails } from "./candidateDetails";
+import { chats } from "./chats";
 import { jobDescriptions } from "./jobDescriptions";
-import { reports } from "./reports";
 import { users } from "./users";
 
 export const interviewTypeEnum = pgEnum("interview_type", [
@@ -23,7 +23,6 @@ export const interviews = pgTable(
     submittedCVText: p.text().notNull(),
     jobDescriptionText: p.text().notNull(),
     additionalInfo: p.text(),
-    transcript: p.text(),
     duration: p.integer().notNull().default(15),
     actualTime: p.integer(),
     type: interviewTypeEnum().notNull().default("behavioral"),
@@ -44,7 +43,7 @@ export const interviewRelations = relations(interviews, ({ one, many }) => ({
     fields: [interviews.userId],
     references: [users.id],
   }),
-  report: many(reports),
+  chats: many(chats),
   candidateDetails: one(candidateDetails, {
     fields: [interviews.id],
     references: [candidateDetails.interviewId],

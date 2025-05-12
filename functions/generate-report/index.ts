@@ -8,6 +8,7 @@ import { config } from "~/config";
 import { db } from "~/db";
 import {
   candidateDetails,
+  chats,
   interviews,
   jobDescriptions,
   questionAnalysis,
@@ -45,7 +46,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
       let interviewId = 0;
       try {
         const {
-          data: { interviewId: id, reportId },
+          data: { interviewId: id, reportId, chatId },
           userId,
           restart: isRestart,
         } = JSON.parse(record.body);
@@ -65,17 +66,17 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           throw new Error("Interview not found");
         }
 
-        const report = await db
+        const chat = await db
           .select({
-            transcript: reports.transcript,
+            transcript: chats.transcript,
           })
-          .from(reports)
-          .where(eq(reports.id, reportId))
-          .then(([report]) => report);
+          .from(chats)
+          .where(eq(chats.id, chatId))
+          .then(([chat]) => chat);
 
-        if (!report) {
-          logger.error({ reportId }, "Report not found");
-          throw new Error("Report not found");
+        if (!chat) {
+          logger.error({ chatId }, "Chat not found");
+          throw new Error("Chat not found");
         }
 
         // Get the language model
@@ -120,7 +121,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         const generatedReport = await analyseInterview({
           model,
           interview,
-          transcriptString: report.transcript ?? "",
+          transcriptString: chat.transcript ?? "",
           userEmail: user?.email,
           structuredCV: structuredCV?.data,
           structuredJobDescription: structuredJobDescription?.data,
@@ -182,8 +183,9 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
 
           // Update the report with generated analysis
           const updatedReport = await tx
-            .update(reports)
-            .set({
+            .insert(reports)
+            .values({
+              chatId,
               generalAssessment: generatedReport.data.generalAssessment,
               overallScore: generatedReport.data.overallScore,
               speakingSkills: generatedReport.data.speakingSkills,
@@ -203,7 +205,6 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
               actionableNextSteps: JSON.stringify(generatedReport.data.actionableNextSteps),
               isCompleted: true,
             })
-            .where(eq(reports.id, reportId))
             .returning({ id: reports.id });
 
           updatedReportId = updatedReport[0].id;

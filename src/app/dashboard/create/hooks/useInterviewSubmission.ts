@@ -62,7 +62,7 @@ export function useInterviewSubmission({
       setTimeout(() => {
         resetStore();
         router.push(`/dashboard/interviews/${idHandler.encode(data.sys.id ?? 0)}`);
-        setShowTakeover(false);
+        // setShowTakeover(false);
       }, 9000);
     },
     onError: (error) => {

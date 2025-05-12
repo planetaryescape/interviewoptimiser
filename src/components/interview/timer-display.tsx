@@ -4,18 +4,17 @@ import { cn } from "@/lib/utils";
 import { formatTime } from "@/lib/utils/formatTime";
 import {
   useActiveInterviewCallDuration,
-  useActiveInterviewIsConnected,
-  useActiveInterviewRemainingTime,
   useActiveInterviewTotalTime,
 } from "@/stores/useActiveInterviewStore";
-import { useEffect, useRef } from "react";
+import { useVoice } from "@humeai/voice-react";
+import { useEffect, useRef, useState } from "react";
 
 export function TimerDisplay() {
   const timerCanvasRef = useRef<HTMLCanvasElement>(null);
   const callDurationTimestamp = useActiveInterviewCallDuration();
   const totalTime = useActiveInterviewTotalTime();
-  const remainingTime = useActiveInterviewRemainingTime();
-  const isConnected = useActiveInterviewIsConnected();
+  const { status } = useVoice();
+  const [remainingTime] = useState(0);
 
   useEffect(() => {
     // Skip canvas rendering in test environment
@@ -78,7 +77,7 @@ export function TimerDisplay() {
         height={100}
         className={cn(
           "transition-opacity duration-300",
-          isConnected ? "opacity-100" : "opacity-50"
+          status.value === "connected" ? "opacity-100" : "opacity-50"
         )}
       />
       <div className="absolute inset-0 flex items-center justify-center">
