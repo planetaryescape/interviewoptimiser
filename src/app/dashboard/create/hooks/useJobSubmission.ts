@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { usePostHog } from "posthog-js/react";
 import { toast } from "sonner";
 import { config } from "~/config";
-import type { NewInterview } from "~/db/schema";
+import type { NewJob } from "~/db/schema";
 
 interface UseJobSubmissionProps {
   userId?: number;
@@ -36,32 +36,32 @@ export function useJobSubmission({
   const { setShowTakeover, setIsScheduleErrorDialogOpen, resetStore } = useCreateJobActions();
 
   const createJobMutation = useMutation({
-    mutationFn: async (interview: NewInterview) => {
-      const interviewRepository = await getRepository<NewInterview>("interviews", true);
-      const createdInterview = await interviewRepository.create(interview);
+    mutationFn: async (job: NewJob) => {
+      const jobsRepository = await getRepository<NewJob>("jobs", true);
+      const createdJob = await jobsRepository.create(job);
 
       // Extract structured data
-      await fetch("/api/interviews/extract", {
+      await fetch("/api/jobs/extract", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          cvText: interview.submittedCVText,
-          jobDescriptionText: interview.jobDescriptionText,
-          interviewId: createdInterview.sys.id,
-          interviewType: interview.type,
+          cvText: job.submittedCVText,
+          jobDescriptionText: job.jobDescriptionText,
+          jobId: createdJob.sys.id,
+          interviewType: job.type,
         }),
       });
 
-      return createdInterview;
+      return createdJob;
     },
     onSuccess: (data) => {
       toast.success("Job created successfully");
       setShowTakeover(true);
       setTimeout(() => {
         resetStore();
-        router.push(`/dashboard/interviews/${idHandler.encode(data.sys.id ?? 0)}`);
+        router.push(`/dashboard/jobs/${idHandler.encode(data.sys.id ?? 0)}`);
         // setShowTakeover(false);
       }, 9000);
     },
@@ -93,7 +93,7 @@ export function useJobSubmission({
         return;
       }
 
-      const interview: NewInterview = {
+      const job: NewJob = {
         submittedCVText: sanitiseUserInputText(cvText, {
           truncate: true,
           maxLength: config.maxTextLengths.cv,
@@ -115,7 +115,7 @@ export function useJobSubmission({
         userId,
       });
 
-      await createJobMutation.mutateAsync(interview);
+      await createJobMutation.mutateAsync(job);
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "submitJob");

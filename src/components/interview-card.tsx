@@ -28,24 +28,24 @@ import { useState } from "react";
 import type { InferResultType } from "~/db/helpers";
 import { Skeleton } from "./ui/skeleton";
 
-type InterviewWithCandidateDetailsAndJobDescription = InferResultType<
-  "interviews",
+type JobWithCandidateDetailsAndJobDescription = InferResultType<
+  "jobs",
   {
     candidateDetails: true;
     jobDescription: true;
-    report: true;
+    chats: true;
   }
 >;
 
-interface InterviewCardProps {
-  interview: InterviewWithCandidateDetailsAndJobDescription;
+interface JobCardProps {
+  job: JobWithCandidateDetailsAndJobDescription;
   onDelete?: (id: number) => void;
   deletingId: number | null;
 }
 
-export const InterviewCard = ({ interview, onDelete, deletingId }: InterviewCardProps) => {
+export const JobCard = ({ job, onDelete, deletingId }: JobCardProps) => {
   const [open, setOpen] = useState(false);
-  const hasReport = Boolean(interview.report);
+  const hasChats = Boolean(job.chats.length);
 
   return (
     <Card
@@ -56,7 +56,7 @@ export const InterviewCard = ({ interview, onDelete, deletingId }: InterviewCard
       )}
     >
       <CardHeader className="pb-2">
-        {!hasReport ? (
+        {!hasChats ? (
           <CardTitle className="text-lg font-semibold">
             <Skeleton className="w-full h-6" />
             <div className="text-sm text-muted-foreground">
@@ -65,19 +65,17 @@ export const InterviewCard = ({ interview, onDelete, deletingId }: InterviewCard
           </CardTitle>
         ) : (
           <CardTitle className="space-y-1 text-xl font-semibold tracking-tight">
-            {interview.jobDescription?.role || interview.role || "Role Not Specified"}
+            {job.jobDescription?.role || job.role || "Role Not Specified"}
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Building2 className="h-4 w-4" />
-              <span>
-                {interview.jobDescription?.company || interview.company || "Company Not Specified"}
-              </span>
+              <span>{job.jobDescription?.company || job.company || "Company Not Specified"}</span>
             </div>
           </CardTitle>
         )}
       </CardHeader>
 
       <CardContent className="flex-1">
-        {!hasReport ? (
+        {!hasChats ? (
           <CardDescription className="space-y-3 flex flex-col">
             <Skeleton className="w-1/2 h-4" />
             <Skeleton className="w-1/2 h-4" />
@@ -87,27 +85,25 @@ export const InterviewCard = ({ interview, onDelete, deletingId }: InterviewCard
             <div className="flex items-center gap-2 text-sm">
               <User2 className="h-4 w-4 text-muted-foreground" />
               <span>
-                {interview.candidateDetails?.name ||
-                  interview.candidate ||
-                  "Candidate Name Not Available"}
+                {job.candidateDetails?.name || job.candidate || "Candidate Name Not Available"}
               </span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span>{new Date(interview.createdAt).toLocaleDateString()}</span>
+              <span>{new Date(job.createdAt).toLocaleDateString()}</span>
             </div>
           </CardDescription>
         )}
       </CardContent>
 
       <div className="p-4 border-t border-gray-200 dark:border-gray-800 flex justify-between items-center bg-muted/50">
-        <Button disabled={!hasReport} asChild size="sm" variant="secondary" className="w-full">
+        <Button disabled={!hasChats} asChild size="sm" variant="secondary" className="w-full">
           <Link
-            href={`/dashboard/interviews/${idHandler.encode(interview.id ?? 0)}/reports`}
+            href={`/dashboard/jobs/${idHandler.encode(job.id ?? 0)}/reports`}
             className="flex items-center justify-center gap-2"
           >
-            {!hasReport && <Loader2 className="h-4 w-4 animate-spin" />}
-            {hasReport ? "View Reports" : "Generating Report"}
+            {!hasChats && <Loader2 className="h-4 w-4 animate-spin" />}
+            {hasChats ? "View Reports" : "Generating Report"}
           </Link>
         </Button>
 
@@ -132,8 +128,8 @@ export const InterviewCard = ({ interview, onDelete, deletingId }: InterviewCard
                   <AlertDialogHeader>
                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete the interview and
-                      all associated data.
+                      This action cannot be undone. This will permanently delete the job and all
+                      associated data.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -141,11 +137,11 @@ export const InterviewCard = ({ interview, onDelete, deletingId }: InterviewCard
                     <AlertDialogAction
                       onClick={() => {
                         setOpen(false);
-                        onDelete?.(interview.id);
+                        onDelete?.(job.id);
                       }}
-                      disabled={deletingId === interview.id}
+                      disabled={deletingId === job.id}
                     >
-                      {deletingId === interview.id ? (
+                      {deletingId === job.id ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Deleting...

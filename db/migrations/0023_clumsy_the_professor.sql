@@ -1,1 +1,0 @@
-ALTER TABLE "job_descriptions" ADD COLUMN "key_questions" text[];

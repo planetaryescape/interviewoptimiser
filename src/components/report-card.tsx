@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import type { Entity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
@@ -25,14 +24,14 @@ import type { Report } from "~/db/schema";
 import { Skeleton } from "./ui/skeleton";
 
 interface ReportCardProps {
-  report: Entity<Report>;
-  interviewId: string;
+  report: Report;
+  jobId: string;
 }
 
-export function ReportCard({ report, interviewId }: ReportCardProps) {
+export function ReportCard({ report, jobId }: ReportCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
-  if (!report.data.isCompleted) {
+  if (!report?.isCompleted) {
     return (
       <Card className="relative overflow-hidden border-gray-200 dark:border-gray-800 transition-all duration-200 hover:shadow-md dark:hover:shadow-gray-900/30">
         <CardContent className="p-0">
@@ -93,12 +92,12 @@ export function ReportCard({ report, interviewId }: ReportCardProps) {
     return { variant: "destructive" as const, label: "Needs Improvement", color: "red" };
   };
 
-  const scoreInfo = getScoreVariant(report.data.overallScore);
+  const scoreInfo = getScoreVariant(report.overallScore);
 
   // Extract strengths from the report
   const getStrengths = () => {
     try {
-      const strengths = JSON.parse(report.data.areasOfStrength || "[]");
+      const strengths = JSON.parse(report.areasOfStrength || "[]");
       return strengths.length > 0 ? strengths[0] : "No strengths identified";
     } catch (e) {
       return "No strengths identified";
@@ -107,7 +106,7 @@ export function ReportCard({ report, interviewId }: ReportCardProps) {
 
   const topStrength = getStrengths();
 
-  const formattedDate = format(new Date(report.data.createdAt), "MMM d, yyyy");
+  const formattedDate = format(new Date(report.createdAt), "MMM d, yyyy");
 
   return (
     <motion.div
@@ -189,15 +188,15 @@ export function ReportCard({ report, interviewId }: ReportCardProps) {
                             : "rgb(239 68 68)"
                       }
                       strokeWidth="8"
-                      strokeDasharray={`${2 * Math.PI * 40 * (report.data.overallScore / 100)} ${
-                        2 * Math.PI * 40 * (1 - report.data.overallScore / 100)
+                      strokeDasharray={`${2 * Math.PI * 40 * (report.overallScore / 100)} ${
+                        2 * Math.PI * 40 * (1 - report.overallScore / 100)
                       }`}
                       strokeDashoffset={2 * Math.PI * 10}
                       transform="rotate(-90, 48, 48)"
                     />
                   </svg>
                   {/* Score percentage in center */}
-                  <div className="absolute font-bold text-xl">{report.data.overallScore}%</div>
+                  <div className="absolute font-bold text-xl">{report.overallScore}%</div>
                 </div>
                 <span className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mt-2 text-center">
                   Overall Score
@@ -211,26 +210,26 @@ export function ReportCard({ report, interviewId }: ReportCardProps) {
                     {
                       icon: Brain,
                       label: "Technical Knowledge",
-                      score: report.data.technicalKnowledgeScore,
-                      tooltip: report.data.technicalKnowledge,
+                      score: report.technicalKnowledgeScore,
+                      tooltip: report.technicalKnowledge,
                     },
                     {
                       icon: MessageSquare,
                       label: "Communication",
-                      score: report.data.communicationSkillsScore,
-                      tooltip: report.data.communicationSkills,
+                      score: report.communicationSkillsScore,
+                      tooltip: report.communicationSkills,
                     },
                     {
                       icon: Target,
                       label: "Problem Solving",
-                      score: report.data.problemSolvingSkillsScore,
-                      tooltip: report.data.problemSolvingSkills,
+                      score: report.problemSolvingSkillsScore,
+                      tooltip: report.problemSolvingSkills,
                     },
                     {
                       icon: Users,
                       label: "Teamwork",
-                      score: report.data.teamworkScore,
-                      tooltip: report.data.teamwork,
+                      score: report.teamworkScore,
+                      tooltip: report.teamwork,
                     },
                   ].map((skill) => {
                     const skillScoreInfo = getScoreVariant(skill.score);
@@ -316,9 +315,7 @@ export function ReportCard({ report, interviewId }: ReportCardProps) {
               className="w-full relative transition-all duration-300"
             >
               <Link
-                href={`/dashboard/interviews/${interviewId}/reports/${idHandler.encode(
-                  report.sys.id ?? 0
-                )}`}
+                href={`/dashboard/jobs/${jobId}/reports/${idHandler.encode(report.id)}`}
                 className="flex items-center justify-center gap-2"
               >
                 <FileText className="w-4 h-4" />

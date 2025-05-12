@@ -84,7 +84,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
             "User ID": userId,
             "User Email": user?.email ?? "Unknown",
             "Report ID": reportId,
-            "Report URL": `${config.baseUrl}/dashboard/interviews/${idHandler.encode(reportId)}`,
+            "Report URL": `${config.baseUrl}/dashboard/reports/${idHandler.encode(reportId)}`,
             "Audio URL": cloudFrontUrl,
           },
         });

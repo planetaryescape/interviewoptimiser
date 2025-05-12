@@ -56,9 +56,21 @@ import { use, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { config } from "~/config";
-import type { Interview, PageSettings, Report } from "~/db/schema";
+import type { InferResultType } from "~/db/helpers";
 
-export default function PublicInterviewReportPage(props: {
+type ReportWithChatAndPageSettings = InferResultType<
+  "reports",
+  {
+    chat: {
+      with: {
+        job: true;
+      };
+    };
+    pageSettings: true;
+  }
+>;
+
+export default function PublicJobReportPage(props: {
   params: Promise<{ id: string }>;
 }) {
   const params = use(props.params);
@@ -70,17 +82,12 @@ export default function PublicInterviewReportPage(props: {
   } = useQuery({
     queryKey: ["public-report", params.id],
     queryFn: async () => {
-      const reportRepo = await getRepository<
-        Report & {
-          pageSettings: PageSettings;
-          interview: Pick<Interview, "candidate" | "role" | "company" | "transcript">;
-        }
-      >("public/reports");
+      const reportRepo = await getRepository<ReportWithChatAndPageSettings>("public/reports");
       return await reportRepo.getById(params.id);
     },
   });
 
-  const [includeTranscript, setIncludeTranscript] = useState(true);
+  const [includeTranscript] = useState(true);
 
   const [containerRef, { width: containerWidth }] = useMeasure<HTMLDivElement>();
 
@@ -184,7 +191,7 @@ export default function PublicInterviewReportPage(props: {
               Interview Optimiser Report
             </h1>
             <p className="text-xl text-gray-600">
-              {report?.data.interview.candidate} - {report?.data.interview.role}
+              {report?.data.chat.job.candidate} - {report?.data.chat.job.role}
             </p>
           </header>
 
@@ -203,21 +210,21 @@ export default function PublicInterviewReportPage(props: {
                 <User className="w-5 h-5 mr-3 text-blue-600" />
                 <div>
                   <p className="text-sm">Name</p>
-                  <p className="font-medium">{report?.data.interview.candidate}</p>
+                  <p className="font-medium">{report?.data.chat.job.candidate}</p>
                 </div>
               </div>
               <div className="flex items-center">
                 <Briefcase className="w-5 h-5 mr-3 text-blue-600" />
                 <div>
                   <p className="text-sm">Company</p>
-                  <p className="font-medium">{report?.data.interview.company}</p>
+                  <p className="font-medium">{report?.data.chat.job.company}</p>
                 </div>
               </div>
               <div className="flex items-center">
                 <UserCircle className="w-5 h-5 mr-3 text-blue-600" />
                 <div>
                   <p className="text-sm">Role</p>
-                  <p className="font-medium">{report?.data.interview.role}</p>
+                  <p className="font-medium">{report?.data.chat.job.role}</p>
                 </div>
               </div>
             </div>
@@ -437,7 +444,7 @@ export default function PublicInterviewReportPage(props: {
                 Interview Transcript
               </h2>
               <div className="bg-gray-50 p-6 rounded-xl shadow-inner">
-                {JSON.parse(report?.data.interview.transcript ?? "[]").map(
+                {JSON.parse(report?.data.chat.transcript ?? "[]").map(
                   (
                     message: {
                       role: string;

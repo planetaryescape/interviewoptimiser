@@ -17,10 +17,10 @@ const API_KEY = process.env.INTERVIEWOPTIMISER_API_KEY;
 export async function POST(req: NextRequest) {
   try {
     logger.info("Received request at /api/report");
-    const { interviewId: interviewIdString, chatId: chatIdString } = await req.json();
-    const interviewId = idHandler.decode(interviewIdString);
+    const { jobId: jobIdString, chatId: chatIdString } = await req.json();
+    const jobId = idHandler.decode(jobIdString);
     const chatId = idHandler.decode(chatIdString);
-    logger.info({ interviewId, chatId }, "Interview ID and chat ID for report generation");
+    logger.info({ jobId, chatId }, "Job ID and chat ID for report generation");
 
     const { userId: clerkUserId } = getAuth(req);
     if (!clerkUserId) {
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       if (!chat) {
         logger.error("Chat not found");
         Sentry.withScope((scope) => {
-          scope.setExtra("interviewId", interviewId);
+          scope.setExtra("jobId", jobId);
           Sentry.captureException(new Error("Chat not found"));
         });
         return NextResponse.json({ error: "Chat not found" }, { status: 404 });
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         data: {
-          interviewId,
+          jobId,
           reportId,
           chatId,
         },
@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         data: {
-          interviewId,
+          jobId,
           reportId,
           chatId,
         },
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Execute both requests in parallel
-    logger.info({ interviewId, reportId }, "Sending parallel requests to API Gateway");
+    logger.info({ jobId, reportId }, "Sending parallel requests to API Gateway");
     const [reportResponse, audioResponse] = await Promise.all([reportRequest, audioRequest]);
 
     // Parse the JSON responses in parallel

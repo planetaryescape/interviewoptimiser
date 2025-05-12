@@ -1,1 +1,0 @@
-ALTER TABLE "reports" ADD COLUMN "is_completed" boolean DEFAULT false NOT NULL;

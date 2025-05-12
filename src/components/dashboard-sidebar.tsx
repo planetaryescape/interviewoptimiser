@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@/hooks/useUser";
 import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
-import { BarChart3, Cog, FileText, Home, MessageSquare, ScrollText, Star } from "lucide-react";
+import { BarChart3, Cog, Home, MessageSquare, ScrollText, Star } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -47,22 +47,18 @@ export function DashboardSidebar() {
           <div className="flex flex-col space-y-1 mb-6">
             <div className="flex items-center text-foreground mb-2 px-3">
               <Home className="h-4 w-4 mr-2 text-primary" />
-              <span className="font-semibold text-foreground">Interviews</span>
+              <span className="font-semibold text-foreground">Jobs</span>
             </div>
             <NavItem href="/dashboard" icon={Home}>
-              Interviews
+              Jobs
             </NavItem>
-            <NavItem href="/dashboard/jobs" icon={FileText}>
-              Job Descriptions
-            </NavItem>
-
             {isAdmin && (
               <>
                 <div className="mt-6 mb-2 px-3">
                   <p className="text-xs font-medium text-muted-foreground">Admin</p>
                 </div>
                 <NavItem href="/dashboard/admin" icon={BarChart3}>
-                  Interviews
+                  Jobs
                 </NavItem>
                 <NavItem href="/dashboard/admin/changelog" icon={ScrollText}>
                   Changelogs

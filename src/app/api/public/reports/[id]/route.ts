@@ -20,12 +20,9 @@ export async function GET(
       where: eq(reports.id, reportId),
       with: {
         pageSettings: true,
-        interview: {
-          columns: {
-            candidate: true,
-            role: true,
-            company: true,
-            transcript: true,
+        chat: {
+          with: {
+            job: true,
           },
         },
       },

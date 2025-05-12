@@ -1,21 +1,8 @@
 import * as Sentry from "@sentry/nextjs";
+import type { InferResultType } from "~/db/helpers";
 import { logger } from "~/lib/logger";
 
-export interface ChatWithInterview {
-  id: number;
-  interviewId: number;
-  chatId: string;
-  chatGroupId: string;
-  customSessionId?: string | null;
-  requestId?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  interview?: {
-    id: number;
-    userId: number;
-    createdAt: Date;
-  };
-}
+export type ChatWithJob = InferResultType<"chats", { job: true }>;
 
 export interface AudioReconstructionResponse {
   id: string;

@@ -1,16 +1,19 @@
 import { relations } from "drizzle-orm";
-import { type PgTableWithColumns, index, pgTable } from "drizzle-orm/pg-core";
+import { index, pgTable } from "drizzle-orm/pg-core";
 import { chats } from "./chats";
 import { pageSettings } from "./pageSettings";
 import { questionAnalysis } from "./questionAnalysis";
 
-export const reports: PgTableWithColumns<any> = pgTable(
+export const reports = pgTable(
   "reports",
   (p) => ({
     id: p.serial().primaryKey(),
     chatId: p
       .integer()
-      .references(() => chats.id)
+      .references(() => chats.id, {
+        onUpdate: "cascade",
+        onDelete: "cascade",
+      })
       .notNull(),
     generalAssessment: p.text().notNull(),
     overallScore: p.integer().notNull(),

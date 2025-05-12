@@ -39,11 +39,16 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
     // First, verify that the report exists and belongs to the user
     const report = await db.query.reports.findFirst({
       where: eq(reports.id, reportId),
-      columns: {
-        id: true,
-      },
       with: {
-        interview: true,
+        chat: {
+          with: {
+            job: {
+              columns: {
+                userId: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -54,8 +59,8 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
       });
     }
 
-    // Verify that the report's interview belongs to the requesting user
-    if (report.interview.userId !== userId && role !== "admin") {
+    // Verify that the report's job belongs to the requesting user
+    if (report.chat.job.userId !== userId && role !== "admin") {
       logger.warn({ reportId, userId }, "Unauthorized access attempt to report question analyses");
       return NextResponse.json(formatErrorEntity("Unauthorized"), {
         status: 403,

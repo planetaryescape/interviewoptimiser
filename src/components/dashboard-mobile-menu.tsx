@@ -94,7 +94,6 @@ export function DashboardMobileMenu({ onFeedbackClick }: DashboardMobileMenuProp
           <div className="flex-1 p-6 overflow-y-auto">
             <nav className="flex flex-col space-y-3">
               <NavLink href="/dashboard">Dashboard</NavLink>
-              <NavLink href="/dashboard/jobs">Job Descriptions</NavLink>
               <NavLink href="/dashboard/settings">Settings</NavLink>
 
               {user?.role === "admin" && (

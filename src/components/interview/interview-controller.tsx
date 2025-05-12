@@ -50,7 +50,6 @@ export function InterviewController() {
     sendAssistantInput,
     messages,
     sendSessionSettings,
-    chatMetadata,
   } = useVoice();
 
   // Update store with voice state
@@ -75,17 +74,15 @@ export function InterviewController() {
 
   // End of interview mutation
   const { mutate: endChat } = useMutation({
-    mutationFn: async (chat: Partial<Omit<NewChat, "interviewId"> & { interviewId: string }>) => {
-      const chatRepo = await getRepository<Omit<NewChat, "interviewId"> & { interviewId: string }>(
-        "chats"
-      );
+    mutationFn: async (chat: Partial<Omit<NewChat, "jobId"> & { jobId: string }>) => {
+      const chatRepo = await getRepository<Omit<NewChat, "jobId"> & { jobId: string }>("chats");
       return await chatRepo.update(idHandler.encode(activeInterviewChat?.id ?? 0), chat);
     },
     onSuccess: () => {
       sendAssistantInput("hang_up");
       disconnect();
       queryClient.invalidateQueries({
-        queryKey: ["interview", params.interviewId],
+        queryKey: ["job", params.jobId],
       });
       if (!interviewEnded) {
         setInterviewEnded(true);
@@ -108,7 +105,7 @@ export function InterviewController() {
   // Audio reconstruction mutation
   const { mutate: requestAudioReconstruction } = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`/api/interviews/${params.interviewId}/audio-reconstruction`, {
+      const response = await fetch(`/api/jobs/${params.jobId}/audio-reconstruction`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -123,7 +120,7 @@ export function InterviewController() {
     },
     onSuccess: (data) => {
       logger.info(
-        { interviewId: params.interviewId, reconstructionId: data.data.reconstruction.id },
+        { jobId: params.jobId, reconstructionId: data.data.reconstruction.id },
         "Audio reconstruction initiated"
       );
     },
@@ -146,10 +143,8 @@ export function InterviewController() {
 
   // Partial transcript mutation
   const partialChatMutation = useMutation({
-    mutationFn: async (chat: Partial<Omit<NewChat, "interviewId"> & { interviewId: string }>) => {
-      const chatRepo = await getRepository<Omit<NewChat, "interviewId"> & { interviewId: string }>(
-        "chats"
-      );
+    mutationFn: async (chat: Partial<Omit<NewChat, "jobId"> & { jobId: string }>) => {
+      const chatRepo = await getRepository<Omit<NewChat, "jobId"> & { jobId: string }>("chats");
       return await chatRepo.update(idHandler.encode(activeInterviewChat?.id ?? 0), chat);
     },
     onSuccess: (chat) => {
@@ -161,7 +156,7 @@ export function InterviewController() {
           requestId: chat.data.requestId || null,
           actualTime: chat.data.actualTime || null,
           transcript: chat.data.transcript || null,
-          interviewId: idHandler.decode(params.interviewId as string),
+          jobId: idHandler.decode(params.jobId as string),
           createdAt: chat.data.createdAt || new Date(),
           updatedAt: chat.data.updatedAt || new Date(),
         });
@@ -233,7 +228,7 @@ export function InterviewController() {
       endingInterviewRef.current = true;
       endChat({
         ...activeInterviewChat,
-        interviewId: params.interviewId as string,
+        jobId: params.jobId as string,
         actualTime: Math.floor(elapsedTime / 60),
         transcript: JSON.stringify(
           messages
@@ -257,7 +252,7 @@ export function InterviewController() {
     handleSendUserInput,
     markWrapUpSent,
     activeInterviewChat,
-    params.interviewId,
+    params.jobId,
     sendSessionSettings,
     endChat,
     requestAudioReconstruction,
@@ -277,7 +272,7 @@ export function InterviewController() {
 
         partialChatMutation.mutate({
           ...activeInterviewChat,
-          interviewId: params.interviewId as string,
+          jobId: params.jobId as string,
           actualTime: Math.floor(currentTime / 60),
           transcript: JSON.stringify(
             messages
@@ -298,7 +293,7 @@ export function InterviewController() {
     partialChatMutation,
     decrementMutation,
     activeInterviewChat,
-    params.interviewId,
+    params.jobId,
   ]);
 
   return null; // Controller component doesn't render anything

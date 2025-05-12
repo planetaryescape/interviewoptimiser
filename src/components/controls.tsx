@@ -50,7 +50,7 @@ export function Controls() {
       sendAssistantInput("hang_up");
       disconnect();
       queryClient.invalidateQueries({
-        queryKey: ["interview", params.interviewId],
+        queryKey: ["job", params.jobId],
       });
       setInterviewEnded(true);
     },

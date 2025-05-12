@@ -18,7 +18,6 @@ export function Timer({
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const timerCanvasRef = useRef<HTMLCanvasElement>(null);
   const startTimeRef = useRef<number>(Date.now());
-  const lastDecrementTimeRef = useRef<number>(0);
   const queryClient = useQueryClient();
 
   useEffect(() => {

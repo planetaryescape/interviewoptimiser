@@ -9,14 +9,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useCreateJobDuration } from "@/stores/createJobStore";
-import type { Interview } from "~/db/schema";
+import type { Job } from "~/db/schema";
 
 interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
   userMinutes: number;
-  interview?: Interview;
+  job?: Job;
 }
 
 export function ConfirmationModal({
@@ -24,10 +24,10 @@ export function ConfirmationModal({
   onClose,
   onConfirm,
   userMinutes,
-  interview,
+  job,
 }: ConfirmationModalProps) {
   const storedDuration = useCreateJobDuration();
-  const duration = interview ? interview.duration : storedDuration;
+  const duration = job ? job.duration : storedDuration;
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>

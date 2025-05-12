@@ -22,10 +22,9 @@ export function DashboardHeader({ className }: { className?: string }) {
   const { data: user } = useUser();
   const isDashboardLanding = pathname === "/dashboard";
   const isCreatePage = pathname === "/dashboard/create";
-  const isInterviewPage =
-    pathname.startsWith("/dashboard/interviews") && !pathname.endsWith("report");
+  const isJobPage = pathname.startsWith("/dashboard/jobs") && !pathname.endsWith("report");
 
-  const showOptimiseButton = !isDashboardLanding && !isCreatePage && !isInterviewPage;
+  const showOptimiseButton = !isDashboardLanding && !isCreatePage && !isJobPage;
 
   // Add scroll listener to detect when page is scrolled
   useEffect(() => {
@@ -73,18 +72,6 @@ export function DashboardHeader({ className }: { className?: string }) {
               href="/dashboard"
             >
               Dashboard
-            </Link>
-
-            <Link
-              className={cn(
-                "px-3 py-2 text-sm rounded-md transition-colors",
-                pathname === "/dashboard/jobs"
-                  ? "text-primary font-medium"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              )}
-              href="/dashboard/jobs"
-            >
-              Job Descriptions
             </Link>
 
             <Link

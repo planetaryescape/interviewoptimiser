@@ -1,1 +1,0 @@
-ALTER TABLE "interviews" DROP COLUMN IF EXISTS "report";

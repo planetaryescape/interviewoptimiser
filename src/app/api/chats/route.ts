@@ -6,7 +6,7 @@ import * as Sentry from "@sentry/nextjs";
 import { and, eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
-import { chats, interviews } from "~/db/schema";
+import { chats, jobs } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 /**
@@ -38,23 +38,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const {
-      customSessionId,
-      chatGroupId,
-      humeChatId,
-      requestId,
-      interviewId: interviewIdString,
-    } = body;
+    const { customSessionId, chatGroupId, humeChatId, requestId, jobId: jobIdString } = body;
 
-    if (!interviewIdString) {
-      logger.warn("Missing required field: interviewId");
-      return NextResponse.json(formatErrorEntity("Missing required field: interviewId"), {
+    if (!jobIdString) {
+      logger.warn("Missing required field: jobId");
+      return NextResponse.json(formatErrorEntity("Missing required field: jobId"), {
         status: 400,
       });
     }
-
-    const interviewId = idHandler.decode(interviewIdString);
-    console.log("interviewId:", interviewId);
 
     if (!chatGroupId) {
       logger.warn("Missing required field: chatGroupId");
@@ -74,8 +65,10 @@ export async function POST(request: NextRequest) {
       where: and(eq(chats.humeChatId, humeChatId)),
     });
 
+    const jobId = idHandler.decode(jobIdString);
+
     if (existingChat) {
-      logger.info({ interviewId }, "Chat already exists");
+      logger.info({ jobId }, "Chat already exists");
       return NextResponse.json(formatEntity(existingChat, "chat"), {
         status: 200,
       });
@@ -84,7 +77,7 @@ export async function POST(request: NextRequest) {
     const [newChat] = await db
       .insert(chats)
       .values({
-        interviewId,
+        jobId,
         customSessionId,
         chatGroupId,
         humeChatId,
@@ -118,7 +111,7 @@ export async function POST(request: NextRequest) {
 
 /**
  * Gets chat metadata entries for the user
- * Optional query param: interviewId to filter by interview
+ * Optional query param: jobId to filter by job
  */
 export async function GET(request: NextRequest) {
   logger.info("GET request received at /api/chats");
@@ -140,44 +133,44 @@ export async function GET(request: NextRequest) {
     }
 
     const url = new URL(request.url);
-    const interviewId = url.searchParams.get("interviewId");
+    const jobId = url.searchParams.get("jobId");
 
-    if (!interviewId) {
-      logger.info("No interviewId provided, getting all chats");
-      return NextResponse.json(formatErrorEntity("Missing interviewId"), {
+    if (!jobId) {
+      logger.info("No jobId provided, getting all chats");
+      return NextResponse.json(formatErrorEntity("Missing jobId"), {
         status: 400,
       });
     }
 
-    // Check if the interview exists and belongs to the user
-    const interview = await db.query.interviews.findFirst({
-      where: eq(interviews.id, Number.parseInt(interviewId)),
+    // Check if the job exists and belongs to the user
+    const job = await db.query.jobs.findFirst({
+      where: eq(jobs.id, Number.parseInt(jobId)),
     });
 
-    if (!interview) {
-      logger.warn({ interviewId }, "Interview not found");
-      return NextResponse.json(formatErrorEntity("Interview not found"), {
+    if (!job) {
+      logger.warn({ jobId }, "Job not found");
+      return NextResponse.json(formatErrorEntity("Job not found"), {
         status: 404,
       });
     }
 
-    if (interview.userId !== userId && role !== "admin") {
-      logger.warn({ interviewId, userId }, "Unauthorized access to interview");
+    if (job.userId !== userId && role !== "admin") {
+      logger.warn({ jobId }, "Unauthorized access to job");
       return NextResponse.json(formatErrorEntity("Unauthorized"), {
         status: 401,
       });
     }
 
     const returnedChats = await db.query.chats.findMany({
-      where: eq(chats.interviewId, Number.parseInt(interviewId)),
+      where: eq(chats.jobId, Number.parseInt(jobId)),
     });
 
     if (!returnedChats) {
-      logger.info({ interviewId }, "No chats found for this interview");
+      logger.info({ jobId }, "No chats found for this job");
       return NextResponse.json(formatEntityList([], "generic"));
     }
 
-    logger.info({ interviewId }, "Successfully retrieved chats for interview");
+    logger.info({ jobId }, "Successfully retrieved chats for job");
 
     return NextResponse.json(formatEntityList(returnedChats, "chat"));
   } catch (error) {

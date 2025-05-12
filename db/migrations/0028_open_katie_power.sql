@@ -1,1 +1,0 @@
-ALTER TABLE "chat_metadata" ALTER COLUMN "report_id" SET NOT NULL;
