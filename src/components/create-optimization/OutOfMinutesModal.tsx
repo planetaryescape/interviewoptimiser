@@ -22,7 +22,7 @@ export function OutOfMinutesModal({ isOpen, onClose, onBuyMinutes }: OutOfMinute
         <AlertDialogHeader>
           <AlertDialogTitle>Out of Minutes</AlertDialogTitle>
           <AlertDialogDescription>
-            You&apos;ve run out of minutes. Purchase more minutes to continue creating interviews.
+            You&apos;ve run out of minutes. Purchase more minutes to continue creating jobs.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

@@ -5,10 +5,7 @@ import { FileUpload } from "@/components/ui/file-upload";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import {
-  useCreateInterviewActions,
-  useCreateInterviewJobDescriptionText,
-} from "@/stores/createInterviewStore";
+import { useCreateJobActions, useCreateJobJobDescriptionText } from "@/stores/createJobStore";
 import * as Sentry from "@sentry/nextjs";
 import { useDebounce } from "@uidotdev/usehooks";
 import { AlertCircle, FileText, HelpCircle, LinkIcon } from "lucide-react";
@@ -17,8 +14,8 @@ import { toast } from "sonner";
 import { config } from "~/config";
 
 export function Step2JobDescription() {
-  const jobDescriptionText = useCreateInterviewJobDescriptionText();
-  const { setJobDescriptionText } = useCreateInterviewActions();
+  const jobDescriptionText = useCreateJobJobDescriptionText();
+  const { setJobDescriptionText } = useCreateJobActions();
   const [jobFile, setJobFile] = useState<File | null>(null);
   const [jobDescriptionLink, setJobDescriptionLink] = useState("");
   const [showStep2Error, setShowStep2Error] = useState(false);
@@ -111,7 +108,7 @@ export function Step2JobDescription() {
       <div className="px-8 py-6 text-center border-b border-border/60">
         <h2 className="text-2xl font-semibold mb-2">Now, let&apos;s add the job details</h2>
         <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-          We&apos;ll align the interview questions with the role requirements
+          We&apos;ll align the job profile with the role requirements
         </p>
       </div>
 
@@ -224,8 +221,8 @@ export function Step2JobDescription() {
                 <li>Mention technical skills, tools, and technologies required</li>
                 <li>Include information about the team structure if available</li>
                 <li>
-                  The more detailed the job description, the more relevant your mock interview will
-                  be
+                  The more detailed the job description, the more relevant the interview experience
+                  will be
                 </li>
               </ul>
             </div>

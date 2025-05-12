@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useCreateInterviewStep } from "@/stores/createInterviewStore";
+import { useCreateJobStep } from "@/stores/createJobStore";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { StepIndicator } from "./StepIndicator";
 
@@ -23,7 +23,7 @@ export function CreateHeader({
   onSubmit,
   animateStep,
 }: CreateHeaderProps) {
-  const step = useCreateInterviewStep();
+  const step = useCreateJobStep();
 
   return (
     <header className="fixed top-0 z-50 w-full bg-background/70 backdrop-blur-lg border-b border-border shadow-sm">

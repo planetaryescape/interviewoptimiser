@@ -4,7 +4,7 @@ import { Step1CV } from "@/components/create-optimization/Step1CV";
 import { Step2JobDescription } from "@/components/create-optimization/Step2JobDescription";
 import { Step3AdditionalInfo } from "@/components/create-optimization/Step3AdditionalInfo";
 import { Button } from "@/components/ui/button";
-import { useCreateInterviewStep } from "@/stores/createInterviewStore";
+import { useCreateJobStep } from "@/stores/createJobStore";
 import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
 import { Home, Layout } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -15,7 +15,7 @@ interface ContentAreaProps {
 }
 
 export function ContentArea({ animationDir }: ContentAreaProps) {
-  const step = useCreateInterviewStep();
+  const step = useCreateJobStep();
   const router = useRouter();
   const [contentHeight, setContentHeight] = useState<number>(0);
   const contentRef = useRef<HTMLDivElement>(null);

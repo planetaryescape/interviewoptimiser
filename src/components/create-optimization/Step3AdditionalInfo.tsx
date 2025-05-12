@@ -12,11 +12,11 @@ import { useUser } from "@/hooks/useUser";
 import { cn } from "@/lib/utils";
 import {
   type InterviewType,
-  useCreateInterviewActions,
-  useCreateInterviewAdditionalInfo,
-  useCreateInterviewDuration,
-  useCreateInterviewInterviewType,
-} from "@/stores/createInterviewStore";
+  useCreateJobActions,
+  useCreateJobAdditionalInfo,
+  useCreateJobDuration,
+  useCreateJobInterviewType,
+} from "@/stores/createJobStore";
 import { interviewTypes } from "@/utils/conversation_config";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Clock, MessageSquare, PlusCircle, Settings } from "lucide-react";
@@ -26,12 +26,12 @@ import { useState } from "react";
 import { config } from "~/config";
 
 export function Step3AdditionalInfo() {
-  const additionalInfo = useCreateInterviewAdditionalInfo();
-  const { setAdditionalInfo } = useCreateInterviewActions();
-  const interviewType = useCreateInterviewInterviewType();
-  const { setInterviewType } = useCreateInterviewActions();
-  const duration = useCreateInterviewDuration();
-  const { setDuration } = useCreateInterviewActions();
+  const additionalInfo = useCreateJobAdditionalInfo();
+  const { setAdditionalInfo } = useCreateJobActions();
+  const interviewType = useCreateJobInterviewType();
+  const { setInterviewType } = useCreateJobActions();
+  const duration = useCreateJobDuration();
+  const { setDuration } = useCreateJobActions();
   const { data: user } = useUser();
   const router = useRouter();
 
@@ -48,9 +48,9 @@ export function Step3AdditionalInfo() {
     <div>
       {/* Main Header */}
       <div className="px-8 py-6 text-center border-b border-border/60">
-        <h2 className="text-2xl font-semibold mb-2">Finally, let&apos;s customize the interview</h2>
+        <h2 className="text-2xl font-semibold mb-2">Finally, let&apos;s customize the job</h2>
         <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-          Configure the interview settings to match your requirements
+          Configure the job settings to match your requirements
         </p>
       </div>
 
@@ -64,7 +64,7 @@ export function Step3AdditionalInfo() {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Settings className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold">Interview Settings</h3>
+                <h3 className="text-lg font-semibold">Job Settings</h3>
               </div>
 
               <p className="text-sm text-muted-foreground mb-4">
@@ -131,7 +131,7 @@ export function Step3AdditionalInfo() {
                   </div>
 
                   <p className="text-xs text-muted-foreground mb-2">
-                    Longer interviews are more thorough but cost more minutes
+                    Longer jobs are more thorough but cost more minutes
                   </p>
                   <Select
                     value={duration.toString()}
@@ -144,7 +144,7 @@ export function Step3AdditionalInfo() {
                         !hasEnoughMinutes && "border-destructive/50 text-destructive"
                       )}
                     >
-                      <SelectValue placeholder="Select interview duration" />
+                      <SelectValue placeholder="Select job duration" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="3">3 minutes</SelectItem>
@@ -219,7 +219,7 @@ export function Step3AdditionalInfo() {
               </div>
 
               <p className="text-sm text-muted-foreground mb-3">
-                Add any specific requirements or preferences for the interview (optional)
+                Add any specific requirements or preferences for the interviews (optional)
               </p>
 
               <Textarea
@@ -233,8 +233,7 @@ export function Step3AdditionalInfo() {
               />
 
               <p className="text-xs text-muted-foreground mt-2">
-                Special instructions are optional but help tailor the interview to your specific
-                needs
+                Special instructions are optional but help tailor interviews to your specific needs
               </p>
             </div>
           </div>

@@ -9,7 +9,7 @@ export type InterviewType =
   | "stress"
   | "cultural_fit";
 
-interface CreateInterviewState {
+interface CreateJobState {
   step: number;
   cvText: string;
   jobDescriptionText: string;
@@ -22,7 +22,7 @@ interface CreateInterviewState {
   isScheduleErrorDialogOpen: boolean;
 }
 
-interface CreateInterviewActions {
+interface CreateJobActions {
   setStep: (step: number) => void;
   setCVText: (text: string) => void;
   setJobDescriptionText: (text: string) => void;
@@ -36,7 +36,7 @@ interface CreateInterviewActions {
   resetStore: () => void;
 }
 
-const initialState: CreateInterviewState = {
+const initialState: CreateJobState = {
   step: 1,
   cvText: "",
   jobDescriptionText: "",
@@ -49,8 +49,8 @@ const initialState: CreateInterviewState = {
   isScheduleErrorDialogOpen: false,
 };
 
-export const useCreateInterviewStore = create(
-  devtools<CreateInterviewState & { actions: CreateInterviewActions }>((set) => ({
+export const useCreateJobStore = create(
+  devtools<CreateJobState & { actions: CreateJobActions }>((set) => ({
     ...initialState,
     actions: {
       setStep: (step: number) => set({ step }),
@@ -70,21 +70,18 @@ export const useCreateInterviewStore = create(
   }))
 );
 
-export const useCreateInterviewStep = () => useCreateInterviewStore((state) => state.step);
-export const useCreateInterviewCVText = () => useCreateInterviewStore((state) => state.cvText);
-export const useCreateInterviewJobDescriptionText = () =>
-  useCreateInterviewStore((state) => state.jobDescriptionText);
-export const useCreateInterviewAdditionalInfo = () =>
-  useCreateInterviewStore((state) => state.additionalInfo);
-export const useCreateInterviewInterviewType = () =>
-  useCreateInterviewStore((state) => state.interviewType);
-export const useCreateInterviewDuration = () => useCreateInterviewStore((state) => state.duration);
-export const useCreateInterviewShowTakeover = () =>
-  useCreateInterviewStore((state) => state.showTakeover);
-export const useCreateInterviewIsAlertDialogOpen = () =>
-  useCreateInterviewStore((state) => state.isAlertDialogOpen);
-export const useCreateInterviewIsOutOfMinutesDialogOpen = () =>
-  useCreateInterviewStore((state) => state.isOutOfMinutesDialogOpen);
-export const useCreateInterviewIsScheduleErrorDialogOpen = () =>
-  useCreateInterviewStore((state) => state.isScheduleErrorDialogOpen);
-export const useCreateInterviewActions = () => useCreateInterviewStore((state) => state.actions);
+export const useCreateJobStep = () => useCreateJobStore((state) => state.step);
+export const useCreateJobCVText = () => useCreateJobStore((state) => state.cvText);
+export const useCreateJobJobDescriptionText = () =>
+  useCreateJobStore((state) => state.jobDescriptionText);
+export const useCreateJobAdditionalInfo = () => useCreateJobStore((state) => state.additionalInfo);
+export const useCreateJobInterviewType = () => useCreateJobStore((state) => state.interviewType);
+export const useCreateJobDuration = () => useCreateJobStore((state) => state.duration);
+export const useCreateJobShowTakeover = () => useCreateJobStore((state) => state.showTakeover);
+export const useCreateJobIsAlertDialogOpen = () =>
+  useCreateJobStore((state) => state.isAlertDialogOpen);
+export const useCreateJobIsOutOfMinutesDialogOpen = () =>
+  useCreateJobStore((state) => state.isOutOfMinutesDialogOpen);
+export const useCreateJobIsScheduleErrorDialogOpen = () =>
+  useCreateJobStore((state) => state.isScheduleErrorDialogOpen);
+export const useCreateJobActions = () => useCreateJobStore((state) => state.actions);

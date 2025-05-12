@@ -14,6 +14,7 @@
 
 ## General instructions
 
+- In general when you have to rename a file, start by creating the new file and then delete the old one after that. Don't start by deleting before you've created the new renamed file.
 - Add appropriate error handling
 - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
 - Favor named exports for components.

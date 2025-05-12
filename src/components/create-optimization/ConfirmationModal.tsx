@@ -8,7 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useCreateInterviewDuration } from "@/stores/createInterviewStore";
+import { useCreateJobDuration } from "@/stores/createJobStore";
 import type { Interview } from "~/db/schema";
 
 interface ConfirmationModalProps {
@@ -26,17 +26,17 @@ export function ConfirmationModal({
   userMinutes,
   interview,
 }: ConfirmationModalProps) {
-  const storedDuration = useCreateInterviewDuration();
+  const storedDuration = useCreateJobDuration();
   const duration = interview ? interview.duration : storedDuration;
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Start Mock Interview </AlertDialogTitle>
+          <AlertDialogTitle>Create Job Profile</AlertDialogTitle>
           <AlertDialogDescription>
-            This mock interview will cost {duration} minute(s). You currently have {userMinutes}{" "}
-            minute(s). Do you want to proceed?
+            Creating this job profile will cost {duration} minute(s). You currently have{" "}
+            {userMinutes} minute(s). Do you want to proceed?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
