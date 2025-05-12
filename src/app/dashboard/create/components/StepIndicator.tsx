@@ -15,8 +15,8 @@ export function StepIndicator({ canProceedToNextStep, animateStep }: StepIndicat
 
   // Steps configuration
   const steps = [
-    { number: 1, label: "CV" },
-    { number: 2, label: "Job Details" },
+    { number: 1, label: "Job Details" },
+    { number: 2, label: "CV" },
     { number: 3, label: "Settings" },
   ];
 
