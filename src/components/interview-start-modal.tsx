@@ -3,16 +3,22 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
-import { MessageSquare, Mic, Pause, Volume2 } from "lucide-react";
+import { Loader2, MessageSquare, Mic, Pause, Volume2 } from "lucide-react";
 import Link from "next/link";
 
 type InterviewStartModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onStart: () => void;
+  isLoading: boolean;
 };
 
-export function InterviewStartModal({ isOpen, onClose, onStart }: InterviewStartModalProps) {
+export function InterviewStartModal({
+  isOpen,
+  onClose,
+  onStart,
+  isLoading,
+}: InterviewStartModalProps) {
   const guidelines = [
     {
       icon: Volume2,
@@ -84,7 +90,9 @@ export function InterviewStartModal({ isOpen, onClose, onStart }: InterviewStart
               </Button>
               <Button onClick={onStart} className="relative group">
                 <div className="absolute inset-0 bg-primary opacity-20 group-hover:opacity-30 blur-md transition-all rounded-lg" />
-                <span className="relative">Begin Interview</span>
+                <span className="relative">
+                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Begin Interview"}
+                </span>
               </Button>
             </div>
           </div>

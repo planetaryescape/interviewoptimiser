@@ -4,20 +4,16 @@ import { InterviewSettings } from "@/components/interview-settings";
 import { InterviewStartModal } from "@/components/interview-start-modal";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { useJob } from "@/hooks/useInterview";
+import { useJob } from "@/hooks/useJob";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
-import {
-  useActiveInterviewActions,
-  useActiveInterviewEnded,
-} from "@/stores/useActiveInterviewStore";
 import { useVoice } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Home, Layout, MessageCircle } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { NewChat } from "~/db/schema";
@@ -27,12 +23,11 @@ export default function InterviewPlaceholder() {
   const params = useParams();
   const jobId = params.jobId as string;
   const { connect, status, chatMetadata } = useVoice();
-  const interviewEnded = useActiveInterviewEnded();
   const { data: job, isLoading, error } = useJob(jobId);
-  const { setInterviewStarted, setActiveInterviewChat } = useActiveInterviewActions();
   const [isSaving, setIsSaving] = useState(false);
+  const router = useRouter();
 
-  const { mutateAsync: createChat } = useMutation({
+  const { mutateAsync: createChat, isPending: isCreatingChat } = useMutation({
     mutationFn: async (metadata: Omit<NewChat, "jobId"> & { jobId: string }) => {
       const chatRepo = await getRepository<Omit<NewChat, "jobId"> & { jobId: string }>("chats");
       return await chatRepo.create({
@@ -45,18 +40,7 @@ export default function InterviewPlaceholder() {
       });
     },
     onSuccess: (chat) => {
-      setInterviewStarted(true);
-      setActiveInterviewChat({
-        ...chat.data,
-        id: chat.data.id || 0,
-        actualTime: chat.data.actualTime || null,
-        transcript: chat.data.transcript || null,
-        jobId: idHandler.decode(params.jobId as string),
-        createdAt: chat.data.createdAt || new Date(),
-        updatedAt: chat.data.updatedAt || new Date(),
-        customSessionId: chat.data.customSessionId || null,
-        requestId: chat.data.requestId || null,
-      });
+      router.push(`/jobs/${jobId}/chats/${idHandler.encode(chat.sys.id || 0)}`);
     },
     onError: (error) => {
       toast.error("Error creating chat. Please try again.");
@@ -157,24 +141,31 @@ export default function InterviewPlaceholder() {
             className="text-center space-y-4"
           >
             <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-              {job?.candidateDetails?.name ? `Hello ${job.candidateDetails.name}!` : "Welcome!"}
+              {job?.data?.candidateDetails?.name
+                ? `Hello ${job.data.candidateDetails.name}!`
+                : "Welcome!"}
             </h2>
             <div className="text-xl text-muted-foreground max-w-2xl mx-auto space-y-2">
               <p>
-                You&apos;re about to start a{job?.duration ? ` ${job.duration} minute` : ""}{" "}
-                {job?.type ? job.type.replace("_", " ") : "practice"} interview
-                {job?.jobDescription?.role || job?.jobDescription?.company ? (
+                You&apos;re about to start a
+                {job?.data?.duration ? ` ${job.data.duration} minute` : ""}{" "}
+                {job?.data?.type ? job.data.type.replace("_", " ") : "practice"} interview
+                {job?.data?.jobDescription?.role || job?.data?.jobDescription?.company ? (
                   <>
                     {" "}
                     for
-                    {job?.jobDescription?.role ? ` the role of ${job.jobDescription.role}` : ""}
-                    {job?.jobDescription?.company ? ` at ${job.jobDescription.company}` : ""}
+                    {job?.data?.jobDescription?.role
+                      ? ` the role of ${job.data.jobDescription.role}`
+                      : ""}
+                    {job?.data?.jobDescription?.company
+                      ? ` at ${job.data.jobDescription.company}`
+                      : ""}
                   </>
                 ) : null}
                 .
               </p>
               <p className="text-sm text-muted-foreground">
-                {job?.jobDescription?.role
+                {job?.data?.jobDescription?.role
                   ? "We'll be focusing on questions related to your experience and skills that match the role requirements."
                   : "We'll be focusing on questions to help you improve your interview skills."}
               </p>
@@ -198,7 +189,7 @@ export default function InterviewPlaceholder() {
           >
             <Button
               size="lg"
-              disabled={interviewEnded || isSaving}
+              disabled={isSaving}
               onClick={() => setShowModal(true)}
               className="relative group px-8 py-6 text-lg hover:scale-105 transition-transform"
             >
@@ -234,6 +225,7 @@ export default function InterviewPlaceholder() {
 
       <InterviewStartModal
         isOpen={showModal}
+        isLoading={isCreatingChat}
         onClose={() => setShowModal(false)}
         onStart={() => {
           setShowModal(false);
