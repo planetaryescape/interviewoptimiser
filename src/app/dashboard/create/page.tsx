@@ -60,8 +60,8 @@ export default function CreateJob() {
   }, [animateStep]);
 
   // Navigation and validation logic
-  const canProceedToStep2 = cvText?.trim().length > 0;
-  const canProceedToStep3 = jobDescriptionText?.trim().length > 0;
+  const canProceedToStep2 = jobDescriptionText?.trim().length > 0;
+  const canProceedToStep3 = cvText?.trim().length > 0;
   const canProceedToNextStep =
     (step === 1 && canProceedToStep2) || (step === 2 && canProceedToStep3) || step === 3;
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { Step1CV } from "@/components/create-optimization/Step1CV";
-import { Step2JobDescription } from "@/components/create-optimization/Step2JobDescription";
+import { Step1JobDescription } from "@/components/create-optimization/Step1JobDescription";
+import { Step2CV } from "@/components/create-optimization/Step2CV";
 import { Step3AdditionalInfo } from "@/components/create-optimization/Step3AdditionalInfo";
 import { Button } from "@/components/ui/button";
 import { useCreateJobStep } from "@/stores/createJobStore";
@@ -24,8 +24,8 @@ export function ContentArea({ animationDir }: ContentAreaProps) {
 
   // Content mapping
   const stepContent = {
-    1: <Step1CV />,
-    2: <Step2JobDescription />,
+    1: <Step1JobDescription />,
+    2: <Step2CV />,
     3: <Step3AdditionalInfo />,
   };
 
