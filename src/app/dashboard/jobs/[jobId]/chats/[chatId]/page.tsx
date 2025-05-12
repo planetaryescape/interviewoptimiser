@@ -1,4 +1,4 @@
-import Chat from "@/components/chat";
+import { Interview } from "@/components/interview";
 import { getHumeAccessToken } from "@/utils/get-hume-access-token";
 import { Suspense } from "react";
 
@@ -9,13 +9,13 @@ export default async function Page(props: {
   const accessToken = await getHumeAccessToken();
 
   if (!accessToken) {
-    throw new Error();
+    throw new Error("No access token");
   }
 
   return (
     <div className={"grow flex flex-col h-full overflow-auto"}>
       <Suspense fallback={null}>
-        <Chat accessToken={accessToken} jobId={params.jobId} />
+        <Interview accessToken={accessToken} jobId={params.jobId} />
       </Suspense>
     </div>
   );

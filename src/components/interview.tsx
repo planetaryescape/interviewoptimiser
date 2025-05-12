@@ -1,6 +1,6 @@
 "use client";
 
-import { getRepository } from "@/lib/data/repositoryFactory";
+import useCustomisedSystemPrompt from "@/hooks/useCustomisedSystemPrompt";
 import { idHandler } from "@/lib/utils/idHandler";
 import {
   useActiveInterviewActions,
@@ -9,14 +9,12 @@ import {
   useActiveInterviewShowTakeover,
   useActiveInterviewStarted,
 } from "@/stores/useActiveInterviewStore";
-import { createInterviewInstructions } from "@/utils/conversation_config";
 import { VoiceProvider } from "@humeai/voice-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { type ComponentRef, useEffect, useMemo, useRef } from "react";
+import { type ComponentRef, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import type { InferResultType } from "~/db/helpers";
 import { Controls } from "./controls";
 import { GeneratingReportTakeover } from "./generating-report-takeover";
 import MessagesPlaceholder from "./interview-placeholder";
@@ -25,15 +23,7 @@ import { InterviewController } from "./interview/interview-controller";
 import { TimerDisplay } from "./interview/timer-display";
 import { Messages } from "./messages";
 
-type JobWithCandidateDetailsAndJobDescription = InferResultType<
-  "jobs",
-  {
-    candidateDetails: true;
-    jobDescription: true;
-  }
->;
-
-export default function ClientComponent({
+export function Interview({
   jobId,
   accessToken,
 }: {
@@ -47,17 +37,6 @@ export default function ClientComponent({
   const interviewStarted = useActiveInterviewStarted();
   const showTakeover = useActiveInterviewShowTakeover();
   const activeInterviewChat = useActiveInterviewChat();
-
-  console.log("jobId", idHandler.decode(jobId));
-
-  const { data: job } = useQuery({
-    queryKey: ["job", jobId],
-    queryFn: async () => {
-      const jobsRepo = await getRepository<JobWithCandidateDetailsAndJobDescription>("jobs");
-      const job = await jobsRepo.getById(jobId);
-      return job;
-    },
-  });
 
   const generateReportMutation = useMutation({
     mutationFn: async () => {
@@ -104,7 +83,7 @@ export default function ClientComponent({
   const messagesRef = useRef<ComponentRef<typeof Messages> | null>(null);
   const hasGeneratedReportRef = useRef(false);
 
-  // optional: use configId from environment variable
+  const { systemPrompt, job } = useCustomisedSystemPrompt({ jobId });
   const configId = process.env.NEXT_PUBLIC_HUME_CONFIG_ID;
 
   useEffect(() => {
@@ -117,51 +96,10 @@ export default function ClientComponent({
 
   // Initialize store with props
   useEffect(() => {
-    console.log("job before", job);
     if (job?.data?.duration) {
-      console.log("job after", job);
       setTotalTime(job.data.duration * 60);
     }
   }, [job, setTotalTime]);
-
-  const systemPrompt = useMemo(() => {
-    return createInterviewInstructions({
-      cvText: job?.data?.submittedCVText ?? "",
-      structuredCandidateDetails: {
-        ...job?.data?.candidateDetails,
-        location: job?.data?.candidateDetails?.location ?? "",
-        name: job?.data?.candidateDetails?.name ?? "",
-        email: job?.data?.candidateDetails?.email ?? "",
-        phone: job?.data?.candidateDetails?.phone ?? "",
-        currentRole: job?.data?.candidateDetails?.currentRole ?? "",
-        professionalSummary: job?.data?.candidateDetails?.professionalSummary ?? "",
-        linkedinUrl: job?.data?.candidateDetails?.linkedinUrl ?? "",
-        portfolioUrl: job?.data?.candidateDetails?.portfolioUrl ?? "",
-        otherUrls: job?.data?.candidateDetails?.otherUrls ?? [],
-      },
-      structuredJobDescription: {
-        ...job?.data?.jobDescription,
-        role: job?.data?.jobDescription?.role ?? "",
-        seniority: job?.data?.jobDescription?.seniority ?? "",
-        company: job?.data?.jobDescription?.company ?? "",
-        employmentType: job?.data?.jobDescription?.employmentType ?? "",
-        location: job?.data?.jobDescription?.location ?? "",
-        industry: job?.data?.jobDescription?.industry ?? "",
-        requiredQualifications: job?.data?.jobDescription?.requiredQualifications ?? [],
-        requiredExperience: job?.data?.jobDescription?.requiredExperience ?? [],
-        requiredSkills: job?.data?.jobDescription?.requiredSkills ?? [],
-        preferredQualifications: job?.data?.jobDescription?.preferredQualifications ?? [],
-        preferredSkills: job?.data?.jobDescription?.preferredSkills ?? [],
-        responsibilities: job?.data?.jobDescription?.responsibilities ?? [],
-        benefits: job?.data?.jobDescription?.benefits ?? [],
-        keyTechnologies: job?.data?.jobDescription?.keyTechnologies ?? [],
-        keywords: job?.data?.jobDescription?.keywords ?? [],
-        keyQuestions: job?.data?.jobDescription?.keyQuestions ?? [],
-      },
-      duration: job?.data?.duration ?? 15,
-      interviewType: job?.data?.type ?? "behavioral",
-    });
-  }, [job]);
 
   return (
     <div className={"relative grid grid-rows-[1fr_auto] mx-auto w-full overflow-auto h-full"}>

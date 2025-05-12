@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useJob } from "@/hooks/useInterview";
+import { useJob } from "@/hooks/useJob";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
@@ -38,7 +38,7 @@ export function InterviewSettings({
   const queryClient = useQueryClient();
 
   const selectedInterviewType = job
-    ? interviewTypes.find((type) => type.type === job.type)
+    ? interviewTypes.find((type) => type.type === job.data.type)
     : interviewTypes.find((type) => type.type === "behavioral");
 
   const jobMutation = useMutation({
@@ -64,17 +64,17 @@ export function InterviewSettings({
   const [isExamplesExpanded, setIsExamplesExpanded] = useState(true);
 
   // Check if user has enough minutes for the selected duration
-  const hasEnoughMinutes = user && job && user.minutes >= job.duration;
+  const hasEnoughMinutes = user && job && user.minutes >= job.data.duration;
 
   const handleInterviewTypeChange = (value: string) => {
     setIsSaving(true);
     if (!job) return;
 
     jobMutation.mutate({
-      ...job,
-      id: job.id || 0,
+      ...job.data,
+      id: job.sys.id || 0,
       type: value as any,
-      duration: job.duration,
+      duration: job.data.duration,
     });
   };
 
@@ -82,9 +82,9 @@ export function InterviewSettings({
     setIsSaving(true);
     if (!job) return;
     jobMutation.mutate({
-      ...job,
-      id: job.id || 0,
-      type: job.type,
+      ...job.data,
+      id: job.sys.id || 0,
+      type: job.data.type,
       duration: Number.parseInt(value),
     });
     // Simulate network request for optimistic update
@@ -170,7 +170,7 @@ export function InterviewSettings({
                 Longer interviews are more thorough but cost more minutes
               </p>
               <Select
-                value={job?.duration.toString() || "3"}
+                value={job?.data?.duration.toString() || "3"}
                 onValueChange={handleDurationChange}
                 disabled={isSaving}
               >

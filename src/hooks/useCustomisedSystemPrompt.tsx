@@ -1,32 +1,15 @@
 "use client";
 
-import { getRepository } from "@/lib/data/repositoryFactory";
 import { createInterviewInstructions } from "@/utils/conversation_config";
-import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import type { InferResultType } from "~/db/helpers";
-
-type JobWithCandidateDetailsAndJobDescription = InferResultType<
-  "jobs",
-  {
-    candidateDetails: true;
-    jobDescription: true;
-  }
->;
+import { useJob } from "./useJob";
 
 export default function useCustomisedSystemPrompt({
   jobId,
 }: {
   jobId: string;
 }) {
-  const { data: job } = useQuery({
-    queryKey: ["job", jobId],
-    queryFn: async () => {
-      const jobsRepo = await getRepository<JobWithCandidateDetailsAndJobDescription>("jobs");
-      const job = await jobsRepo.getById(jobId);
-      return job;
-    },
-  });
+  const { data: job } = useJob(jobId);
 
   const systemPrompt = useMemo(() => {
     return createInterviewInstructions({
