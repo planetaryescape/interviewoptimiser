@@ -1,2 +1,0 @@
-CREATE INDEX IF NOT EXISTS "reviews_show_on_landing_idx" ON "reviews" USING btree ("show_on_landing");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "reviews_is_published_idx" ON "reviews" USING btree ("is_published");

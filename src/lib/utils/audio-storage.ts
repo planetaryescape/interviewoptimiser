@@ -16,18 +16,18 @@ const CLOUDFRONT_PRIVATE_KEY = process.env.CLOUDFRONT_PRIVATE_KEY || "";
  * Uploads an audio recording to S3
  * @param audioData Buffer or binary data of the audio recording
  * @param fileType The MIME type of the audio file (e.g., 'audio/wav')
- * @param interviewId The ID of the interview associated with the recording
+ * @param jobId The ID of the job associated with the recording
  * @returns Object containing the S3 key and CloudFront URL
  */
 export async function uploadAudioRecording(
   audioData: Buffer,
   fileType: string,
-  interviewId: number
+  jobId: number
 ): Promise<{ key: string; url: string }> {
   try {
     // Generate a unique filename
     const extension = fileType.includes("wav") ? "wav" : "mp3";
-    const key = `recordings/${interviewId}/${uuidv4()}.${extension}`;
+    const key = `recordings/${jobId}/${uuidv4()}.${extension}`;
 
     // Upload to S3
     await s3Client.send(
@@ -37,7 +37,7 @@ export async function uploadAudioRecording(
         Body: audioData,
         ContentType: fileType,
         Metadata: {
-          interviewId: interviewId.toString(),
+          jobId: jobId.toString(),
         },
       })
     );
@@ -45,14 +45,14 @@ export async function uploadAudioRecording(
     // Generate CloudFront URL
     const url = generateCloudFrontUrl(key);
 
-    logger.info({ interviewId, key }, "Successfully uploaded audio recording");
+    logger.info({ jobId, key }, "Successfully uploaded audio recording");
     return { key, url };
   } catch (error) {
     logger.error(
       {
         message: error instanceof Error ? error.message : "Unknown error",
         error,
-        interviewId,
+        jobId,
       },
       "Error uploading audio recording"
     );

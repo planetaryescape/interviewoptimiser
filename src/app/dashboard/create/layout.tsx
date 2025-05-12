@@ -4,11 +4,11 @@ import { BackgroundGradient } from "@/components/background-gradient";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
-interface CreateInterviewLayoutProps {
+interface CreateJobLayoutProps {
   children: React.ReactNode;
 }
 
-export default function CreateInterviewLayout({ children }: CreateInterviewLayoutProps) {
+export default function CreateJobLayout({ children }: CreateJobLayoutProps) {
   return (
     <div className="flex flex-col min-h-screen bg-background relative">
       {/* Gradient Background */}

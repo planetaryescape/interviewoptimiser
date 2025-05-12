@@ -26,7 +26,7 @@ import { extractKeyQuestions, processTranscript } from "./utils";
  */
 export async function analyseInterview({
   model,
-  interview,
+  job,
   transcriptString,
   userEmail,
   structuredCV,
@@ -58,9 +58,9 @@ export async function analyseInterview({
       structuredCV,
       structuredJobDescription,
       structuredCandidateDetails,
-      cvText: interview.submittedCVText,
-      jobDescriptionText: interview.jobDescriptionText,
-      additionalInfo: interview.additionalInfo ?? undefined,
+      cvText: job.submittedCVText,
+      jobDescriptionText: job.jobDescriptionText,
+      additionalInfo: job.additionalInfo ?? undefined,
     };
 
     // Run all section analyses in parallel for better performance

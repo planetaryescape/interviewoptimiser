@@ -1,1 +1,0 @@
-ALTER TABLE "reviews" ADD COLUMN "processed_at" timestamp;

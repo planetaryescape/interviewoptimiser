@@ -1,7 +1,7 @@
 import type { LanguageModelV1 } from "@ai-sdk/provider";
 import type { CompletionUsage } from "openai/resources/completions.mjs";
 import type { z } from "zod";
-import type { Interview as InterviewSchema } from "~/db/schema/interviews";
+import type { Job } from "~/db/schema/jobs";
 import type { CandidateDetails } from "~/lib/ai/extract-candidate-details";
 import type { StructuredJobDescriptionSchema } from "~/lib/ai/extract-job-description";
 import type { StructuredOriginalCVSchema } from "~/lib/ai/extract-original-cv";
@@ -57,10 +57,10 @@ export interface AnalyseInterviewParams {
    */
   model: LanguageModelV1;
   /**
-   * The interview object containing basic information
+   * The job object containing basic information
    */
-  interview: InterviewSchema;
-  /**
+  job: Job;
+  /*
    * The transcript of the interview in JSON string format
    */
   transcriptString: string;

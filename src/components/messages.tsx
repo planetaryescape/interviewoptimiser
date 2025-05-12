@@ -15,8 +15,8 @@ export const Messages = forwardRef<ComponentRef<typeof motion.div>, Record<never
       .filter((msg) => msg.type === "user_message" || msg.type === "assistant_message")
       .filter(
         (msg) =>
-          !msg.message.content?.includes("<One minute left>") &&
-          msg.message.content?.trim() !== "" &&
+          !msg.message.content?.includes("<One minute left>") ||
+          msg.message.content?.trim() !== "" ||
           msg.message.content !== INTERVIEW_START_MESSAGE
       )
       .slice(-3);

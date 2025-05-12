@@ -20,7 +20,7 @@ export const handler = Sentry.wrapHandler(async () => {
       with: {
         chat: {
           with: {
-            interview: true,
+            job: true,
           },
         },
       },
@@ -80,7 +80,7 @@ export const handler = Sentry.wrapHandler(async () => {
               reportId: report.id,
               chatId: report.chat.humeChatId,
             },
-            userId: report.userId,
+            userId: report.chat.job.userId,
             queueType: "save-interview-audio-to-s3",
           }),
         });

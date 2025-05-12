@@ -1,1 +1,0 @@
-ALTER TABLE "reports" DROP CONSTRAINT "reports_interviewId_unique";

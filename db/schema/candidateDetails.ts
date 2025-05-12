@@ -1,14 +1,14 @@
 import { relations } from "drizzle-orm";
 import { index, pgTable } from "drizzle-orm/pg-core";
-import { interviews } from "./interviews";
+import { jobs } from "./jobs";
 
 export const candidateDetails = pgTable(
   "candidate_details",
   (p) => ({
     id: p.serial().primaryKey(),
-    interviewId: p
+    jobId: p
       .integer()
-      .references(() => interviews.id)
+      .references(() => jobs.id, { onDelete: "cascade" })
       .notNull(),
     name: p.text().notNull(),
     email: p.text(),
@@ -22,15 +22,13 @@ export const candidateDetails = pgTable(
     createdAt: p.timestamp().defaultNow().notNull(),
     updatedAt: p.timestamp().defaultNow().notNull(),
   }),
-  (candidateDetails) => ({
-    interviewIdIdx: index("candidate_details_interview_id_idx").on(candidateDetails.interviewId),
-  })
+  (candidateDetails) => [index("candidate_details_job_id_idx").on(candidateDetails.jobId)]
 );
 
 export const candidateDetailsRelations = relations(candidateDetails, ({ one }) => ({
-  interview: one(interviews, {
-    fields: [candidateDetails.interviewId],
-    references: [interviews.id],
+  job: one(jobs, {
+    fields: [candidateDetails.jobId],
+    references: [jobs.id],
   }),
 }));
 

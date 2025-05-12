@@ -10,7 +10,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { NextResponse } from "next/server";
 import { config } from "~/config";
 import { db } from "~/db";
-import { customisations, interviews, statistics, users } from "~/db/schema";
+import { customisations, jobs, statistics, users } from "~/db/schema";
 import { sendDiscordDM } from "~/lib/discord";
 import { logger } from "~/lib/logger";
 import { resend } from "~/lib/resend";
@@ -203,7 +203,7 @@ export async function POST(request: Request) {
 
         logger.info({}, "Deleting interviews");
         // Delete optimizations
-        await tx.delete(interviews).where(eq(interviews.userId, userId));
+        await tx.delete(jobs).where(eq(jobs.userId, userId));
 
         // Delete customisations
         logger.info({}, "Deleting customisations");

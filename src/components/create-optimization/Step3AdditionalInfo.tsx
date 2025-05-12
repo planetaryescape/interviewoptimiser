@@ -21,7 +21,6 @@ import { interviewTypes } from "@/utils/conversation_config";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Clock, MessageSquare, PlusCircle, Settings } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { config } from "~/config";
 
@@ -33,7 +32,6 @@ export function Step3AdditionalInfo() {
   const duration = useCreateJobDuration();
   const { setDuration } = useCreateJobActions();
   const { data: user } = useUser();
-  const router = useRouter();
 
   const selectedInterviewType =
     interviewTypes.find((type) => type.type === interviewType) ||

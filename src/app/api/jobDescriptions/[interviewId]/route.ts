@@ -36,7 +36,7 @@ export async function GET(
     const interviewId = idHandler.decode(params.interviewId);
 
     const jobDescription = await db.query.jobDescriptions.findFirst({
-      where: eq(jobDescriptions.interviewId, interviewId),
+      where: eq(jobDescriptions.jobId, interviewId),
     });
 
     if (!jobDescription) {

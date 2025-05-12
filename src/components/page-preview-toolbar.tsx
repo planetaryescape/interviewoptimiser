@@ -94,7 +94,7 @@ interface PagePreviewToolbarProps {
   pageSettings: PageSettings;
   includeTranscript: boolean;
   setIncludeTranscript: (value: boolean) => void;
-  interviewId: string;
+  jobId: string;
   onRegenerate?: () => Promise<void>;
 }
 
@@ -114,7 +114,7 @@ export function PagePreviewToolbar({
   pageSettings,
   includeTranscript,
   setIncludeTranscript,
-  interviewId,
+  jobId,
   onRegenerate,
 }: PagePreviewToolbarProps) {
   const { user } = useUser();
@@ -136,7 +136,7 @@ export function PagePreviewToolbar({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["page-settings"] });
       queryClient.invalidateQueries({ queryKey: ["report"] });
-      queryClient.invalidateQueries({ queryKey: ["interview"] });
+      queryClient.invalidateQueries({ queryKey: ["job"] });
     },
     onError: (error) => {
       Sentry.withScope((scope) => {
@@ -232,7 +232,7 @@ export function PagePreviewToolbar({
           </Link>
           <ChevronRight className="h-4 w-4 mx-2" />
           <Link
-            href={`/dashboard/interviews/${interviewId}/reports`}
+            href={`/dashboard/jobs/${jobId}/reports`}
             className="hover:text-foreground transition-colors"
           >
             Reports

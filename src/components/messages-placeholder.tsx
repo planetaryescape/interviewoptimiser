@@ -2,7 +2,7 @@
 
 import { InterviewStartModal } from "@/components/interview-start-modal";
 import { Button } from "@/components/ui/button";
-import { useInterview } from "@/hooks/useInterview";
+import { useJob } from "@/hooks/useInterview";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
 import {
@@ -22,20 +22,18 @@ import type { NewChat } from "~/db/schema";
 export default function InterviewPlaceholder() {
   const [showModal, setShowModal] = useState(false);
   const params = useParams();
-  const interviewId = params.interviewId as string;
+  const jobId = params.jobId as string;
   const { connect, status, chatMetadata } = useVoice();
   const interviewEnded = useActiveInterviewEnded();
-  const { data: interview, isLoading, error } = useInterview(interviewId);
+  const { data: job, isLoading, error } = useJob(jobId);
   const { setInterviewStarted, setActiveInterviewChat } = useActiveInterviewActions();
 
   const { mutateAsync: createChat } = useMutation({
-    mutationFn: async (metadata: NewChat) => {
-      const chatRepo = await getRepository<Omit<NewChat, "interviewId"> & { interviewId: string }>(
-        "chats"
-      );
+    mutationFn: async (metadata: Omit<NewChat, "jobId"> & { jobId: string }) => {
+      const chatRepo = await getRepository<Omit<NewChat, "jobId"> & { jobId: string }>("chats");
       return await chatRepo.create({
         ...metadata,
-        interviewId: params.interviewId as string,
+        jobId: params.jobId as string,
         createdAt: new Date(),
         updatedAt: new Date(),
         customSessionId: metadata.customSessionId || null,
@@ -49,7 +47,7 @@ export default function InterviewPlaceholder() {
         id: chat.data.id || 0,
         actualTime: chat.data.actualTime || null,
         transcript: chat.data.transcript || null,
-        interviewId: idHandler.decode(params.interviewId as string),
+        jobId: idHandler.decode(params.jobId as string),
         createdAt: chat.data.createdAt || new Date(),
         updatedAt: chat.data.updatedAt || new Date(),
         customSessionId: chat.data.customSessionId || null,
@@ -90,14 +88,14 @@ export default function InterviewPlaceholder() {
     console.log("chatMetadata", chatMetadata);
     if (chatMetadata?.chatGroupId && chatMetadata.chatId) {
       createChat({
-        interviewId: idHandler.decode(params.interviewId as string),
+        jobId: params.jobId as string,
         chatGroupId: chatMetadata?.chatGroupId || "",
         customSessionId: chatMetadata?.customSessionId || "",
         requestId: chatMetadata?.requestId || "",
         humeChatId: chatMetadata?.chatId || "",
       });
     }
-  }, [chatMetadata, createChat, params.interviewId]);
+  }, [chatMetadata, createChat, params.jobId]);
 
   const handleStartInterview = async () => {
     if (status.value !== "connected") {
@@ -170,31 +168,24 @@ export default function InterviewPlaceholder() {
             className="text-center space-y-4"
           >
             <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-              {interview?.candidateDetails?.name
-                ? `Hello ${interview.candidateDetails.name}!`
-                : "Welcome!"}
+              {job?.candidateDetails?.name ? `Hello ${job.candidateDetails.name}!` : "Welcome!"}
             </h2>
             <div className="text-xl text-muted-foreground max-w-2xl mx-auto space-y-2">
               <p>
-                You&apos;re about to start a
-                {interview?.duration ? ` ${interview.duration} minute` : ""}{" "}
-                {interview?.type ? interview.type.replace("_", " ") : "practice"} interview
-                {interview?.jobDescription?.role || interview?.jobDescription?.company ? (
+                You&apos;re about to start a{job?.duration ? ` ${job.duration} minute` : ""}{" "}
+                {job?.type ? job.type.replace("_", " ") : "practice"} interview
+                {job?.jobDescription?.role || job?.jobDescription?.company ? (
                   <>
                     {" "}
                     for
-                    {interview?.jobDescription?.role
-                      ? ` the role of ${interview.jobDescription.role}`
-                      : ""}
-                    {interview?.jobDescription?.company
-                      ? ` at ${interview.jobDescription.company}`
-                      : ""}
+                    {job?.jobDescription?.role ? ` the role of ${job.jobDescription.role}` : ""}
+                    {job?.jobDescription?.company ? ` at ${job.jobDescription.company}` : ""}
                   </>
                 ) : null}
                 .
               </p>
               <p className="text-sm text-muted-foreground">
-                {interview?.jobDescription?.role
+                {job?.jobDescription?.role
                   ? "We'll be focusing on questions related to your experience and skills that match the role requirements."
                   : "We'll be focusing on questions to help you improve your interview skills."}
               </p>

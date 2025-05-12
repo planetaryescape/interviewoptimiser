@@ -1,18 +1,22 @@
 import { relations } from "drizzle-orm";
 import { index, pgTable } from "drizzle-orm/pg-core";
-import { interviews } from "./interviews";
+import { jobs } from "./jobs";
 import { reports } from "./reports";
+
 /**
- * This table stores chat metadata for interviews
- * It has a one-to-one relationship with the interviews table
+ * This table stores chat metadata for jobs
+ * It has a one-to-one relationship with the jobs table
  */
 export const chats = pgTable(
   "chats",
   (p) => ({
     id: p.serial().primaryKey(),
-    interviewId: p
+    jobId: p
       .integer()
-      .references(() => interviews.id)
+      .references(() => jobs.id, {
+        onUpdate: "cascade",
+        onDelete: "cascade",
+      })
       .notNull(),
     customSessionId: p.text(),
     transcript: p.text(),
@@ -23,13 +27,13 @@ export const chats = pgTable(
     createdAt: p.timestamp().defaultNow().notNull(),
     updatedAt: p.timestamp().defaultNow().notNull(),
   }),
-  (chats) => [index("chats_interview_id_idx").on(chats.interviewId)]
+  (chats) => [index("chats_job_id_idx").on(chats.jobId)]
 );
 
 export const chatsRelations = relations(chats, ({ one }) => ({
-  interview: one(interviews, {
-    fields: [chats.interviewId],
-    references: [interviews.id],
+  job: one(jobs, {
+    fields: [chats.jobId],
+    references: [jobs.id],
   }),
   report: one(reports, {
     fields: [chats.id],

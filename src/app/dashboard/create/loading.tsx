@@ -7,9 +7,9 @@ export default function Loading() {
       <div className="bg-card/95 backdrop-blur-md rounded-xl shadow-xl border border-border/40 overflow-hidden w-full max-w-7xl p-8 flex flex-col items-center justify-center space-y-8">
         <div className="flex flex-col items-center justify-center gap-4">
           <Loader2 className="h-12 w-12 text-primary animate-spin" />
-          <h3 className="text-xl font-medium">Loading interview creator...</h3>
+          <h3 className="text-xl font-medium">Loading job creator...</h3>
           <p className="text-muted-foreground text-center max-w-md">
-            We&apos;re preparing the interview creation tools for you.
+            We&apos;re preparing the job creation tools for you.
           </p>
         </div>
 

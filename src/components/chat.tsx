@@ -24,10 +24,10 @@ import { Messages } from "./messages";
 import MessagesPlaceholder from "./messages-placeholder";
 
 export default function ClientComponent({
-  id,
+  jobId,
   accessToken,
 }: {
-  id: string;
+  jobId: string;
   accessToken: string;
 }) {
   const queryClient = useQueryClient();
@@ -42,12 +42,12 @@ export default function ClientComponent({
   const { data: interview } = useQuery<any>({
     // | InterviewWithCandidateDetailsAndJobDescription
     // | Entity<InterviewWithCandidateDetailsAndJobDescription>
-    queryKey: ["interview", id],
+    queryKey: ["job", jobId],
     queryFn: async () => {
-      const response = await fetch(`/api/interviews/${id}`);
+      const response = await fetch(`/api/jobs/${jobId}`);
 
       if (!response.ok) {
-        throw new Error("Failed to fetch interview");
+        throw new Error("Failed to fetch job");
       }
 
       return response.json();
@@ -57,7 +57,7 @@ export default function ClientComponent({
   const generateReportMutation = useMutation({
     mutationFn: async () => {
       const body = {
-        interviewId: params.interviewId,
+        jobId,
         chatId: idHandler.encode(activeInterviewChat?.id ?? 0),
       };
 
@@ -77,11 +77,11 @@ export default function ClientComponent({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["interview", params.interviewId],
+        queryKey: ["job", jobId],
       });
       setShowTakeover(false);
       resetState();
-      router.push(`/dashboard/interviews/${params.interviewId}/reports`);
+      router.push(`/dashboard/jobs/${jobId}/reports`);
     },
     onError: (error) => {
       console.error("Error generating report:", error);
@@ -89,9 +89,9 @@ export default function ClientComponent({
       setShowTakeover(false);
 
       queryClient.invalidateQueries({
-        queryKey: ["interview", params.interviewId],
+        queryKey: ["job", jobId],
       });
-      router.push(`/dashboard/interviews/${params.interviewId}/reports`);
+      router.push(`/dashboard/jobs/${jobId}/reports`);
     },
   });
 

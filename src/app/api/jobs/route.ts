@@ -1,173 +1,145 @@
 import { getUserFromClerkId } from "@/lib/auth";
+import { sanitiseUserInputText } from "@/lib/sanitiseUserInputText";
 import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
-import { and, eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { config } from "~/config";
 import { db } from "~/db";
-import { jobs, organizationMembers } from "~/db/schema";
+import { jobs } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
-async function checkOrganizationAccess(organizationId: number, userId: number) {
-  const member = await db.query.organizationMembers.findFirst({
-    where: and(
-      eq(organizationMembers.organizationId, organizationId),
-      eq(organizationMembers.userId, userId),
-      eq(organizationMembers.isActive, true)
-    ),
-  });
-  return member;
+export async function POST(request: NextRequest) {
+  logger.info("POST request received at /api/jobs");
+  const { userId: clerkUserId } = getAuth(request);
+  if (!clerkUserId) {
+    logger.warn("Unauthorized access attempt to POST /api/jobs");
+    return NextResponse.json(formatErrorEntity("Unauthorized"), {
+      status: 401,
+    });
+  }
+
+  try {
+    const { id: userId } = await getUserFromClerkId(clerkUserId);
+    if (!userId) {
+      logger.warn({ clerkUserId }, "User not found in database");
+      return NextResponse.json(formatErrorEntity("User not found"), {
+        status: 404,
+      });
+    }
+
+    const body = await request.json();
+    const { submittedCVText, jobDescriptionText, additionalInfo, duration, type } = body;
+    logger.info("Received job data");
+
+    const [newJob] = await db.transaction(async (tx) => {
+      logger.info({}, "Sanitising user input");
+      const sanitisedSubmittedCVText = sanitiseUserInputText(submittedCVText, {
+        truncate: true,
+        maxLength: config.maxTextLengths.cv,
+      });
+      const sanitisedJobDescriptionText = sanitiseUserInputText(jobDescriptionText, {
+        truncate: true,
+        maxLength: config.maxTextLengths.jobDescription,
+      });
+      const sanitisedAdditionalInfo = sanitiseUserInputText(additionalInfo, {
+        truncate: true,
+        maxLength: config.maxTextLengths.additionalInfo,
+      });
+
+      logger.info({}, "Creating new job");
+      const [createdJob] = await tx
+        .insert(jobs)
+        .values({
+          userId,
+          type: type ?? "behavioral",
+          duration: duration ?? 15,
+          submittedCVText: sanitisedSubmittedCVText,
+          jobDescriptionText: sanitisedJobDescriptionText,
+          additionalInfo: sanitisedAdditionalInfo,
+        })
+        .returning();
+
+      logger.info({ jobId: createdJob.id }, "Successfully created new job");
+
+      return [createdJob];
+    });
+
+    logger.info({ jobId: newJob.id }, "Successfully created new job");
+
+    return NextResponse.json(formatEntity(newJob, "job"), {
+      status: 201,
+    });
+  } catch (error) {
+    Sentry.withScope((scope) => {
+      scope.setExtra("context", "POST /api/jobs");
+      scope.setExtra("error", error);
+      Sentry.captureException(error);
+    });
+    logger.error(
+      {
+        message: error instanceof Error ? error.message : "Unknown error",
+        error,
+      },
+      "Error in POST /api/jobs"
+    );
+    return NextResponse.json(formatErrorEntity("Internal server error"), {
+      status: 500,
+    });
+  }
 }
 
 export async function GET(request: NextRequest) {
   logger.info("GET request received at /api/jobs");
-
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.error("Unauthorized access attempt at /api/jobs");
-    return NextResponse.json(formatErrorEntity({ message: "Unauthorized" }), {
-      status: 401,
-    });
-  }
-
-  const { searchParams } = new URL(request.url);
-  const organizationId = searchParams.get("organizationId");
-
-  if (!organizationId) {
-    logger.error("Missing organization ID", {
-      searchParams: Object.fromEntries(searchParams),
-    });
-    return NextResponse.json(formatErrorEntity({ message: "Organization ID is required" }), {
-      status: 400,
-    });
-  }
-
-  try {
-    const user = await getUserFromClerkId(clerkUserId);
-    if (!user || !user.id) {
-      logger.error("User not found", { clerkUserId });
-      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
-    }
-
-    const member = await checkOrganizationAccess(Number.parseInt(organizationId), user.id);
-    if (!member) {
-      logger.error("User not authorized to access organization jobs", {
-        userId: user.id,
-        organizationId,
-      });
-      return NextResponse.json(
-        formatErrorEntity({
-          message: "Not authorized to access this organization's jobs",
-        }),
-        { status: 403 }
-      );
-    }
-
-    const organizationJobs = await db.query.jobs.findMany({
-      where: and(
-        eq(jobs.organizationId, Number.parseInt(organizationId)),
-        eq(jobs.isDeleted, false)
-      ),
-    });
-
-    logger.info("Successfully fetched jobs", {
-      userId: user.id,
-      organizationId,
-      count: organizationJobs.length,
-    });
-
-    return NextResponse.json(formatEntityList(organizationJobs, "job"));
-  } catch (error) {
-    logger.error("Error fetching jobs", { error });
-    Sentry.captureException(error);
-    return NextResponse.json(formatErrorEntity(error), { status: 500 });
-  }
-}
-
-export async function POST(request: NextRequest) {
-  logger.info("POST request received at /api/jobs");
-
-  const { userId: clerkUserId } = getAuth(request);
-  if (!clerkUserId) {
-    logger.error("Unauthorized access attempt at /api/jobs");
-    return NextResponse.json(formatErrorEntity({ message: "Unauthorized" }), {
+    logger.warn("Unauthorized access attempt to GET /api/jobs");
+    return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
   }
 
   try {
-    const user = await getUserFromClerkId(clerkUserId);
-    if (!user || !user.id) {
-      logger.error("User not found", { clerkUserId });
-      return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
-    }
-
-    const json = await request.json();
-    const {
-      organizationId,
-      title,
-      description,
-      requirements,
-      interviewDuration,
-      assessmentCriteria,
-    } = json;
-
-    if (!organizationId || !title || !description || !interviewDuration) {
-      logger.error("Missing required fields", { json });
-      return NextResponse.json(formatErrorEntity({ message: "Missing required fields" }), {
-        status: 400,
+    const { id: userId } = await getUserFromClerkId(clerkUserId);
+    if (!userId) {
+      logger.warn({ clerkUserId }, "User not found in database");
+      return NextResponse.json(formatErrorEntity("User not found"), {
+        status: 404,
       });
     }
 
-    const member = await checkOrganizationAccess(organizationId, user.id);
-    if (!member || !["owner", "admin"].includes(member.role)) {
-      logger.error("User not authorized to create jobs", {
-        userId: user.id,
-        organizationId,
-        role: member?.role,
-      });
-      return NextResponse.json(
-        formatErrorEntity({
-          message: "Not authorized to create jobs for this organization",
-        }),
-        { status: 403 }
-      );
-    }
-
-    const job = await db.transaction(async (tx) => {
-      const [job] = await tx
-        .insert(jobs)
-        .values({
-          organizationId,
-          createdById: user.id,
-          title,
-          description,
-          requirements,
-          interviewDuration,
-          assessmentCriteria,
-          shareableLink: "",
-        })
-        .returning();
-
-      await tx
-        .update(jobs)
-        .set({ shareableLink: `${config.baseUrl}/jobs/${job.id}/share` })
-        .where(eq(jobs.id, job.id));
-
-      return job;
+    const userJobs = await db.query.jobs.findMany({
+      where: eq(jobs.userId, userId),
+      orderBy: desc(jobs.createdAt),
+      with: {
+        chats: {
+          with: {
+            report: true,
+          },
+        },
+        candidateDetails: true,
+        jobDescription: true,
+      },
     });
 
-    logger.info("Successfully created job", {
-      userId: user.id,
-      organizationId,
-      jobId: job.id,
-    });
-
-    return NextResponse.json(formatEntity(job, "job"));
+    logger.info({ count: userJobs.length }, "Successfully retrieved jobs");
+    return NextResponse.json(formatEntityList(userJobs, "job"));
   } catch (error) {
-    logger.error("Error creating job", { error });
-    Sentry.captureException(error);
-    return NextResponse.json(formatErrorEntity(error), { status: 500 });
+    Sentry.withScope((scope) => {
+      scope.setExtra("context", "GET /api/jobs");
+      scope.setExtra("error", error);
+      Sentry.captureException(error);
+    });
+    logger.error(
+      {
+        message: error instanceof Error ? error.message : "Unknown error",
+        error,
+      },
+      "Error in GET /api/jobs"
+    );
+    return NextResponse.json(formatErrorEntity("Internal server error"), {
+      status: 500,
+    });
   }
 }

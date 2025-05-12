@@ -6,7 +6,6 @@ export * from "./customisations";
 export * from "./featureRequestLikes";
 export * from "./featureRequests";
 export * from "./images";
-export * from "./interviews";
 export * from "./invitations";
 export * from "./jobDescriptions";
 export * from "./jobs";

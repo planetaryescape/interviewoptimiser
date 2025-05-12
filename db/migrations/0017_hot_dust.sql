@@ -1,1 +1,0 @@
-ALTER TABLE "interviews" ADD COLUMN "actual_time" integer;

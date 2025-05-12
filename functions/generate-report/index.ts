@@ -9,8 +9,8 @@ import { db } from "~/db";
 import {
   candidateDetails,
   chats,
-  interviews,
   jobDescriptions,
+  jobs,
   questionAnalysis,
   reports,
   statistics,
@@ -43,27 +43,27 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
     const failedRecords: SQSRecord[] = [];
 
     for (const record of event.Records) {
-      let interviewId = 0;
+      let jobId = 0;
       try {
         const {
-          data: { interviewId: id, reportId, chatId },
+          data: { jobId: id, chatId },
           userId,
           restart: isRestart,
         } = JSON.parse(record.body);
-        interviewId = id;
+        jobId = id;
 
         const user = await getUserFromId(userId);
-        logger.info({ interviewId, isRestart }, "Processing interview report request");
+        logger.info({ interviewId: jobId, isRestart }, "Processing interview report request");
 
-        const interview = await db
+        const job = await db
           .select()
-          .from(interviews)
-          .where(eq(interviews.id, interviewId))
-          .then(([interview]) => interview);
+          .from(jobs)
+          .where(eq(jobs.id, jobId))
+          .then(([job]) => job);
 
-        if (!interview) {
-          logger.error({ interviewId }, "Interview not found");
-          throw new Error("Interview not found");
+        if (!job) {
+          logger.error({ jobId }, "Job not found");
+          throw new Error("Job not found");
         }
 
         const chat = await db
@@ -83,13 +83,13 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         const model = getOpenAiClient(user?.email)("o3-mini");
 
         // Run extraction functions in parallel using Promise.all
-        logger.info({ interviewId }, "Starting parallel data extraction");
+        logger.info({ jobId }, "Starting parallel data extraction");
 
         const [structuredCV, structuredJobDescription, structuredCandidateDetails] =
           await Promise.all([
             extractOriginalCV({
               model,
-              submittedCVText: interview.submittedCVText ?? "",
+              submittedCVText: job.submittedCVText ?? "",
               userEmail: user?.email,
             }).catch((error) => {
               logger.error({ error }, "Error extracting structured CV data");
@@ -98,7 +98,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
 
             extractJobDescription({
               model,
-              jobDescriptionText: interview.jobDescriptionText ?? "",
+              jobDescriptionText: job.jobDescriptionText ?? "",
               userEmail: user?.email,
             }).catch((error) => {
               logger.error({ error }, "Error extracting structured job description");
@@ -107,7 +107,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
 
             extractCandidateDetails({
               model,
-              submittedCVText: interview.submittedCVText ?? "",
+              submittedCVText: job.submittedCVText ?? "",
               userEmail: user?.email,
             }).catch((error) => {
               logger.error({ error }, "Error extracting structured candidate details");
@@ -115,12 +115,12 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
             }),
           ]);
 
-        logger.info({ interviewId }, "Parallel data extraction completed");
+        logger.info({ jobId }, "Parallel data extraction completed");
 
         // Generate the interview analysis with structured data
         const generatedReport = await analyseInterview({
           model,
-          interview,
+          job,
           transcriptString: chat.transcript ?? "",
           userEmail: user?.email,
           structuredCV: structuredCV?.data,
@@ -142,7 +142,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
             await tx
               .insert(jobDescriptions)
               .values({
-                interviewId,
+                jobId,
                 company: structuredJobDescription.data.company,
                 role: structuredJobDescription.data.role,
                 requiredQualifications: structuredJobDescription.data.requiredQualifications,
@@ -167,7 +167,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
             await tx
               .insert(candidateDetails)
               .values({
-                interviewId,
+                jobId,
                 name: structuredCandidateDetails.data.name,
                 email: structuredCandidateDetails.data.email,
                 phone: structuredCandidateDetails.data.phone,
@@ -227,16 +227,16 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
             }
           }
 
-          // Update the interview with candidate, company, and role information
+          // Update the job with candidate, company, and role information
           await tx
-            .update(interviews)
+            .update(jobs)
             .set({
               candidate: generatedReport.data.candidateName,
               company: generatedReport.data.companyName,
               role: generatedReport.data.roleName,
               completed: true,
             })
-            .where(eq(interviews.id, interviewId));
+            .where(eq(jobs.id, jobId));
 
           // Update global statistics
           await tx
@@ -248,7 +248,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         });
 
         logger.info(
-          { interviewId },
+          { jobId },
           "Successfully generated and saved interview report with structured data"
         );
 
@@ -257,10 +257,10 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           metadata: {
             "User ID": userId,
             "User Email": user?.email ?? "Unknown",
-            "Interview ID": interviewId,
+            "Interview ID": jobId,
             "Interview URL": `${
               config.baseUrl
-            }/dashboard/interviews/${idHandler.encode(interviewId)}/reports`,
+            }/dashboard/interviews/${idHandler.encode(jobId)}/reports`,
             Company: generatedReport.data.companyName,
             Role: generatedReport.data.roleName,
             "Overall Score": generatedReport.data.overallScore,
@@ -281,7 +281,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         logger.error(
           {
             error: error instanceof Error ? error.message : error,
-            interviewId,
+            jobId,
           },
           "Error processing interview report request"
         );
@@ -296,7 +296,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
               description: "Failed to generate interview report",
               metadata: {
                 "Record ID": record.messageId,
-                "Interview ID": record.body ? JSON.parse(record.body).data?.interviewId : "unknown",
+                "Job ID": record.body ? JSON.parse(record.body).data?.jobId : "unknown",
                 Error: error instanceof Error ? error.message : JSON.stringify(error),
                 "Stack Trace": error instanceof Error ? error.stack : "N/A",
                 Timestamp: new Date().toISOString(),

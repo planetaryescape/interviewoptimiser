@@ -26,7 +26,7 @@ export const StructuredJobDescriptionSchema = JobDescriptionSchema.extend({
   keywords: z.array(z.string()),
 }).omit({
   id: true,
-  interviewId: true,
+  jobId: true,
   createdAt: true,
   updatedAt: true,
   keyQuestions: true,

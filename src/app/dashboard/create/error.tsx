@@ -32,7 +32,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 
           <h2 className="text-2xl font-semibold mb-2">Something went wrong</h2>
           <p className="text-muted-foreground mb-6">
-            We encountered an error while trying to create your interview. Please try again.
+            We encountered an error while trying to create your job. Please try again.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 w-full">

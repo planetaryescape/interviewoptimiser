@@ -26,22 +26,18 @@ import { ParticleSwarmLoader } from "./ui/particle-swarm-loader";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 
 type JobDetailsSheetProps = {
-  interviewId: string;
+  jobId: string;
   className?: string;
   variant?: "default" | "outline" | "secondary" | "ghost";
 };
 
-export function JobDetailsSheet({
-  interviewId,
-  className,
-  variant = "default",
-}: JobDetailsSheetProps) {
+export function JobDetailsSheet({ jobId, className, variant = "default" }: JobDetailsSheetProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const { data, isLoading, error } = useQuery<Entity<JobDescription>>({
-    queryKey: ["jobDescription", interviewId],
+    queryKey: ["jobDescription", jobId],
     queryFn: async () => {
-      const res = await fetch(`/api/jobDescriptions/${interviewId}`);
+      const res = await fetch(`/api/jobDescriptions/${jobId}`);
       if (!res.ok) {
         throw new Error("Failed to fetch job description");
       }
