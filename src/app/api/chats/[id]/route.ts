@@ -9,9 +9,6 @@ import { db } from "~/db";
 import { chats } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
-/**
- * Retrieves a specific chat metadata record by ID
- */
 export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   logger.info("GET request received at /api/chat-metadata/[id]");
@@ -32,23 +29,23 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
       });
     }
 
-    const metadataId = idHandler.decode(params.id);
+    const chatId = idHandler.decode(params.id);
 
-    const metadata = await db.query.chats.findFirst({
-      where: eq(chats.id, metadataId),
+    const chat = await db.query.chats.findFirst({
+      where: eq(chats.id, chatId),
     });
 
-    if (!metadata) {
-      return NextResponse.json(formatErrorEntity("Chat metadata not found"), {
+    if (!chat) {
+      return NextResponse.json(formatErrorEntity("Chat not found"), {
         status: 404,
       });
     }
 
-    logger.info({ id: metadata.id }, "Successfully retrieved chat metadata");
-    return NextResponse.json(formatEntity(metadata, "chat"));
+    logger.info({ id: chat.id }, "Successfully retrieved chat");
+    return NextResponse.json(formatEntity(chat, "chat"));
   } catch (error) {
     Sentry.withScope((scope) => {
-      scope.setExtra("context", "GET /api/chat-metadata/[id]");
+      scope.setExtra("context", "GET /api/chats/[id]");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
@@ -57,7 +54,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
         message: error instanceof Error ? error.message : "Unknown error",
         error,
       },
-      "Error in GET /api/chat-metadata/[id]"
+      "Error in GET /api/chats/[id]"
     );
     return NextResponse.json(formatErrorEntity("Internal server error"), {
       status: 500,
@@ -70,10 +67,10 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
  */
 export async function PUT(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
-  logger.info("PUT request received at /api/chat-metadata/[id]");
+  logger.info("PUT request received at /api/chats/[id]");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to PUT /api/chat-metadata/[id]");
+    logger.warn("Unauthorized access attempt to PUT /api/chats/[id]");
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -88,13 +85,13 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
       });
     }
 
-    const metadataId = idHandler.decode(params.id);
+    const chatId = idHandler.decode(params.id);
     const chat = await db.query.chats.findFirst({
-      where: eq(chats.id, metadataId),
+      where: eq(chats.id, chatId),
     });
 
     if (!chat) {
-      return NextResponse.json(formatErrorEntity("Chat metadata not found"), {
+      return NextResponse.json(formatErrorEntity("Chat not found"), {
         status: 404,
       });
     }
@@ -117,7 +114,7 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
       });
     }
 
-    const [updatedMetadata] = await db
+    const [updatedChat] = await db
       .update(chats)
       .set({
         customSessionId,
@@ -128,11 +125,11 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
         transcript,
         updatedAt: new Date(),
       })
-      .where(eq(chats.id, metadataId))
+      .where(eq(chats.id, chatId))
       .returning();
 
-    logger.info({ id: updatedMetadata.id }, "Successfully updated chat metadata");
-    return NextResponse.json(formatEntity(updatedMetadata, "chat"));
+    logger.info({ id: updatedChat.id }, "Successfully updated chat");
+    return NextResponse.json(formatEntity(updatedChat, "chat"));
   } catch (error) {
     Sentry.withScope((scope) => {
       scope.setExtra("context", "PUT /api/chats/[id]");
@@ -175,9 +172,9 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
       });
     }
 
-    const metadataId = idHandler.decode(params.id);
+    const chatId = idHandler.decode(params.id);
     const chat = await db.query.chats.findFirst({
-      where: eq(chats.id, metadataId),
+      where: eq(chats.id, chatId),
     });
 
     if (!chat) {
@@ -186,7 +183,7 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
       });
     }
 
-    await db.delete(chats).where(eq(chats.id, metadataId));
+    await db.delete(chats).where(eq(chats.id, chatId));
 
     logger.info({ id: chat.id }, "Successfully deleted chat");
     return NextResponse.json({ status: "success" });

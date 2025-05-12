@@ -99,7 +99,6 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ jobId
     const inputJob = jobSchema.partial().parse(body);
     logger.info({ jobId }, "Parsed job input");
 
-    // Ensure the job belongs to the user
     const existingJob = await db.query.jobs.findFirst({
       where: eq(jobs.id, jobId),
     });

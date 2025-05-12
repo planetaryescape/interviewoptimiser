@@ -1,4 +1,4 @@
-import InterviewLobby from "@/components/interview-lobby";
+import Chat from "@/components/chat";
 import { getHumeAccessToken } from "@/utils/get-hume-access-token";
 import { Suspense } from "react";
 
@@ -15,7 +15,7 @@ export default async function Page(props: {
   return (
     <div className={"grow flex flex-col h-full overflow-auto"}>
       <Suspense fallback={null}>
-        <InterviewLobby accessToken={accessToken} jobId={params.jobId} />
+        <Chat accessToken={accessToken} jobId={params.jobId} />
       </Suspense>
     </div>
   );

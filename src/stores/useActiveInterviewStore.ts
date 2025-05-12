@@ -11,6 +11,7 @@ interface Message {
 interface ActiveInterviewState {
   callDurationTimestamp: string | null;
   totalTime: number;
+  remainingTime: number;
   wrapUpSent: boolean;
   interviewEnded: boolean;
   interviewStarted: boolean;
@@ -34,6 +35,7 @@ interface ActiveInterviewActions {
 const initialState: ActiveInterviewState = {
   callDurationTimestamp: null,
   totalTime: 0,
+  remainingTime: 0,
   interviewStarted: false,
   wrapUpSent: false,
   interviewEnded: false,
@@ -48,6 +50,7 @@ export const useActiveInterviewStore = create(
     actions: {
       setCallDurationTimestamp: (timestamp: string | null) =>
         set((state) => ({
+          ...state,
           callDurationTimestamp: timestamp,
           remainingTime: Math.max(0, state.totalTime - unformatTime(timestamp)),
         })),
@@ -73,6 +76,8 @@ export const useActiveInterviewEnded = () =>
   useActiveInterviewStore((state) => state.interviewEnded);
 export const useActiveInterviewChat = () =>
   useActiveInterviewStore((state) => state.activeInterviewChat);
+export const useActiveInterviewRemainingTime = () =>
+  useActiveInterviewStore((state) => state.remainingTime);
 export const useActiveInterviewMessages = () => useActiveInterviewStore((state) => state.messages);
 export const useActiveInterviewStarted = () =>
   useActiveInterviewStore((state) => state.interviewStarted);
