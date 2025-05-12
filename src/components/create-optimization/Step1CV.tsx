@@ -3,7 +3,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { useCreateInterviewActions, useCreateInterviewCVText } from "@/stores/createInterviewStore";
+import { useCreateJobActions, useCreateJobCVText } from "@/stores/createJobStore";
 import * as Sentry from "@sentry/nextjs";
 import { AlertCircle, FileText, HelpCircle } from "lucide-react";
 import { useState } from "react";
@@ -11,8 +11,8 @@ import { toast } from "sonner";
 import { config } from "~/config";
 
 export function Step1CV() {
-  const cvText = useCreateInterviewCVText();
-  const { setCVText } = useCreateInterviewActions();
+  const cvText = useCreateJobCVText();
+  const { setCVText } = useCreateJobActions();
   const [cvFile, setCVFile] = useState<File | null>(null);
   const [showStep1Error, setShowStep1Error] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -72,7 +72,8 @@ export function Step1CV() {
       <div className="px-8 py-6 text-center border-b border-border/60">
         <h2 className="text-2xl font-semibold mb-2">Let&apos;s start with your CV</h2>
         <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-          We&apos;ll use your CV to understand your experience and tailor the interview questions
+          We&apos;ll use your CV to understand your experience and tailor the job profile to your
+          skills and experience.
         </p>
       </div>
 
@@ -155,7 +156,7 @@ export function Step1CV() {
             <div className="bg-muted/30 rounded-lg p-5 border border-border/60">
               <div className="flex items-start gap-3 mb-3">
                 <HelpCircle className="h-5 w-5 text-primary mt-0.5" />
-                <h3 className="text-base font-semibold">Tips for a great interview</h3>
+                <h3 className="text-base font-semibold">Tips for a great job profile</h3>
               </div>
               <ul className="space-y-2 text-sm text-muted-foreground pl-8 list-disc">
                 <li>
@@ -164,7 +165,9 @@ export function Step1CV() {
                 </li>
                 <li>Be specific about your achievements, skills and responsibilities</li>
                 <li>Make sure to include education, certifications, and technical skills</li>
-                <li>The more detailed your CV, the more tailored your mock interview will be</li>
+                <li>
+                  The more detailed your CV, the more tailored your interview experience will be
+                </li>
               </ul>
             </div>
           </div>

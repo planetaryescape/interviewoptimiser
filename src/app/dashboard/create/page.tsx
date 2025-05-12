@@ -1,48 +1,48 @@
 "use client";
 
 import { ConfirmationModal } from "@/components/create-optimization/ConfirmationModal";
-import { CreateInterviewErrorModal } from "@/components/create-optimization/CreateInterviewErrorModal";
+import { CreateJobErrorModal } from "@/components/create-optimization/CreateJobErrorModal";
 import { OutOfMinutesModal } from "@/components/create-optimization/OutOfMinutesModal";
 import { ProcessingTakeover } from "@/components/create-optimization/ProcessingTakeover";
 import { useUser } from "@/hooks/useUser";
 import {
-  useCreateInterviewActions,
-  useCreateInterviewAdditionalInfo,
-  useCreateInterviewCVText,
-  useCreateInterviewDuration,
-  useCreateInterviewInterviewType,
-  useCreateInterviewIsAlertDialogOpen,
-  useCreateInterviewIsOutOfMinutesDialogOpen,
-  useCreateInterviewIsScheduleErrorDialogOpen,
-  useCreateInterviewJobDescriptionText,
-  useCreateInterviewShowTakeover,
-  useCreateInterviewStep,
-} from "@/stores/createInterviewStore";
+  useCreateJobActions,
+  useCreateJobAdditionalInfo,
+  useCreateJobCVText,
+  useCreateJobDuration,
+  useCreateJobInterviewType,
+  useCreateJobIsAlertDialogOpen,
+  useCreateJobIsOutOfMinutesDialogOpen,
+  useCreateJobIsScheduleErrorDialogOpen,
+  useCreateJobJobDescriptionText,
+  useCreateJobShowTakeover,
+  useCreateJobStep,
+} from "@/stores/createJobStore";
 import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ContentArea } from "./components/ContentArea";
 import { CreateHeader } from "./components/CreateHeader";
-import { useInterviewSubmission } from "./hooks/useInterviewSubmission";
+import { useJobSubmission } from "./hooks/useJobSubmission";
 
-export default function CreateInterview() {
-  const step = useCreateInterviewStep();
-  const cvText = useCreateInterviewCVText();
-  const jobDescriptionText = useCreateInterviewJobDescriptionText();
-  const additionalInfo = useCreateInterviewAdditionalInfo();
-  const showTakeover = useCreateInterviewShowTakeover();
-  const isAlertDialogOpen = useCreateInterviewIsAlertDialogOpen();
-  const isOutOfMinutesDialogOpen = useCreateInterviewIsOutOfMinutesDialogOpen();
-  const isScheduleErrorDialogOpen = useCreateInterviewIsScheduleErrorDialogOpen();
-  const duration = useCreateInterviewDuration();
-  const interviewType = useCreateInterviewInterviewType();
+export default function CreateJob() {
+  const step = useCreateJobStep();
+  const cvText = useCreateJobCVText();
+  const jobDescriptionText = useCreateJobJobDescriptionText();
+  const additionalInfo = useCreateJobAdditionalInfo();
+  const showTakeover = useCreateJobShowTakeover();
+  const isAlertDialogOpen = useCreateJobIsAlertDialogOpen();
+  const isOutOfMinutesDialogOpen = useCreateJobIsOutOfMinutesDialogOpen();
+  const isScheduleErrorDialogOpen = useCreateJobIsScheduleErrorDialogOpen();
+  const duration = useCreateJobDuration();
+  const interviewType = useCreateJobInterviewType();
 
   const {
     setStep,
     setIsAlertDialogOpen,
     setIsOutOfMinutesDialogOpen,
     setIsScheduleErrorDialogOpen,
-  } = useCreateInterviewActions();
+  } = useCreateJobActions();
 
   const [animateStep, setAnimateStep] = useState<number | null>(null);
   const [animationDir, setAnimationDir] = useState(0);
@@ -65,7 +65,7 @@ export default function CreateInterview() {
   const canProceedToNextStep =
     (step === 1 && canProceedToStep2) || (step === 2 && canProceedToStep3) || step === 3;
 
-  const { isSubmitting, submitInterview, checkMinutes } = useInterviewSubmission({
+  const { isSubmitting, submitJob, checkMinutes } = useJobSubmission({
     userId: user?.id,
     userMinutes: user?.minutes,
     cvText,
@@ -102,7 +102,7 @@ export default function CreateInterview() {
 
   const handleConfirmSubmit = () => {
     setIsAlertDialogOpen(false);
-    submitInterview();
+    submitJob();
   };
 
   const handleBuyMinutes = () => {
@@ -138,7 +138,7 @@ export default function CreateInterview() {
         onBuyMinutes={handleBuyMinutes}
       />
 
-      <CreateInterviewErrorModal
+      <CreateJobErrorModal
         isOpen={isScheduleErrorDialogOpen}
         onTryAgain={handleSubmit}
         onClose={() => {

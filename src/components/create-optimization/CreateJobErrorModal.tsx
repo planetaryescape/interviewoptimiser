@@ -8,28 +8,25 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-interface CreateInterviewErrorModal {
+interface CreateJobErrorModalProps {
   isOpen: boolean;
-  onClose: () => void;
   onTryAgain: () => void;
+  onClose: () => void;
 }
 
-export function CreateInterviewErrorModal({
-  isOpen,
-  onClose,
-  onTryAgain,
-}: CreateInterviewErrorModal) {
+export function CreateJobErrorModal({ isOpen, onTryAgain, onClose }: CreateJobErrorModalProps) {
   return (
-    <AlertDialog open={isOpen} onOpenChange={onClose}>
+    <AlertDialog open={isOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Scheduling Issue</AlertDialogTitle>
+          <AlertDialogTitle>Error Creating Job</AlertDialogTitle>
           <AlertDialogDescription>
-            We encountered an issue with creating your interview. Not to worry, Just click try again
-            and we will create the interview for you.
+            There was an error creating your job. Please try again later.
           </AlertDialogDescription>
         </AlertDialogHeader>
+
         <AlertDialogFooter>
+          <AlertDialogAction onClick={onClose}>Cancel</AlertDialogAction>
           <AlertDialogAction onClick={onTryAgain}>Try Again</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

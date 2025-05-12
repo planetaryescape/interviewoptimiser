@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCreateInterviewActions, useCreateInterviewStep } from "@/stores/createInterviewStore";
+import { useCreateJobActions, useCreateJobStep } from "@/stores/createJobStore";
 import { Check } from "lucide-react";
 
 interface StepIndicatorProps {
@@ -10,8 +10,8 @@ interface StepIndicatorProps {
 }
 
 export function StepIndicator({ canProceedToNextStep, animateStep }: StepIndicatorProps) {
-  const step = useCreateInterviewStep();
-  const { setStep } = useCreateInterviewActions();
+  const step = useCreateJobStep();
+  const { setStep } = useCreateJobActions();
 
   // Steps configuration
   const steps = [

@@ -3,7 +3,7 @@
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { sanitiseUserInputText } from "@/lib/sanitiseUserInputText";
 import { idHandler } from "@/lib/utils/idHandler";
-import { type InterviewType, useCreateInterviewActions } from "@/stores/createInterviewStore";
+import { type InterviewType, useCreateJobActions } from "@/stores/createJobStore";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { config } from "~/config";
 import type { NewInterview } from "~/db/schema";
 
-interface UseInterviewSubmissionProps {
+interface UseJobSubmissionProps {
   userId?: number;
   userMinutes?: number;
   cvText: string;
@@ -22,7 +22,7 @@ interface UseInterviewSubmissionProps {
   interviewType: InterviewType;
 }
 
-export function useInterviewSubmission({
+export function useJobSubmission({
   userId,
   userMinutes = 0,
   cvText,
@@ -30,12 +30,12 @@ export function useInterviewSubmission({
   additionalInfo,
   duration,
   interviewType,
-}: UseInterviewSubmissionProps) {
+}: UseJobSubmissionProps) {
   const router = useRouter();
   const posthog = usePostHog();
-  const { setShowTakeover, setIsScheduleErrorDialogOpen, resetStore } = useCreateInterviewActions();
+  const { setShowTakeover, setIsScheduleErrorDialogOpen, resetStore } = useCreateJobActions();
 
-  const createInterviewMutation = useMutation({
+  const createJobMutation = useMutation({
     mutationFn: async (interview: NewInterview) => {
       const interviewRepository = await getRepository<NewInterview>("interviews", true);
       const createdInterview = await interviewRepository.create(interview);
@@ -57,7 +57,7 @@ export function useInterviewSubmission({
       return createdInterview;
     },
     onSuccess: (data) => {
-      toast.success("Interview created successfully");
+      toast.success("Job created successfully");
       setShowTakeover(true);
       setTimeout(() => {
         resetStore();
@@ -67,7 +67,7 @@ export function useInterviewSubmission({
     },
     onError: (error) => {
       Sentry.withScope((scope) => {
-        scope.setExtra("context", "createOptimizationMutation");
+        scope.setExtra("context", "createJobMutation");
         scope.setExtra("error", error);
         scope.setExtra("message", error.message);
 
@@ -79,12 +79,12 @@ export function useInterviewSubmission({
 
   const hasEnoughMinutes = userMinutes >= duration;
 
-  const submitInterview = async () => {
+  const submitJob = async () => {
     setShowTakeover(true);
 
     try {
       if (!hasEnoughMinutes) {
-        toast.error("You don't have enough minutes to create an interview.");
+        toast.error("You don't have enough minutes to create a job.");
         return;
       }
 
@@ -111,14 +111,14 @@ export function useInterviewSubmission({
         type: interviewType,
       };
 
-      posthog.capture("create_interview", {
+      posthog.capture("create_job", {
         userId,
       });
 
-      await createInterviewMutation.mutateAsync(interview);
+      await createJobMutation.mutateAsync(interview);
     } catch (error) {
       Sentry.withScope((scope) => {
-        scope.setExtra("context", "submitInterview");
+        scope.setExtra("context", "submitJob");
         scope.setExtra("error", error);
         Sentry.captureException(error);
       });
@@ -138,9 +138,9 @@ export function useInterviewSubmission({
   };
 
   return {
-    isSubmitting: createInterviewMutation.isPending,
+    isSubmitting: createJobMutation.isPending,
     hasEnoughMinutes,
-    submitInterview,
+    submitJob,
     checkMinutes,
   };
 }

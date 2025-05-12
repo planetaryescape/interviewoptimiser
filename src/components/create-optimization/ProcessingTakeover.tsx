@@ -20,13 +20,13 @@ export function ProcessingTakeover() {
     },
     {
       icon: Sparkles,
-      title: "Creating Interview",
-      description: "Generating personalized interview questions",
+      title: "Creating Job Profile",
+      description: "Generating personalized job profile",
     },
     {
       icon: FileText,
       title: "Final Setup",
-      description: "Preparing your interview session",
+      description: "Preparing your job details",
     },
   ];
 
@@ -67,11 +67,9 @@ export function ProcessingTakeover() {
             transition={{ delay: 0.2 }}
           >
             <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-              Creating Your Interview
+              Creating Your Job Profile
             </h2>
-            <p className="text-muted-foreground">
-              Please wait while we prepare your personalized interview experience
-            </p>
+            <p className="text-muted-foreground">Please wait while we prepare your job profile</p>
           </motion.div>
         </div>
 
@@ -114,7 +112,7 @@ export function ProcessingTakeover() {
           transition={{ delay: 1 }}
           className="text-center text-sm text-muted-foreground mt-8"
         >
-          You&apos;ll be redirected automatically when your interview is ready
+          You&apos;ll be redirected automatically when your job profile is ready
         </motion.p>
       </motion.div>
     </motion.div>
