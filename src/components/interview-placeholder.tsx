@@ -1,6 +1,8 @@
 "use client";
 
+import { InterviewSettings } from "@/components/interview-settings";
 import { InterviewStartModal } from "@/components/interview-start-modal";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { useJob } from "@/hooks/useInterview";
 import { getRepository } from "@/lib/data/repositoryFactory";
@@ -13,7 +15,8 @@ import { useVoice } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { MessageCircle, Mic, Sparkles, Target } from "lucide-react";
+import { Home, Layout, MessageCircle } from "lucide-react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -27,6 +30,7 @@ export default function InterviewPlaceholder() {
   const interviewEnded = useActiveInterviewEnded();
   const { data: job, isLoading, error } = useJob(jobId);
   const { setInterviewStarted, setActiveInterviewChat } = useActiveInterviewActions();
+  const [isSaving, setIsSaving] = useState(false);
 
   const { mutateAsync: createChat } = useMutation({
     mutationFn: async (metadata: Omit<NewChat, "jobId"> & { jobId: string }) => {
@@ -63,29 +67,7 @@ export default function InterviewPlaceholder() {
     },
   });
 
-  const features = [
-    {
-      id: "voice",
-      icon: Mic,
-      title: "Real-time Voice Interaction",
-      description: "Natural conversation with AI-powered responses",
-    },
-    {
-      id: "feedback",
-      icon: Target,
-      title: "Personalized Feedback",
-      description: "Get instant insights on your performance",
-    },
-    {
-      id: "analysis",
-      icon: Sparkles,
-      title: "AI-Powered Analysis",
-      description: "Comprehensive evaluation of your interview skills",
-    },
-  ];
-
   useEffect(() => {
-    console.log("chatMetadata", chatMetadata);
     if (chatMetadata?.chatGroupId && chatMetadata.chatId) {
       createChat({
         jobId: params.jobId as string,
@@ -129,6 +111,13 @@ export default function InterviewPlaceholder() {
 
   return (
     <div className="h-full flex flex-col">
+      {/* Theme Toggle */}
+      <div className="fixed top-4 right-4 z-50">
+        <div className="bg-background/40 backdrop-blur-md p-2 rounded-full border border-border/30 shadow-sm">
+          <ThemeToggle />
+        </div>
+      </div>
+
       {/* Main Content - Using grid for perfect centering and spacing */}
       <div className="flex-1 grid place-items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background">
         {/* Animated Background Elements */}
@@ -159,7 +148,7 @@ export default function InterviewPlaceholder() {
         </div>
 
         {/* Content Container */}
-        <div className="relative z-10 max-w-5xl w-full mx-auto px-4 flex flex-col items-center justify-center gap-12">
+        <div className="relative z-10 max-w-5xl w-full mx-auto px-4 flex flex-col items-center justify-center gap-12 py-10">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -192,27 +181,13 @@ export default function InterviewPlaceholder() {
             </div>
           </motion.div>
 
-          {/* Features Grid */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="grid md:grid-cols-3 gap-6 w-full"
+            className="w-full"
           >
-            {features.map((feature) => (
-              <motion.div
-                key={feature.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="group relative overflow-hidden rounded-2xl bg-gradient-to-b from-background to-primary/5 p-6 border border-primary/10 hover:border-primary/20 transition-colors"
-              >
-                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <feature.icon className="h-8 w-8 text-primary mb-4 relative z-10" />
-                <h3 className="font-semibold mb-2 relative z-10">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground relative z-10">{feature.description}</p>
-              </motion.div>
-            ))}
+            <InterviewSettings isSaving={isSaving} setIsSaving={setIsSaving} />
           </motion.div>
 
           {/* Start Button */}
@@ -223,13 +198,35 @@ export default function InterviewPlaceholder() {
           >
             <Button
               size="lg"
-              disabled={interviewEnded}
+              disabled={interviewEnded || isSaving}
               onClick={() => setShowModal(true)}
               className="relative group px-8 py-6 text-lg hover:scale-105 transition-transform"
             >
               <div className="absolute inset-0 bg-primary opacity-20 group-hover:opacity-30 blur-xl transition-all rounded-lg" />
               <MessageCircle className="mr-2 h-5 w-5" />
               Start Interview
+            </Button>
+          </motion.div>
+
+          {/* Navigation Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1 }}
+            className="mt-6 pt-6 border-t border-border/40 flex flex-wrap gap-4 justify-center w-full max-w-6xl"
+          >
+            <Button variant="outline" size="sm" asChild className="flex items-center gap-2">
+              <Link href="/">
+                <Home className="h-4 w-4" />
+                Home
+              </Link>
+            </Button>
+
+            <Button variant="outline" size="sm" asChild className="flex items-center gap-2">
+              <Link href="/dashboard">
+                <Layout className="h-4 w-4" />
+                Dashboard
+              </Link>
             </Button>
           </motion.div>
         </div>

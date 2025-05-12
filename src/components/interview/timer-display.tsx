@@ -3,18 +3,17 @@
 import { cn } from "@/lib/utils";
 import { formatTime } from "@/lib/utils/formatTime";
 import {
-  useActiveInterviewCallDuration,
+  useActiveInterviewRemainingTime,
   useActiveInterviewTotalTime,
 } from "@/stores/useActiveInterviewStore";
 import { useVoice } from "@humeai/voice-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export function TimerDisplay() {
   const timerCanvasRef = useRef<HTMLCanvasElement>(null);
-  const callDurationTimestamp = useActiveInterviewCallDuration();
   const totalTime = useActiveInterviewTotalTime();
-  const { status } = useVoice();
-  const [remainingTime] = useState(0);
+  const remainingTime = useActiveInterviewRemainingTime();
+  const { status, callDurationTimestamp } = useVoice();
 
   useEffect(() => {
     // Skip canvas rendering in test environment
@@ -84,7 +83,7 @@ export function TimerDisplay() {
         <div className="text-center">
           <div className="text-xs text-muted-foreground font-medium mb-1">Time Left</div>
           <div className="text-lg font-bold font-mono">
-            {callDurationTimestamp ? formatTime(remainingTime) : "--:--"}
+            {callDurationTimestamp ? formatTime(remainingTime) : formatTime(totalTime)}
           </div>
         </div>
       </div>

@@ -32,6 +32,7 @@ export function Controls() {
     unmute,
     mute,
     micFft,
+    fft,
     callDurationTimestamp,
     sendUserInput,
     sendAssistantInput,
@@ -117,6 +118,10 @@ export function Controls() {
             >
               {isMuted ? <MicOff className={"size-4"} /> : <Mic className={"size-4"} />}
             </Toggle>
+
+            <div className={"relative grid h-12 w-48 shrink grow-0"}>
+              <MicFFT fft={fft} className={"fill-primary"} />
+            </div>
 
             <div className={"relative grid h-12 w-48 shrink grow-0"}>
               <MicFFT fft={micFft} className={"fill-current"} />

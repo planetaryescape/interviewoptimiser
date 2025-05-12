@@ -1,5 +1,6 @@
 "use client";
 
+import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
 import {
   useActiveInterviewActions,
@@ -12,16 +13,25 @@ import { createInterviewInstructions } from "@/utils/conversation_config";
 import { VoiceProvider } from "@humeai/voice-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { type ComponentRef, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
+import type { InferResultType } from "~/db/helpers";
 import { Controls } from "./controls";
 import { GeneratingReportTakeover } from "./generating-report-takeover";
+import MessagesPlaceholder from "./interview-placeholder";
 import { ConnectionStatus } from "./interview/connection-status";
 import { InterviewController } from "./interview/interview-controller";
 import { TimerDisplay } from "./interview/timer-display";
 import { Messages } from "./messages";
-import MessagesPlaceholder from "./messages-placeholder";
+
+type JobWithCandidateDetailsAndJobDescription = InferResultType<
+  "jobs",
+  {
+    candidateDetails: true;
+    jobDescription: true;
+  }
+>;
 
 export default function ClientComponent({
   jobId,
@@ -32,25 +42,20 @@ export default function ClientComponent({
 }) {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const params = useParams();
   const interviewEnded = useActiveInterviewEnded();
   const { resetState, setShowTakeover, setTotalTime } = useActiveInterviewActions();
   const interviewStarted = useActiveInterviewStarted();
   const showTakeover = useActiveInterviewShowTakeover();
   const activeInterviewChat = useActiveInterviewChat();
 
-  const { data: interview } = useQuery<any>({
-    // | InterviewWithCandidateDetailsAndJobDescription
-    // | Entity<InterviewWithCandidateDetailsAndJobDescription>
+  console.log("jobId", idHandler.decode(jobId));
+
+  const { data: job } = useQuery({
     queryKey: ["job", jobId],
     queryFn: async () => {
-      const response = await fetch(`/api/jobs/${jobId}`);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch job");
-      }
-
-      return response.json();
+      const jobsRepo = await getRepository<JobWithCandidateDetailsAndJobDescription>("jobs");
+      const job = await jobsRepo.getById(jobId);
+      return job;
     },
   });
 
@@ -112,98 +117,51 @@ export default function ClientComponent({
 
   // Initialize store with props
   useEffect(() => {
-    if (interview) {
-      setTotalTime((interview.data?.duration ?? 15) * 60);
+    console.log("job before", job);
+    if (job?.data?.duration) {
+      console.log("job after", job);
+      setTotalTime(job.data.duration * 60);
     }
-  }, [interview, setTotalTime]);
+  }, [job, setTotalTime]);
 
   const systemPrompt = useMemo(() => {
     return createInterviewInstructions({
-      cvText: interview?.data?.submittedCVText ?? "",
+      cvText: job?.data?.submittedCVText ?? "",
       structuredCandidateDetails: {
-        ...interview?.data?.candidateDetails,
-        location:
-          interview?.data?.candidateDetails?.location ?? interview?.candidateDetails.location ?? "",
-        name: interview?.data?.candidateDetails?.name ?? interview?.candidateDetails.name ?? "",
-        email: interview?.data?.candidateDetails?.email ?? interview?.candidateDetails.email ?? "",
-        phone: interview?.data?.candidateDetails?.phone ?? interview?.candidateDetails.phone ?? "",
-        currentRole:
-          interview?.data?.candidateDetails?.currentRole ??
-          interview?.candidateDetails.currentRole ??
-          "",
-        professionalSummary:
-          interview?.data?.candidateDetails?.professionalSummary ??
-          interview?.candidateDetails.professionalSummary ??
-          "",
-        linkedinUrl:
-          interview?.data?.candidateDetails?.linkedinUrl ??
-          interview?.candidateDetails.linkedinUrl ??
-          "",
-        portfolioUrl:
-          interview?.data?.candidateDetails?.portfolioUrl ??
-          interview?.candidateDetails.portfolioUrl ??
-          "",
-        otherUrls:
-          interview?.data?.candidateDetails?.otherUrls ??
-          interview?.candidateDetails.otherUrls ??
-          [],
+        ...job?.data?.candidateDetails,
+        location: job?.data?.candidateDetails?.location ?? "",
+        name: job?.data?.candidateDetails?.name ?? "",
+        email: job?.data?.candidateDetails?.email ?? "",
+        phone: job?.data?.candidateDetails?.phone ?? "",
+        currentRole: job?.data?.candidateDetails?.currentRole ?? "",
+        professionalSummary: job?.data?.candidateDetails?.professionalSummary ?? "",
+        linkedinUrl: job?.data?.candidateDetails?.linkedinUrl ?? "",
+        portfolioUrl: job?.data?.candidateDetails?.portfolioUrl ?? "",
+        otherUrls: job?.data?.candidateDetails?.otherUrls ?? [],
       },
       structuredJobDescription: {
-        ...interview?.data?.jobDescription,
-        role: interview?.data?.jobDescription?.role ?? interview?.jobDescription.role ?? "",
-        seniority:
-          interview?.data?.jobDescription?.seniority ?? interview?.jobDescription.seniority ?? "",
-        company:
-          interview?.data?.jobDescription?.company ?? interview?.jobDescription.company ?? "",
-        employmentType:
-          interview?.data?.jobDescription?.employmentType ??
-          interview?.jobDescription.employmentType ??
-          "",
-        location:
-          interview?.data?.jobDescription?.location ?? interview?.jobDescription.location ?? "",
-        industry:
-          interview?.data?.jobDescription?.industry ?? interview?.jobDescription.industry ?? "",
-        requiredQualifications:
-          interview?.data?.jobDescription?.requiredQualifications ??
-          interview?.jobDescription.requiredQualifications ??
-          [],
-        requiredExperience:
-          interview?.data?.jobDescription?.requiredExperience ??
-          interview?.jobDescription.requiredExperience ??
-          [],
-        requiredSkills:
-          interview?.data?.jobDescription?.requiredSkills ??
-          interview?.jobDescription.requiredSkills ??
-          [],
-        preferredQualifications:
-          interview?.data?.jobDescription?.preferredQualifications ??
-          interview?.jobDescription.preferredQualifications ??
-          [],
-        preferredSkills:
-          interview?.data?.jobDescription?.preferredSkills ??
-          interview?.jobDescription.preferredSkills ??
-          [],
-        responsibilities:
-          interview?.data?.jobDescription?.responsibilities ??
-          interview?.jobDescription.responsibilities ??
-          [],
-        benefits:
-          interview?.data?.jobDescription?.benefits ?? interview?.jobDescription.benefits ?? [],
-        keyTechnologies:
-          interview?.data?.jobDescription?.keyTechnologies ??
-          interview?.jobDescription.keyTechnologies ??
-          [],
-        keywords:
-          interview?.data?.jobDescription?.keywords ?? interview?.jobDescription.keywords ?? [],
-        keyQuestions:
-          interview?.data?.jobDescription?.keyQuestions ??
-          interview?.jobDescription.keyQuestions ??
-          [],
+        ...job?.data?.jobDescription,
+        role: job?.data?.jobDescription?.role ?? "",
+        seniority: job?.data?.jobDescription?.seniority ?? "",
+        company: job?.data?.jobDescription?.company ?? "",
+        employmentType: job?.data?.jobDescription?.employmentType ?? "",
+        location: job?.data?.jobDescription?.location ?? "",
+        industry: job?.data?.jobDescription?.industry ?? "",
+        requiredQualifications: job?.data?.jobDescription?.requiredQualifications ?? [],
+        requiredExperience: job?.data?.jobDescription?.requiredExperience ?? [],
+        requiredSkills: job?.data?.jobDescription?.requiredSkills ?? [],
+        preferredQualifications: job?.data?.jobDescription?.preferredQualifications ?? [],
+        preferredSkills: job?.data?.jobDescription?.preferredSkills ?? [],
+        responsibilities: job?.data?.jobDescription?.responsibilities ?? [],
+        benefits: job?.data?.jobDescription?.benefits ?? [],
+        keyTechnologies: job?.data?.jobDescription?.keyTechnologies ?? [],
+        keywords: job?.data?.jobDescription?.keywords ?? [],
+        keyQuestions: job?.data?.jobDescription?.keyQuestions ?? [],
       },
-      duration: interview?.data?.duration ?? interview?.duration ?? 15,
-      interviewType: interview?.data?.type ?? interview?.type ?? "behavioral",
+      duration: job?.data?.duration ?? 15,
+      interviewType: job?.data?.type ?? "behavioral",
     });
-  }, [interview]);
+  }, [job]);
 
   return (
     <div className={"relative grid grid-rows-[1fr_auto] mx-auto w-full overflow-auto h-full"}>
@@ -214,15 +172,15 @@ export default function ClientComponent({
           type: "session_settings",
           systemPrompt,
           context: {
-            text: `You are an AI interviewer called Cora, the lead interviewer at Interview Optimiser. You are conducting a mock interview with ${interview?.data?.candidateDetails.name} to help them prepare for a ${interview?.data?.jobDescription.role} job at ${interview?.data?.jobDescription.company}. Your goal is to ask relevant, insightful questions based on the candidate data and job role information, focusing on ${interview?.data?.type} questions.
+            text: `You are an AI interviewer called Cora, the lead interviewer at Interview Optimiser. You are conducting a mock interview with ${job?.data?.candidateDetails.name} to help them prepare for a ${job?.data?.jobDescription.role} job at ${job?.data?.jobDescription.company}. Your goal is to ask relevant, insightful questions based on the candidate data and job role information, focusing on ${job?.data?.type} questions.
 
             Do not interrupt the candidate; always let them finish their thoughts. If the candidate's response seems incomplete, use affirming interjections like "uh-huh" to encourage them to continue. Use positive reinforcement and adjust the difficulty of questions based on the candidate's performance, allowing them to expand and providing feedback when necessary.
 
             ${
-              interview?.data?.jobDescription?.keyQuestions?.length
+              job?.data?.jobDescription?.keyQuestions?.length
                 ? `IMPORTANT: These are the 5 key questions that MUST be asked during the interview. They are the HIGHEST PRIORITY questions and should be asked before exploring other topics. These questions have been specifically generated for this role and are crucial for assessing the candidate's suitability:
 
-            ${interview?.data?.jobDescription?.keyQuestions
+            ${job?.data?.jobDescription?.keyQuestions
               .map((q: string, i: number) => `${i + 1}. ${q}`)
               .join("\n")}
 

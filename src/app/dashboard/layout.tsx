@@ -12,8 +12,10 @@ import { Toaster } from "sonner";
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { theme } = useTheme();
   const pathname = usePathname();
-  const showSidebar = !pathname.includes("/dashboard/create");
-  const showHeader = !pathname.includes("/dashboard/create");
+  const isCreateJob = pathname.includes("/dashboard/create");
+  const isJobs = pathname.includes("/dashboard/jobs/");
+  const showSidebar = !isCreateJob && !isJobs;
+  const showHeader = !isCreateJob && !isJobs;
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-background">
