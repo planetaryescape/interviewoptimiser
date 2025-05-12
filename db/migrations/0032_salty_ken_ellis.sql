@@ -1,0 +1,1 @@
+ALTER TABLE "chats" RENAME COLUMN "chat_id" TO "hume_chat_id";

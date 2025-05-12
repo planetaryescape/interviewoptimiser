@@ -1,7 +1,7 @@
 import { unformatTime } from "@/lib/utils/unformatTime";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import type { ChatMetadata } from "~/db/schema";
+import type { Chat } from "~/db/schema";
 
 interface Message {
   role: string;
@@ -11,34 +11,35 @@ interface Message {
 interface ActiveInterviewState {
   callDurationTimestamp: string | null;
   totalTime: number;
-  remainingTime: number;
   wrapUpSent: boolean;
   interviewEnded: boolean;
-  isConnected: boolean;
+  interviewStarted: boolean;
   messages: Message[];
-  activeInterviewChatMetadata: ChatMetadata | null;
+  activeInterviewChat: Chat | null;
+  showTakeover: boolean;
 }
 
 interface ActiveInterviewActions {
   setCallDurationTimestamp: (timestamp: string | null) => void;
   setTotalTime: (time: number) => void;
   setInterviewEnded: (ended: boolean) => void;
-  setConnectionStatus: (connected: boolean) => void;
+  setInterviewStarted: (started: boolean) => void;
   markWrapUpSent: () => void;
   setMessages: (messages: Message[]) => void;
-  setActiveInterviewChatMetadata: (chatMetadata: ChatMetadata | null) => void;
+  setActiveInterviewChat: (chat: Chat | null) => void;
   resetState: () => void;
+  setShowTakeover: (showTakeover: boolean) => void;
 }
 
 const initialState: ActiveInterviewState = {
   callDurationTimestamp: null,
   totalTime: 0,
-  remainingTime: 0,
+  interviewStarted: false,
   wrapUpSent: false,
   interviewEnded: false,
-  isConnected: false,
   messages: [],
-  activeInterviewChatMetadata: null,
+  activeInterviewChat: null,
+  showTakeover: false,
 };
 
 export const useActiveInterviewStore = create(
@@ -48,17 +49,15 @@ export const useActiveInterviewStore = create(
       setCallDurationTimestamp: (timestamp: string | null) =>
         set((state) => ({
           callDurationTimestamp: timestamp,
-          remainingTime: timestamp
-            ? Math.max(0, state.totalTime - unformatTime(timestamp))
-            : state.remainingTime,
+          remainingTime: Math.max(0, state.totalTime - unformatTime(timestamp)),
         })),
       setTotalTime: (totalTime: number) => set({ totalTime }),
       setInterviewEnded: (interviewEnded: boolean) => set({ interviewEnded }),
-      setActiveInterviewChatMetadata: (chatMetadata: ChatMetadata | null) =>
-        set({ activeInterviewChatMetadata: chatMetadata }),
-      setConnectionStatus: (isConnected: boolean) => set({ isConnected }),
+      setShowTakeover: (showTakeover: boolean) => set({ showTakeover }),
+      setActiveInterviewChat: (chat: Chat | null) => set({ activeInterviewChat: chat }),
       markWrapUpSent: () => set({ wrapUpSent: true }),
       setMessages: (messages: Message[]) => set({ messages }),
+      setInterviewStarted: (interviewStarted: boolean) => set({ interviewStarted }),
       resetState: () => set(initialState),
     },
   }))
@@ -68,15 +67,15 @@ export const useActiveInterviewCallDuration = () =>
   useActiveInterviewStore((state) => state.callDurationTimestamp);
 export const useActiveInterviewTotalTime = () =>
   useActiveInterviewStore((state) => state.totalTime);
-export const useActiveInterviewRemainingTime = () =>
-  useActiveInterviewStore((state) => state.remainingTime);
 export const useActiveInterviewWrapUpSent = () =>
   useActiveInterviewStore((state) => state.wrapUpSent);
 export const useActiveInterviewEnded = () =>
   useActiveInterviewStore((state) => state.interviewEnded);
-export const useActiveInterviewChatMetadata = () =>
-  useActiveInterviewStore((state) => state.activeInterviewChatMetadata);
-export const useActiveInterviewIsConnected = () =>
-  useActiveInterviewStore((state) => state.isConnected);
+export const useActiveInterviewChat = () =>
+  useActiveInterviewStore((state) => state.activeInterviewChat);
 export const useActiveInterviewMessages = () => useActiveInterviewStore((state) => state.messages);
+export const useActiveInterviewStarted = () =>
+  useActiveInterviewStore((state) => state.interviewStarted);
+export const useActiveInterviewShowTakeover = () =>
+  useActiveInterviewStore((state) => state.showTakeover);
 export const useActiveInterviewActions = () => useActiveInterviewStore((state) => state.actions);

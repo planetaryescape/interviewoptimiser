@@ -166,13 +166,12 @@ export function getFileTypeFromFilename(filename: string): {
  */
 export async function uploadAudioToS3(
   audioData: Buffer,
-  interviewId: number,
   chatId: string,
   filename: string
 ): Promise<string> {
   try {
     const { extension, contentType } = getFileTypeFromFilename(filename);
-    const key = `interview-recordings/${interviewId}/${chatId}.${extension}`;
+    const key = `interview-recordings/${chatId}.${extension}`;
 
     await s3.send(
       new PutObjectCommand({
@@ -191,7 +190,6 @@ export async function uploadAudioToS3(
       {
         message: error instanceof Error ? error.message : "Unknown error",
         error,
-        interviewId,
         chatId,
       },
       "Error uploading audio to S3"

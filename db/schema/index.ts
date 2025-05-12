@@ -1,6 +1,6 @@
 export * from "./candidateDetails";
 export * from "./changelogs";
-export * from "./chatMetadata";
+export * from "./chats";
 export * from "./countries";
 export * from "./customisations";
 export * from "./featureRequestLikes";

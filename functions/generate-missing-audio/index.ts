@@ -1,8 +1,8 @@
 import { requestChatAudioReconstruction } from "@/lib/utils/hume-audio-reconstruction";
 import * as Sentry from "@sentry/aws-serverless";
-import { eq, isNull } from "drizzle-orm";
+import { and, isNull } from "drizzle-orm";
 import { db } from "~/db";
-import { chatMetadata, interviews, reports } from "~/db/schema";
+import { reports } from "~/db/schema";
 import { sendDiscordDM } from "~/lib/discord";
 import { logger } from "~/lib/logger";
 import { initSentry } from "../lib/sentry";
@@ -13,19 +13,18 @@ const apiGatewayUrl = process.env.API_GATEWAY_URL ?? "";
 
 export const handler = Sentry.wrapHandler(async () => {
   try {
-    logger.info("Checking for interviews with chatMetadata but missing audio");
+    logger.info("Checking for reports without audio");
 
-    // Find reports with chatMetadata and no interviewAudioUrl
-    const reportsToProcess = await db
-      .select({
-        id: reports.id,
-        userId: interviews.userId,
-        chatId: chatMetadata.chatId,
-      })
-      .from(reports)
-      .innerJoin(interviews, eq(interviews.id, reports.interviewId))
-      .innerJoin(chatMetadata, eq(chatMetadata.reportId, reports.id))
-      .where(isNull(reports.interviewAudioUrl));
+    const reportsToProcess = await db.query.reports.findMany({
+      where: and(isNull(reports.interviewAudioUrl)),
+      with: {
+        chat: {
+          with: {
+            interview: true,
+          },
+        },
+      },
+    });
 
     logger.info(
       {
@@ -52,7 +51,7 @@ export const handler = Sentry.wrapHandler(async () => {
     for (const report of reportsToProcess) {
       logger.info({ reportId: report.id }, "Requesting audio reconstruction");
       try {
-        const reconstructionResponse = await requestChatAudioReconstruction(report.chatId);
+        const reconstructionResponse = await requestChatAudioReconstruction(report.chat.humeChatId);
         logger.info(
           { reportId: report.id, reconstructionResponse },
           "Audio reconstruction requested"
@@ -79,6 +78,7 @@ export const handler = Sentry.wrapHandler(async () => {
           body: JSON.stringify({
             data: {
               reportId: report.id,
+              chatId: report.chat.humeChatId,
             },
             userId: report.userId,
             queueType: "save-interview-audio-to-s3",

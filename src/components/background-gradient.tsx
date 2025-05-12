@@ -2,11 +2,7 @@
 
 import { useTheme } from "next-themes";
 
-export const BackgroundGradient = ({
-  degrees = 212,
-}: {
-  degrees?: number;
-}) => {
+export const BackgroundGradient = ({ degrees = 212 }: { degrees?: number }) => {
   const { theme } = useTheme();
   const hue = theme === "dark" ? 12 : 171;
   return (

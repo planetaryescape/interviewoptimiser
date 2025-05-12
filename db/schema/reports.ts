@@ -1,17 +1,16 @@
 import { relations } from "drizzle-orm";
-import { index, pgTable } from "drizzle-orm/pg-core";
-import { chatMetadata } from "./chatMetadata";
-import { interviews } from "./interviews";
+import { type PgTableWithColumns, index, pgTable } from "drizzle-orm/pg-core";
+import { chats } from "./chats";
 import { pageSettings } from "./pageSettings";
 import { questionAnalysis } from "./questionAnalysis";
 
-export const reports = pgTable(
+export const reports: PgTableWithColumns<any> = pgTable(
   "reports",
   (p) => ({
     id: p.serial().primaryKey(),
-    interviewId: p
+    chatId: p
       .integer()
-      .references(() => interviews.id)
+      .references(() => chats.id)
       .notNull(),
     generalAssessment: p.text().notNull(),
     overallScore: p.integer().notNull(),
@@ -30,7 +29,6 @@ export const reports = pgTable(
     adaptability: p.text().notNull(),
     adaptabilityScore: p.integer().notNull(),
     areasOfStrength: p.text().notNull(),
-    transcript: p.text(),
     areasForImprovement: p.text().notNull(),
     interviewAudioUrl: p.text(),
     actionableNextSteps: p.text().notNull(),
@@ -39,24 +37,18 @@ export const reports = pgTable(
     createdAt: p.timestamp().defaultNow().notNull(),
     updatedAt: p.timestamp().defaultNow().notNull(),
   }),
-  (reports) => ({
-    interviewIdIdx: index("reports_interview_id_idx").on(reports.interviewId),
-  })
+  (reports) => [index("reports_chat_id_idx").on(reports.chatId)]
 );
 
 export const reportRelations = relations(reports, ({ one, many }) => ({
-  interview: one(interviews, {
-    fields: [reports.interviewId],
-    references: [interviews.id],
-  }),
   pageSettings: one(pageSettings, {
     fields: [reports.id],
     references: [pageSettings.reportId],
   }),
   questionAnalyses: many(questionAnalysis),
-  chatMetadata: one(chatMetadata, {
-    fields: [reports.id],
-    references: [chatMetadata.reportId],
+  chat: one(chats, {
+    fields: [reports.chatId],
+    references: [chats.id],
   }),
 }));
 

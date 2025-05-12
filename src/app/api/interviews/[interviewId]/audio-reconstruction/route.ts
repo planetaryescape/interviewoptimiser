@@ -7,13 +7,16 @@ import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
-import { chatMetadata, reports } from "~/db/schema";
+import { chats, interviews } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 /**
  * Initiates audio reconstruction for an interview
  */
-export async function GET(request: NextRequest, props: { params: Promise<{ reportId: string }> }) {
+export async function GET(
+  request: NextRequest,
+  props: { params: Promise<{ interviewId: string }> }
+) {
   const params = await props.params;
   logger.info("GET request received at /api/interviews/[interviewId]/audio-reconstruction");
   const { userId: clerkUserId } = getAuth(request);
@@ -35,50 +38,52 @@ export async function GET(request: NextRequest, props: { params: Promise<{ repor
       });
     }
 
+    const interviewId = idHandler.decode(params.interviewId);
+
     // Check if the interview exists and belongs to the user
-    const report = await db.query.reports.findFirst({
-      where: eq(reports.id, idHandler.decode(params.reportId)),
+    const interview = await db.query.interviews.findFirst({
+      where: eq(interviews.id, interviewId),
       with: {
-        interview: true,
+        report: true,
       },
     });
 
-    if (!report) {
-      logger.warn({ reportId: params.reportId }, "Report not found");
-      return NextResponse.json(formatErrorEntity("Report not found"), {
+    if (!interview) {
+      logger.warn({ interviewId }, "Interview not found");
+      return NextResponse.json(formatErrorEntity("Interview not found"), {
         status: 404,
       });
     }
 
-    if (report.interview.userId !== userId && role !== "admin") {
-      logger.warn({ reportId: params.reportId, userId }, "Unauthorized access to report");
+    if (interview.userId !== userId && role !== "admin") {
+      logger.warn({ interviewId, userId }, "Unauthorized access to interview");
       return NextResponse.json(formatErrorEntity("Unauthorized"), {
         status: 401,
       });
     }
 
     // Get the chat metadata associated with the interview
-    const metadata = await db.query.chatMetadata.findFirst({
-      where: eq(chatMetadata.reportId, idHandler.decode(params.reportId)),
+    const returnedChats = await db.query.chats.findFirst({
+      where: eq(chats.interviewId, interviewId),
     });
 
-    if (!metadata || !metadata.chatId) {
-      logger.warn({ reportId: params.reportId }, "No chat metadata found for this report");
-      return NextResponse.json(formatErrorEntity("No chat metadata found for this report"), {
+    if (!returnedChats || !returnedChats.humeChatId) {
+      logger.warn({ interviewId }, "No chat metadata found for this interview");
+      return NextResponse.json(formatErrorEntity("No chat metadata found for this interview"), {
         status: 404,
       });
     }
 
     try {
       // Request audio reconstruction from Hume API
-      const reconstructionResponse = await requestChatAudioReconstruction(metadata.chatId);
+      const reconstructionResponse = await requestChatAudioReconstruction(returnedChats.humeChatId);
 
       // Return the reconstruction status
       return NextResponse.json(
         formatEntity(
           {
             reconstruction: reconstructionResponse,
-            reportId: params.reportId,
+            interviewId,
           },
           "generic"
         )
@@ -88,7 +93,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ repor
         {
           message: error instanceof Error ? error.message : "Unknown error",
           error,
-          reportId: params.reportId,
+          interviewId,
         },
         "Error in audio reconstruction process"
       );

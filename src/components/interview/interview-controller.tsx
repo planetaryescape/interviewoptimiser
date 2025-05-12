@@ -1,12 +1,13 @@
 "use client";
 
 import { getRepository } from "@/lib/data/repositoryFactory";
+import { idHandler } from "@/lib/utils/idHandler";
 import { ONE_MINUTE_LEFT_MESSAGE } from "@/lib/utils/messageUtils";
 import { unformatTime } from "@/lib/utils/unformatTime";
 import {
   useActiveInterviewActions,
   useActiveInterviewCallDuration,
-  useActiveInterviewChatMetadata,
+  useActiveInterviewChat,
   useActiveInterviewEnded,
   useActiveInterviewTotalTime,
   useActiveInterviewWrapUpSent,
@@ -17,7 +18,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import type { Interview, NewChatMetadata, NewInterview, User } from "~/db/schema";
+import type { NewChat, User } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export function InterviewController() {
@@ -34,13 +35,12 @@ export function InterviewController() {
   const {
     setCallDurationTimestamp,
     setInterviewEnded,
-    setConnectionStatus,
     markWrapUpSent,
     setMessages,
-    setActiveInterviewChatMetadata,
+    setActiveInterviewChat,
   } = useActiveInterviewActions();
 
-  const activeInterviewChatMetadata = useActiveInterviewChatMetadata();
+  const activeInterviewChat = useActiveInterviewChat();
 
   const {
     disconnect,
@@ -53,45 +53,8 @@ export function InterviewController() {
     chatMetadata,
   } = useVoice();
 
-  const { mutate: createChatMetadata } = useMutation({
-    mutationFn: async (
-      metadata: Omit<NewChatMetadata, "reportId"> & { interviewId: string; reportId?: number }
-    ) => {
-      const chatMetadataRepo = await getRepository<
-        Omit<NewChatMetadata, "reportId"> & { interviewId: string; reportId?: number }
-      >("chat-metadata");
-      return await chatMetadataRepo.create({
-        ...metadata,
-        interviewId: params.interviewId as string,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        customSessionId: metadata.customSessionId || null,
-        requestId: metadata.requestId || null,
-      });
-    },
-    onSuccess: (data) => {
-      if (!activeInterviewChatMetadata) {
-        setActiveInterviewChatMetadata({
-          ...data.data,
-          id: data.sys.id || 0,
-          createdAt: data.sys.createdAt ? new Date(data.sys.createdAt) : new Date(),
-          updatedAt: data.sys.updatedAt ? new Date(data.sys.updatedAt) : new Date(),
-          reportId: data.data.reportId || 0,
-          customSessionId: data.data.customSessionId || null,
-          chatGroupId: data.data.chatGroupId,
-          chatId: data.data.chatId,
-          requestId: data.data.requestId || null,
-        });
-      }
-      // Request audio reconstruction after metadata is created
-      requestAudioReconstruction();
-    },
-  });
-
   // Update store with voice state
   useEffect(() => {
-    setConnectionStatus(status.value === "connected");
-
     if (voiceTimestamp) {
       setCallDurationTimestamp(voiceTimestamp);
     }
@@ -108,33 +71,17 @@ export function InterviewController() {
 
       setMessages(storeCompatibleMessages);
     }
-  }, [
-    status.value,
-    voiceTimestamp,
-    messages,
-    setConnectionStatus,
-    setCallDurationTimestamp,
-    setMessages,
-  ]);
+  }, [voiceTimestamp, messages, setCallDurationTimestamp, setMessages]);
 
   // End of interview mutation
-  const { mutate: updateInterview } = useMutation({
-    mutationFn: async (interview: Partial<NewInterview>) => {
-      const interviewRepo = await getRepository<Interview>("interviews");
-      return await interviewRepo.update(params.interviewId as string, interview);
+  const { mutate: endChat } = useMutation({
+    mutationFn: async (chat: Partial<Omit<NewChat, "interviewId"> & { interviewId: string }>) => {
+      const chatRepo = await getRepository<Omit<NewChat, "interviewId"> & { interviewId: string }>(
+        "chats"
+      );
+      return await chatRepo.update(idHandler.encode(activeInterviewChat?.id ?? 0), chat);
     },
     onSuccess: () => {
-      if (chatMetadata) {
-        createChatMetadata({
-          ...chatMetadata,
-          chatGroupId: chatMetadata.chatGroupId || "",
-          chatId: chatMetadata.chatId || "",
-          interviewId: params.interviewId as string,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-      }
-
       sendAssistantInput("hang_up");
       disconnect();
       queryClient.invalidateQueries({
@@ -151,20 +98,9 @@ export function InterviewController() {
         scope.setContext("params", params);
         Sentry.captureException(error);
       });
-      toast.error("Error updating interview. Please try again.");
+      toast.error("Error ending interview. Just be patient, we will try again.");
       if (!interviewEnded) {
         setInterviewEnded(true);
-      }
-
-      if (chatMetadata) {
-        createChatMetadata({
-          ...chatMetadata,
-          chatGroupId: chatMetadata.chatGroupId || "",
-          chatId: chatMetadata.chatId || "",
-          interviewId: params.interviewId as string,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
       }
     },
   });
@@ -209,24 +145,25 @@ export function InterviewController() {
   });
 
   // Partial transcript mutation
-  const partialTranscriptMutation = useMutation({
-    mutationFn: async (interview: Partial<NewInterview>) => {
-      const interviewRepo = await getRepository<Interview>("interviews");
-      return await interviewRepo.update(params.interviewId as string, interview);
+  const partialChatMutation = useMutation({
+    mutationFn: async (chat: Partial<Omit<NewChat, "interviewId"> & { interviewId: string }>) => {
+      const chatRepo = await getRepository<Omit<NewChat, "interviewId"> & { interviewId: string }>(
+        "chats"
+      );
+      return await chatRepo.update(idHandler.encode(activeInterviewChat?.id ?? 0), chat);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["interview", params.interviewId],
-      });
-
-      if (chatMetadata) {
-        createChatMetadata({
-          ...chatMetadata,
-          chatGroupId: chatMetadata.chatGroupId || "",
-          chatId: chatMetadata.chatId || "",
-          interviewId: params.interviewId as string,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+    onSuccess: (chat) => {
+      if (chat) {
+        setActiveInterviewChat({
+          ...chat.data,
+          id: chat.data.id || 0,
+          customSessionId: chat.data.customSessionId || null,
+          requestId: chat.data.requestId || null,
+          actualTime: chat.data.actualTime || null,
+          transcript: chat.data.transcript || null,
+          interviewId: idHandler.decode(params.interviewId as string),
+          createdAt: chat.data.createdAt || new Date(),
+          updatedAt: chat.data.updatedAt || new Date(),
         });
       }
     },
@@ -237,17 +174,6 @@ export function InterviewController() {
         Sentry.captureException(error);
       });
       toast.error("Error updating interview. Please try again.");
-
-      if (chatMetadata) {
-        createChatMetadata({
-          ...chatMetadata,
-          chatGroupId: chatMetadata.chatGroupId || "",
-          chatId: chatMetadata.chatId || "",
-          interviewId: params.interviewId as string,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-      }
     },
   });
 
@@ -262,17 +188,6 @@ export function InterviewController() {
       if (updatedUser && updatedUser.data.minutes <= 0) {
         disconnect();
         toast.error("You've run out of minutes. The interview has been stopped.");
-
-        if (chatMetadata) {
-          createChatMetadata({
-            ...chatMetadata,
-            chatGroupId: chatMetadata.chatGroupId || "",
-            chatId: chatMetadata.chatId || "",
-            interviewId: params.interviewId as string,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          });
-        }
       }
 
       queryClient.invalidateQueries({ queryKey: ["user"] });
@@ -280,17 +195,6 @@ export function InterviewController() {
     onError: (error) => {
       console.error("Error decrementing minutes:", error);
       toast.error("Failed to update remaining minutes");
-
-      if (chatMetadata) {
-        createChatMetadata({
-          ...chatMetadata,
-          chatGroupId: chatMetadata.chatGroupId || "",
-          chatId: chatMetadata.chatId || "",
-          interviewId: params.interviewId as string,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-      }
     },
   });
 
@@ -302,13 +206,6 @@ export function InterviewController() {
       }
     },
     [sendUserInput, status.value]
-  );
-
-  const handleUpdateInterview = useCallback(
-    (data: Partial<NewInterview>) => {
-      updateInterview(data);
-    },
-    [updateInterview]
   );
 
   // Time-based actions
@@ -334,7 +231,9 @@ export function InterviewController() {
     // End interview
     if (elapsedTime === totalTime && !interviewEnded && !endingInterviewRef.current) {
       endingInterviewRef.current = true;
-      handleUpdateInterview({
+      endChat({
+        ...activeInterviewChat,
+        interviewId: params.interviewId as string,
         actualTime: Math.floor(elapsedTime / 60),
         transcript: JSON.stringify(
           messages
@@ -346,6 +245,7 @@ export function InterviewController() {
             }))
         ),
       });
+      requestAudioReconstruction();
     }
   }, [
     status.value,
@@ -355,9 +255,12 @@ export function InterviewController() {
     interviewEnded,
     messages,
     handleSendUserInput,
-    handleUpdateInterview,
     markWrapUpSent,
+    activeInterviewChat,
+    params.interviewId,
     sendSessionSettings,
+    endChat,
+    requestAudioReconstruction,
   ]);
 
   // Usage tracking
@@ -372,7 +275,9 @@ export function InterviewController() {
         // Decrement minutes used
         decrementMutation.mutate();
 
-        partialTranscriptMutation.mutate({
+        partialChatMutation.mutate({
+          ...activeInterviewChat,
+          interviewId: params.interviewId as string,
           actualTime: Math.floor(currentTime / 60),
           transcript: JSON.stringify(
             messages
@@ -386,7 +291,15 @@ export function InterviewController() {
         });
       }
     }
-  }, [status.value, callDurationTimestamp, messages, partialTranscriptMutation, decrementMutation]);
+  }, [
+    status.value,
+    callDurationTimestamp,
+    messages,
+    partialChatMutation,
+    decrementMutation,
+    activeInterviewChat,
+    params.interviewId,
+  ]);
 
   return null; // Controller component doesn't render anything
 }

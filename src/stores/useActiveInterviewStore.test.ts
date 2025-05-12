@@ -16,10 +16,8 @@ describe("useActiveInterviewStore", () => {
     useActiveInterviewStore.setState({
       callDurationTimestamp: null,
       totalTime: 0,
-      remainingTime: 0,
       wrapUpSent: false,
       interviewEnded: false,
-      isConnected: false,
       messages: [],
       actions: useActiveInterviewStore.getState().actions,
     });
@@ -29,10 +27,8 @@ describe("useActiveInterviewStore", () => {
     const state = useActiveInterviewStore.getState();
     expect(state.callDurationTimestamp).toBeNull();
     expect(state.totalTime).toBe(0);
-    expect(state.remainingTime).toBe(0);
     expect(state.wrapUpSent).toBe(false);
     expect(state.interviewEnded).toBe(false);
-    expect(state.isConnected).toBe(false);
     expect(state.messages).toEqual([]);
   });
 
@@ -55,16 +51,6 @@ describe("useActiveInterviewStore", () => {
 
     const state = useActiveInterviewStore.getState();
     expect(state.callDurationTimestamp).toBe("02:00");
-    // 120 seconds elapsed, 480 seconds remaining
-    expect(state.remainingTime).toBe(480);
-  });
-
-  it("should update connection status", () => {
-    const { actions } = useActiveInterviewStore.getState();
-    actions.setConnectionStatus(true);
-
-    const state = useActiveInterviewStore.getState();
-    expect(state.isConnected).toBe(true);
   });
 
   it("should mark wrap-up sent", () => {
@@ -89,7 +75,6 @@ describe("useActiveInterviewStore", () => {
     // Set some values
     actions.setTotalTime(900);
     actions.setCallDurationTimestamp("02:00");
-    actions.setConnectionStatus(true);
     actions.markWrapUpSent();
     actions.setInterviewEnded(true);
 
@@ -100,10 +85,8 @@ describe("useActiveInterviewStore", () => {
     const state = useActiveInterviewStore.getState();
     expect(state.callDurationTimestamp).toBeNull();
     expect(state.totalTime).toBe(0);
-    expect(state.remainingTime).toBe(0);
     expect(state.wrapUpSent).toBe(false);
     expect(state.interviewEnded).toBe(false);
-    expect(state.isConnected).toBe(false);
     expect(state.messages).toEqual([]);
   });
 });

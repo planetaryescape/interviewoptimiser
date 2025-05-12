@@ -67,7 +67,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 import { config } from "~/config";
-import type { Interview, PageSettings, QuestionAnalysis, Report } from "~/db/schema";
+import type { InferResultType } from "~/db/helpers";
+import type { Interview, PageSettings, QuestionAnalysis } from "~/db/schema";
 
 function aggregateProsodyData(transcript: string) {
   const messages = JSON.parse(transcript || "[]");
@@ -95,6 +96,13 @@ function aggregateProsodyData(transcript: string) {
   return result;
 }
 
+type ReportWithPageSettings = InferResultType<
+  "reports",
+  {
+    pageSettings: true;
+  }
+>;
+
 export default function InterviewReportPage(props: {
   params: Promise<{ interviewId: string; reportId: string }>;
 }) {
@@ -119,7 +127,7 @@ export default function InterviewReportPage(props: {
   } = useQuery({
     queryKey: ["report", params.reportId],
     queryFn: async () => {
-      const reportRepo = await getRepository<Report & { pageSettings: PageSettings }>(
+      const reportRepo = await getRepository<ReportWithPageSettings>(
         `interviews/${params.interviewId}/reports`
       );
       return await reportRepo.getById(params.reportId);
@@ -225,7 +233,7 @@ export default function InterviewReportPage(props: {
 
   const { mutate: toggleReportPublicStatus, isPending: isToggling } = useMutation({
     mutationFn: async (newPublicStatus: boolean) => {
-      const reportRepo = await getRepository<Report & { pageSettings: PageSettings }>(
+      const reportRepo = await getRepository<ReportWithPageSettings>(
         `interviews/${params.interviewId}/reports`
       );
       return reportRepo.update(idHandler.encode(report?.sys.id ?? 0), {

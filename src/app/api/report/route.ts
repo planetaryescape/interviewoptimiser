@@ -3,8 +3,11 @@ import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
+import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { config } from "~/config";
+import { db } from "~/db";
+import { chats, reports } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 const API_GATEWAY_URL = config.apiGatewayUrlAddToQueue;
@@ -14,10 +17,10 @@ const API_KEY = process.env.INTERVIEWOPTIMISER_API_KEY;
 export async function POST(req: NextRequest) {
   try {
     logger.info("Received request at /api/report");
-    const { interviewId: interviewIdString, reportId: reportIdString } = await req.json();
+    const { interviewId: interviewIdString, chatId: chatIdString } = await req.json();
     const interviewId = idHandler.decode(interviewIdString);
-    const reportId = idHandler.decode(reportIdString);
-    logger.info({ interviewId, reportId }, "Interview ID and report ID for report generation");
+    const chatId = idHandler.decode(chatIdString);
+    logger.info({ interviewId, chatId }, "Interview ID and chat ID for report generation");
 
     const { userId: clerkUserId } = getAuth(req);
     if (!clerkUserId) {
@@ -31,10 +34,46 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    if (!reportId) {
-      logger.error("Failed to decode report ID");
-      return NextResponse.json({ error: "Failed to decode report ID" }, { status: 500 });
-    }
+    const reportId = await db.transaction(async (tx) => {
+      const chat = await tx.query.chats.findFirst({
+        where: eq(chats.id, chatId),
+      });
+
+      if (!chat) {
+        logger.error("Chat not found");
+        Sentry.withScope((scope) => {
+          scope.setExtra("interviewId", interviewId);
+          Sentry.captureException(new Error("Chat not found"));
+        });
+        return NextResponse.json({ error: "Chat not found" }, { status: 404 });
+      }
+
+      const report = await tx
+        .insert(reports)
+        .values({
+          chatId,
+          generalAssessment: "",
+          overallScore: 0,
+          speakingSkills: "",
+          speakingSkillsScore: 0,
+          areasOfStrength: "",
+          areasForImprovement: "",
+          actionableNextSteps: "",
+          communicationSkills: "",
+          communicationSkillsScore: 0,
+          problemSolvingSkills: "",
+          problemSolvingSkillsScore: 0,
+          technicalKnowledge: "",
+          technicalKnowledgeScore: 0,
+          teamwork: "",
+          teamworkScore: 0,
+          adaptability: "",
+          adaptabilityScore: 0,
+        })
+        .returning();
+
+      return report[0].id;
+    });
 
     // Configure the API requests
     const reportRequest = fetch(API_GATEWAY_URL, {
@@ -47,6 +86,7 @@ export async function POST(req: NextRequest) {
         data: {
           interviewId,
           reportId,
+          chatId,
         },
         userId,
         queueType: "generate-report",
@@ -63,6 +103,7 @@ export async function POST(req: NextRequest) {
         data: {
           interviewId,
           reportId,
+          chatId,
         },
         userId,
         queueType: "save-interview-audio-to-s3",

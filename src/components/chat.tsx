@@ -3,30 +3,25 @@
 import { idHandler } from "@/lib/utils/idHandler";
 import {
   useActiveInterviewActions,
-  useActiveInterviewChatMetadata,
+  useActiveInterviewChat,
   useActiveInterviewEnded,
+  useActiveInterviewShowTakeover,
+  useActiveInterviewStarted,
 } from "@/stores/useActiveInterviewStore";
 import { createInterviewInstructions } from "@/utils/conversation_config";
 import { VoiceProvider } from "@humeai/voice-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
-import { type ComponentRef, useEffect, useMemo, useRef, useState } from "react";
+import { type ComponentRef, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
-import type { InferResultType } from "~/db/helpers";
 import { Controls } from "./controls";
 import { GeneratingReportTakeover } from "./generating-report-takeover";
+import { ConnectionStatus } from "./interview/connection-status";
+import { InterviewController } from "./interview/interview-controller";
+import { TimerDisplay } from "./interview/timer-display";
 import { Messages } from "./messages";
 import MessagesPlaceholder from "./messages-placeholder";
-import { TimerHume } from "./timer-hume";
-
-type InterviewWithCandidateDetailsAndJobDescription = InferResultType<
-  "interviews",
-  {
-    candidateDetails: true;
-    jobDescription: true;
-  }
->;
 
 export default function ClientComponent({
   id,
@@ -39,9 +34,10 @@ export default function ClientComponent({
   const router = useRouter();
   const params = useParams();
   const interviewEnded = useActiveInterviewEnded();
-  const { resetState } = useActiveInterviewActions();
-
-  const activeInterviewChatMetadata = useActiveInterviewChatMetadata();
+  const { resetState, setShowTakeover, setTotalTime } = useActiveInterviewActions();
+  const interviewStarted = useActiveInterviewStarted();
+  const showTakeover = useActiveInterviewShowTakeover();
+  const activeInterviewChat = useActiveInterviewChat();
 
   const { data: interview } = useQuery<any>({
     // | InterviewWithCandidateDetailsAndJobDescription
@@ -62,11 +58,8 @@ export default function ClientComponent({
     mutationFn: async () => {
       const body = {
         interviewId: params.interviewId,
-        reportId: idHandler.encode(activeInterviewChatMetadata?.reportId || 0),
+        chatId: idHandler.encode(activeInterviewChat?.id ?? 0),
       };
-
-      console.log("body", body);
-      console.log("activeInterviewChatMetadata:", activeInterviewChatMetadata);
 
       const response = await fetch("/api/report", {
         method: "POST",
@@ -103,14 +96,11 @@ export default function ClientComponent({
   });
 
   const timeout = useRef<number | null>(null);
-  const ref = useRef<ComponentRef<typeof Messages> | null>(null);
+  const messagesRef = useRef<ComponentRef<typeof Messages> | null>(null);
   const hasGeneratedReportRef = useRef(false);
 
   // optional: use configId from environment variable
   const configId = process.env.NEXT_PUBLIC_HUME_CONFIG_ID;
-
-  const [interviewStarted, setInterviewStarted] = useState(false);
-  const [showTakeover, setShowTakeover] = useState(false);
 
   useEffect(() => {
     if (interviewEnded && !hasGeneratedReportRef.current) {
@@ -118,7 +108,14 @@ export default function ClientComponent({
       setShowTakeover(true);
       generateReportMutation.mutate();
     }
-  }, [interviewEnded, generateReportMutation]);
+  }, [interviewEnded, generateReportMutation, setShowTakeover]);
+
+  // Initialize store with props
+  useEffect(() => {
+    if (interview) {
+      setTotalTime((interview.data?.duration ?? 15) * 60);
+    }
+  }, [interview, setTotalTime]);
 
   const systemPrompt = useMemo(() => {
     return createInterviewInstructions({
@@ -248,10 +245,10 @@ export default function ClientComponent({
           }
 
           timeout.current = window.setTimeout(() => {
-            if (ref.current) {
-              const scrollHeight = (ref.current as Element).scrollHeight;
+            if (messagesRef.current) {
+              const scrollHeight = (messagesRef.current as Element).scrollHeight;
 
-              (ref.current as Element).scrollTo({
+              (messagesRef.current as Element).scrollTo({
                 top: scrollHeight,
                 behavior: "smooth",
               });
@@ -259,12 +256,12 @@ export default function ClientComponent({
           }, 200);
         }}
       >
-        <TimerHume totalTime={(interview?.data?.duration ?? 15) * 60} />
-        {interviewStarted ? (
-          <Messages ref={ref} />
-        ) : (
-          <MessagesPlaceholder setInterviewStarted={setInterviewStarted} />
-        )}
+        <div className="absolute top-4 right-4 flex items-center gap-4 z-50">
+          <TimerDisplay />
+          <ConnectionStatus />
+        </div>
+        {interviewStarted ? <Messages ref={messagesRef} /> : <MessagesPlaceholder />}
+        <InterviewController />
         <Controls />
 
         <AnimatePresence>{showTakeover && <GeneratingReportTakeover />}</AnimatePresence>
