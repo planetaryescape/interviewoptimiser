@@ -2,9 +2,14 @@
 
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
-import { ONE_MINUTE_LEFT_MESSAGE } from "@/lib/utils/messageUtils";
+import {
+  ONE_MINUTE_LEFT_MESSAGE,
+  formatTranscript,
+  formatTranscriptToJsonString,
+} from "@/lib/utils/messageUtils";
 import { unformatTime } from "@/lib/utils/unformatTime";
 import {
+  type ChatWithPublicJobId,
   useActiveInterviewActions,
   useActiveInterviewCallDuration,
   useActiveInterviewChat,
@@ -18,7 +23,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import type { NewChat, User } from "~/db/schema";
+import type { User } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export function InterviewController() {
@@ -51,6 +56,7 @@ export function InterviewController() {
     messages,
     sendSessionSettings,
     connect,
+    chatMetadata,
   } = useVoice();
 
   const interviewStartedRef = useRef(false);
@@ -70,13 +76,7 @@ export function InterviewController() {
 
     if (messages && messages.length > 0) {
       // Convert the voice messages to the format expected by our store
-      const storeCompatibleMessages = messages
-        .filter((m: any) => m.type === "user_message" || m.type === "assistant_message")
-        .map((m: any) => ({
-          role: m.type === "user_message" ? "user" : "assistant",
-          content: m.message?.content || "",
-          prosody: m.type === "user_message" ? m.models?.prosody?.scores : undefined,
-        }));
+      const storeCompatibleMessages = formatTranscript(messages);
 
       setMessages(storeCompatibleMessages);
     }
@@ -84,8 +84,8 @@ export function InterviewController() {
 
   // End of interview mutation
   const { mutate: endChat } = useMutation({
-    mutationFn: async (chat: Partial<Omit<NewChat, "jobId"> & { jobId: string }>) => {
-      const chatRepo = await getRepository<Omit<NewChat, "jobId"> & { jobId: string }>("chats");
+    mutationFn: async (chat: Partial<ChatWithPublicJobId>) => {
+      const chatRepo = await getRepository<ChatWithPublicJobId>("chats");
       return await chatRepo.update(idHandler.encode(activeInterviewChat?.id ?? 0), chat);
     },
     onSuccess: () => {
@@ -153,8 +153,8 @@ export function InterviewController() {
 
   // Partial transcript mutation
   const partialChatMutation = useMutation({
-    mutationFn: async (chat: Partial<Omit<NewChat, "jobId"> & { jobId: string }>) => {
-      const chatRepo = await getRepository<Omit<NewChat, "jobId"> & { jobId: string }>("chats");
+    mutationFn: async (chat: Partial<ChatWithPublicJobId>) => {
+      const chatRepo = await getRepository<ChatWithPublicJobId>("chats");
       return await chatRepo.update(idHandler.encode(activeInterviewChat?.id ?? 0), chat);
     },
     onSuccess: (chat) => {
@@ -166,9 +166,10 @@ export function InterviewController() {
           requestId: chat.data.requestId || null,
           actualTime: chat.data.actualTime || null,
           transcript: chat.data.transcript || null,
-          jobId: idHandler.decode(params.jobId as string),
+          jobId: params.jobId as string,
           createdAt: chat.data.createdAt || new Date(),
           updatedAt: chat.data.updatedAt || new Date(),
+          humeChatId: chatMetadata?.chatId || chat.data.humeChatId,
         });
       }
     },
@@ -239,16 +240,9 @@ export function InterviewController() {
       endChat({
         ...activeInterviewChat,
         jobId: params.jobId as string,
+        humeChatId: chatMetadata?.chatId || activeInterviewChat?.humeChatId,
         actualTime: Math.floor(elapsedTime / 60),
-        transcript: JSON.stringify(
-          messages
-            .filter((m) => m.type === "user_message" || m.type === "assistant_message")
-            .map((m: any) => ({
-              role: m.type === "user_message" ? "user" : "assistant",
-              content: m.message?.content || "",
-              prosody: m.type === "user_message" ? m.models?.prosody?.scores : undefined,
-            }))
-        ),
+        transcript: formatTranscriptToJsonString(messages),
       });
       requestAudioReconstruction();
     }
@@ -258,6 +252,7 @@ export function InterviewController() {
     totalTime,
     wrapUpSent,
     interviewEnded,
+    chatMetadata?.chatId,
     messages,
     handleSendUserInput,
     markWrapUpSent,
@@ -283,16 +278,9 @@ export function InterviewController() {
         partialChatMutation.mutate({
           ...activeInterviewChat,
           jobId: params.jobId as string,
+          humeChatId: chatMetadata?.chatId || activeInterviewChat?.humeChatId,
           actualTime: Math.floor(currentTime / 60),
-          transcript: JSON.stringify(
-            messages
-              .filter((m) => m.type === "user_message" || m.type === "assistant_message")
-              .map((m: any) => ({
-                role: m.type === "user_message" ? "user" : "assistant",
-                content: m.message?.content || "",
-                prosody: m.type === "user_message" ? m.models?.prosody?.scores : undefined,
-              }))
-          ),
+          transcript: formatTranscriptToJsonString(messages),
         });
       }
     }
@@ -304,6 +292,7 @@ export function InterviewController() {
     decrementMutation,
     activeInterviewChat,
     params.jobId,
+    chatMetadata?.chatId,
   ]);
 
   return null; // Controller component doesn't render anything

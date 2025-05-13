@@ -399,8 +399,6 @@ export default function JobReportPage(props: {
     );
   }
 
-  console.log("chat", chat);
-
   return (
     <div
       className={cn(

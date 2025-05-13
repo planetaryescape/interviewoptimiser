@@ -56,3 +56,4 @@ export const jobRelations = relations(jobs, ({ one, many }) => ({
 
 export type Job = typeof jobs.$inferSelect;
 export type NewJob = typeof jobs.$inferInsert;
+export type InterviewType = (typeof interviewTypeEnum.enumValues)[number];

@@ -1,15 +1,23 @@
 import { z } from "zod";
-import type { CandidateDetails } from "~/lib/ai/extract-candidate-details";
+import type { CandidateDetails, JobDescription } from "~/db/schema";
+import type { InterviewType } from "~/db/schema/jobs";
 import { StructuredJobDescriptionSchema } from "~/lib/ai/extract-job-description";
 import type { StructuredOriginalCVSchema } from "~/lib/ai/extract-original-cv";
 
-export interface InterviewType {
-  type: string;
+export const formatInterviewType = (type: InterviewType) => {
+  return type
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
+export interface InterviewTypeDefinition {
+  type: InterviewType;
   description: string;
   exampleQuestions: string[];
 }
 
-export const interviewTypes: InterviewType[] = [
+export const interviewTypes: InterviewTypeDefinition[] = [
   {
     type: "behavioral",
     description:
@@ -106,9 +114,9 @@ interface InterviewInstructionsParams {
   cvText?: string;
   structuredCV?: z.infer<typeof StructuredOriginalCVSchema>;
   structuredCandidateDetails?: CandidateDetails;
-  structuredJobDescription?: z.infer<typeof StructuredJobDescriptionWithKeyQuestionsSchema>;
+  structuredJobDescription?: JobDescription;
   duration?: number;
-  interviewType?: string;
+  interviewType?: InterviewType;
 }
 
 export const createInterviewInstructions = ({
@@ -168,7 +176,9 @@ IMPORTANT GUIDELINES FOR QUESTIONS:
 5. Return to any key questions that weren't fully answered before concluding the interview
 </key_questions>`
     : `<example_questions>
-Here are some example questions typically asked in a ${interviewType} interview. Feel free to adapt these or ask other relevant questions based on the candidate's responses:
+Here are some example questions typically asked in a ${formatInterviewType(
+        interviewType
+      )} interview. Feel free to adapt these or ask other relevant questions based on the candidate's responses:
 
 ${interviewTypes
   .find((type) => type.type === interviewType)
@@ -204,7 +214,9 @@ These questions are examples to guide the interview. Feel free to modify them or
 
   return `
 **Context**:
-You are an AI interviewer called Cora. You are the lead interviewer at Interview Optimiser. You are conducting a mock interview with ${
+You are an AI interviewer called Cora. You are the lead interviewer at Interview Optimiser. You are conducting a ${duration} minute ${formatInterviewType(
+    interviewType
+  )} mock interview with ${
     structuredCandidateDetails?.name
   } who is applying for a ${structuredJobDescription?.role} job at ${
     structuredJobDescription?.company
@@ -216,9 +228,12 @@ This is a mock interview for a ${structuredJobDescription?.role} job at ${
     structuredJobDescription?.company
   }.
 
-Focus on **${interviewType}** questions, designed to help the candidate refine their responses and build confidence. The ${interviewType} interview ${
-    interviewTypes.find((type) => type.type === interviewType)?.description
-  }.
+IMPORTANT: It is absolutely CRUCIAL that you respect the interview type and ask questions in line with the type of interview.
+Focus on **${formatInterviewType(
+    interviewType
+  )}** questions, designed to help the candidate refine their responses and build confidence. The ${formatInterviewType(
+    interviewType
+  )} interview ${interviewTypes.find((type) => type.type === interviewType)?.description}.
 
 **Information Available**:${infoLine}
 
@@ -226,11 +241,18 @@ Focus on **${interviewType}** questions, designed to help the candidate refine t
   ${structuredDataUsageText}
 </structured_data_usage>
 
-**Objective**:
+<objective>
 You should conduct a professional, friendly, and conversational interview. However, during the interview you should keep your responses terse and to the point. At the end we want to give the interview transcript to an evaluator who will generate a report that includes the following information:
+</objective>
 
 <very_important>
-  When introducing yourself, always say: "Hi, I'm Cora, lead interviewer at Interview Optimiser." Make this introduction feel natural and personable, as if you're a real interviewer greeting the candidate. Really lean into your role as Cora, the experienced lead interviewer who has conducted hundreds of interviews.
+  This is a ${formatInterviewType(
+    interviewType
+  )} interview. Stick to ${formatInterviewType(interviewType)} questions.
+
+  When introducing yourself, always say: "Hi, I'm Cora, lead interviewer at Interview Optimiser." and then continue with the ${formatInterviewType(
+    interviewType
+  )} introduction. Make this introduction feel natural and personable, as if you're a real interviewer greeting the candidate. Really lean into your role as Cora, the experienced lead interviewer who has conducted hundreds of interviews.
 
   Tailor questions based on the candidate's responses and the available information. For example, "Could you elaborate on your approach to handling [specific aspect of experience]?". Adjust the difficulty of the questions based on the candidate's performance. If the candidate is struggling with a question, ask simpler questions. If the candidate is answering well, ask more difficult questions.
 

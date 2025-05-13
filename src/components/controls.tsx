@@ -3,9 +3,10 @@
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
 import { idHandler } from "@/lib/utils/idHandler";
-import { INTERVIEW_START_MESSAGE, formatMessage } from "@/lib/utils/messageUtils";
+import { INTERVIEW_START_MESSAGE, formatTranscriptToJsonString } from "@/lib/utils/messageUtils";
 import { unformatTime } from "@/lib/utils/unformatTime";
 import {
+  type ChatWithPublicJobId,
   useActiveInterviewActions,
   useActiveInterviewChat,
 } from "@/stores/useActiveInterviewStore";
@@ -17,7 +18,6 @@ import { Mic, MicOff } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
-import type { NewChat } from "~/db/schema";
 import { MotionDiv } from "./common/motion";
 import { MicFFT } from "./mic-fft";
 import { Button } from "./ui/button";
@@ -35,6 +35,7 @@ export function Controls() {
     fft,
     callDurationTimestamp,
     sendUserInput,
+    connect,
     sendAssistantInput,
   } = useVoice();
   const params = useParams();
@@ -43,8 +44,8 @@ export function Controls() {
   const activeInterviewChat = useActiveInterviewChat();
 
   const { mutate: endChat } = useMutation({
-    mutationFn: async (chat: Partial<NewChat>) => {
-      const chatRepo = await getRepository<NewChat>("chats");
+    mutationFn: async (chat: Partial<ChatWithPublicJobId>) => {
+      const chatRepo = await getRepository<ChatWithPublicJobId>("chats");
       return await chatRepo.update(idHandler.encode(activeInterviewChat?.id ?? 0), chat);
     },
     onSuccess: () => {
@@ -83,8 +84,7 @@ export function Controls() {
     <div
       className={cn(
         "w-full p-4 flex items-center justify-center",
-        "bg-gradient-to-t from-card via-card/90 to-card/0 row-span-1",
-        status.value !== "connected" ? "hidden" : ""
+        "bg-gradient-to-t from-card via-card/90 to-card/0 row-span-1"
       )}
     >
       <AnimatePresence>
@@ -106,47 +106,63 @@ export function Controls() {
               "p-4 bg-card border border-border rounded-lg shadow-sm flex items-center gap-4"
             }
           >
-            <Toggle
-              pressed={!isMuted}
-              onPressedChange={() => {
-                if (isMuted) {
-                  unmute();
-                } else {
-                  mute();
-                }
-              }}
-            >
-              {isMuted ? <MicOff className={"size-4"} /> : <Mic className={"size-4"} />}
-            </Toggle>
+            <div className={"flex items-center gap-1"}>
+              <Toggle
+                pressed={!isMuted}
+                onPressedChange={() => {
+                  if (isMuted) {
+                    unmute();
+                  } else {
+                    mute();
+                  }
+                }}
+              >
+                {isMuted ? <MicOff className={"size-4"} /> : <Mic className={"size-4"} />}
+              </Toggle>
 
-            <div className={"relative grid h-12 w-48 shrink grow-0"}>
-              <MicFFT fft={fft} className={"fill-primary"} />
-            </div>
+              <div className={"relative grid h-12 w-48 shrink grow-0"}>
+                <MicFFT fft={fft} className={"fill-primary"} />
+              </div>
 
-            <div className={"relative grid h-12 w-48 shrink grow-0"}>
-              <MicFFT fft={micFft} className={"fill-current"} />
+              <div className={"relative grid h-12 w-48 shrink grow-0"}>
+                <MicFFT fft={micFft} className={"fill-current"} />
+              </div>
             </div>
 
             <Button
-              className={"flex items-center gap-1"}
+              className={cn(
+                "flex items-center gap-1",
+                status.value !== "connected" ? "" : "hidden"
+              )}
+              onClick={async () => {
+                connect();
+              }}
+              variant={"default"}
+            >
+              Start Interview
+            </Button>
+
+            <Button
+              className={cn("flex items-center gap-1")}
+              onClick={async () => {
+                disconnect();
+              }}
+              variant={"destructive"}
+            >
+              Stop Interview
+            </Button>
+
+            <Button
+              className={cn(
+                "flex items-center gap-1",
+                status.value !== "connected" ? "hidden" : ""
+              )}
               onClick={async () => {
                 await endChat({
                   ...activeInterviewChat,
                   actualTime: Math.floor(unformatTime(callDurationTimestamp) / 60),
-                  transcript: JSON.stringify(
-                    messages
-                      .map((msg) => {
-                        if (msg.type === "user_message" || msg.type === "assistant_message") {
-                          return {
-                            role: msg.message.role,
-                            content: formatMessage(msg.message.content),
-                            prosody: msg.models.prosody?.scores ?? {},
-                          };
-                        }
-                        return null;
-                      })
-                      .filter((msg) => msg !== null)
-                  ),
+                  jobId: params.jobId as string,
+                  transcript: formatTranscriptToJsonString(messages),
                 });
               }}
               variant={"destructive"}
