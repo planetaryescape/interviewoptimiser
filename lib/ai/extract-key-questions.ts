@@ -1,4 +1,4 @@
-import type { InterviewType } from "@/utils/conversation_config";
+import type { InterviewTypeDefinition } from "@/utils/conversation_config";
 import { interviewTypes } from "@/utils/conversation_config";
 import type { LanguageModelV1 } from "@ai-sdk/provider";
 import { generateObject } from "ai";
@@ -41,7 +41,7 @@ export async function extractKeyQuestions({
   logger.info("Extracting key questions from job description");
   try {
     const interviewTypeInfo =
-      interviewTypes.find((type: InterviewType) => type.type === interviewType) ||
+      interviewTypes.find((type: InterviewTypeDefinition) => type.type === interviewType) ||
       interviewTypes[0];
 
     const systemPrompt = `

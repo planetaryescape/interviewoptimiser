@@ -50,7 +50,7 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
               <div className="relative h-full w-full overflow-hidden rounded-full ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
                 <Image
                   src={
-                    testimonial.data.imageUrl ??
+                    testimonial.data.imageUrl?.trim() ??
                     `https://api.dicebear.com/7.x/avataaars/svg?seed=${testimonial.data.name}`
                   }
                   alt={testimonial.data.name}

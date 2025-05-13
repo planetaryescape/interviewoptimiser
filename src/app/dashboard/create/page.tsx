@@ -117,7 +117,7 @@ export default function CreateJob() {
         isSubmitting={isSubmitting}
         onBack={handleBack}
         onNext={handleNextStep}
-        onSubmit={handleSubmit}
+        onSubmit={submitJob}
         animateStep={animateStep}
       />
 

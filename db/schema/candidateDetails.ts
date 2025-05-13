@@ -32,5 +32,5 @@ export const candidateDetailsRelations = relations(candidateDetails, ({ one }) =
   }),
 }));
 
-export type CandidateDetail = typeof candidateDetails.$inferSelect;
-export type NewCandidateDetail = typeof candidateDetails.$inferInsert;
+export type CandidateDetails = typeof candidateDetails.$inferSelect;
+export type NewCandidateDetails = typeof candidateDetails.$inferInsert;

@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { useJob } from "@/hooks/useJob";
 import { getRepository } from "@/lib/data/repositoryFactory";
+import { idHandler } from "@/lib/utils/idHandler";
 import { useVoice } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation } from "@tanstack/react-query";
@@ -17,6 +18,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { NewChat } from "~/db/schema";
 
+type NewChatWithPublicJobId = Omit<NewChat, "jobId"> & { jobId: string };
+
 export default function InterviewPlaceholder() {
   const [showModal, setShowModal] = useState(false);
   const params = useParams();
@@ -27,8 +30,8 @@ export default function InterviewPlaceholder() {
   const router = useRouter();
 
   const { mutateAsync: createChat, isPending: isCreatingChat } = useMutation({
-    mutationFn: async (metadata: Omit<NewChat, "jobId"> & { jobId: string }) => {
-      const chatRepo = await getRepository<Omit<NewChat, "jobId"> & { jobId: string }>("chats");
+    mutationFn: async (metadata: NewChatWithPublicJobId) => {
+      const chatRepo = await getRepository<NewChatWithPublicJobId>("chats");
       return await chatRepo.create({
         ...metadata,
         jobId: params.jobId as string,
@@ -39,7 +42,7 @@ export default function InterviewPlaceholder() {
       });
     },
     onSuccess: (chat) => {
-      router.push(`/dashboard/jobs/${jobId}/chats/${chat?.data.chatGroupId || ""}`);
+      router.push(`/dashboard/jobs/${jobId}/chats/${idHandler.encode(chat?.data.id || 0)}`);
     },
     onError: (error) => {
       toast.error("Error creating chat. Please try again.");

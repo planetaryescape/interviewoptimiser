@@ -8,6 +8,8 @@ interface Message {
   content: string;
 }
 
+export type ChatWithPublicJobId = Omit<Chat, "jobId"> & { jobId: string };
+
 interface ActiveInterviewState {
   callDurationTimestamp: string | null;
   totalTime: number;
@@ -16,7 +18,7 @@ interface ActiveInterviewState {
   interviewEnded: boolean;
   interviewStarted: boolean;
   messages: Message[];
-  activeInterviewChat: Chat | null;
+  activeInterviewChat: ChatWithPublicJobId | null;
   showTakeover: boolean;
 }
 
@@ -27,7 +29,7 @@ interface ActiveInterviewActions {
   setInterviewStarted: (started: boolean) => void;
   markWrapUpSent: () => void;
   setMessages: (messages: Message[]) => void;
-  setActiveInterviewChat: (chat: Chat | null) => void;
+  setActiveInterviewChat: (chat: ChatWithPublicJobId | null) => void;
   resetState: () => void;
   setShowTakeover: (showTakeover: boolean) => void;
 }
@@ -57,7 +59,8 @@ export const useActiveInterviewStore = create(
       setTotalTime: (totalTime: number) => set({ totalTime }),
       setInterviewEnded: (interviewEnded: boolean) => set({ interviewEnded }),
       setShowTakeover: (showTakeover: boolean) => set({ showTakeover }),
-      setActiveInterviewChat: (chat: Chat | null) => set({ activeInterviewChat: chat }),
+      setActiveInterviewChat: (chat: ChatWithPublicJobId | null) =>
+        set({ activeInterviewChat: chat }),
       markWrapUpSent: () => set({ wrapUpSent: true }),
       setMessages: (messages: Message[]) => set({ messages }),
       setInterviewStarted: (interviewStarted: boolean) => set({ interviewStarted }),

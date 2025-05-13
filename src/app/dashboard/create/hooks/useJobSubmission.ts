@@ -57,12 +57,10 @@ export function useJobSubmission({
       return createdJob;
     },
     onSuccess: (data) => {
-      toast.success("Job created successfully");
       setShowTakeover(true);
       setTimeout(() => {
         resetStore();
         router.push(`/dashboard/jobs/${idHandler.encode(data.sys.id ?? 0)}`);
-        // setShowTakeover(false);
       }, 9000);
     },
     onError: (error) => {

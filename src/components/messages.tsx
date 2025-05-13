@@ -13,12 +13,13 @@ export const Messages = forwardRef<ComponentRef<typeof motion.div>, Record<never
 
     const filteredMessages = messages
       .filter((msg) => msg.type === "user_message" || msg.type === "assistant_message")
-      .filter(
-        (msg) =>
-          !msg.message.content?.includes("<One minute left>") ||
-          msg.message.content?.trim() !== "" ||
-          msg.message.content !== INTERVIEW_START_MESSAGE
-      )
+      .filter((msg) => {
+        return (
+          !msg.message.content?.includes("<One minute left>") &&
+          msg.message.content?.trim() !== "" &&
+          msg.message.content?.split("{")?.[0].trim() !== INTERVIEW_START_MESSAGE
+        );
+      })
       .slice(-3);
 
     return (
@@ -113,7 +114,7 @@ export const Messages = forwardRef<ComponentRef<typeof motion.div>, Record<never
                         isLatest ? "font-medium" : "font-normal"
                       )}
                     >
-                      {msg.message.content?.split("{")?.[0] ?? ""}
+                      {msg.message.content?.split("{")?.[0].split("<")?.[0] ?? ""}
                     </div>
                   </div>
                 </motion.div>
