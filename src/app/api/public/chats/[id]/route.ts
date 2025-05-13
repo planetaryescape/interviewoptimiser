@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
-import { chats } from "~/db/schema";
+import { interviews } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export async function GET(
@@ -12,13 +12,13 @@ export async function GET(
   props: { params: Promise<{ id: string }> }
 ) {
   const params = await props.params;
-  logger.info("GET request received at /api/public/chats/[id]");
+  logger.info("GET request received at /api/public/interviews/[id]");
 
   try {
-    const chatId = idHandler.decode(params.id);
+    const interviewId = idHandler.decode(params.id);
 
-    const chat = await db.query.chats.findFirst({
-      where: eq(chats.id, chatId),
+    const interview = await db.query.interviews.findFirst({
+      where: eq(interviews.id, interviewId),
       with: {
         job: {
           columns: {
@@ -30,17 +30,17 @@ export async function GET(
       },
     });
 
-    if (!chat) {
-      return NextResponse.json(formatErrorEntity("Chat not found"), {
+    if (!interview) {
+      return NextResponse.json(formatErrorEntity("Interview not found"), {
         status: 404,
       });
     }
 
-    logger.info({ id: chat.id }, "Successfully retrieved chat");
-    return NextResponse.json(formatEntity(chat, "chat"));
+    logger.info({ id: interview.id }, "Successfully retrieved interview");
+    return NextResponse.json(formatEntity(interview, "interview"));
   } catch (error) {
     Sentry.withScope((scope) => {
-      scope.setExtra("context", "GET /api/public/chats/[id]");
+      scope.setExtra("context", "GET /api/public/interviews/[id]");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
@@ -49,7 +49,7 @@ export async function GET(
         message: error instanceof Error ? error.message : "Unknown error",
         error,
       },
-      "Error in GET /api/public/chats/[id]"
+      "Error in GET /api/public/interviews/[id]"
     );
     return NextResponse.json(formatErrorEntity("Internal server error"), {
       status: 500,

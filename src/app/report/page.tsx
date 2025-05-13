@@ -58,10 +58,10 @@ import remarkGfm from "remark-gfm";
 import { config } from "~/config";
 import type { InferResultType } from "~/db/helpers";
 
-type ReportWithChatAndPageSettings = InferResultType<
+type ReportWithInterviewAndPageSettings = InferResultType<
   "reports",
   {
-    chat: {
+    interview: {
       with: {
         job: true;
       };
@@ -82,7 +82,7 @@ export default function PublicJobReportPage(props: {
   } = useQuery({
     queryKey: ["public-report", params.id],
     queryFn: async () => {
-      const reportRepo = await getRepository<ReportWithChatAndPageSettings>("public/reports");
+      const reportRepo = await getRepository<ReportWithInterviewAndPageSettings>("public/reports");
       return await reportRepo.getById(params.id);
     },
   });
@@ -191,7 +191,7 @@ export default function PublicJobReportPage(props: {
               Interview Optimiser Report
             </h1>
             <p className="text-xl text-gray-600">
-              {report?.data.chat.job.candidate} - {report?.data.chat.job.role}
+              {report?.data.interview.job.candidate} - {report?.data.interview.job.role}
             </p>
           </header>
 
@@ -210,21 +210,21 @@ export default function PublicJobReportPage(props: {
                 <User className="w-5 h-5 mr-3 text-blue-600" />
                 <div>
                   <p className="text-sm">Name</p>
-                  <p className="font-medium">{report?.data.chat.job.candidate}</p>
+                  <p className="font-medium">{report?.data.interview.job.candidate}</p>
                 </div>
               </div>
               <div className="flex items-center">
                 <Briefcase className="w-5 h-5 mr-3 text-blue-600" />
                 <div>
                   <p className="text-sm">Company</p>
-                  <p className="font-medium">{report?.data.chat.job.company}</p>
+                  <p className="font-medium">{report?.data.interview.job.company}</p>
                 </div>
               </div>
               <div className="flex items-center">
                 <UserCircle className="w-5 h-5 mr-3 text-blue-600" />
                 <div>
                   <p className="text-sm">Role</p>
-                  <p className="font-medium">{report?.data.chat.job.role}</p>
+                  <p className="font-medium">{report?.data.interview.job.role}</p>
                 </div>
               </div>
             </div>
@@ -444,7 +444,7 @@ export default function PublicJobReportPage(props: {
                 Interview Transcript
               </h2>
               <div className="bg-gray-50 p-6 rounded-xl shadow-inner">
-                {JSON.parse(report?.data.chat.transcript ?? "[]").map(
+                {JSON.parse(report?.data.interview.transcript ?? "[]").map(
                   (
                     message: {
                       role: string;

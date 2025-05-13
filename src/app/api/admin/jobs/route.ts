@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     const userJobs = await db.query.jobs.findMany({
       orderBy: desc(jobs.createdAt),
       with: {
-        chats: {
+        interviews: {
           with: {
             report: true,
           },

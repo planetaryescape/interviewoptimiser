@@ -6,7 +6,7 @@ import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
-import { chats } from "~/db/schema";
+import { interviews } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export async function GET(request: NextRequest, props: { params: Promise<{ jobId: string }> }) {
@@ -32,8 +32,8 @@ export async function GET(request: NextRequest, props: { params: Promise<{ jobId
 
     const jobId = idHandler.decode(params.jobId);
 
-    const jobChats = await db.query.chats.findMany({
-      where: eq(chats.jobId, jobId),
+    const jobInterviews = await db.query.interviews.findMany({
+      where: eq(interviews.jobId, jobId),
       with: {
         report: {
           with: {
@@ -41,10 +41,10 @@ export async function GET(request: NextRequest, props: { params: Promise<{ jobId
           },
         },
       },
-      orderBy: (reports, { desc }) => [desc(reports.createdAt)],
+      orderBy: (interviews, { desc }) => [desc(interviews.createdAt)],
     });
 
-    const jobReports = jobChats.map((chat) => chat.report);
+    const jobReports = jobInterviews.map((interview) => interview.report);
 
     logger.info({ jobId, count: jobReports.length }, "Successfully retrieved job reports");
     return NextResponse.json(formatEntityList(jobReports, "report"));

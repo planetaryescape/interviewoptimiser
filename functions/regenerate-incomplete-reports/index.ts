@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/aws-serverless";
 import { and, eq } from "drizzle-orm";
 import { db } from "~/db";
-import { chats, jobs, reports } from "~/db/schema";
+import { interviews, jobs, reports } from "~/db/schema";
 import { sendDiscordDM } from "~/lib/discord";
 import { logger } from "~/lib/logger";
 import { initSentry } from "../lib/sentry";
@@ -17,9 +17,9 @@ export const handler = Sentry.wrapHandler(async () => {
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
 
     const incompleteReports = await db
-      .select({ id: reports.id, jobId: chats.jobId })
+      .select({ id: reports.id, jobId: interviews.jobId })
       .from(reports)
-      .leftJoin(chats, eq(reports.chatId, chats.id))
+      .leftJoin(interviews, eq(reports.interviewId, interviews.id))
       .where(
         and(
           eq(reports.isCompleted, false)
@@ -60,8 +60,8 @@ export const handler = Sentry.wrapHandler(async () => {
       const job = await db
         .select()
         .from(jobs)
-        .leftJoin(chats, eq(jobs.id, chats.jobId))
-        .leftJoin(reports, eq(chats.id, reports.chatId))
+        .leftJoin(interviews, eq(jobs.id, interviews.jobId))
+        .leftJoin(reports, eq(interviews.id, reports.interviewId))
         .where(eq(reports.id, report.id))
         .then(([job]) => job);
 

@@ -3,12 +3,8 @@ import { index, pgTable } from "drizzle-orm/pg-core";
 import { jobs } from "./jobs";
 import { reports } from "./reports";
 
-/**
- * This table stores chat metadata for jobs
- * It has a one-to-one relationship with the jobs table
- */
-export const chats = pgTable(
-  "chats",
+export const interviews = pgTable(
+  "interviews",
   (p) => ({
     id: p.serial().primaryKey(),
     jobId: p
@@ -27,19 +23,19 @@ export const chats = pgTable(
     createdAt: p.timestamp().defaultNow().notNull(),
     updatedAt: p.timestamp().defaultNow().notNull(),
   }),
-  (chats) => [index("chats_job_id_idx").on(chats.jobId)]
+  (interviews) => [index("interviews_job_id_idx").on(interviews.jobId)]
 );
 
-export const chatsRelations = relations(chats, ({ one }) => ({
+export const interviewRelations = relations(interviews, ({ one }) => ({
   job: one(jobs, {
-    fields: [chats.jobId],
+    fields: [interviews.jobId],
     references: [jobs.id],
   }),
   report: one(reports, {
-    fields: [chats.id],
-    references: [reports.chatId],
+    fields: [interviews.id],
+    references: [reports.interviewId],
   }),
 }));
 
-export type Chat = typeof chats.$inferSelect;
-export type NewChat = typeof chats.$inferInsert;
+export type Interview = typeof interviews.$inferSelect;
+export type NewInterview = typeof interviews.$inferInsert;

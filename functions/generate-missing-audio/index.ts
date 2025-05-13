@@ -18,7 +18,7 @@ export const handler = Sentry.wrapHandler(async () => {
     const reportsToProcess = await db.query.reports.findMany({
       where: and(isNull(reports.interviewAudioUrl)),
       with: {
-        chat: {
+        interview: {
           with: {
             job: true,
           },
@@ -51,7 +51,9 @@ export const handler = Sentry.wrapHandler(async () => {
     for (const report of reportsToProcess) {
       logger.info({ reportId: report.id }, "Requesting audio reconstruction");
       try {
-        const reconstructionResponse = await requestChatAudioReconstruction(report.chat.humeChatId);
+        const reconstructionResponse = await requestChatAudioReconstruction(
+          report.interview.humeChatId
+        );
         logger.info(
           { reportId: report.id, reconstructionResponse },
           "Audio reconstruction requested"
@@ -78,9 +80,9 @@ export const handler = Sentry.wrapHandler(async () => {
           body: JSON.stringify({
             data: {
               reportId: report.id,
-              chatId: report.chat.humeChatId,
+              interviewId: report.interview.humeChatId,
             },
-            userId: report.chat.job.userId,
+            userId: report.interview.job.userId,
             queueType: "save-interview-audio-to-s3",
           }),
         });

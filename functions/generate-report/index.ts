@@ -8,7 +8,7 @@ import { config } from "~/config";
 import { db } from "~/db";
 import {
   candidateDetails,
-  chats,
+  interviews,
   jobDescriptions,
   jobs,
   questionAnalysis,
@@ -46,14 +46,14 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
       let jobId = 0;
       try {
         const {
-          data: { jobId: id, chatId },
+          data: { jobId: id, interviewId },
           userId,
           restart: isRestart,
         } = JSON.parse(record.body);
         jobId = id;
 
         const user = await getUserFromId(userId);
-        logger.info({ interviewId: jobId, isRestart }, "Processing interview report request");
+        logger.info({ jobId, isRestart }, "Processing interview report request");
 
         const job = await db
           .select()
@@ -66,21 +66,21 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           throw new Error("Job not found");
         }
 
-        const chat = await db
+        const interview = await db
           .select({
-            transcript: chats.transcript,
+            transcript: interviews.transcript,
           })
-          .from(chats)
-          .where(eq(chats.id, chatId))
-          .then(([chat]) => chat);
+          .from(interviews)
+          .where(eq(interviews.id, interviewId))
+          .then(([interview]) => interview);
 
-        if (!chat) {
-          logger.error({ chatId }, "Chat not found");
-          throw new Error("Chat not found");
+        if (!interview) {
+          logger.error({ interviewId }, "Interview not found");
+          throw new Error("Interview not found");
         }
 
         // Get the language model
-        const model = getOpenAiClient(user?.email)("o3-mini");
+        const model = getOpenAiClient(user?.email)("o4-mini");
 
         // Run extraction functions in parallel using Promise.all
         logger.info({ jobId }, "Starting parallel data extraction");
@@ -121,7 +121,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         const generatedReport = await analyseInterview({
           model,
           job,
-          transcriptString: chat.transcript ?? "",
+          transcriptString: interview.transcript ?? "",
           userEmail: user?.email,
           structuredCV: structuredCV?.data,
           structuredJobDescription: structuredJobDescription?.data,
@@ -185,7 +185,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           const updatedReport = await tx
             .insert(reports)
             .values({
-              chatId,
+              interviewId,
               generalAssessment: generatedReport.data.generalAssessment,
               overallScore: generatedReport.data.overallScore,
               speakingSkills: generatedReport.data.speakingSkills,

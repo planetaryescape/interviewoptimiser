@@ -28,24 +28,24 @@ import { useState } from "react";
 import type { InferResultType } from "~/db/helpers";
 import { Skeleton } from "./ui/skeleton";
 
-type JobWithCandidateDetailsAndJobDescription = InferResultType<
+type JobWithCandidateDetailsAndJobDescriptionAndInterviews = InferResultType<
   "jobs",
   {
     candidateDetails: true;
     jobDescription: true;
-    chats: true;
+    interviews: true;
   }
 >;
 
 interface JobCardProps {
-  job: JobWithCandidateDetailsAndJobDescription;
+  job: JobWithCandidateDetailsAndJobDescriptionAndInterviews;
   onDelete?: (id: number) => void;
   deletingId: number | null;
 }
 
 export const JobCard = ({ job, onDelete, deletingId }: JobCardProps) => {
   const [open, setOpen] = useState(false);
-  const hasChats = Boolean(job.chats.length);
+  const hasInterviews = Boolean(job.interviews.length);
 
   return (
     <Card
@@ -56,7 +56,7 @@ export const JobCard = ({ job, onDelete, deletingId }: JobCardProps) => {
       )}
     >
       <CardHeader className="pb-2">
-        {!hasChats ? (
+        {!hasInterviews ? (
           <CardTitle className="text-lg font-semibold">
             <Skeleton className="w-full h-6" />
             <div className="text-sm text-muted-foreground">
@@ -75,7 +75,7 @@ export const JobCard = ({ job, onDelete, deletingId }: JobCardProps) => {
       </CardHeader>
 
       <CardContent className="flex-1">
-        {!hasChats ? (
+        {!hasInterviews ? (
           <CardDescription className="space-y-3 flex flex-col">
             <Skeleton className="w-1/2 h-4" />
             <Skeleton className="w-1/2 h-4" />
@@ -97,13 +97,13 @@ export const JobCard = ({ job, onDelete, deletingId }: JobCardProps) => {
       </CardContent>
 
       <div className="p-4 border-t border-gray-200 dark:border-gray-800 flex justify-between items-center bg-muted/50">
-        <Button disabled={!hasChats} asChild size="sm" variant="secondary" className="w-full">
+        <Button disabled={!hasInterviews} asChild size="sm" variant="secondary" className="w-full">
           <Link
             href={`/dashboard/jobs/${idHandler.encode(job.id ?? 0)}/reports`}
             className="flex items-center justify-center gap-2"
           >
-            {!hasChats && <Loader2 className="h-4 w-4 animate-spin" />}
-            {hasChats ? "View Reports" : "Generating Report"}
+            {!hasInterviews && <Loader2 className="h-4 w-4 animate-spin" />}
+            {hasInterviews ? "View Reports" : "Generating Report"}
           </Link>
         </Button>
 

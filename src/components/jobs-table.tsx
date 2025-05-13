@@ -30,17 +30,17 @@ import { Loader2, MoreVertical } from "lucide-react";
 import Link from "next/link";
 import type { InferResultType } from "~/db/helpers";
 
-type JobWithCandidateDetailsAndJobDescription = InferResultType<
+type JobWithCandidateDetailsAndJobDescriptionAndInterviews = InferResultType<
   "jobs",
   {
     candidateDetails: true;
     jobDescription: true;
-    chats: true;
+    interviews: true;
   }
 >;
 
 interface JobsTableProps {
-  jobs: Array<JobWithCandidateDetailsAndJobDescription>;
+  jobs: Array<JobWithCandidateDetailsAndJobDescriptionAndInterviews>;
   onDelete?: (id: number) => void;
   deletingId: number | null;
 }

@@ -20,7 +20,7 @@ export async function GET(
       where: eq(reports.id, reportId),
       with: {
         pageSettings: true,
-        chat: {
+        interview: {
           with: {
             job: true,
           },

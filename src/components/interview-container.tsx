@@ -4,8 +4,8 @@ import useCustomisedSystemPrompt from "@/hooks/useCustomisedSystemPrompt";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
 import {
+  useActiveInterview,
   useActiveInterviewActions,
-  useActiveInterviewChat,
   useActiveInterviewEnded,
   useActiveInterviewShowTakeover,
 } from "@/stores/useActiveInterviewStore";
@@ -16,7 +16,7 @@ import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { type ComponentRef, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import type { Chat } from "~/db/schema";
+import type { Interview } from "~/db/schema";
 import { Controls } from "./controls";
 import { GeneratingReportTakeover } from "./generating-report-takeover";
 import { ConnectionStatus } from "./interview/connection-status";
@@ -24,62 +24,66 @@ import { InterviewController } from "./interview/interview-controller";
 import { TimerDisplay } from "./interview/timer-display";
 import { Messages } from "./messages";
 
-export function Interview({
+export function InterviewContainer({
   jobId,
   accessToken,
-  chatId,
+  interviewId,
 }: {
   jobId: string;
   accessToken: string;
-  chatId: string;
+  interviewId: string;
 }) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const interviewEnded = useActiveInterviewEnded();
-  const { setActiveInterviewChat, resetState, setShowTakeover, setTotalTime } =
-    useActiveInterviewActions();
+  const {
+    setActiveInterview: setActiveInterviewChat,
+    resetState,
+    setShowTakeover,
+    setTotalTime,
+  } = useActiveInterviewActions();
   const showTakeover = useActiveInterviewShowTakeover();
-  const activeInterviewChat = useActiveInterviewChat();
+  const activeInterview = useActiveInterview();
   const timeout = useRef<number | null>(null);
   const messagesRef = useRef<ComponentRef<typeof Messages> | null>(null);
   const hasGeneratedReportRef = useRef(false);
-  const chatDataLoaded = useRef(false);
+  const interviewDataLoaded = useRef(false);
   const configId = process.env.NEXT_PUBLIC_HUME_CONFIG_ID;
 
   const { systemPrompt, job, isLoading: jobIsLoading } = useCustomisedSystemPrompt({ jobId });
 
-  const { data: chat, isLoading: chatIsLoading } = useQuery({
-    queryKey: ["chat", chatId],
+  const { data: interview, isLoading: interviewIsLoading } = useQuery({
+    queryKey: ["interview", interviewId],
     queryFn: async () => {
-      const chatRepo = await getRepository<Chat>("chats");
-      return await chatRepo.getById(chatId);
+      const interviewRepo = await getRepository<Interview>("interviews");
+      return await interviewRepo.getById(interviewId);
     },
-    enabled: !!chatId,
+    enabled: !!interviewId,
   });
 
   useEffect(() => {
-    if (chat && !chatIsLoading && !chatDataLoaded.current) {
+    if (interview && !interviewIsLoading && !interviewDataLoaded.current) {
       setActiveInterviewChat({
-        id: chat.data.id,
-        createdAt: chat.data.createdAt,
-        updatedAt: chat.data.updatedAt,
-        actualTime: chat.data.actualTime,
+        id: interview.data.id,
+        createdAt: interview.data.createdAt,
+        updatedAt: interview.data.updatedAt,
+        actualTime: interview.data.actualTime,
         jobId,
-        customSessionId: chat.data.customSessionId,
-        transcript: chat.data.transcript,
-        chatGroupId: chat.data.chatGroupId,
-        humeChatId: chat.data.humeChatId,
-        requestId: chat.data.requestId,
+        customSessionId: interview.data.customSessionId,
+        transcript: interview.data.transcript,
+        chatGroupId: interview.data.chatGroupId,
+        humeChatId: interview.data.humeChatId,
+        requestId: interview.data.requestId,
       });
-      chatDataLoaded.current = true;
+      interviewDataLoaded.current = true;
     }
-  }, [chat, setActiveInterviewChat, chatIsLoading, jobId]);
+  }, [interview, setActiveInterviewChat, interviewIsLoading, jobId]);
 
   const generateReportMutation = useMutation({
     mutationFn: async () => {
       const body = {
         jobId,
-        chatId: idHandler.encode(activeInterviewChat?.id ?? 0),
+        chatId: idHandler.encode(activeInterview?.id ?? 0),
       };
 
       const response = await fetch("/api/report", {
@@ -130,7 +134,7 @@ export function Interview({
     }
   }, [job, setTotalTime]);
 
-  if (chatIsLoading || jobIsLoading) {
+  if (interviewIsLoading || jobIsLoading) {
     return (
       <div className="h-full flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">Loading interview...</div>
@@ -200,7 +204,7 @@ export function Interview({
             }
           }, 200);
         }}
-        resumedChatGroupId={chat?.data.chatGroupId}
+        resumedChatGroupId={interview?.data.chatGroupId}
       >
         <div className="absolute top-4 right-4 flex items-center gap-4 z-50">
           <TimerDisplay />

@@ -35,17 +35,17 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
       let reportId = 0;
       try {
         const {
-          data: { reportId: id, chatId },
+          data: { reportId: id, interviewId },
           userId,
         } = JSON.parse(record.body);
         reportId = id;
 
         const user = await getUserFromId(userId);
-        logger.info({ reportId, chatId }, "Processing chat audio save request");
+        logger.info({ reportId, interviewId }, "Processing interview audio save request");
 
         // Poll for audio reconstruction status until complete
-        logger.info({ reportId, chatId }, "Polling for audio reconstruction status");
-        const reconstructionResponse = await pollAudioReconstructionStatus(chatId);
+        logger.info({ reportId, interviewId }, "Polling for audio reconstruction status");
+        const reconstructionResponse = await pollAudioReconstructionStatus(interviewId);
 
         if (!reconstructionResponse.signed_audio_url) {
           logger.error({ reportId }, "No signed audio URL in reconstruction response");
@@ -57,10 +57,10 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         const audioData = await downloadAudioFile(reconstructionResponse.signed_audio_url);
 
         // Upload the audio file to S3
-        logger.info({ reportId, chatId }, "Uploading audio to S3");
+        logger.info({ reportId, interviewId }, "Uploading audio to S3");
         const cloudFrontUrl = await uploadAudioToS3(
           audioData,
-          chatId,
+          interviewId,
           reconstructionResponse.filename
         );
 
@@ -75,7 +75,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           })
           .where(eq(reports.id, reportId));
 
-        logger.info({ reportId, cloudFrontUrl }, "Successfully saved chat audio to S3");
+        logger.info({ reportId, cloudFrontUrl }, "Successfully saved interview audio to S3");
 
         // Send notification
         await sendDiscordDM({
@@ -105,7 +105,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
             error: error instanceof Error ? error.message : error,
             reportId,
           },
-          "Error processing chat audio save request"
+          "Error processing interview audio save request"
         );
 
         await handleError({
@@ -114,8 +114,8 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           error: error as Error,
           onFailure: async () => {
             await sendDiscordDM({
-              title: "❌ Chat Audio Save Failed",
-              description: "Failed to save chat audio to S3",
+              title: "❌ Interview Audio Save Failed",
+              description: "Failed to save interview audio to S3",
               metadata: {
                 "Record ID": record.messageId,
                 "Report ID": record.body ? JSON.parse(record.body).data?.reportId : "unknown",
@@ -141,7 +141,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
   } catch (error) {
     logger.error(
       { error: error instanceof Error ? error.message : error },
-      "Error processing chat audio save request"
+      "Error processing interview audio save request"
     );
     return {
       statusCode: 500,

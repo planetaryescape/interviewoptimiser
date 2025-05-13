@@ -6,14 +6,14 @@ import * as Sentry from "@sentry/nextjs";
 import { and, eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
-import { chats, jobs } from "~/db/schema";
+import { interviews, jobs } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export async function POST(request: NextRequest) {
-  logger.info("POST request received at /api/chats");
+  logger.info("POST request received at /api/interviews");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to POST /api/chats");
+    logger.warn("Unauthorized access attempt to POST /api/interviews");
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -52,21 +52,21 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const existingChat = await db.query.chats.findFirst({
-      where: and(eq(chats.humeChatId, humeChatId)),
+    const existingInterview = await db.query.interviews.findFirst({
+      where: and(eq(interviews.humeChatId, humeChatId)),
     });
 
     const jobId = idHandler.decode(jobIdString);
 
-    if (existingChat) {
-      logger.info({ jobId }, "Chat already exists");
-      return NextResponse.json(formatEntity(existingChat, "chat"), {
+    if (existingInterview) {
+      logger.info({ jobId }, "Interview already exists");
+      return NextResponse.json(formatEntity(existingInterview, "interview"), {
         status: 200,
       });
     }
 
-    const [newChat] = await db
-      .insert(chats)
+    const [newInterview] = await db
+      .insert(interviews)
       .values({
         jobId,
         customSessionId,
@@ -76,14 +76,14 @@ export async function POST(request: NextRequest) {
       })
       .returning();
 
-    logger.info({ id: newChat.id }, "Successfully created chat");
+    logger.info({ id: newInterview.id }, "Successfully created interview");
 
-    return NextResponse.json(formatEntity(newChat, "chat"), {
+    return NextResponse.json(formatEntity(newInterview, "interview"), {
       status: 201,
     });
   } catch (error) {
     Sentry.withScope((scope) => {
-      scope.setExtra("context", "POST /api/chats");
+      scope.setExtra("context", "POST /api/interviews");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
         message: error instanceof Error ? error.message : "Unknown error",
         error,
       },
-      "Error in POST /api/chats"
+      "Error in POST /api/interviews"
     );
     return NextResponse.json(formatErrorEntity("Internal server error"), {
       status: 500,
@@ -100,15 +100,11 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * Gets chat metadata entries for the user
- * Optional query param: jobId to filter by job
- */
 export async function GET(request: NextRequest) {
-  logger.info("GET request received at /api/chats");
+  logger.info("GET request received at /api/interviews");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to GET /api/chats");
+    logger.warn("Unauthorized access attempt to GET /api/interviews");
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -127,7 +123,7 @@ export async function GET(request: NextRequest) {
     const jobId = url.searchParams.get("jobId");
 
     if (!jobId) {
-      logger.info("No jobId provided, getting all chats");
+      logger.info("No jobId provided, getting all interviews");
       return NextResponse.json(formatErrorEntity("Missing jobId"), {
         status: 400,
       });
@@ -152,21 +148,21 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const returnedChats = await db.query.chats.findMany({
-      where: eq(chats.jobId, Number.parseInt(jobId)),
+    const returnedInterviews = await db.query.interviews.findMany({
+      where: eq(interviews.jobId, Number.parseInt(jobId)),
     });
 
-    if (!returnedChats) {
-      logger.info({ jobId }, "No chats found for this job");
+    if (!returnedInterviews) {
+      logger.info({ jobId }, "No interviews found for this job");
       return NextResponse.json(formatEntityList([], "generic"));
     }
 
-    logger.info({ jobId }, "Successfully retrieved chats for job");
+    logger.info({ jobId }, "Successfully retrieved interviews for job");
 
-    return NextResponse.json(formatEntityList(returnedChats, "chat"));
+    return NextResponse.json(formatEntityList(returnedInterviews, "interview"));
   } catch (error) {
     Sentry.withScope((scope) => {
-      scope.setExtra("context", "GET /api/chats");
+      scope.setExtra("context", "GET /api/interviews");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
@@ -175,7 +171,7 @@ export async function GET(request: NextRequest) {
         message: error instanceof Error ? error.message : "Unknown error",
         error,
       },
-      "Error in GET /api/chats"
+      "Error in GET /api/interviews"
     );
     return NextResponse.json(formatErrorEntity("Internal server error"), {
       status: 500,

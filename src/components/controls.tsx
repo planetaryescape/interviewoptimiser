@@ -6,9 +6,9 @@ import { idHandler } from "@/lib/utils/idHandler";
 import { INTERVIEW_START_MESSAGE, formatTranscriptToJsonString } from "@/lib/utils/messageUtils";
 import { unformatTime } from "@/lib/utils/unformatTime";
 import {
-  type ChatWithPublicJobId,
+  type InterviewWithPublicJobId,
+  useActiveInterview,
   useActiveInterviewActions,
-  useActiveInterviewChat,
 } from "@/stores/useActiveInterviewStore";
 import { useVoice } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
@@ -41,12 +41,12 @@ export function Controls() {
   const params = useParams();
   const queryClient = useQueryClient();
   const { setInterviewEnded } = useActiveInterviewActions();
-  const activeInterviewChat = useActiveInterviewChat();
+  const activeInterview = useActiveInterview();
 
-  const { mutate: endChat } = useMutation({
-    mutationFn: async (chat: Partial<ChatWithPublicJobId>) => {
-      const chatRepo = await getRepository<ChatWithPublicJobId>("chats");
-      return await chatRepo.update(idHandler.encode(activeInterviewChat?.id ?? 0), chat);
+  const { mutate: endInterview } = useMutation({
+    mutationFn: async (interview: Partial<InterviewWithPublicJobId>) => {
+      const interviewRepo = await getRepository<InterviewWithPublicJobId>("interviews");
+      return await interviewRepo.update(idHandler.encode(activeInterview?.id ?? 0), interview);
     },
     onSuccess: () => {
       sendAssistantInput("hang_up");
@@ -158,8 +158,8 @@ export function Controls() {
                 status.value !== "connected" ? "hidden" : ""
               )}
               onClick={async () => {
-                await endChat({
-                  ...activeInterviewChat,
+                await endInterview({
+                  ...activeInterview,
                   actualTime: Math.floor(unformatTime(callDurationTimestamp) / 60),
                   jobId: params.jobId as string,
                   transcript: formatTranscriptToJsonString(messages),

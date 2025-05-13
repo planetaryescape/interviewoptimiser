@@ -6,15 +6,15 @@ import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
-import { chats } from "~/db/schema";
+import { interviews } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
-  logger.info("GET request received at /api/chat-metadata/[id]");
+  logger.info("GET request received at /api/interviews/[id]");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to GET /api/chat-metadata/[id]");
+    logger.warn("Unauthorized access attempt to GET /api/interviews/[id]");
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -29,23 +29,23 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
       });
     }
 
-    const chatId = idHandler.decode(params.id);
+    const interviewId = idHandler.decode(params.id);
 
-    const chat = await db.query.chats.findFirst({
-      where: eq(chats.id, chatId),
+    const interview = await db.query.interviews.findFirst({
+      where: eq(interviews.id, interviewId),
     });
 
-    if (!chat) {
-      return NextResponse.json(formatErrorEntity("Chat not found"), {
+    if (!interview) {
+      return NextResponse.json(formatErrorEntity("Interview not found"), {
         status: 404,
       });
     }
 
-    logger.info({ id: chat.id }, "Successfully retrieved chat");
-    return NextResponse.json(formatEntity(chat, "chat"));
+    logger.info({ id: interview.id }, "Successfully retrieved interview");
+    return NextResponse.json(formatEntity(interview, "interview"));
   } catch (error) {
     Sentry.withScope((scope) => {
-      scope.setExtra("context", "GET /api/chats/[id]");
+      scope.setExtra("context", "GET /api/interviews/[id]");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
         message: error instanceof Error ? error.message : "Unknown error",
         error,
       },
-      "Error in GET /api/chats/[id]"
+      "Error in GET /api/interviews/[id]"
     );
     return NextResponse.json(formatErrorEntity("Internal server error"), {
       status: 500,
@@ -62,15 +62,12 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
   }
 }
 
-/**
- * Updates a specific chat metadata record
- */
 export async function PUT(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
-  logger.info("PUT request received at /api/chats/[id]");
+  logger.info("PUT request received at /api/interviews/[id]");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to PUT /api/chats/[id]");
+    logger.warn("Unauthorized access attempt to PUT /api/interviews/[id]");
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -85,13 +82,13 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
       });
     }
 
-    const chatId = idHandler.decode(params.id);
-    const chat = await db.query.chats.findFirst({
-      where: eq(chats.id, chatId),
+    const interviewId = idHandler.decode(params.id);
+    const interview = await db.query.interviews.findFirst({
+      where: eq(interviews.id, interviewId),
     });
 
-    if (!chat) {
-      return NextResponse.json(formatErrorEntity("Chat not found"), {
+    if (!interview) {
+      return NextResponse.json(formatErrorEntity("Interview not found"), {
         status: 404,
       });
     }
@@ -114,8 +111,8 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
       });
     }
 
-    const [updatedChat] = await db
-      .update(chats)
+    const [updatedInterview] = await db
+      .update(interviews)
       .set({
         customSessionId,
         chatGroupId,
@@ -125,14 +122,14 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
         transcript,
         updatedAt: new Date(),
       })
-      .where(eq(chats.id, chatId))
+      .where(eq(interviews.id, interviewId))
       .returning();
 
-    logger.info({ id: updatedChat.id }, "Successfully updated chat");
-    return NextResponse.json(formatEntity(updatedChat, "chat"));
+    logger.info({ id: updatedInterview.id }, "Successfully updated interview");
+    return NextResponse.json(formatEntity(updatedInterview, "interview"));
   } catch (error) {
     Sentry.withScope((scope) => {
-      scope.setExtra("context", "PUT /api/chats/[id]");
+      scope.setExtra("context", "PUT /api/interviews/[id]");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
@@ -141,7 +138,7 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
         message: error instanceof Error ? error.message : "Unknown error",
         error,
       },
-      "Error in PUT /api/chats/[id]"
+      "Error in PUT /api/interviews/[id]"
     );
     return NextResponse.json(formatErrorEntity("Internal server error"), {
       status: 500,
@@ -149,15 +146,12 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
   }
 }
 
-/**
- * Deletes a specific chat metadata record
- */
 export async function DELETE(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
-  logger.info("DELETE request received at /api/chats/[id]");
+  logger.info("DELETE request received at /api/interviews/[id]");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to DELETE /api/chats/[id]");
+    logger.warn("Unauthorized access attempt to DELETE /api/interviews/[id]");
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -172,24 +166,24 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
       });
     }
 
-    const chatId = idHandler.decode(params.id);
-    const chat = await db.query.chats.findFirst({
-      where: eq(chats.id, chatId),
+    const interviewId = idHandler.decode(params.id);
+    const interview = await db.query.interviews.findFirst({
+      where: eq(interviews.id, interviewId),
     });
 
-    if (!chat) {
-      return NextResponse.json(formatErrorEntity("Chat not found"), {
+    if (!interview) {
+      return NextResponse.json(formatErrorEntity("Interview not found"), {
         status: 404,
       });
     }
 
-    await db.delete(chats).where(eq(chats.id, chatId));
+    await db.delete(interviews).where(eq(interviews.id, interviewId));
 
-    logger.info({ id: chat.id }, "Successfully deleted chat");
+    logger.info({ id: interview.id }, "Successfully deleted interview");
     return NextResponse.json({ status: "success" });
   } catch (error) {
     Sentry.withScope((scope) => {
-      scope.setExtra("context", "DELETE /api/chats/[id]");
+      scope.setExtra("context", "DELETE /api/interviews/[id]");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
@@ -198,7 +192,7 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
         message: error instanceof Error ? error.message : "Unknown error",
         error,
       },
-      "Error in DELETE /api/chats/[id]"
+      "Error in DELETE /api/interviews/[id]"
     );
     return NextResponse.json(formatErrorEntity("Internal server error"), {
       status: 500,
