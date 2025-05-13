@@ -22,9 +22,9 @@ export function StepIndicator({ canProceedToNextStep, animateStep }: StepIndicat
 
   return (
     <div className="flex items-center justify-center">
-      <div className="relative flex items-center justify-center gap-5 xs:gap-6 md:gap-12 lg:gap-16 px-2">
+      <div className="relative flex items-center justify-center gap-3 xs:gap-5 sm:gap-6 md:gap-10 lg:gap-16 px-2">
         {/* Connector Lines - Positioned behind the circles */}
-        <div className="absolute top-5 left-[22px] right-[22px] h-1 bg-border z-0">
+        <div className="absolute top-4 xs:top-5 left-[18px] right-[18px] xs:left-[22px] xs:right-[22px] h-1 bg-border z-0">
           {/* First half of the line - colored if step > 1 */}
           <div
             className={cn(
@@ -57,7 +57,7 @@ export function StepIndicator({ canProceedToNextStep, animateStep }: StepIndicat
               aria-current={step === stepItem.number ? "step" : undefined}
               aria-label={`Go to step ${stepItem.number}: ${stepItem.label}`}
               className={cn(
-                "w-9 h-9 xs:w-10 xs:h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 shadow",
+                "w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs xs:text-sm font-medium transition-all duration-300 shadow",
                 animateStep === stepItem.number && "animate-step-complete",
                 step === stepItem.number
                   ? "bg-primary text-primary-foreground ring-2 ring-primary/30 ring-offset-2 ring-offset-background shadow-md scale-110"
@@ -66,11 +66,15 @@ export function StepIndicator({ canProceedToNextStep, animateStep }: StepIndicat
                     : "bg-muted text-muted-foreground border border-border cursor-default"
               )}
             >
-              {stepItem.number < step ? <Check className="h-5 w-5" /> : stepItem.number}
+              {stepItem.number < step ? (
+                <Check className="h-4 w-4 xs:h-5 xs:w-5" />
+              ) : (
+                stepItem.number
+              )}
             </button>
             <span
               className={cn(
-                "text-xs mt-2 font-medium text-center",
+                "text-[10px] xs:text-xs mt-1 xs:mt-2 font-medium text-center max-w-[60px] xs:max-w-none",
                 step === stepItem.number
                   ? "text-foreground"
                   : stepItem.number < step

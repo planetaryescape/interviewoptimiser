@@ -22,7 +22,6 @@ import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ContentArea } from "./components/ContentArea";
-import { CreateHeader } from "./components/CreateHeader";
 import { useJobSubmission } from "./hooks/useJobSubmission";
 
 export default function CreateJob() {
@@ -111,18 +110,16 @@ export default function CreateJob() {
 
   return (
     <>
-      {/* Header with navigation controls */}
-      <CreateHeader
+      {/* Main content with navigation controls */}
+      <ContentArea
+        animationDir={animationDir}
         canProceedToNextStep={canProceedToNextStep}
         isSubmitting={isSubmitting}
         onBack={handleBack}
         onNext={handleNextStep}
-        onSubmit={submitJob}
+        onSubmit={handleSubmit}
         animateStep={animateStep}
       />
-
-      {/* Main content */}
-      <ContentArea animationDir={animationDir} />
 
       {/* Modals */}
       <ConfirmationModal
