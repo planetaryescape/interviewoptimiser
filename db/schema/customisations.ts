@@ -8,7 +8,10 @@ export const customisations = pgTable(
     id: p.serial().primaryKey(),
     userId: p
       .integer()
-      .references(() => users.id)
+      .references(() => users.id, {
+        onUpdate: "cascade",
+        onDelete: "cascade",
+      })
       .notNull(),
     name: p.varchar({ length: 255 }).notNull(),
     address: p.varchar({ length: 255 }).notNull(),

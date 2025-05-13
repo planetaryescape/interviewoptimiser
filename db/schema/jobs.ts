@@ -1,19 +1,9 @@
 import { relations } from "drizzle-orm";
-import { index, pgEnum, pgTable } from "drizzle-orm/pg-core";
+import { index, pgTable } from "drizzle-orm/pg-core";
 import { candidateDetails } from "./candidateDetails";
 import { interviews } from "./interviews";
 import { jobDescriptions } from "./jobDescriptions";
 import { users } from "./users";
-
-export const interviewTypeEnum = pgEnum("interview_type", [
-  "behavioral",
-  "situational",
-  "technical",
-  "case_study",
-  "competency_based",
-  "stress",
-  "cultural_fit",
-]);
 
 export const jobs = pgTable(
   "jobs",
@@ -21,13 +11,11 @@ export const jobs = pgTable(
     id: p.serial().primaryKey(),
     userId: p.integer().references(() => users.id, {
       onUpdate: "cascade",
+      onDelete: "cascade",
     }),
     submittedCVText: p.text().notNull(),
     jobDescriptionText: p.text().notNull(),
     additionalInfo: p.text(),
-    duration: p.integer().notNull().default(15),
-    actualTime: p.integer(),
-    type: interviewTypeEnum().notNull().default("behavioral"),
     candidate: p.text(),
     company: p.text(),
     role: p.text(),
@@ -56,4 +44,3 @@ export const jobRelations = relations(jobs, ({ one, many }) => ({
 
 export type Job = typeof jobs.$inferSelect;
 export type NewJob = typeof jobs.$inferInsert;
-export type InterviewType = (typeof interviewTypeEnum.enumValues)[number];

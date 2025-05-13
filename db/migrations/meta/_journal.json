@@ -15,6 +15,20 @@
       "when": 1747159193413,
       "tag": "0001_chubby_wild_pack",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1747178645207,
+      "tag": "0002_rich_the_hand",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1747179252337,
+      "tag": "0003_sticky_caretaker",
+      "breakpoints": true
     }
   ]
 }
