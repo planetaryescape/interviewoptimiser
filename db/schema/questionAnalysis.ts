@@ -8,7 +8,10 @@ export const questionAnalysis = pgTable(
     id: p.serial().primaryKey(),
     reportId: p
       .integer()
-      .references(() => reports.id)
+      .references(() => reports.id, {
+        onUpdate: "cascade",
+        onDelete: "cascade",
+      })
       .notNull(),
     question: p.text().notNull(),
     analysis: p.text().notNull(),

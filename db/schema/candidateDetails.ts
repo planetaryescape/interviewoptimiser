@@ -8,7 +8,7 @@ export const candidateDetails = pgTable(
     id: p.serial().primaryKey(),
     jobId: p
       .integer()
-      .references(() => jobs.id, { onDelete: "cascade" })
+      .references(() => jobs.id, { onDelete: "cascade", onUpdate: "cascade" })
       .notNull(),
     name: p.text().notNull(),
     email: p.text(),
