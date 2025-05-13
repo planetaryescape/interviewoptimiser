@@ -1,6 +1,5 @@
 "use client";
 
-import { ConfirmationModal } from "@/components/create-optimization/ConfirmationModal";
 import { CreateJobErrorModal } from "@/components/create-optimization/CreateJobErrorModal";
 import { OutOfMinutesModal } from "@/components/create-optimization/OutOfMinutesModal";
 import { ProcessingTakeover } from "@/components/create-optimization/ProcessingTakeover";
@@ -11,7 +10,6 @@ import {
   useCreateJobCVText,
   useCreateJobDuration,
   useCreateJobInterviewType,
-  useCreateJobIsAlertDialogOpen,
   useCreateJobIsOutOfMinutesDialogOpen,
   useCreateJobIsScheduleErrorDialogOpen,
   useCreateJobJobDescriptionText,
@@ -30,18 +28,13 @@ export default function CreateJob() {
   const jobDescriptionText = useCreateJobJobDescriptionText();
   const additionalInfo = useCreateJobAdditionalInfo();
   const showTakeover = useCreateJobShowTakeover();
-  const isAlertDialogOpen = useCreateJobIsAlertDialogOpen();
   const isOutOfMinutesDialogOpen = useCreateJobIsOutOfMinutesDialogOpen();
   const isScheduleErrorDialogOpen = useCreateJobIsScheduleErrorDialogOpen();
   const duration = useCreateJobDuration();
   const interviewType = useCreateJobInterviewType();
 
-  const {
-    setStep,
-    setIsAlertDialogOpen,
-    setIsOutOfMinutesDialogOpen,
-    setIsScheduleErrorDialogOpen,
-  } = useCreateJobActions();
+  const { setStep, setIsOutOfMinutesDialogOpen, setIsScheduleErrorDialogOpen } =
+    useCreateJobActions();
 
   const [animateStep, setAnimateStep] = useState<number | null>(null);
   const [animationDir, setAnimationDir] = useState(0);
@@ -95,13 +88,8 @@ export default function CreateJob() {
     if (!checkMinutes()) {
       setIsOutOfMinutesDialogOpen(true);
     } else {
-      setIsAlertDialogOpen(true);
+      submitJob();
     }
-  };
-
-  const handleConfirmSubmit = () => {
-    setIsAlertDialogOpen(false);
-    submitJob();
   };
 
   const handleBuyMinutes = () => {
@@ -122,13 +110,6 @@ export default function CreateJob() {
       />
 
       {/* Modals */}
-      <ConfirmationModal
-        isOpen={isAlertDialogOpen}
-        onClose={() => setIsAlertDialogOpen(false)}
-        onConfirm={handleConfirmSubmit}
-        userMinutes={user?.minutes || 0}
-      />
-
       <OutOfMinutesModal
         isOpen={isOutOfMinutesDialogOpen}
         onClose={() => setIsOutOfMinutesDialogOpen(false)}

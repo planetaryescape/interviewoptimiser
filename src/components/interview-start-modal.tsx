@@ -11,6 +11,7 @@ type InterviewStartModalProps = {
   onClose: () => void;
   onStart: () => void;
   isLoading: boolean;
+  duration?: number;
 };
 
 export function InterviewStartModal({
@@ -18,6 +19,7 @@ export function InterviewStartModal({
   onClose,
   onStart,
   isLoading,
+  duration,
 }: InterviewStartModalProps) {
   const guidelines = [
     {
@@ -74,6 +76,18 @@ export function InterviewStartModal({
                 </motion.div>
               ))}
             </div>
+
+            {duration && duration > 0 && (
+              <div className="text-sm text-center mb-4 text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-900/30 p-3 rounded-md border border-amber-300 dark:border-amber-700">
+                <p>
+                  This interview session will use approximately{" "}
+                  <strong>
+                    {duration} minute{duration === 1 ? "" : "s"}
+                  </strong>{" "}
+                  from your account.
+                </p>
+              </div>
+            )}
 
             <div className="text-sm text-muted-foreground text-center mb-6">
               By starting the interview, you agree to the collection and processing of your data as

@@ -18,7 +18,9 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { NewInterview } from "~/db/schema";
 
-type NewInterviewWithPublicJobId = Omit<NewInterview, "jobId"> & { jobId: string };
+type NewInterviewWithPublicJobId = Omit<NewInterview, "jobId"> & {
+  jobId: string;
+};
 
 export default function InterviewPlaceholder() {
   const [showModal, setShowModal] = useState(false);
@@ -139,7 +141,7 @@ export default function InterviewPlaceholder() {
           ))}
         </div>
 
-        <div className="relative z-10 max-w-5xl w-full mx-auto px-4 flex flex-col items-center justify-center gap-12 py-10">
+        <div className="relative z-10 max-w-5xl w-full mx-auto px-4 flex flex-col items-center justify-center gap-12 py-10 mt-16 md:mt-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -199,9 +201,14 @@ export default function InterviewPlaceholder() {
               onClick={() => setShowModal(true)}
               className="relative group px-8 py-6 text-lg hover:scale-105 transition-transform"
             >
-              <div className="absolute inset-0 bg-primary opacity-20 group-hover:opacity-30 blur-xl transition-all rounded-lg" />
-              <MessageCircle className="mr-2 h-5 w-5" />
-              Start Interview
+              {isSaving ? (
+                <span className="animate-pulse">Preparing...</span>
+              ) : (
+                <>
+                  <MessageCircle className="mr-2 h-5 w-5 group-hover:animate-wiggle" />
+                  Start Interview
+                </>
+              )}
             </Button>
           </motion.div>
 
@@ -231,12 +238,10 @@ export default function InterviewPlaceholder() {
 
       <InterviewStartModal
         isOpen={showModal}
-        isLoading={isCreatingInterview}
         onClose={() => setShowModal(false)}
-        onStart={() => {
-          setShowModal(false);
-          handleStartInterview();
-        }}
+        onStart={handleStartInterview}
+        isLoading={status.value === "connecting" || isCreatingInterview}
+        duration={job?.data?.duration}
       />
     </div>
   );
