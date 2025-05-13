@@ -129,7 +129,7 @@ export default function JobReportsPage(props: {
       });
       setIsOutOfMinutesDialogOpen(true);
     } else {
-      setIsAlertDialogOpen(true);
+      router.push(`/dashboard/jobs/${params.jobId}`);
     }
   };
 
@@ -283,7 +283,7 @@ export default function JobReportsPage(props: {
                 variant="default"
               >
                 <RefreshCw className="w-4 h-4" />
-                Retake Interview
+                {chats.length > 0 ? "Retake Interview" : "Start Interview"}
               </Button>
             </div>
           </div>
@@ -459,7 +459,6 @@ export default function JobReportsPage(props: {
                     </div>
                   </div>
 
-                  {/* Prosody Trends Chart */}
                   <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
                     <div className="p-6 border-b border-gray-200 dark:border-gray-800">
                       <h2 className="text-lg font-semibold tracking-tight">Prosody Trends</h2>

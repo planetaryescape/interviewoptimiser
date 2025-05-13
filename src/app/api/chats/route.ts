@@ -9,15 +9,6 @@ import { db } from "~/db";
 import { chats, jobs } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
-/**
- * Creates a new chat in an idempotent way.
- *
- * If a chat with the same humeChatId already exists,
- * returns the existing record and does not create a new chat.
- * Otherwise, creates a new chat.
- *
- * This endpoint is idempotent: repeated POSTs with the same identifiers will not create duplicates.
- */
 export async function POST(request: NextRequest) {
   logger.info("POST request received at /api/chats");
   const { userId: clerkUserId } = getAuth(request);

@@ -50,7 +50,17 @@ export function InterviewController() {
     sendAssistantInput,
     messages,
     sendSessionSettings,
+    connect,
   } = useVoice();
+
+  const interviewStartedRef = useRef(false);
+
+  useEffect(() => {
+    if (!interviewStartedRef.current) {
+      connect();
+      interviewStartedRef.current = true;
+    }
+  }, [connect]);
 
   // Update store with voice state
   useEffect(() => {

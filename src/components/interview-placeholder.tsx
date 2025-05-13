@@ -6,12 +6,11 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { useJob } from "@/hooks/useJob";
 import { getRepository } from "@/lib/data/repositoryFactory";
-import { idHandler } from "@/lib/utils/idHandler";
 import { useVoice } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Home, Layout, MessageCircle } from "lucide-react";
+import { Home, Layout, MessageCircle, X } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -40,7 +39,7 @@ export default function InterviewPlaceholder() {
       });
     },
     onSuccess: (chat) => {
-      router.push(`/jobs/${jobId}/chats/${idHandler.encode(chat.sys.id || 0)}`);
+      router.push(`/dashboard/jobs/${jobId}/chats/${chat?.data.chatGroupId || ""}`);
     },
     onError: (error) => {
       toast.error("Error creating chat. Please try again.");
@@ -96,15 +95,19 @@ export default function InterviewPlaceholder() {
   return (
     <div className="h-full flex flex-col">
       {/* Theme Toggle */}
-      <div className="fixed top-4 right-4 z-50">
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
         <div className="bg-background/40 backdrop-blur-md p-2 rounded-full border border-border/30 shadow-sm">
           <ThemeToggle />
+        </div>
+        <div className="bg-background/40 backdrop-blur-md p-2 rounded-full border border-border/30 shadow-sm">
+          <Link href={`/dashboard/jobs/${jobId}/reports`}>
+            <X className="h-8 w-8 text-muted-foreground" />
+          </Link>
         </div>
       </div>
 
       {/* Main Content - Using grid for perfect centering and spacing */}
       <div className="flex-1 grid place-items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background">
-        {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
           {Array.from({ length: 6 }).map((_, i) => (
@@ -131,9 +134,7 @@ export default function InterviewPlaceholder() {
           ))}
         </div>
 
-        {/* Content Container */}
         <div className="relative z-10 max-w-5xl w-full mx-auto px-4 flex flex-col items-center justify-center gap-12 py-10">
-          {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

@@ -3,7 +3,7 @@ import { getHumeAccessToken } from "@/utils/get-hume-access-token";
 import { Suspense } from "react";
 
 export default async function Page(props: {
-  params: Promise<{ jobId: string }>;
+  params: Promise<{ jobId: string; chatGroupId: string }>;
 }) {
   const params = await props.params;
   const accessToken = await getHumeAccessToken();
@@ -15,7 +15,11 @@ export default async function Page(props: {
   return (
     <div className={"grow flex flex-col h-full overflow-auto"}>
       <Suspense fallback={null}>
-        <Interview accessToken={accessToken} jobId={params.jobId} />
+        <Interview
+          accessToken={accessToken}
+          jobId={params.jobId}
+          chatGroupId={params.chatGroupId}
+        />
       </Suspense>
     </div>
   );

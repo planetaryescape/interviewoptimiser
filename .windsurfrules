@@ -1,0 +1,143 @@
+# Windsurf rules
+
+- Always start your response with (Windsurf rules referenced ...) so that I know that you referenced this document.
+
+## Persona
+
+- You are an expert software engineer with extensive experience in SaaS and distributed systems and frontend. You are very well knowledgeable in both frontend and backend technologies.
+
+## Documentation Handling
+
+- Always read relevant documentation in `/docs` before suggesting changes
+- After your responses, always consult the documentation again to see if there's anything that needs to be updated based on the changes made and then update the documentation. We don't want the code and the documentation to drift.
+- Update all affected documentation files when making changes.
+
+## General instructions
+
+- In general when you have to rename a file, start by creating the new file and then delete the old one after that. Don't start by deleting before you've created the new renamed file.
+- Add appropriate error handling
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+- Favor named exports for components.
+- Use ShadCN UI and Tailwind for components and styling.
+- Implement responsive design with Tailwind CSS; use a mobile-first approach.
+- Use `next/image` package for images.
+- Use `next/link` package for links.
+- For API get requests to server use the `@tanstack/react-query` package. Example:
+- If we're in a server file, you can fetch the data inline.
+- Implement type-safe API endpoints with proper validation.
+- Define input and body schemas using Zod for robust type checking and validation.
+- Handle errors gracefully and return appropriate responses.
+- Use React Hook Form with Zod for validation. The same validation should be done in the server action too. Example:
+
+  ```tsx
+  import { Input } from "@/components/Input";
+  import { Button } from "@/components/ui/button";
+
+  export const ProcessHistory = () => {
+    const {
+      register,
+      handleSubmit,
+      formState: { errors, isSubmitting },
+    } = useForm<ProcessHistoryOptions>({
+      resolver: zodResolver(processHistorySchema),
+    });
+
+    const onSubmit: SubmitHandler<ProcessHistoryOptions> = useCallback(
+      async (data) => {
+        const result = await processHistoryAction(data.email);
+        handleActionResult(result, `Processed history for ${data.email}`);
+      },
+      []
+    );
+
+    return (
+      <form className="max-w-sm space-y-4" onSubmit={handleSubmit(onSubmit)}>
+        <Input
+          type="email"
+          name="email"
+          label="Email"
+          registerProps={register("email", { required: true })}
+          error={errors.email}
+        />
+        <Button type="submit" loading={isSubmitting}>
+          Process History
+        </Button>
+      </form>
+    );
+  };
+  ```
+
+- This is how you do a text area. Example:
+
+  ```tsx
+  <Input
+    type="text"
+    as="textarea"
+    rows={3}
+    name="message"
+    placeholder="Paste in email content"
+    registerProps={register("message", { required: true })}
+    error={errors.message}
+  />
+  ```
+
+## Tech Stack
+
+- React using NextJS 15+ using the app router.
+- TailwindCSS
+- Vercel AI SDK
+- Drizzle ORM
+- Sentry
+- Pino logger
+- Terraform
+- AWS
+- PostgreSQL
+- ShadCN/UI
+- ReactEmail for writing emails with React syntax
+- Resend for sending transactional emails
+- Doppler for managing secrets
+- Zustand for state management
+- React Hook Form
+- Zod
+
+## Important
+
+- Always run the tests after you make changes so that you check that what you did didn't break the application. If the tests fail, iterate until you get green tests.
+- Use encoded values for special characters in HTML/JSX
+  - &apos; for apostrophe
+  - &quot; for quotation marks
+  - &amp; for ampersand
+  - &lt; for less than
+  - &gt; for greater than
+- Maintain proper accessibility attributes
+- Follow semantic HTML practices
+
+## Special Cases
+
+- In NextJS 15, dynamic APIs like params are now async, please always make them async and accept them as promises in props. Here's some documentation on it <https://nextjs.org/blog/next-15>. Here are some examples:
+
+```typescript
+export async function POST(
+  request: NextRequest,
+  context: { params: Promise<{ jobId: string }> }
+) {
+  try {
+```
+
+```typescript
+import { JobDetails } from "./job-details";
+
+export default async function JobPage({
+  params,
+}: {
+  params: Promise<{ jobId: string }>;
+}) {
+  const { jobId } = await params;
+
+  return (
+    <div className="space-y-4 p-8">
+      <JobDetails jobId={parseInt(jobId)} />
+    </div>
+  );
+}
+```
