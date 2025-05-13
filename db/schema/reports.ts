@@ -1,6 +1,6 @@
 import { relations } from "drizzle-orm";
 import { index, pgTable } from "drizzle-orm/pg-core";
-import { chats } from "./chats";
+import { interviews } from "./interviews";
 import { pageSettings } from "./pageSettings";
 import { questionAnalysis } from "./questionAnalysis";
 
@@ -8,9 +8,9 @@ export const reports = pgTable(
   "reports",
   (p) => ({
     id: p.serial().primaryKey(),
-    chatId: p
+    interviewId: p
       .integer()
-      .references(() => chats.id, {
+      .references(() => interviews.id, {
         onUpdate: "cascade",
         onDelete: "cascade",
       })
@@ -40,7 +40,7 @@ export const reports = pgTable(
     createdAt: p.timestamp().defaultNow().notNull(),
     updatedAt: p.timestamp().defaultNow().notNull(),
   }),
-  (reports) => [index("reports_chat_id_idx").on(reports.chatId)]
+  (reports) => [index("reports_interview_id_idx").on(reports.interviewId)]
 );
 
 export const reportRelations = relations(reports, ({ one, many }) => ({
@@ -49,9 +49,9 @@ export const reportRelations = relations(reports, ({ one, many }) => ({
     references: [pageSettings.reportId],
   }),
   questionAnalyses: many(questionAnalysis),
-  chat: one(chats, {
-    fields: [reports.chatId],
-    references: [chats.id],
+  interview: one(interviews, {
+    fields: [reports.interviewId],
+    references: [interviews.id],
   }),
 }));
 

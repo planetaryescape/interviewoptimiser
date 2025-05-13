@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
       where: eq(jobs.userId, userId),
       orderBy: desc(jobs.createdAt),
       with: {
-        chats: {
+        interviews: {
           with: {
             report: true,
           },

@@ -1,7 +1,7 @@
 import { relations } from "drizzle-orm";
 import { index, pgEnum, pgTable } from "drizzle-orm/pg-core";
 import { candidateDetails } from "./candidateDetails";
-import { chats } from "./chats";
+import { interviews } from "./interviews";
 import { jobDescriptions } from "./jobDescriptions";
 import { users } from "./users";
 
@@ -43,7 +43,7 @@ export const jobRelations = relations(jobs, ({ one, many }) => ({
     fields: [jobs.userId],
     references: [users.id],
   }),
-  chats: many(chats),
+  interviews: many(interviews),
   candidateDetails: one(candidateDetails, {
     fields: [jobs.id],
     references: [candidateDetails.jobId],

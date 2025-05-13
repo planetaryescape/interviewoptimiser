@@ -68,7 +68,7 @@ import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 import { config } from "~/config";
 import type { InferResultType } from "~/db/helpers";
-import type { Chat, Job, PageSettings, QuestionAnalysis } from "~/db/schema";
+import type { Interview, Job, PageSettings, QuestionAnalysis } from "~/db/schema";
 
 function aggregateProsodyData(transcript: string) {
   const messages = JSON.parse(transcript || "[]");
@@ -134,11 +134,11 @@ export default function JobReportPage(props: {
     },
   });
 
-  const { data: chat, isLoading: chatIsLoading } = useQuery({
-    queryKey: ["chat", params.reportId],
+  const { data: interview, isLoading: interviewIsLoading } = useQuery({
+    queryKey: ["interview", params.reportId],
     queryFn: async () => {
-      const chatRepo = await getRepository<Chat>("chats");
-      return await chatRepo.getById(idHandler.encode(report?.data.chatId ?? 0));
+      const interviewRepo = await getRepository<Interview>("interviews");
+      return await interviewRepo.getById(idHandler.encode(report?.data.interviewId ?? 0));
     },
     enabled: !!params.reportId,
   });
@@ -372,7 +372,7 @@ export default function JobReportPage(props: {
     reportIsLoading ||
     reportIsPending ||
     questionAnalysesIsLoading ||
-    chatIsLoading
+    interviewIsLoading
   )
     return (
       <div className="size-full flex items-center justify-center">
@@ -854,7 +854,9 @@ export default function JobReportPage(props: {
                   className="w-full mb-8"
                   aria-label="Vocal characteristics chart showing the prevalence of different speech patterns"
                 >
-                  <RadialProsodyChart data={aggregateProsodyData(chat?.data.transcript ?? "[]")} />
+                  <RadialProsodyChart
+                    data={aggregateProsodyData(interview?.data.transcript ?? "[]")}
+                  />
                 </div>
                 <div className="mt-8 text-xs text-slate-600 italic border-t border-slate-200 pt-4">
                   <p>
@@ -880,7 +882,7 @@ export default function JobReportPage(props: {
                 Interview Transcript
               </h2>
               <div className="px-8 space-y-4 text-sm">
-                {JSON.parse(chat?.data.transcript ?? "[]").map(
+                {JSON.parse(interview?.data.transcript ?? "[]").map(
                   (
                     message: {
                       role: string;

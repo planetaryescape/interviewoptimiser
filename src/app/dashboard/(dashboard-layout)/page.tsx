@@ -32,7 +32,7 @@ type JobWithCandidateDetailsAndJobDescription = InferResultType<
   {
     candidateDetails: true;
     jobDescription: true;
-    chats: {
+    interviews: {
       with: {
         report: true;
       };

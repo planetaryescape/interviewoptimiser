@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
-import { chats, jobs, reports } from "~/db/schema";
+import { interviews, jobs, reports } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export async function GET(request: NextRequest, props: { params: Promise<{ jobId: string }> }) {
@@ -177,16 +177,16 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ jo
     const jobId = idHandler.decode(params.jobId);
 
     await db.transaction(async (tx) => {
-      const chatsToDelete = await tx.query.chats.findMany({
-        where: eq(chats.jobId, jobId),
+      const interviewsToDelete = await tx.query.interviews.findMany({
+        where: eq(interviews.jobId, jobId),
       });
 
-      for (const chat of chatsToDelete) {
-        await tx.delete(reports).where(eq(reports.chatId, chat.id));
+      for (const interview of interviewsToDelete) {
+        await tx.delete(reports).where(eq(reports.interviewId, interview.id));
       }
 
-      // Delete chat
-      await tx.delete(chats).where(eq(chats.jobId, jobId));
+      // Delete interview
+      await tx.delete(interviews).where(eq(interviews.jobId, jobId));
 
       // Delete job
       const result = await tx.delete(jobs).where(eq(jobs.id, jobId)).returning();

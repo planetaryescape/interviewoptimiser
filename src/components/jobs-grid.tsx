@@ -3,17 +3,17 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import type { InferResultType } from "~/db/helpers";
 import { JobCard } from "./interview-card";
 
-type JobWithCandidateDetailsAndJobDescription = InferResultType<
+type JobWithCandidateDetailsAndJobDescriptionAndInterviews = InferResultType<
   "jobs",
   {
     candidateDetails: true;
     jobDescription: true;
-    chats: true;
+    interviews: true;
   }
 >;
 
 interface JobsGridProps {
-  jobs: Array<JobWithCandidateDetailsAndJobDescription>;
+  jobs: Array<JobWithCandidateDetailsAndJobDescriptionAndInterviews>;
   onDelete?: (id: number) => void;
   deletingId: number | null;
 }

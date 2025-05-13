@@ -7,7 +7,7 @@ import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
-import { chats, jobs } from "~/db/schema";
+import { interviews, jobs } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 /**
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ jobId
     const job = await db.query.jobs.findFirst({
       where: eq(jobs.id, jobId),
       with: {
-        chats: {
+        interviews: {
           with: {
             report: true,
           },
@@ -61,21 +61,23 @@ export async function GET(request: NextRequest, props: { params: Promise<{ jobId
       });
     }
 
-    // Get the chat metadata associated with the interview
-    const returnedChats = await db.query.chats.findFirst({
-      where: eq(chats.jobId, jobId),
+    // Get the interview metadata associated with the job
+    const returnedInterviews = await db.query.interviews.findFirst({
+      where: eq(interviews.jobId, jobId),
     });
 
-    if (!returnedChats || !returnedChats.humeChatId) {
-      logger.warn({ jobId }, "No chat metadata found for this job");
-      return NextResponse.json(formatErrorEntity("No chat metadata found for this job"), {
+    if (!returnedInterviews || !returnedInterviews.humeChatId) {
+      logger.warn({ jobId }, "No interview found for this job");
+      return NextResponse.json(formatErrorEntity("No interview found for this job"), {
         status: 404,
       });
     }
 
     try {
       // Request audio reconstruction from Hume API
-      const reconstructionResponse = await requestChatAudioReconstruction(returnedChats.humeChatId);
+      const reconstructionResponse = await requestChatAudioReconstruction(
+        returnedInterviews.humeChatId
+      );
 
       // Return the reconstruction status
       return NextResponse.json(

@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { config } from "~/config";
 import { db } from "~/db";
-import { chats, reports } from "~/db/schema";
+import { interviews, reports } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 const API_GATEWAY_URL = config.apiGatewayUrlAddToQueue;
@@ -17,10 +17,10 @@ const API_KEY = process.env.INTERVIEWOPTIMISER_API_KEY;
 export async function POST(req: NextRequest) {
   try {
     logger.info("Received request at /api/report");
-    const { jobId: jobIdString, chatId: chatIdString } = await req.json();
+    const { jobId: jobIdString, interviewId: interviewIdString } = await req.json();
     const jobId = idHandler.decode(jobIdString);
-    const chatId = idHandler.decode(chatIdString);
-    logger.info({ jobId, chatId }, "Job ID and chat ID for report generation");
+    const interviewId = idHandler.decode(interviewIdString);
+    logger.info({ jobId, interviewId }, "Job ID and interview ID for report generation");
 
     const { userId: clerkUserId } = getAuth(req);
     if (!clerkUserId) {
@@ -35,23 +35,23 @@ export async function POST(req: NextRequest) {
     }
 
     const reportId = await db.transaction(async (tx) => {
-      const chat = await tx.query.chats.findFirst({
-        where: eq(chats.id, chatId),
+      const interview = await tx.query.interviews.findFirst({
+        where: eq(interviews.id, interviewId),
       });
 
-      if (!chat) {
-        logger.error("Chat not found");
+      if (!interview) {
+        logger.error("Interview not found");
         Sentry.withScope((scope) => {
           scope.setExtra("jobId", jobId);
-          Sentry.captureException(new Error("Chat not found"));
+          Sentry.captureException(new Error("Interview not found"));
         });
-        return NextResponse.json({ error: "Chat not found" }, { status: 404 });
+        return NextResponse.json({ error: "Interview not found" }, { status: 404 });
       }
 
       const report = await tx
         .insert(reports)
         .values({
-          chatId,
+          interviewId,
           generalAssessment: "",
           overallScore: 0,
           speakingSkills: "",
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
         data: {
           jobId,
           reportId,
-          chatId,
+          interviewId,
         },
         userId,
         queueType: "generate-report",
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
         data: {
           jobId,
           reportId,
-          chatId,
+          interviewId,
         },
         userId,
         queueType: "save-interview-audio-to-s3",

@@ -1,9 +1,9 @@
-import { Interview } from "@/components/interview";
+import { InterviewContainer } from "@/components/interview-container";
 import { getHumeAccessToken } from "@/utils/get-hume-access-token";
 import { Suspense } from "react";
 
 export default async function Page(props: {
-  params: Promise<{ jobId: string; chatId: string }>;
+  params: Promise<{ jobId: string; interviewId: string }>;
 }) {
   const params = await props.params;
   const accessToken = await getHumeAccessToken();
@@ -15,7 +15,11 @@ export default async function Page(props: {
   return (
     <div className={"grow flex flex-col h-full overflow-auto"}>
       <Suspense fallback={null}>
-        <Interview accessToken={accessToken} jobId={params.jobId} chatId={params.chatId} />
+        <InterviewContainer
+          accessToken={accessToken}
+          jobId={params.jobId}
+          interviewId={params.interviewId}
+        />
       </Suspense>
     </div>
   );

@@ -1,14 +1,16 @@
 import { unformatTime } from "@/lib/utils/unformatTime";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import type { Chat } from "~/db/schema";
+import type { Interview } from "~/db/schema";
 
 interface Message {
   role: string;
   content: string;
 }
 
-export type ChatWithPublicJobId = Omit<Chat, "jobId"> & { jobId: string };
+export type InterviewWithPublicJobId = Omit<Interview, "jobId"> & {
+  jobId: string;
+};
 
 interface ActiveInterviewState {
   callDurationTimestamp: string | null;
@@ -18,7 +20,7 @@ interface ActiveInterviewState {
   interviewEnded: boolean;
   interviewStarted: boolean;
   messages: Message[];
-  activeInterviewChat: ChatWithPublicJobId | null;
+  activeInterview: InterviewWithPublicJobId | null;
   showTakeover: boolean;
 }
 
@@ -29,7 +31,7 @@ interface ActiveInterviewActions {
   setInterviewStarted: (started: boolean) => void;
   markWrapUpSent: () => void;
   setMessages: (messages: Message[]) => void;
-  setActiveInterviewChat: (chat: ChatWithPublicJobId | null) => void;
+  setActiveInterview: (interview: InterviewWithPublicJobId | null) => void;
   resetState: () => void;
   setShowTakeover: (showTakeover: boolean) => void;
 }
@@ -42,7 +44,7 @@ const initialState: ActiveInterviewState = {
   wrapUpSent: false,
   interviewEnded: false,
   messages: [],
-  activeInterviewChat: null,
+  activeInterview: null,
   showTakeover: false,
 };
 
@@ -59,8 +61,8 @@ export const useActiveInterviewStore = create(
       setTotalTime: (totalTime: number) => set({ totalTime }),
       setInterviewEnded: (interviewEnded: boolean) => set({ interviewEnded }),
       setShowTakeover: (showTakeover: boolean) => set({ showTakeover }),
-      setActiveInterviewChat: (chat: ChatWithPublicJobId | null) =>
-        set({ activeInterviewChat: chat }),
+      setActiveInterview: (interview: InterviewWithPublicJobId | null) =>
+        set({ activeInterview: interview }),
       markWrapUpSent: () => set({ wrapUpSent: true }),
       setMessages: (messages: Message[]) => set({ messages }),
       setInterviewStarted: (interviewStarted: boolean) => set({ interviewStarted }),
@@ -77,8 +79,7 @@ export const useActiveInterviewWrapUpSent = () =>
   useActiveInterviewStore((state) => state.wrapUpSent);
 export const useActiveInterviewEnded = () =>
   useActiveInterviewStore((state) => state.interviewEnded);
-export const useActiveInterviewChat = () =>
-  useActiveInterviewStore((state) => state.activeInterviewChat);
+export const useActiveInterview = () => useActiveInterviewStore((state) => state.activeInterview);
 export const useActiveInterviewRemainingTime = () =>
   useActiveInterviewStore((state) => state.remainingTime);
 export const useActiveInterviewMessages = () => useActiveInterviewStore((state) => state.messages);

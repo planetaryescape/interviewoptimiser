@@ -40,7 +40,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
     const report = await db.query.reports.findFirst({
       where: eq(reports.id, reportId),
       with: {
-        chat: {
+        interview: {
           with: {
             job: {
               columns: {
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
     }
 
     // Verify that the report's job belongs to the requesting user
-    if (report.chat.job.userId !== userId && role !== "admin") {
+    if (report.interview.job.userId !== userId && role !== "admin") {
       logger.warn({ reportId, userId }, "Unauthorized access attempt to report question analyses");
       return NextResponse.json(formatErrorEntity("Unauthorized"), {
         status: 403,

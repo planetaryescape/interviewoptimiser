@@ -16,9 +16,9 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import type { NewChat } from "~/db/schema";
+import type { NewInterview } from "~/db/schema";
 
-type NewChatWithPublicJobId = Omit<NewChat, "jobId"> & { jobId: string };
+type NewInterviewWithPublicJobId = Omit<NewInterview, "jobId"> & { jobId: string };
 
 export default function InterviewPlaceholder() {
   const [showModal, setShowModal] = useState(false);
@@ -29,10 +29,10 @@ export default function InterviewPlaceholder() {
   const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
 
-  const { mutateAsync: createChat, isPending: isCreatingChat } = useMutation({
-    mutationFn: async (metadata: NewChatWithPublicJobId) => {
-      const chatRepo = await getRepository<NewChatWithPublicJobId>("chats");
-      return await chatRepo.create({
+  const { mutateAsync: createInterview, isPending: isCreatingInterview } = useMutation({
+    mutationFn: async (metadata: NewInterviewWithPublicJobId) => {
+      const interviewRepo = await getRepository<NewInterviewWithPublicJobId>("interviews");
+      return await interviewRepo.create({
         ...metadata,
         jobId: params.jobId as string,
         createdAt: new Date(),
@@ -41,11 +41,13 @@ export default function InterviewPlaceholder() {
         requestId: metadata.requestId || null,
       });
     },
-    onSuccess: (chat) => {
-      router.push(`/dashboard/jobs/${jobId}/chats/${idHandler.encode(chat?.data.id || 0)}`);
+    onSuccess: (interview) => {
+      router.push(
+        `/dashboard/jobs/${jobId}/interviews/${idHandler.encode(interview?.data.id || 0)}`
+      );
     },
     onError: (error) => {
-      toast.error("Error creating chat. Please try again.");
+      toast.error("Error creating interview. Please try again.");
       Sentry.withScope((scope) => {
         scope.setContext("params", params);
         Sentry.captureException(error);
@@ -55,7 +57,7 @@ export default function InterviewPlaceholder() {
 
   useEffect(() => {
     if (chatMetadata?.chatGroupId && chatMetadata.chatId) {
-      createChat({
+      createInterview({
         jobId: params.jobId as string,
         chatGroupId: chatMetadata?.chatGroupId || "",
         customSessionId: chatMetadata?.customSessionId || "",
@@ -63,7 +65,7 @@ export default function InterviewPlaceholder() {
         humeChatId: chatMetadata?.chatId || "",
       });
     }
-  }, [chatMetadata, createChat, params.jobId]);
+  }, [chatMetadata, createInterview, params.jobId]);
 
   const handleStartInterview = async () => {
     if (status.value !== "connected") {
@@ -229,7 +231,7 @@ export default function InterviewPlaceholder() {
 
       <InterviewStartModal
         isOpen={showModal}
-        isLoading={isCreatingChat}
+        isLoading={isCreatingInterview}
         onClose={() => setShowModal(false)}
         onStart={() => {
           setShowModal(false);

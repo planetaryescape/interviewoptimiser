@@ -6,18 +6,18 @@ import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
-import { chats } from "~/db/schema";
+import { interviews } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export async function GET(
   request: NextRequest,
-  props: { params: Promise<{ jobId: string; chatId: string }> }
+  props: { params: Promise<{ jobId: string; interviewId: string }> }
 ) {
   const params = await props.params;
-  logger.info("GET request received at /api/jobs/[jobId]/chats/[chatId]");
+  logger.info("GET request received at /api/jobs/[jobId]/interviews/[interviewId]");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to GET /api/jobs/[jobId]/chats/[chatId]");
+    logger.warn("Unauthorized access attempt to GET /api/jobs/[jobId]/interviews/[interviewId]");
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -32,10 +32,10 @@ export async function GET(
       });
     }
 
-    const chatId = idHandler.decode(params.chatId);
+    const interviewId = idHandler.decode(params.interviewId);
 
-    const jobChat = await db.query.chats.findFirst({
-      where: eq(chats.id, chatId),
+    const jobInterview = await db.query.interviews.findFirst({
+      where: eq(interviews.id, interviewId),
       with: {
         report: {
           with: {
@@ -45,17 +45,20 @@ export async function GET(
       },
     });
 
-    if (!jobChat) {
-      return NextResponse.json(formatErrorEntity("Chat not found"), {
+    if (!jobInterview) {
+      return NextResponse.json(formatErrorEntity("Interview not found"), {
         status: 404,
       });
     }
 
-    logger.info({ id: jobChat.id }, "Successfully retrieved chat with report and page settings");
-    return NextResponse.json(formatEntity(jobChat, "chat"));
+    logger.info(
+      { id: jobInterview.id },
+      "Successfully retrieved interview with report and page settings"
+    );
+    return NextResponse.json(formatEntity(jobInterview, "interview"));
   } catch (error) {
     Sentry.withScope((scope) => {
-      scope.setExtra("context", "GET /api/jobs/[jobId]/chats/[chatId]");
+      scope.setExtra("context", "GET /api/jobs/[jobId]/interviews/[interviewId]");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
@@ -64,7 +67,7 @@ export async function GET(
         message: error instanceof Error ? error.message : "Unknown error",
         error,
       },
-      "Error in GET /api/jobs/[jobId]/chats/[chatId]"
+      "Error in GET /api/jobs/[jobId]/interviews/[interviewId]"
     );
     return NextResponse.json(formatErrorEntity("Internal server error"), {
       status: 500,

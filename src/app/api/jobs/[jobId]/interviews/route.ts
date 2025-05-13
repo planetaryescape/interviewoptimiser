@@ -6,14 +6,14 @@ import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
-import { chats } from "~/db/schema";
+import { interviews } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export async function GET(request: NextRequest, props: { params: Promise<{ jobId: string }> }) {
-  logger.info("GET request received at /api/jobs/[jobId]/chats");
+  logger.info("GET request received at /api/jobs/[jobId]/interviews");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to GET /api/jobs/[jobId]/chats");
+    logger.warn("Unauthorized access attempt to GET /api/jobs/[jobId]/interviews");
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -32,8 +32,8 @@ export async function GET(request: NextRequest, props: { params: Promise<{ jobId
 
     const jobId = idHandler.decode(params.jobId);
 
-    const jobChats = await db.query.chats.findMany({
-      where: eq(chats.jobId, jobId),
+    const jobInterviews = await db.query.interviews.findMany({
+      where: eq(interviews.jobId, jobId),
       with: {
         report: {
           with: {
@@ -41,14 +41,14 @@ export async function GET(request: NextRequest, props: { params: Promise<{ jobId
           },
         },
       },
-      orderBy: (chats, { desc }) => [desc(chats.createdAt)],
+      orderBy: (interviews, { desc }) => [desc(interviews.createdAt)],
     });
 
-    logger.info({ jobId, count: jobChats.length }, "Successfully retrieved job chats");
-    return NextResponse.json(formatEntityList(jobChats, "chat"));
+    logger.info({ jobId, count: jobInterviews.length }, "Successfully retrieved job interviews");
+    return NextResponse.json(formatEntityList(jobInterviews, "interview"));
   } catch (error) {
     Sentry.withScope((scope) => {
-      scope.setExtra("context", "GET /api/jobs/[jobId]/chats");
+      scope.setExtra("context", "GET /api/jobs/[jobId]/interviews");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ jobId
         message: error instanceof Error ? error.message : "Unknown error",
         error,
       },
-      "Error in GET /api/jobs/[jobId]/chats"
+      "Error in GET /api/jobs/[jobId]/interviews"
     );
     return NextResponse.json(formatErrorEntity("Internal server error"), {
       status: 500,

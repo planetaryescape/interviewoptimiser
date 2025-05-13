@@ -9,10 +9,10 @@ import {
 } from "@/lib/utils/messageUtils";
 import { unformatTime } from "@/lib/utils/unformatTime";
 import {
-  type ChatWithPublicJobId,
+  type InterviewWithPublicJobId,
+  useActiveInterview,
   useActiveInterviewActions,
   useActiveInterviewCallDuration,
-  useActiveInterviewChat,
   useActiveInterviewEnded,
   useActiveInterviewTotalTime,
   useActiveInterviewWrapUpSent,
@@ -42,10 +42,10 @@ export function InterviewController() {
     setInterviewEnded,
     markWrapUpSent,
     setMessages,
-    setActiveInterviewChat,
+    setActiveInterview,
   } = useActiveInterviewActions();
 
-  const activeInterviewChat = useActiveInterviewChat();
+  const activeInterview = useActiveInterview();
 
   const {
     disconnect,
@@ -83,10 +83,10 @@ export function InterviewController() {
   }, [voiceTimestamp, messages, setCallDurationTimestamp, setMessages]);
 
   // End of interview mutation
-  const { mutate: endChat } = useMutation({
-    mutationFn: async (chat: Partial<ChatWithPublicJobId>) => {
-      const chatRepo = await getRepository<ChatWithPublicJobId>("chats");
-      return await chatRepo.update(idHandler.encode(activeInterviewChat?.id ?? 0), chat);
+  const { mutate: endInterview } = useMutation({
+    mutationFn: async (interview: Partial<InterviewWithPublicJobId>) => {
+      const interviewRepo = await getRepository<InterviewWithPublicJobId>("interviews");
+      return await interviewRepo.update(idHandler.encode(activeInterview?.id ?? 0), interview);
     },
     onSuccess: () => {
       sendAssistantInput("hang_up");
@@ -152,24 +152,24 @@ export function InterviewController() {
   });
 
   // Partial transcript mutation
-  const partialChatMutation = useMutation({
-    mutationFn: async (chat: Partial<ChatWithPublicJobId>) => {
-      const chatRepo = await getRepository<ChatWithPublicJobId>("chats");
-      return await chatRepo.update(idHandler.encode(activeInterviewChat?.id ?? 0), chat);
+  const partialInterviewMutation = useMutation({
+    mutationFn: async (interview: Partial<InterviewWithPublicJobId>) => {
+      const interviewRepo = await getRepository<InterviewWithPublicJobId>("interviews");
+      return await interviewRepo.update(idHandler.encode(activeInterview?.id ?? 0), interview);
     },
-    onSuccess: (chat) => {
-      if (chat) {
-        setActiveInterviewChat({
-          ...chat.data,
-          id: chat.data.id || 0,
-          customSessionId: chat.data.customSessionId || null,
-          requestId: chat.data.requestId || null,
-          actualTime: chat.data.actualTime || null,
-          transcript: chat.data.transcript || null,
+    onSuccess: (interview) => {
+      if (interview) {
+        setActiveInterview({
+          ...interview.data,
+          id: interview.data.id || 0,
+          customSessionId: interview.data.customSessionId || null,
+          requestId: interview.data.requestId || null,
+          actualTime: interview.data.actualTime || null,
+          transcript: interview.data.transcript || null,
           jobId: params.jobId as string,
-          createdAt: chat.data.createdAt || new Date(),
-          updatedAt: chat.data.updatedAt || new Date(),
-          humeChatId: chatMetadata?.chatId || chat.data.humeChatId,
+          createdAt: interview.data.createdAt || new Date(),
+          updatedAt: interview.data.updatedAt || new Date(),
+          humeChatId: chatMetadata?.chatId || interview.data.humeChatId,
         });
       }
     },
@@ -237,10 +237,10 @@ export function InterviewController() {
     // End interview
     if (elapsedTime === totalTime && !interviewEnded && !endingInterviewRef.current) {
       endingInterviewRef.current = true;
-      endChat({
-        ...activeInterviewChat,
+      endInterview({
+        ...activeInterview,
         jobId: params.jobId as string,
-        humeChatId: chatMetadata?.chatId || activeInterviewChat?.humeChatId,
+        humeChatId: chatMetadata?.chatId || activeInterview?.humeChatId,
         actualTime: Math.floor(elapsedTime / 60),
         transcript: formatTranscriptToJsonString(messages),
       });
@@ -256,10 +256,10 @@ export function InterviewController() {
     messages,
     handleSendUserInput,
     markWrapUpSent,
-    activeInterviewChat,
+    activeInterview,
     params.jobId,
     sendSessionSettings,
-    endChat,
+    endInterview,
     requestAudioReconstruction,
   ]);
 
@@ -275,10 +275,10 @@ export function InterviewController() {
         // Decrement minutes used
         decrementMutation.mutate();
 
-        partialChatMutation.mutate({
-          ...activeInterviewChat,
+        partialInterviewMutation.mutate({
+          ...activeInterview,
           jobId: params.jobId as string,
-          humeChatId: chatMetadata?.chatId || activeInterviewChat?.humeChatId,
+          humeChatId: chatMetadata?.chatId || activeInterview?.humeChatId,
           actualTime: Math.floor(currentTime / 60),
           transcript: formatTranscriptToJsonString(messages),
         });
@@ -288,9 +288,9 @@ export function InterviewController() {
     status.value,
     callDurationTimestamp,
     messages,
-    partialChatMutation,
+    partialInterviewMutation,
     decrementMutation,
-    activeInterviewChat,
+    activeInterview,
     params.jobId,
     chatMetadata?.chatId,
   ]);

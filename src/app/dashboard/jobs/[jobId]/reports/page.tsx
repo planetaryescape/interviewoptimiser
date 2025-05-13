@@ -30,15 +30,15 @@ import {
 import type { InferResultType } from "~/db/helpers";
 import type { Job } from "~/db/schema";
 
-type ChatWithReport = InferResultType<
-  "chats",
+type InterviewWithReport = InferResultType<
+  "interviews",
   {
     report: true;
   }
 >;
 
 // Add this function before the component
-const getTopProsodies = (reports: Entity<ChatWithReport>[]) => {
+const getTopProsodies = (reports: Entity<InterviewWithReport>[]) => {
   // Count total occurrences of each prosody across all reports
   const prosodyCount = new Map<string, number>();
 
@@ -94,15 +94,15 @@ export default function JobReportsPage(props: {
   const [isOutOfMinutesDialogOpen, setIsOutOfMinutesDialogOpen] = useState(false);
 
   const {
-    data: chatsData,
+    data: interviewsData,
     isLoading,
     error,
-  } = useQuery<EntityList<ChatWithReport>>({
-    queryKey: ["job-chats", params.jobId],
+  } = useQuery<EntityList<InterviewWithReport>>({
+    queryKey: ["job-interviews", params.jobId],
     queryFn: async () => {
-      const response = await fetch(`/api/jobs/${params.jobId}/chats`);
+      const response = await fetch(`/api/jobs/${params.jobId}/interviews`);
       if (!response.ok) {
-        throw new Error("Failed to fetch chats");
+        throw new Error("Failed to fetch interviews");
       }
       return response.json();
     },
@@ -140,28 +140,28 @@ export default function JobReportsPage(props: {
 
   // Add this function to prepare chart data
   const chartData = useMemo(() => {
-    if (!chatsData?.data.length) return [];
+    if (!interviewsData?.data.length) return [];
 
-    const prepared = chatsData.data
+    const prepared = interviewsData.data
       .sort((a, b) => new Date(a.data.createdAt!).getTime() - new Date(b.data.createdAt!).getTime())
-      .map((chat) => ({
-        date: new Date(chat.data.createdAt).toLocaleDateString(),
-        technicalScore: Math.round(chat.data?.report?.technicalKnowledgeScore || 0),
-        communicationScore: Math.round(chat.data?.report?.communicationSkillsScore || 0),
-        problemSolvingScore: Math.round(chat.data?.report?.problemSolvingSkillsScore || 0),
-        teamworkScore: Math.round(chat.data?.report?.teamworkScore || 0),
+      .map((interview) => ({
+        date: new Date(interview.data.createdAt).toLocaleDateString(),
+        technicalScore: Math.round(interview.data?.report?.technicalKnowledgeScore || 0),
+        communicationScore: Math.round(interview.data?.report?.communicationSkillsScore || 0),
+        problemSolvingScore: Math.round(interview.data?.report?.problemSolvingSkillsScore || 0),
+        teamworkScore: Math.round(interview.data?.report?.teamworkScore || 0),
       }));
 
     return prepared;
-  }, [chatsData]);
+  }, [interviewsData]);
 
   // Update the prosodyChartData useMemo
   const prosodyChartData = useMemo(() => {
-    if (!chatsData?.data.length) return { data: [], prosodies: [] };
+    if (!interviewsData?.data.length) return { data: [], prosodies: [] };
 
     // First, get all prosody data from all reports to determine top prosodies
-    const allProsodyData = chatsData.data.flatMap((chat) =>
-      aggregateProsodyData(chat.data.transcript || "[]")
+    const allProsodyData = interviewsData.data.flatMap((interview) =>
+      aggregateProsodyData(interview.data.transcript || "[]")
     );
 
     // Count total occurrences of each prosody across all reports
@@ -180,7 +180,7 @@ export default function JobReportsPage(props: {
       .map(([name]) => name);
 
     // Prepare the data points for each report
-    const data = chatsData.data
+    const data = interviewsData.data
       .sort((a, b) => new Date(a.data.createdAt!).getTime() - new Date(b.data.createdAt!).getTime())
       .map((report) => {
         const prosodyData = aggregateProsodyData(report.data.transcript || "[]");
@@ -200,7 +200,7 @@ export default function JobReportsPage(props: {
       });
 
     return { data, prosodies: topProsodies };
-  }, [chatsData]);
+  }, [interviewsData]);
 
   if (isLoading || JobIsLoading) {
     return (
@@ -228,7 +228,7 @@ export default function JobReportsPage(props: {
     );
   }
 
-  const chats = chatsData?.data || [];
+  const interviews = interviewsData?.data || [];
 
   return (
     <div className="h-[calc(100vh-4rem)] flex flex-col">
@@ -267,7 +267,7 @@ export default function JobReportsPage(props: {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <FileText className="w-3.5 h-3.5" />
-                  {chats.length} {chats.length === 1 ? "report" : "reports"}
+                  {interviews.length} {interviews.length === 1 ? "report" : "reports"}
                 </div>
                 <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 capitalize">
                   {job?.data.type || "Technical"} Interview
@@ -283,7 +283,7 @@ export default function JobReportsPage(props: {
                 variant="default"
               >
                 <RefreshCw className="w-4 h-4" />
-                {chats.length > 0 ? "Retake Interview" : "Start Interview"}
+                {interviews.length > 0 ? "Retake Interview" : "Start Interview"}
               </Button>
             </div>
           </div>
@@ -292,7 +292,7 @@ export default function JobReportsPage(props: {
 
       {/* Content section */}
       <div className="flex-1 overflow-hidden">
-        {chats.length === 0 ? (
+        {interviews.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center p-4">
             <div className="max-w-md text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 dark:bg-gray-800 mb-4">
@@ -339,16 +339,16 @@ export default function JobReportsPage(props: {
                 <ScrollArea className="h-full">
                   <div className="container max-w-7xl mx-auto px-4 py-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {chats
+                      {interviews
                         .sort(
                           (a, b) =>
                             new Date(b.data.createdAt).getTime() -
                             new Date(a.data.createdAt).getTime()
                         )
-                        .map((chat) => (
+                        .map((interview) => (
                           <ReportCard
-                            key={chat.sys.id}
-                            report={chat.data.report}
+                            key={interview.sys.id}
+                            report={interview.data.report}
                             jobId={params.jobId}
                           />
                         ))}
