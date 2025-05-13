@@ -7,7 +7,6 @@ import {
   useActiveInterviewChat,
   useActiveInterviewEnded,
   useActiveInterviewShowTakeover,
-  useActiveInterviewStarted,
 } from "@/stores/useActiveInterviewStore";
 import { VoiceProvider } from "@humeai/voice-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -17,7 +16,6 @@ import { type ComponentRef, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Controls } from "./controls";
 import { GeneratingReportTakeover } from "./generating-report-takeover";
-import MessagesPlaceholder from "./interview-placeholder";
 import { ConnectionStatus } from "./interview/connection-status";
 import { InterviewController } from "./interview/interview-controller";
 import { TimerDisplay } from "./interview/timer-display";
@@ -26,15 +24,16 @@ import { Messages } from "./messages";
 export function Interview({
   jobId,
   accessToken,
+  chatGroupId,
 }: {
   jobId: string;
   accessToken: string;
+  chatGroupId: string;
 }) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const interviewEnded = useActiveInterviewEnded();
   const { resetState, setShowTakeover, setTotalTime } = useActiveInterviewActions();
-  const interviewStarted = useActiveInterviewStarted();
   const showTakeover = useActiveInterviewShowTakeover();
   const activeInterviewChat = useActiveInterviewChat();
 
@@ -94,7 +93,6 @@ export function Interview({
     }
   }, [interviewEnded, generateReportMutation, setShowTakeover]);
 
-  // Initialize store with props
   useEffect(() => {
     if (job?.data?.duration) {
       setTotalTime(job.data.duration * 60);
@@ -151,12 +149,13 @@ export function Interview({
             }
           }, 200);
         }}
+        resumedChatGroupId={chatGroupId}
       >
         <div className="absolute top-4 right-4 flex items-center gap-4 z-50">
           <TimerDisplay />
           <ConnectionStatus />
         </div>
-        {interviewStarted ? <Messages ref={messagesRef} /> : <MessagesPlaceholder />}
+        <Messages ref={messagesRef} />
         <InterviewController />
         <Controls />
 
