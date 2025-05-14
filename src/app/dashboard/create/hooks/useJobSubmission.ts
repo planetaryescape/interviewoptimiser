@@ -3,7 +3,7 @@
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { sanitiseUserInputText } from "@/lib/sanitiseUserInputText";
 import { idHandler } from "@/lib/utils/idHandler";
-import { type InterviewType, useCreateJobActions } from "@/stores/createJobStore";
+import { useCreateJobActions } from "@/stores/createJobStore";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -14,22 +14,16 @@ import type { NewJob } from "~/db/schema";
 
 interface UseJobSubmissionProps {
   userId?: number;
-  userMinutes?: number;
   cvText: string;
   jobDescriptionText: string;
   additionalInfo: string;
-  duration: number;
-  interviewType: InterviewType;
 }
 
 export function useJobSubmission({
   userId,
-  userMinutes = 0,
   cvText,
   jobDescriptionText,
   additionalInfo,
-  duration,
-  interviewType,
 }: UseJobSubmissionProps) {
   const router = useRouter();
   const posthog = usePostHog();
@@ -40,19 +34,32 @@ export function useJobSubmission({
       const jobsRepository = await getRepository<NewJob>("jobs", true);
       const createdJob = await jobsRepository.create(job);
 
-      // Extract structured data
-      await fetch("/api/jobs/extract", {
+      const jobDescriptionExtractionPromise = fetch("/api/extract/job-description", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          cvText: job.submittedCVText,
-          jobDescriptionText: job.jobDescriptionText,
-          jobId: createdJob.sys.id,
-          interviewType: job.type,
+          jobId: idHandler.encode(createdJob.sys.id ?? 0),
+          jobDescriptionText,
         }),
       });
+
+      const candidateDetailsExtractionPromise = fetch("/api/extract/candidate-details", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jobId: idHandler.encode(createdJob.sys.id ?? 0),
+          cvText,
+        }),
+      });
+
+      await Promise.allSettled([
+        jobDescriptionExtractionPromise,
+        candidateDetailsExtractionPromise,
+      ]);
 
       return createdJob;
     },
@@ -75,17 +82,10 @@ export function useJobSubmission({
     },
   });
 
-  const hasEnoughMinutes = userMinutes >= duration;
-
   const submitJob = async () => {
     setShowTakeover(true);
 
     try {
-      if (!hasEnoughMinutes) {
-        toast.error("You don't have enough minutes to create a job.");
-        return;
-      }
-
       if (!cvText?.trim() || !jobDescriptionText?.trim()) {
         toast.error("Please provide both CV and job description.");
         return;
@@ -105,8 +105,6 @@ export function useJobSubmission({
           maxLength: config.maxTextLengths.additionalInfo,
         }),
         userId,
-        duration,
-        type: interviewType,
       };
 
       posthog.capture("create_job", {
@@ -125,20 +123,8 @@ export function useJobSubmission({
     }
   };
 
-  const checkMinutes = () => {
-    if (!hasEnoughMinutes) {
-      posthog.capture("out_of_minutes", {
-        userId,
-      });
-      return false;
-    }
-    return true;
-  };
-
   return {
     isSubmitting: createJobMutation.isPending,
-    hasEnoughMinutes,
     submitJob,
-    checkMinutes,
   };
 }

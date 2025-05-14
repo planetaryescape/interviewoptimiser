@@ -1,6 +1,5 @@
 "use client";
 
-import { ConfirmationModal } from "@/components/create-optimization/ConfirmationModal";
 import { OutOfMinutesModal } from "@/components/create-optimization/OutOfMinutesModal";
 import { JobDetailsSheet } from "@/components/job-details-sheet";
 import { ReportCard } from "@/components/report-card";
@@ -122,15 +121,7 @@ export default function JobReportsPage(props: {
   });
 
   const handleRetakeInterview = () => {
-    if (!user || user.minutes <= (job?.data.duration || 3)) {
-      // Assuming 3 minutes for the shortest interview
-      posthog.capture("out_of_minutes", {
-        userId: user?.id,
-      });
-      setIsOutOfMinutesDialogOpen(true);
-    } else {
-      router.push(`/dashboard/jobs/${params.jobId}`);
-    }
+    router.push(`/dashboard/jobs/${params.jobId}`);
   };
 
   const handleConfirmRetake = () => {
@@ -268,9 +259,6 @@ export default function JobReportsPage(props: {
                 <div className="flex items-center gap-1.5">
                   <FileText className="w-3.5 h-3.5" />
                   {interviews.length} {interviews.length === 1 ? "report" : "reports"}
-                </div>
-                <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 capitalize">
-                  {job?.data.type || "Technical"} Interview
                 </div>
               </div>
             </div>
@@ -555,14 +543,6 @@ export default function JobReportsPage(props: {
           </Tabs.Root>
         )}
       </div>
-
-      <ConfirmationModal
-        isOpen={isAlertDialogOpen}
-        onClose={() => setIsAlertDialogOpen(false)}
-        onConfirm={handleConfirmRetake}
-        userMinutes={user?.minutes || 0}
-        job={job?.data}
-      />
 
       <OutOfMinutesModal
         isOpen={isOutOfMinutesDialogOpen}

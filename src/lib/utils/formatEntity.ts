@@ -1,4 +1,5 @@
 export type EntityType =
+  | "questions"
   | "empty"
   | "chat"
   | "candidateDetails"

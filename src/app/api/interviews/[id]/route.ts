@@ -33,6 +33,14 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
 
     const interview = await db.query.interviews.findFirst({
       where: eq(interviews.id, interviewId),
+      with: {
+        job: {
+          with: {
+            jobDescription: true,
+            candidateDetails: true,
+          },
+        },
+      },
     });
 
     if (!interview) {

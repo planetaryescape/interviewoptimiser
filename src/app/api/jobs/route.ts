@@ -53,8 +53,6 @@ export async function POST(request: NextRequest) {
         .insert(jobs)
         .values({
           userId,
-          type: type ?? "behavioral",
-          duration: duration ?? 15,
           submittedCVText: sanitisedSubmittedCVText,
           jobDescriptionText: sanitisedJobDescriptionText,
           additionalInfo: sanitisedAdditionalInfo,

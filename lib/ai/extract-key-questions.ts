@@ -4,6 +4,7 @@ import type { LanguageModelV1 } from "@ai-sdk/provider";
 import { generateObject } from "ai";
 import type { CompletionUsage } from "openai/resources/completions.mjs";
 import { z } from "zod";
+import type { JobDescription } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 const KeyQuestionsSchema = z.object({
@@ -12,21 +13,10 @@ const KeyQuestionsSchema = z.object({
 
 export interface ExtractKeyQuestionsParams {
   model: LanguageModelV1;
-  jobDescriptionData: {
-    company: string;
-    role: string;
-    requiredQualifications: string[];
-    requiredExperience: string[];
-    requiredSkills: string[];
-    preferredQualifications: string[];
-    preferredSkills: string[];
-    responsibilities: string[];
-    keyTechnologies: string[];
-    seniority: string;
-    industry: string;
-  };
+  jobDescriptionData: JobDescription;
   interviewType: string;
   userEmail?: string;
+  duration?: number;
 }
 
 export async function extractKeyQuestions({
@@ -34,6 +24,7 @@ export async function extractKeyQuestions({
   jobDescriptionData,
   interviewType,
   userEmail,
+  duration,
 }: ExtractKeyQuestionsParams): Promise<{
   data: z.infer<typeof KeyQuestionsSchema>;
   usage: CompletionUsage;
@@ -46,9 +37,14 @@ export async function extractKeyQuestions({
 
     const systemPrompt = `
       You are an expert interviewer and job analyst with deep experience in creating highly effective interview questions.
-      Your task is to analyze a job description and create the 5 most important questions that must be asked to every candidate.
+      Your task is to analyze a job description and create the most important questions that must be asked to every candidate.
       These questions should be specifically tailored to assess the candidate's suitability for this exact role.
       The questions should help determine if the candidate has the required skills, experience, and qualities needed for success in this role.
+      ${
+        duration
+          ? `CRUCIALLY, you MUST consider that the interview has a total duration of ${duration} minutes. The key questions, in their entirety including the number of questions and the expected answer length and potential follow-ups, should realistically fit within this timeframe.`
+          : ""
+      }
 
       You are conducting a ${interviewType} which ${interviewTypeInfo.description}
       Here are example questions for this type of interview:
@@ -58,6 +54,18 @@ export async function extractKeyQuestions({
     const userPrompt = `
       Based on the provided job description data, generate exactly 5 key questions that must be asked to every candidate applying for this role.
       The questions should follow the ${interviewType} style while being specifically tailored to this role.
+      ${
+        duration
+          ? `
+      IMPORTANT DURATION CONSIDERATION: The interview is scheduled for ${duration} minutes. This is a CRITICAL constraint.
+      The questions you generate must be collectively answerable, including typical follow-up probing, within this ${duration}-minute timeframe.
+      This means you need to carefully calibrate the complexity and expected depth of each question.
+      For shorter durations, questions might need to be more direct. For longer durations, there's room for more expansive answers or slightly more nuanced questions.
+      The goal is a comprehensive assessment within the given time, so ensure the questions are concise enough if the duration is short, and allow for depth if the duration is longer, without making any single question overly burdensome.
+      Aim for a balanced set of questions that effectively uses the allocated ${duration} minutes.
+      `
+          : ""
+      }
 
       These questions should:
       1. Be highly specific to this role, company, and industry
@@ -87,7 +95,8 @@ export async function extractKeyQuestions({
       model,
       schema: KeyQuestionsSchema,
       schemaName: "keyQuestions",
-      schemaDescription: "Array of 5 key questions that must be asked to every candidate",
+      schemaDescription:
+        "Array of key questions that must be asked to every candidate applying for this role",
       system: systemPrompt,
       prompt: userPrompt,
       headers: {

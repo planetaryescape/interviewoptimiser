@@ -37,7 +37,7 @@ export function JobDetailsSheet({ jobId, className, variant = "default" }: JobDe
   const { data, isLoading, error } = useQuery<Entity<JobDescription>>({
     queryKey: ["jobDescription", jobId],
     queryFn: async () => {
-      const res = await fetch(`/api/jobDescriptions/${jobId}`);
+      const res = await fetch(`/api/job-descriptions/${jobId}`);
       if (!res.ok) {
         throw new Error("Failed to fetch job description");
       }
@@ -235,7 +235,12 @@ export function JobDetailsSheet({ jobId, className, variant = "default" }: JobDe
                       <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 25, delay: 0.1 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 25,
+                          delay: 0.1,
+                        }}
                         className="bg-white dark:bg-gray-900 rounded-lg px-4 py-3 mb-4 inline-block"
                       >
                         <motion.span className="text-sm font-medium text-blue-600 dark:text-blue-400">
@@ -245,7 +250,12 @@ export function JobDetailsSheet({ jobId, className, variant = "default" }: JobDe
                       <motion.h2
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 25, delay: 0.2 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 25,
+                          delay: 0.2,
+                        }}
                         className="text-2xl font-bold text-gray-900 dark:text-white mb-2"
                       >
                         {data.data.role || "Position"}
@@ -253,7 +263,12 @@ export function JobDetailsSheet({ jobId, className, variant = "default" }: JobDe
                       <motion.div
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 25, delay: 0.3 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 25,
+                          delay: 0.3,
+                        }}
                         className="flex flex-wrap gap-2 mt-4"
                       >
                         {data.data.employmentType && (
@@ -326,12 +341,6 @@ export function JobDetailsSheet({ jobId, className, variant = "default" }: JobDe
                       title="Key Technologies"
                       icon={Layers}
                       items={data.data.keyTechnologies}
-                    />
-
-                    <ListSection
-                      title="Key Questions to Prepare"
-                      icon={FileText}
-                      items={data.data.keyQuestions}
                     />
 
                     {/* Keywords */}

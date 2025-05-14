@@ -1,0 +1,1 @@
+ALTER TABLE "interviews" ADD COLUMN "key_questions" text[];

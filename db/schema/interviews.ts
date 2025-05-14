@@ -31,6 +31,7 @@ export const interviews = pgTable(
     requestId: p.text().unique(),
     duration: p.integer().notNull().default(15),
     type: interviewTypeEnum().notNull().default("behavioral"),
+    keyQuestions: p.text().array(),
     actualTime: p.integer(),
     createdAt: p.timestamp().defaultNow().notNull(),
     updatedAt: p.timestamp().defaultNow().notNull(),

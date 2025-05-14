@@ -1,7 +1,6 @@
 "use client";
 
 import useCustomisedSystemPrompt from "@/hooks/useCustomisedSystemPrompt";
-import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
 import {
   useActiveInterview,
@@ -11,12 +10,11 @@ import {
 } from "@/stores/useActiveInterviewStore";
 import { formatInterviewType } from "@/utils/conversation_config";
 import { VoiceProvider } from "@humeai/voice-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { type ComponentRef, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import type { Interview } from "~/db/schema";
 import { Controls } from "./controls";
 import { GeneratingReportTakeover } from "./generating-report-takeover";
 import { ConnectionStatus } from "./interview/connection-status";
@@ -50,24 +48,21 @@ export function InterviewContainer({
   const interviewDataLoaded = useRef(false);
   const configId = process.env.NEXT_PUBLIC_HUME_CONFIG_ID;
 
-  const { systemPrompt, job, isLoading: jobIsLoading } = useCustomisedSystemPrompt({ jobId });
-
-  const { data: interview, isLoading: interviewIsLoading } = useQuery({
-    queryKey: ["interview", interviewId],
-    queryFn: async () => {
-      const interviewRepo = await getRepository<Interview>("interviews");
-      return await interviewRepo.getById(interviewId);
-    },
-    enabled: !!interviewId,
+  const { systemPrompt, interview, isLoading } = useCustomisedSystemPrompt({
+    jobId,
+    interviewId,
   });
 
   useEffect(() => {
-    if (interview && !interviewIsLoading && !interviewDataLoaded.current) {
+    if (interview && !isLoading && !interviewDataLoaded.current) {
       setActiveInterviewChat({
         id: interview.data.id,
         createdAt: interview.data.createdAt,
         updatedAt: interview.data.updatedAt,
         actualTime: interview.data.actualTime,
+        duration: interview.data.duration,
+        type: interview.data.type,
+        keyQuestions: interview.data.keyQuestions,
         jobId,
         customSessionId: interview.data.customSessionId,
         transcript: interview.data.transcript,
@@ -77,13 +72,13 @@ export function InterviewContainer({
       });
       interviewDataLoaded.current = true;
     }
-  }, [interview, setActiveInterviewChat, interviewIsLoading, jobId]);
+  }, [interview, setActiveInterviewChat, isLoading, jobId]);
 
   const generateReportMutation = useMutation({
     mutationFn: async () => {
       const body = {
         jobId,
-        chatId: idHandler.encode(activeInterview?.id ?? 0),
+        interviewId: idHandler.encode(activeInterview?.id ?? 0),
       };
 
       const response = await fetch("/api/report", {
@@ -129,12 +124,12 @@ export function InterviewContainer({
   }, [interviewEnded, generateReportMutation, setShowTakeover]);
 
   useEffect(() => {
-    if (job?.data?.duration) {
-      setTotalTime(job.data.duration * 60);
+    if (interview?.data.duration) {
+      setTotalTime(interview.data.duration * 60);
     }
-  }, [job, setTotalTime]);
+  }, [interview, setTotalTime]);
 
-  if (interviewIsLoading || jobIsLoading) {
+  if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">Loading interview...</div>
@@ -152,13 +147,15 @@ export function InterviewContainer({
           systemPrompt,
           context: {
             text: `You are an AI interviewer called Cora, the lead interviewer at Interview Optimiser. You are conducting a ${
-              job?.data?.duration
-            } minute ${formatInterviewType(job?.data?.type || "behavioral")} mock interview with ${
-              job?.data?.candidateDetails.name
-            } to help them prepare for a ${job?.data?.jobDescription.role} job at ${
-              job?.data?.jobDescription.company
+              interview?.data?.duration
+            } minute ${formatInterviewType(
+              interview?.data?.type || "behavioral"
+            )} mock interview with ${
+              interview?.data?.job.candidateDetails.name
+            } to help them prepare for a ${interview?.data?.job.jobDescription.role} job at ${
+              interview?.data?.job.jobDescription.company
             }. Your goal is to ask relevant, insightful questions based on the candidate data and job role information, focusing on ${formatInterviewType(
-              job?.data?.type || "behavioral"
+              interview?.data?.type || "behavioral"
             )} questions.
 
             IMPORTANT: It is absolutely CRUCIAL that you respect the interview type and ask questions in line with the type of interview.
@@ -166,12 +163,12 @@ export function InterviewContainer({
             Do not interrupt the candidate; always let them finish their thoughts. If the candidate's response seems incomplete, use affirming interjections like "uh-huh" to encourage them to continue. Use positive reinforcement and adjust the difficulty of questions based on the candidate's performance, allowing them to expand and providing feedback when necessary.
 
             ${
-              job?.data?.jobDescription?.keyQuestions?.length
+              interview?.data?.keyQuestions?.length
                 ? `IMPORTANT: These are the ${
-                    job?.data?.jobDescription?.keyQuestions?.length
+                    interview?.data?.keyQuestions?.length
                   } key questions that MUST be asked during the interview. They are the HIGHEST PRIORITY questions and should be asked before exploring other topics. These questions have been specifically generated for this role and are crucial for assessing the candidate's suitability:
 
-            ${job?.data?.jobDescription?.keyQuestions
+            ${interview?.data?.keyQuestions
               .map((q: string, i: number) => `${i + 1}. ${q}`)
               .join("\n")}
 
