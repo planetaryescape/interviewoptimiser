@@ -9,16 +9,13 @@ import { db } from "~/db";
 import { jobDescriptions } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
-export async function GET(
-  request: NextRequest,
-  props: { params: Promise<{ interviewId: string }> }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ jobId: string }> }) {
   const params = await props.params;
-  logger.info("GET request received at /api/jobDescriptions/[interviewId]");
+  logger.info("GET request received at /api/job-descriptions/[jobId]");
 
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to GET /api/jobDescriptions/[interviewId]");
+    logger.warn("Unauthorized access attempt to GET /api/job-descriptions/[jobId]");
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -33,10 +30,10 @@ export async function GET(
       });
     }
 
-    const interviewId = idHandler.decode(params.interviewId);
+    const jobId = idHandler.decode(params.jobId);
 
     const jobDescription = await db.query.jobDescriptions.findFirst({
-      where: eq(jobDescriptions.jobId, interviewId),
+      where: eq(jobDescriptions.jobId, jobId),
     });
 
     if (!jobDescription) {
@@ -49,7 +46,7 @@ export async function GET(
     return NextResponse.json(formatEntity(jobDescription, "jobDescription"));
   } catch (error) {
     Sentry.withScope((scope) => {
-      scope.setExtra("context", "GET /api/jobDescriptions/[interviewId]");
+      scope.setExtra("context", "GET /api/job-descriptions/[jobId]");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
@@ -58,7 +55,7 @@ export async function GET(
         message: error instanceof Error ? error.message : "Unknown error",
         error,
       },
-      "Error in GET /api/jobDescriptions/[interviewId]"
+      "Error in GET /api/job-descriptions/[jobId]"
     );
     return NextResponse.json(formatErrorEntity("Internal server error"), {
       status: 500,

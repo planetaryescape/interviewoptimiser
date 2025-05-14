@@ -1,6 +1,9 @@
 "use client";
 
-import { InterviewSettings } from "@/components/interview-settings";
+import {
+  InterviewSettings,
+  type NewInterviewWithPublicJobId,
+} from "@/components/interview-settings";
 import { InterviewStartModal } from "@/components/interview-start-modal";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -16,31 +19,63 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import type { NewInterview } from "~/db/schema";
 
-type NewInterviewWithPublicJobId = Omit<NewInterview, "jobId"> & {
-  jobId: string;
-};
-
-export default function InterviewPlaceholder() {
+export function InterviewPlaceholder() {
   const [showModal, setShowModal] = useState(false);
   const params = useParams();
   const jobId = params.jobId as string;
   const { connect, status, chatMetadata } = useVoice();
   const { data: job, isLoading, error } = useJob(jobId);
-  const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
 
+  const [interviewToBeCreated, setInterviewToBeCreated] = useState<
+    Required<NewInterviewWithPublicJobId>
+  >({
+    jobId,
+    keyQuestions: [],
+    chatGroupId: "",
+    customSessionId: "",
+    requestId: "",
+    humeChatId: "",
+    type: "behavioral",
+    duration: 15,
+    id: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    transcript: "",
+    actualTime: 0,
+  });
+
   const { mutateAsync: createInterview, isPending: isCreatingInterview } = useMutation({
-    mutationFn: async (metadata: NewInterviewWithPublicJobId) => {
+    mutationFn: async (interview: NewInterviewWithPublicJobId) => {
       const interviewRepo = await getRepository<NewInterviewWithPublicJobId>("interviews");
-      return await interviewRepo.create({
-        ...metadata,
+
+      const keyQuestionsResponse = await fetch("/api/extract/questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jobId,
+          interviewType: interviewToBeCreated.type,
+          duration: interviewToBeCreated.duration,
+        }),
+      });
+
+      if (!keyQuestionsResponse.ok) {
+        throw new Error("Failed to extract key questions");
+      }
+
+      const keyQuestions = await keyQuestionsResponse.json();
+
+      return interviewRepo.create({
+        ...interview,
         jobId: params.jobId as string,
         createdAt: new Date(),
         updatedAt: new Date(),
-        customSessionId: metadata.customSessionId || null,
-        requestId: metadata.requestId || null,
+        keyQuestions: keyQuestions.data,
+        type: interviewToBeCreated.type,
+        duration: interviewToBeCreated.duration,
       });
     },
     onSuccess: (interview) => {
@@ -65,9 +100,11 @@ export default function InterviewPlaceholder() {
         customSessionId: chatMetadata?.customSessionId || "",
         requestId: chatMetadata?.requestId || "",
         humeChatId: chatMetadata?.chatId || "",
+        type: interviewToBeCreated.type,
+        duration: interviewToBeCreated.duration,
       });
     }
-  }, [chatMetadata, createInterview, params.jobId]);
+  }, [chatMetadata, createInterview, params.jobId, interviewToBeCreated]);
 
   const handleStartInterview = async () => {
     if (status.value !== "connected") {
@@ -156,8 +193,11 @@ export default function InterviewPlaceholder() {
             <div className="text-xl text-muted-foreground max-w-2xl mx-auto space-y-2">
               <p>
                 You&apos;re about to start a
-                {job?.data?.duration ? ` ${job.data.duration} minute` : ""}{" "}
-                {job?.data?.type ? job.data.type.replace("_", " ") : "practice"} interview
+                {interviewToBeCreated?.duration ? ` ${interviewToBeCreated.duration} minute` : ""}{" "}
+                {interviewToBeCreated?.type
+                  ? interviewToBeCreated.type.replace("_", " ")
+                  : "practice"}{" "}
+                interview
                 {job?.data?.jobDescription?.role || job?.data?.jobDescription?.company ? (
                   <>
                     {" "}
@@ -186,7 +226,10 @@ export default function InterviewPlaceholder() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="w-full"
           >
-            <InterviewSettings isSaving={isSaving} setIsSaving={setIsSaving} />
+            <InterviewSettings
+              interviewToBeCreated={interviewToBeCreated}
+              setInterviewToBeCreated={setInterviewToBeCreated}
+            />
           </motion.div>
 
           {/* Start Button */}
@@ -197,18 +240,11 @@ export default function InterviewPlaceholder() {
           >
             <Button
               size="lg"
-              disabled={isSaving}
               onClick={() => setShowModal(true)}
               className="relative group px-8 py-6 text-lg hover:scale-105 transition-transform"
             >
-              {isSaving ? (
-                <span className="animate-pulse">Preparing...</span>
-              ) : (
-                <>
-                  <MessageCircle className="mr-2 h-5 w-5 group-hover:animate-wiggle" />
-                  Start Interview
-                </>
-              )}
+              <MessageCircle className="mr-2 h-5 w-5 group-hover:animate-wiggle" />
+              Start Interview
             </Button>
           </motion.div>
 
@@ -241,7 +277,7 @@ export default function InterviewPlaceholder() {
         onClose={() => setShowModal(false)}
         onStart={handleStartInterview}
         isLoading={status.value === "connecting" || isCreatingInterview}
-        duration={job?.data?.duration}
+        duration={interviewToBeCreated?.duration}
       />
     </div>
   );

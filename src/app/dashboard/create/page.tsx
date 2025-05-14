@@ -57,14 +57,11 @@ export default function CreateJob() {
   const canProceedToNextStep =
     (step === 1 && canProceedToStep2) || (step === 2 && canProceedToStep3) || step === 3;
 
-  const { isSubmitting, submitJob, checkMinutes } = useJobSubmission({
+  const { isSubmitting, submitJob } = useJobSubmission({
     userId: user?.id,
-    userMinutes: user?.minutes,
     cvText,
     jobDescriptionText,
     additionalInfo,
-    duration,
-    interviewType,
   });
 
   const handleNextStep = () => {
@@ -85,11 +82,7 @@ export default function CreateJob() {
   };
 
   const handleSubmit = () => {
-    if (!checkMinutes()) {
-      setIsOutOfMinutesDialogOpen(true);
-    } else {
-      submitJob();
-    }
+    submitJob();
   };
 
   const handleBuyMinutes = () => {

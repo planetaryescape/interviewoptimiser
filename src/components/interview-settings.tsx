@@ -11,86 +11,53 @@ import {
 } from "@/components/ui/select";
 import { useJob } from "@/hooks/useJob";
 import { useUser } from "@/hooks/useUser";
-import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
 import { interviewTypes } from "@/utils/conversation_config";
-import * as Sentry from "@sentry/nextjs";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Clock, PlusCircle, Settings } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
-import type { Job } from "~/db/schema";
+import type { InterviewType, NewInterview } from "~/db/schema";
+
+export type NewInterviewWithPublicJobId = Omit<NewInterview, "jobId"> & {
+  jobId: string;
+};
 
 export function InterviewSettings({
-  isSaving,
-  setIsSaving,
+  interviewToBeCreated,
+  setInterviewToBeCreated,
 }: {
-  isSaving: boolean;
-  setIsSaving: (isSaving: boolean) => void;
+  interviewToBeCreated: Required<NewInterviewWithPublicJobId>;
+  setInterviewToBeCreated: (interviewToBeCreated: Required<NewInterviewWithPublicJobId>) => void;
 }) {
   const params = useParams();
   const jobId = params.jobId as string;
   const { data: job } = useJob(jobId);
   const { data: user } = useUser();
-  const queryClient = useQueryClient();
 
-  const selectedInterviewType = job
-    ? interviewTypes.find((type) => type.type === job.data.type)
-    : interviewTypes.find((type) => type.type === "behavioral");
-
-  const jobMutation = useMutation({
-    mutationFn: async (job: Job) => {
-      const jobRepo = await getRepository<Job>("jobs");
-      return await jobRepo.update(jobId, job);
-    },
-    onSuccess: () => {
-      setIsSaving(false);
-      queryClient.invalidateQueries({ queryKey: ["job", jobId] });
-    },
-    onError: (error) => {
-      Sentry.withScope((scope) => {
-        scope.setLevel("error");
-        Sentry.captureException(error);
-      });
-      toast.error("Failed to update interview type");
-      setIsSaving(false);
-      queryClient.invalidateQueries({ queryKey: ["job", jobId] });
-    },
-  });
+  const selectedInterviewType = interviewTypes.find(
+    (type) => type.type === interviewToBeCreated.type
+  );
 
   const [isExamplesExpanded, setIsExamplesExpanded] = useState(true);
 
   // Check if user has enough minutes for the selected duration
-  const hasEnoughMinutes = user && job && user.minutes >= job.data.duration;
+  const hasEnoughMinutes = user && job && user.minutes >= interviewToBeCreated.duration;
 
-  const handleInterviewTypeChange = (value: string) => {
-    setIsSaving(true);
-    if (!job) return;
-
-    jobMutation.mutate({
-      ...job.data,
-      id: job.sys.id || 0,
-      type: value as any,
-      duration: job.data.duration,
+  const handleInterviewTypeChange = (value: InterviewType) => {
+    setInterviewToBeCreated({
+      ...interviewToBeCreated,
+      type: value,
     });
   };
 
   const handleDurationChange = (value: string) => {
-    setIsSaving(true);
     if (!job) return;
-    jobMutation.mutate({
-      ...job.data,
-      id: job.sys.id || 0,
-      type: job.data.type,
+    setInterviewToBeCreated({
+      ...interviewToBeCreated,
       duration: Number.parseInt(value),
     });
-    // Simulate network request for optimistic update
-    setTimeout(() => {
-      setIsSaving(false);
-    }, 500);
   };
 
   return (
@@ -116,11 +83,7 @@ export function InterviewSettings({
               <p className="text-xs text-muted-foreground mb-2">
                 Choose the interview style that best fits your goals
               </p>
-              <Select
-                value={selectedInterviewType?.type}
-                onValueChange={handleInterviewTypeChange}
-                disabled={isSaving}
-              >
+              <Select value={selectedInterviewType?.type} onValueChange={handleInterviewTypeChange}>
                 <SelectTrigger id="interview-type" className="bg-background border-border">
                   <SelectValue placeholder="Select an interview type" />
                 </SelectTrigger>
@@ -129,7 +92,7 @@ export function InterviewSettings({
                     <SelectItem key={type.type} value={type.type}>
                       {type.type
                         .split("_")
-                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
                         .join(" ")}
                     </SelectItem>
                   ))}
@@ -170,9 +133,8 @@ export function InterviewSettings({
                 Longer interviews are more thorough but cost more minutes
               </p>
               <Select
-                value={job?.data?.duration.toString() || "3"}
+                value={interviewToBeCreated.duration.toString() || "3"}
                 onValueChange={handleDurationChange}
-                disabled={isSaving}
               >
                 <SelectTrigger
                   id="interview-duration"
@@ -258,7 +220,7 @@ export function InterviewSettings({
                 About{" "}
                 {selectedInterviewType.type
                   .split("_")
-                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
                   .join(" ")}{" "}
                 Interviews
               </h4>

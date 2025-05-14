@@ -29,7 +29,6 @@ export const StructuredJobDescriptionSchema = JobDescriptionSchema.extend({
   jobId: true,
   createdAt: true,
   updatedAt: true,
-  keyQuestions: true,
 });
 
 export interface ExtractJobDescriptionParams {

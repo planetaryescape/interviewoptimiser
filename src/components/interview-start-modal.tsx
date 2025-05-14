@@ -99,13 +99,14 @@ export function InterviewStartModal({
             </div>
 
             <div className="flex justify-end space-x-3">
-              <Button variant="outline" onClick={onClose}>
+              <Button disabled={isLoading} variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button onClick={onStart} className="relative group">
+              <Button disabled={isLoading} onClick={onStart} className="relative group">
                 <div className="absolute inset-0 bg-primary opacity-20 group-hover:opacity-30 blur-md transition-all rounded-lg" />
-                <span className="relative">
-                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Begin Interview"}
+                <span className="relative flex items-center gap-2">
+                  Begin Interview
+                  {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                 </span>
               </Button>
             </div>

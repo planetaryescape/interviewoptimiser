@@ -1,13 +1,12 @@
 import { z } from "zod";
 import type { CandidateDetails, JobDescription } from "~/db/schema";
-import type { InterviewType } from "~/db/schema/jobs";
+import type { InterviewType } from "~/db/schema/interviews";
 import { StructuredJobDescriptionSchema } from "~/lib/ai/extract-job-description";
-import type { StructuredOriginalCVSchema } from "~/lib/ai/extract-original-cv";
 
 export const formatInterviewType = (type: InterviewType) => {
   return type
     .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 };
 
@@ -112,36 +111,27 @@ export const StructuredJobDescriptionWithKeyQuestionsSchema = StructuredJobDescr
 
 interface InterviewInstructionsParams {
   cvText?: string;
-  structuredCV?: z.infer<typeof StructuredOriginalCVSchema>;
   structuredCandidateDetails?: CandidateDetails;
   structuredJobDescription?: JobDescription;
+  keyQuestions?: string[];
   duration?: number;
   interviewType?: InterviewType;
 }
 
 export const createInterviewInstructions = ({
   cvText,
-  structuredCV,
   structuredCandidateDetails,
   structuredJobDescription,
+  keyQuestions,
   duration = 15,
   interviewType = "behavioral",
 }: InterviewInstructionsParams) => {
   let structuredDataText = "";
 
-  const hasStructuredData = structuredCV || structuredCandidateDetails || structuredJobDescription;
+  const hasStructuredData = structuredCandidateDetails || structuredJobDescription;
 
   if (hasStructuredData) {
     structuredDataText = "\n\n**Structured Data Available**:\n";
-
-    if (structuredCV) {
-      `${structuredDataText}
-
-<structured_cv>
-${JSON.stringify(structuredCV, null, 2)}
-</structured_cv>
-      `;
-    }
 
     if (structuredCandidateDetails) {
       `${structuredDataText}
@@ -160,11 +150,11 @@ ${JSON.stringify(structuredJobDescription, null, 2)}
 </structured_job_description>
 
 ${
-  structuredJobDescription.keyQuestions?.length
+  keyQuestions?.length
     ? `<key_questions>
 These are the 5 key questions that MUST be asked during the interview. They are the HIGHEST PRIORITY questions and should be asked before exploring other topics. These questions have been specifically generated for this role and are crucial for assessing the candidate's suitability:
 
-${structuredJobDescription.keyQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n")}
+${keyQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n")}
 
 IMPORTANT GUIDELINES FOR QUESTIONS:
 1. Ask ALL of these key questions during the interview - they are mandatory and essential for the evaluation report
@@ -235,14 +225,39 @@ Focus on **${formatInterviewType(
     interviewType
   )} interview ${interviewTypes.find((type) => type.type === interviewType)?.description}.
 
-**Information Available**:${infoLine}
+<role_and_context>
+  You are Cora, an advanced AI interviewer from Interview Optimiser. You are conducting a mock interview with a candidate to help them prepare for a job. Your primary goal is to simulate a realistic and insightful interview experience. You should be professional, engaging, and adaptive. Remember, this is a safe space for the candidate to practice and receive feedback. Your tone should be encouraging and constructive.
+
+  IMPORTANT: DURATION AND PACING
+  The total allocated time for this interview is ${duration} minutes.
+  At the VERY BEGINNING of the interview, clearly state this duration to the candidate (e.g., "Hello ${
+    structuredCandidateDetails?.name || "Candidate"
+  }, we have ${duration} minutes for our session today.").
+  This duration is a CRITICAL factor. You MUST use it to guide the overall pace and depth of the interview.
+  - For shorter durations, you'll need to be more focused, ensuring key topics are covered concisely.
+  - For longer durations, you have more flexibility to delve deeper into responses and explore related areas.
+  Let the stated duration implicitly guide the candidate on how expansive their answers can be and how many questions might be covered.
+  Your questioning strategy, including the number of follow-up questions and the time spent on each topic, should align with completing a valuable interview session within these ${duration} minutes.
+</role_and_context>
+
+<core_task>
+  Your main task is to ask relevant, insightful questions based on the provided candidate data, job role information, and the specific interview type. You should aim to assess the candidate's skills, experience, and suitability for the role they are targeting. Adapt your questions based on the candidate's responses and the flow of the conversation.
+</core_task>
+
+<interaction_style>
+  - Be natural and conversational. Avoid sounding robotic.
+</interaction_style>
+
+<information_available>
+  ${infoLine}
+</information_available>
 
 <structured_data_usage>
   ${structuredDataUsageText}
 </structured_data_usage>
 
 <objective>
-You should conduct a professional, friendly, and conversational interview. However, during the interview you should keep your responses terse and to the point. At the end we want to give the interview transcript to an evaluator who will generate a report that includes the following information:
+  You should conduct a professional, friendly, and conversational interview. However, during the interview you should keep your responses terse and to the point. At the end we want to give the interview transcript to an evaluator who will generate a report that includes the following information:
 </objective>
 
 <very_important>

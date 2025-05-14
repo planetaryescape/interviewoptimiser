@@ -532,7 +532,9 @@ export default function JobReportPage(props: {
               </div>
               <div className="text-right">
                 <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Duration</p>
-                <p className="font-medium text-slate-800">{job?.data.actualTime ?? 0} minutes</p>
+                <p className="font-medium text-slate-800">
+                  {interview?.data.actualTime ?? 0} minutes
+                </p>
               </div>
             </div>
           </header>

@@ -29,7 +29,16 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { customSessionId, chatGroupId, humeChatId, requestId, jobId: jobIdString } = body;
+    const {
+      customSessionId,
+      chatGroupId,
+      humeChatId,
+      requestId,
+      jobId: jobIdString,
+      type,
+      duration,
+      keyQuestions,
+    } = body;
 
     if (!jobIdString) {
       logger.warn("Missing required field: jobId");
@@ -73,6 +82,9 @@ export async function POST(request: NextRequest) {
         chatGroupId,
         humeChatId,
         requestId,
+        type,
+        keyQuestions,
+        duration,
       })
       .returning();
 
