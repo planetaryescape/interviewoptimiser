@@ -151,6 +151,7 @@ export async function extractOriginalCV({
       schemaName: "originalCV",
       schemaDescription: "Structured data extracted from the original CV",
       system: systemPrompt,
+      temperature: 1,
       prompt: userPrompt,
       headers: {
         "Helicone-Auth": `Bearer ${process.env.HELICONE_API_KEY}`,

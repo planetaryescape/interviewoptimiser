@@ -98,6 +98,7 @@ export async function extractKeyQuestions({
       schemaDescription:
         "Array of key questions that must be asked to every candidate applying for this role",
       system: systemPrompt,
+      temperature: 1,
       prompt: userPrompt,
       headers: {
         "Helicone-Auth": `Bearer ${process.env.HELICONE_API_KEY}`,
