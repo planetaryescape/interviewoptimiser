@@ -1,3 +1,4 @@
+import ReportCompletedEmail from "@/emails/report-completed";
 import { getUserFromId } from "@/lib/auth";
 import { idHandler } from "@/lib/utils/idHandler";
 import { SQSClient } from "@aws-sdk/client-sqs";
@@ -22,6 +23,7 @@ import { extractOriginalCV } from "~/lib/ai/extract-original-cv";
 import { sendDiscordDM } from "~/lib/discord";
 import { logger } from "~/lib/logger";
 import { getOpenAiClient } from "~/lib/openai";
+import { resend } from "~/lib/resend";
 import { initSentry } from "../lib/sentry";
 import { deleteMessage } from "../utils/deleteMessage";
 import { handleError } from "../utils/handleError";
@@ -69,6 +71,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         const interview = await db
           .select({
             transcript: interviews.transcript,
+            type: interviews.type,
           })
           .from(interviews)
           .where(eq(interviews.id, interviewId))
@@ -133,10 +136,12 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           throw new Error("Failed to generate report");
         }
 
-        // Get the report ID
-        let updatedReportId: number;
+        // Define variables for email
+        const interviewType = interview.type || "Interview";
+        const company = generatedReport.data.companyName || job.company || "Company";
+        const role = generatedReport.data.roleName || job.role || "Position";
 
-        await db.transaction(async (tx) => {
+        const updatedReportId = await db.transaction(async (tx): Promise<number> => {
           // Save structured job description to database if available
           if (structuredJobDescription?.data) {
             await tx
@@ -208,8 +213,6 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
             .where(eq(reports.id, reportId))
             .returning({ id: reports.id });
 
-          updatedReportId = updatedReport[0].id;
-
           // Save question analyses to the database if available
           if (generatedReport.questionAnalyses && generatedReport.questionAnalyses.length > 0) {
             logger.info(
@@ -246,12 +249,44 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
               interviewsCount: sql`${statistics.interviewsCount} + 1`,
             })
             .where(eq(statistics.id, 1));
+
+          return updatedReport[0].id;
         });
 
         logger.info(
           { jobId },
           "Successfully generated and saved interview report with structured data"
         );
+
+        // Send report completion email to the user
+        if (user?.email) {
+          logger.info({ email: user.email }, "Sending report completion email");
+          try {
+            const emailResponse = await resend.emails.send({
+              from: `${config.projectName} <reports@${config.domain}>`,
+              to: user.email,
+              subject: `Your ${interviewType} Interview Report is Ready`,
+              react: ReportCompletedEmail({
+                firstName: user.firstname ?? "",
+                jobId,
+                interviewId,
+                reportId: updatedReportId,
+                interviewType,
+                role,
+                company,
+              }),
+            });
+            logger.info({ emailResponse }, "Report completion email sent");
+          } catch (emailError) {
+            logger.error(
+              {
+                error: emailError instanceof Error ? emailError.message : emailError,
+              },
+              "Failed to send report completion email"
+            );
+            Sentry.captureException(emailError);
+          }
+        }
 
         await sendDiscordDM({
           title: "✅ Interview Report Generated",

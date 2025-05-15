@@ -1,7 +1,5 @@
 import * as Sentry from "@sentry/aws-serverless";
-import { and, eq } from "drizzle-orm";
 import { db } from "~/db";
-import { interviews, jobs, reports } from "~/db/schema";
 import { sendDiscordDM } from "~/lib/discord";
 import { logger } from "~/lib/logger";
 import { initSentry } from "../lib/sentry";
@@ -16,16 +14,32 @@ export const handler = Sentry.wrapHandler(async () => {
 
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
 
-    const incompleteReports = await db
-      .select({ id: reports.id, jobId: interviews.jobId })
-      .from(reports)
-      .leftJoin(interviews, eq(reports.interviewId, interviews.id))
-      .where(
+    const incompleteReports = await db.query.reports.findMany({
+      columns: {
+        id: true,
+        interviewId: true,
+      },
+      where: (reports, { and, eq, lt }) =>
         and(
           eq(reports.isCompleted, false)
           // lt(reports.createdAt, tenMinutesAgo)
-        )
-      );
+        ),
+      with: {
+        interview: {
+          columns: {
+            jobId: true,
+            id: true,
+          },
+          with: {
+            job: {
+              columns: {
+                userId: true,
+              },
+            },
+          },
+        },
+      },
+    });
 
     logger.info(
       {
@@ -57,20 +71,13 @@ export const handler = Sentry.wrapHandler(async () => {
         "Regenerating report"
       );
 
-      const job = await db
-        .select()
-        .from(jobs)
-        .leftJoin(interviews, eq(jobs.id, interviews.jobId))
-        .leftJoin(reports, eq(interviews.id, reports.interviewId))
-        .where(eq(reports.id, report.id))
-        .then(([job]) => job);
-
       const message = {
         data: {
           reportId: report.id,
-          jobId: report.jobId,
+          jobId: report.interview.jobId,
+          interviewId: report.interviewId,
         },
-        userId: job?.jobs.userId,
+        userId: report.interview.job.userId,
         restart: true,
       };
 
