@@ -128,6 +128,7 @@ export async function extractJobDescription({
       schemaName: "jobDescription",
       schemaDescription: "Structured data extracted from the job description",
       system: systemPrompt,
+      temperature: 1,
       prompt: userPrompt,
       headers: {
         "Helicone-Auth": `Bearer ${process.env.HELICONE_API_KEY}`,

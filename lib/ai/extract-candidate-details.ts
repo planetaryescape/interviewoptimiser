@@ -80,6 +80,7 @@ export async function extractCandidateDetails({
       schemaName: "candidateDetails",
       schemaDescription: "Personal and professional details extracted from a CV",
       system: systemPrompt,
+      temperature: 1,
       prompt: userPrompt,
       headers: {
         "Helicone-Auth": `Bearer ${process.env.HELICONE_API_KEY}`,
