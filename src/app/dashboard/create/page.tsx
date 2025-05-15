@@ -8,8 +8,6 @@ import {
   useCreateJobActions,
   useCreateJobAdditionalInfo,
   useCreateJobCVText,
-  useCreateJobDuration,
-  useCreateJobInterviewType,
   useCreateJobIsOutOfMinutesDialogOpen,
   useCreateJobIsScheduleErrorDialogOpen,
   useCreateJobJobDescriptionText,
@@ -30,8 +28,6 @@ export default function CreateJob() {
   const showTakeover = useCreateJobShowTakeover();
   const isOutOfMinutesDialogOpen = useCreateJobIsOutOfMinutesDialogOpen();
   const isScheduleErrorDialogOpen = useCreateJobIsScheduleErrorDialogOpen();
-  const duration = useCreateJobDuration();
-  const interviewType = useCreateJobInterviewType();
 
   const { setStep, setIsOutOfMinutesDialogOpen, setIsScheduleErrorDialogOpen } =
     useCreateJobActions();
@@ -83,6 +79,7 @@ export default function CreateJob() {
 
   const handleSubmit = () => {
     submitJob();
+    setIsScheduleErrorDialogOpen(false);
   };
 
   const handleBuyMinutes = () => {
