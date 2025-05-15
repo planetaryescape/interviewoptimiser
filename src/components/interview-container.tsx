@@ -78,7 +78,7 @@ export function InterviewContainer({
     mutationFn: async () => {
       const body = {
         jobId,
-        interviewId: idHandler.encode(activeInterview?.id ?? 0),
+        interviewId: idHandler.encode(interview?.data.id ?? 0),
       };
 
       const response = await fetch("/api/report", {

@@ -3,9 +3,22 @@ const { sentryEsbuildPlugin } = require("@sentry/esbuild-plugin");
 const esbuild = require("esbuild");
 const fs = require("node:fs");
 const path = require("node:path");
+const { execSync } = require("node:child_process");
 
 const functionsDir = path.resolve(__dirname, "../functions");
 const terraformDir = path.resolve(__dirname, "../terraform");
+
+// Function to get current git commit SHA
+const getGitCommitSha = () => {
+  try {
+    return execSync("git rev-parse HEAD").toString().trim();
+  } catch (e) {
+    console.warn("Could not get git commit SHA. Sentry release might not be set correctly.");
+    return undefined;
+  }
+};
+
+const release = getGitCommitSha(); // Determine release once
 
 const buildService = (functionName) => {
   const functionPath = path.join(functionsDir, functionName);
@@ -19,11 +32,11 @@ const buildService = (functionName) => {
       outfile: `${terraformDir}/artifacts/${functionName}/index.js`,
       bundle: true,
       minify: false,
-      sourcemap: true,
+      sourcemap: true, // 'external' is also a good option, true implies external for bundle
       platform: "node",
       target: "node20",
       external: ["@aws-sdk/*", "aws-lambda"],
-      inject: ["./scripts/react-shim.js"],
+      inject: ["./scripts/react-shim.js"], // Make sure this path is correct relative to CWD or use absolute
       loader: {
         ".tsx": "tsx",
         ".ts": "tsx",
@@ -34,11 +47,21 @@ const buildService = (functionName) => {
           org: "interviewoptimiser",
           project: functionName,
           authToken: process.env.SENTRY_AUTH_TOKEN,
+          release: release, // Explicitly set the release
+          finalize: true, // Finalize the release after uploading artifacts
+          debug: true, // Enable debug logging from the plugin
+          errorHandler: (err, invocation) => {
+            // Add error handler for plugin issues
+            console.error(`Sentry Esbuild Plugin Error for ${functionName}:`, err.message);
+            // Optionally, you can re-throw or exit to fail the build
+            // throw err;
+            // process.exit(1);
+          },
         }),
       ],
     })
     .then(() => {
-      console.log(`✅ Successfully built ${functionName}`);
+      console.log(`✅ Successfully built ${functionName} for release ${release || "unknown"}`);
     })
     .catch((error) => {
       console.error(`❌ Failed to build ${functionName}:`, error);
