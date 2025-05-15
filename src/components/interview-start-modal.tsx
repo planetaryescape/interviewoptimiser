@@ -13,6 +13,7 @@ type InterviewStartModalProps = {
   onStart: () => void;
   isLoading: boolean;
   duration?: number;
+  availableMinutes?: number;
 };
 
 type PermissionStatus = "granted" | "denied" | "prompt";
@@ -30,6 +31,7 @@ export function InterviewStartModal({
   onStart,
   isLoading,
   duration,
+  availableMinutes,
 }: InterviewStartModalProps) {
   const [micPermission, setMicPermission] = useState<PermissionStatus>("prompt");
   const [isCheckingPermission, setIsCheckingPermission] = useState(false);
@@ -178,6 +180,8 @@ export function InterviewStartModal({
     }
   };
 
+  const hasEnoughMinutes = duration && availableMinutes ? availableMinutes >= duration : true;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl">
@@ -261,7 +265,13 @@ export function InterviewStartModal({
             </motion.div>
 
             {duration && duration > 0 && (
-              <div className="text-sm text-center mb-4 text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-900/30 p-3 rounded-md border border-amber-300 dark:border-amber-700">
+              <div
+                className={`text-sm text-center mb-4 p-3 rounded-md border ${
+                  hasEnoughMinutes
+                    ? "text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-900/30 border-amber-300 dark:border-amber-700"
+                    : "text-red-600 dark:text-red-500 bg-red-50 dark:bg-red-900/30 border-red-300 dark:border-red-700"
+                }`}
+              >
                 <p>
                   This interview session will use approximately{" "}
                   <strong>
@@ -269,6 +279,20 @@ export function InterviewStartModal({
                   </strong>{" "}
                   from your account.
                 </p>
+                {!hasEnoughMinutes && (
+                  <p className="mt-2 font-medium">
+                    You only have {availableMinutes} minute{availableMinutes === 1 ? "" : "s"}{" "}
+                    available. Please top up your account to continue.
+                    <Link href="/pricing" className="block mt-2">
+                      <Button
+                        size="sm"
+                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                      >
+                        Buy Minutes
+                      </Button>
+                    </Link>
+                  </p>
+                )}
               </div>
             )}
 
@@ -286,7 +310,7 @@ export function InterviewStartModal({
                 Cancel
               </Button>
               <Button
-                disabled={isLoading || micPermission !== "granted"}
+                disabled={isLoading || micPermission !== "granted" || !hasEnoughMinutes}
                 onClick={onStart}
                 className="relative group"
               >
