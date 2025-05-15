@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Execute both requests in parallel
-    logger.info({ jobId, reportId }, "Sending parallel requests to API Gateway");
+    logger.info({ jobId, reportId, interviewId }, "Sending parallel requests to API Gateway");
     const [reportResponse, audioResponse] = await Promise.all([reportRequest, audioRequest]);
 
     // Parse the JSON responses in parallel

@@ -46,7 +46,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
       let jobId = 0;
       try {
         const {
-          data: { jobId: id, interviewId },
+          data: { jobId: id, interviewId, reportId },
           userId,
           restart: isRestart,
         } = JSON.parse(record.body);
@@ -183,8 +183,8 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
 
           // Update the report with generated analysis
           const updatedReport = await tx
-            .insert(reports)
-            .values({
+            .update(reports)
+            .set({
               interviewId,
               generalAssessment: generatedReport.data.generalAssessment,
               overallScore: generatedReport.data.overallScore,
@@ -205,6 +205,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
               actionableNextSteps: JSON.stringify(generatedReport.data.actionableNextSteps),
               isCompleted: true,
             })
+            .where(eq(reports.id, reportId))
             .returning({ id: reports.id });
 
           updatedReportId = updatedReport[0].id;
