@@ -58,7 +58,7 @@ export const handler = Sentry.wrapHandler(async () => {
           { role: "user", content: prompt },
         ],
         response_format: zodResponseFormat(ReviewVettingResponseSchema, "reviewVetting"),
-        temperature: 0.1,
+        temperature: 1,
       });
 
       if (!completion.choices[0].message.parsed) {

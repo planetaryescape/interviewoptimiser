@@ -133,7 +133,7 @@ Remember: This general assessment will serve as the executive summary of the ent
       schemaDescription: "Comprehensive synthesis of all interview analysis sections",
       system: GENERAL_ASSESSMENT_SYSTEM_PROMPT,
       prompt: sectionPrompt,
-      temperature: 0.5,
+      temperature: 1,
       headers: createRequestHeaders(userEmail),
     });
 
