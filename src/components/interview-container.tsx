@@ -24,7 +24,7 @@ import { Messages } from "./messages";
 import { ShortInterviewTakeover } from "./short-interview-takeover";
 
 // Minimum interview duration in seconds
-const MIN_INTERVIEW_DURATION = 180; // 3 minutes
+const MIN_INTERVIEW_DURATION = 150; // 2.5 minutes
 
 export function InterviewContainer({
   jobId,
