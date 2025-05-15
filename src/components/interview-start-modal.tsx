@@ -3,8 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
-import { Loader2, MessageSquare, Mic, Pause, Volume2 } from "lucide-react";
+import { CheckCircle2, Loader2, MessageSquare, Mic, Pause, Volume2, XCircle } from "lucide-react";
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
 
 type InterviewStartModalProps = {
   isOpen: boolean;
@@ -21,6 +22,43 @@ export function InterviewStartModal({
   isLoading,
   duration,
 }: InterviewStartModalProps) {
+  const [micPermission, setMicPermission] = useState<"granted" | "denied" | "prompt">("prompt");
+  const [isCheckingPermission, setIsCheckingPermission] = useState(false);
+
+  const checkMicrophonePermission = useCallback(async () => {
+    try {
+      const permissionStatus = await navigator.permissions.query({
+        name: "microphone" as PermissionName,
+      });
+      setMicPermission(permissionStatus.state);
+
+      permissionStatus.addEventListener("change", () => {
+        setMicPermission(permissionStatus.state);
+      });
+    } catch (error) {
+      console.error("Error checking microphone permission:", error);
+    }
+  }, []);
+
+  const requestMicrophonePermission = useCallback(async () => {
+    setIsCheckingPermission(true);
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      await checkMicrophonePermission();
+    } catch (error) {
+      console.error("Error requesting microphone permission:", error);
+      setMicPermission("denied");
+    } finally {
+      setIsCheckingPermission(false);
+    }
+  }, [checkMicrophonePermission]);
+
+  useEffect(() => {
+    if (isOpen) {
+      checkMicrophonePermission();
+    }
+  }, [isOpen, checkMicrophonePermission]);
+
   const guidelines = [
     {
       icon: Volume2,
@@ -77,6 +115,49 @@ export function InterviewStartModal({
               ))}
             </div>
 
+            {/* Microphone Permission Status */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className={`p-4 mb-6 rounded-lg border ${
+                micPermission === "granted"
+                  ? "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800"
+                  : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  {micPermission === "granted" ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                  ) : (
+                    <XCircle className="w-5 h-5 text-red-500" />
+                  )}
+                  <div>
+                    <h3 className="font-medium">Microphone Permission</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {micPermission === "granted"
+                        ? "Microphone access is enabled"
+                        : "Microphone access is required for the interview"}
+                    </p>
+                  </div>
+                </div>
+                {micPermission !== "granted" && (
+                  <Button
+                    size="sm"
+                    onClick={requestMicrophonePermission}
+                    disabled={isCheckingPermission}
+                    className="relative"
+                  >
+                    <span className="relative flex items-center gap-2">
+                      Request Access
+                      {isCheckingPermission && <Loader2 className="w-4 h-4 animate-spin" />}
+                    </span>
+                  </Button>
+                )}
+              </div>
+            </motion.div>
+
             {duration && duration > 0 && (
               <div className="text-sm text-center mb-4 text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-900/30 p-3 rounded-md border border-amber-300 dark:border-amber-700">
                 <p>
@@ -102,7 +183,11 @@ export function InterviewStartModal({
               <Button disabled={isLoading} variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button disabled={isLoading} onClick={onStart} className="relative group">
+              <Button
+                disabled={isLoading || micPermission !== "granted"}
+                onClick={onStart}
+                className="relative group"
+              >
                 <div className="absolute inset-0 bg-primary opacity-20 group-hover:opacity-30 blur-md transition-all rounded-lg" />
                 <span className="relative flex items-center gap-2">
                   Begin Interview
