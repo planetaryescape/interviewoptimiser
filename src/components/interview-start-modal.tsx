@@ -15,6 +15,15 @@ type InterviewStartModalProps = {
   duration?: number;
 };
 
+type PermissionStatus = "granted" | "denied" | "prompt";
+type PermissionError =
+  | null
+  | "denied"
+  | "not_secure"
+  | "system_denied"
+  | "not_supported"
+  | "unknown";
+
 export function InterviewStartModal({
   isOpen,
   onClose,
@@ -22,11 +31,33 @@ export function InterviewStartModal({
   isLoading,
   duration,
 }: InterviewStartModalProps) {
-  const [micPermission, setMicPermission] = useState<"granted" | "denied" | "prompt">("prompt");
+  const [micPermission, setMicPermission] = useState<PermissionStatus>("prompt");
   const [isCheckingPermission, setIsCheckingPermission] = useState(false);
+  const [permissionError, setPermissionError] = useState<PermissionError>(null);
+
+  const isSecureContext = useCallback(() => {
+    return window.isSecureContext;
+  }, []);
 
   const checkMicrophonePermission = useCallback(async () => {
     try {
+      // Reset any previous errors
+      setPermissionError(null);
+
+      // Check if browser supports permissions API
+      if (!navigator.permissions || !navigator.permissions.query) {
+        // Fall back to checking if we're in a secure context
+        if (!isSecureContext()) {
+          setPermissionError("not_secure");
+          setMicPermission("denied");
+          return;
+        }
+
+        // If permissions API isn't available but context is secure,
+        // we'll have to try requesting directly
+        return;
+      }
+
       const permissionStatus = await navigator.permissions.query({
         name: "microphone" as PermissionName,
       });
@@ -34,24 +65,72 @@ export function InterviewStartModal({
 
       permissionStatus.addEventListener("change", () => {
         setMicPermission(permissionStatus.state);
+        if (permissionStatus.state === "granted") {
+          setPermissionError(null);
+        } else if (permissionStatus.state === "denied") {
+          setPermissionError("denied");
+        }
       });
     } catch (error) {
       console.error("Error checking microphone permission:", error);
+      if (!isSecureContext()) {
+        setPermissionError("not_secure");
+      } else {
+        setPermissionError("unknown");
+      }
     }
-  }, []);
+  }, [isSecureContext]);
 
   const requestMicrophonePermission = useCallback(async () => {
     setIsCheckingPermission(true);
     try {
+      // Check if the MediaDevices API is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setPermissionError("not_supported");
+        setMicPermission("denied");
+        return;
+      }
+
+      // Check if in secure context
+      if (!isSecureContext()) {
+        setPermissionError("not_secure");
+        setMicPermission("denied");
+        return;
+      }
+
+      // Attempt to get media stream
       await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      // If successful, update permission state
+      setMicPermission("granted");
+      setPermissionError(null);
       await checkMicrophonePermission();
     } catch (error) {
       console.error("Error requesting microphone permission:", error);
+
+      if (error instanceof DOMException) {
+        if (error.name === "NotAllowedError") {
+          if (error.message.includes("Permission denied by system")) {
+            setPermissionError("system_denied");
+          } else {
+            setPermissionError("denied");
+          }
+        } else if (error.name === "NotFoundError") {
+          setPermissionError("not_supported");
+        } else if (error.name === "NotReadableError") {
+          setPermissionError("system_denied");
+        } else {
+          setPermissionError("unknown");
+        }
+      } else {
+        setPermissionError("unknown");
+      }
+
       setMicPermission("denied");
     } finally {
       setIsCheckingPermission(false);
     }
-  }, [checkMicrophonePermission]);
+  }, [checkMicrophonePermission, isSecureContext]);
 
   useEffect(() => {
     if (isOpen) {
@@ -81,6 +160,23 @@ export function InterviewStartModal({
       description: "You can politely interrupt if needed - just like a real conversation",
     },
   ];
+
+  const getPermissionErrorMessage = () => {
+    switch (permissionError) {
+      case "denied":
+        return "You've denied microphone access. Please reset permissions in your browser settings and try again.";
+      case "not_secure":
+        return "Microphone access requires a secure (HTTPS) connection. Please use a secure connection to continue.";
+      case "system_denied":
+        return "Your system has blocked microphone access. Please check your system settings.";
+      case "not_supported":
+        return "Your browser doesn't support microphone access. Please try a different browser.";
+      case "unknown":
+        return "An unknown error occurred when requesting microphone access. Please try again or use a different browser.";
+      default:
+        return "Microphone access is required for the interview";
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -138,8 +234,14 @@ export function InterviewStartModal({
                     <p className="text-sm text-muted-foreground">
                       {micPermission === "granted"
                         ? "Microphone access is enabled"
-                        : "Microphone access is required for the interview"}
+                        : getPermissionErrorMessage()}
                     </p>
+                    {permissionError === "denied" && (
+                      <p className="text-xs mt-1 text-amber-600 dark:text-amber-400">
+                        Tip: Look for the camera/microphone icon in your browser's address bar to
+                        manage permissions
+                      </p>
+                    )}
                   </div>
                 </div>
                 {micPermission !== "granted" && (
