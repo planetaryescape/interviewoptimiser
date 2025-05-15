@@ -4,6 +4,19 @@ set -e  # Exit immediately if a command exits with a non-zero status.
 
 trap 'echo "Error: Script failed at line $LINENO"; exit 1;' ERR
 
-cd terraform &&
-terraform fmt &&
-doppler run -c prd -p interview-optimiser -- terraform apply
+# Get the current Git commit SHA
+GIT_SHA=$(git rev-parse HEAD)
+
+# Check if GIT_SHA is empty (e.g., not in a git repo or git command failed)
+if [ -z "$GIT_SHA" ]; then
+  echo "Warning: Could not determine Git SHA. Sentry release version will be 'unknown'."
+  SENTRY_RELEASE_VERSION="unknown"
+else
+  SENTRY_RELEASE_VERSION="$GIT_SHA"
+fi
+
+echo "Using Sentry Release Version: $SENTRY_RELEASE_VERSION"
+
+cd terraform && \
+terraform fmt && \
+doppler run -c prd -p interview-optimiser -- terraform apply -var="sentry_release_version=$SENTRY_RELEASE_VERSION"

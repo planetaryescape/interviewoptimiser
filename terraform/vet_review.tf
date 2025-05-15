@@ -4,13 +4,14 @@ module "vet_review_lambda" {
   project_name  = local.project_name
   region        = local.region
   environment_variables = {
-    DATABASE_URL      = var.DATABASE_URL
-    OPENAI_API_KEY    = var.OPENAI_API_KEY
-    RESEND_API_KEY    = var.RESEND_API_KEY
-    PINO_LOG_LEVEL    = "info"
-    LAMBDA_AWS_REGION = local.region
-    DISCORD_BOT_TOKEN = var.DISCORD_BOT_TOKEN
-    SENTRY_DSN        = "https://6c0af4af9084afc6ecc6166ade3c37c4@o4508119114514432.ingest.de.sentry.io/4508248043814992"
+    DATABASE_URL           = var.DATABASE_URL
+    OPENAI_API_KEY         = var.OPENAI_API_KEY
+    RESEND_API_KEY         = var.RESEND_API_KEY
+    PINO_LOG_LEVEL         = "info"
+    LAMBDA_AWS_REGION      = local.region
+    DISCORD_BOT_TOKEN      = var.DISCORD_BOT_TOKEN
+    SENTRY_RELEASE_VERSION = var.sentry_release_version
+    SENTRY_DSN             = "https://6c0af4af9084afc6ecc6166ade3c37c4@o4508119114514432.ingest.de.sentry.io/4508248043814992"
   }
 }
 

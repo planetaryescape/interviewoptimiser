@@ -52,3 +52,9 @@ variable "HUME_API_KEY" {
   description = "Hume AI API Key for voice and audio services"
   type        = string
 }
+
+variable "sentry_release_version" {
+  description = "The Sentry release version, typically the Git commit SHA."
+  type        = string
+  default     = "unknown" // Fallback if not provided
+}
