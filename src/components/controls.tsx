@@ -142,7 +142,7 @@ export function Controls() {
               Start Interview
             </Button>
 
-            <Button
+            {/* <Button
               className={cn("flex items-center gap-1")}
               onClick={async () => {
                 disconnect();
@@ -150,7 +150,7 @@ export function Controls() {
               variant={"destructive"}
             >
               Stop Interview
-            </Button>
+            </Button> */}
 
             <Button
               className={cn(
