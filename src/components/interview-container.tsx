@@ -13,7 +13,7 @@ import { VoiceProvider } from "@humeai/voice-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { type ComponentRef, useEffect, useRef } from "react";
+import { type ComponentRef, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Controls } from "./controls";
 import { GeneratingReportTakeover } from "./generating-report-takeover";
@@ -21,6 +21,10 @@ import { ConnectionStatus } from "./interview/connection-status";
 import { InterviewController } from "./interview/interview-controller";
 import { TimerDisplay } from "./interview/timer-display";
 import { Messages } from "./messages";
+import { ShortInterviewTakeover } from "./short-interview-takeover";
+
+// Minimum interview duration in seconds
+const MIN_INTERVIEW_DURATION = 180; // 3 minutes
 
 export function InterviewContainer({
   jobId,
@@ -47,6 +51,7 @@ export function InterviewContainer({
   const hasGeneratedReportRef = useRef(false);
   const interviewDataLoaded = useRef(false);
   const configId = process.env.NEXT_PUBLIC_HUME_CONFIG_ID;
+  const [isInterviewTooShort, setIsInterviewTooShort] = useState(false);
 
   const { systemPrompt, interview, isLoading } = useCustomisedSystemPrompt({
     jobId,
@@ -119,9 +124,17 @@ export function InterviewContainer({
     if (interviewEnded && !hasGeneratedReportRef.current) {
       hasGeneratedReportRef.current = true;
       setShowTakeover(true);
-      generateReportMutation.mutate();
+
+      // Check if interview duration is at least 3 minutes
+      const actualTimeInSeconds = activeInterview?.actualTime || 0;
+
+      if (actualTimeInSeconds < MIN_INTERVIEW_DURATION) {
+        setIsInterviewTooShort(true);
+      } else {
+        generateReportMutation.mutate();
+      }
     }
-  }, [interviewEnded, generateReportMutation, setShowTakeover]);
+  }, [interviewEnded, generateReportMutation, setShowTakeover, activeInterview]);
 
   useEffect(() => {
     if (interview?.data.duration) {
@@ -211,7 +224,14 @@ export function InterviewContainer({
         <InterviewController />
         <Controls />
 
-        <AnimatePresence>{showTakeover && <GeneratingReportTakeover />}</AnimatePresence>
+        <AnimatePresence>
+          {showTakeover &&
+            (isInterviewTooShort ? (
+              <ShortInterviewTakeover jobId={jobId} />
+            ) : (
+              <GeneratingReportTakeover />
+            ))}
+        </AnimatePresence>
       </VoiceProvider>
     </div>
   );
