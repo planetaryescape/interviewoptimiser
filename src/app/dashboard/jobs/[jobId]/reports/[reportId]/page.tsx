@@ -1001,11 +1001,8 @@ export default function JobReportPage(props: {
         </AlertDialogContent>
       </AlertDialog>
       {/* Audio Player - fixed bottom bar */}
-      {report?.data?.interviewAudioUrl !== undefined && (
-        <AudioPlayer
-          audioUrl={report.data.interviewAudioUrl || undefined}
-          disabled={!report.data.interviewAudioUrl}
-        />
+      {report?.data?.interviewAudioUrl && (
+        <AudioPlayer audioUrl={report.data.interviewAudioUrl} disabled={false} />
       )}
     </div>
   );

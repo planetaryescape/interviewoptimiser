@@ -68,7 +68,11 @@ export function AudioPlayer({ audioUrl, disabled }: { audioUrl?: string; disable
     if (!audioRef.current || !progressBarRef.current || disabled) return;
 
     const rect = progressBarRef.current.getBoundingClientRect();
-    const percent = Math.min(Math.max(0, e.clientX - rect.left), rect.width) / rect.width;
+
+    // Calculate the click position relative to the progress bar
+    // Use clientX - rect.left to get the horizontal position within the bar
+    const clickX = Math.min(Math.max(0, e.clientX - rect.left), rect.width);
+    const percent = clickX / rect.width;
     const value = percent * duration;
 
     audioRef.current.currentTime = value;
@@ -107,7 +111,7 @@ export function AudioPlayer({ audioUrl, disabled }: { audioUrl?: string; disable
     <section
       className={cn(
         "fixed bottom-0 left-0 w-full z-50 backdrop-blur-md bg-white/90 dark:bg-gray-900/90 border-t border-gray-200 dark:border-gray-800 flex items-center px-6 py-3 shadow-lg transition-all duration-200",
-        disabled && "opacity-50 pointer-events-none select-none"
+        disabled ? "opacity-50 pointer-events-none select-none" : "pointer-events-auto"
       )}
       aria-label="Interview audio player"
     >
@@ -161,7 +165,10 @@ export function AudioPlayer({ audioUrl, disabled }: { audioUrl?: string; disable
 
             <div
               ref={progressBarRef}
-              onClick={handleSeek}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSeek(e);
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   if (!progressBarRef.current) return;
