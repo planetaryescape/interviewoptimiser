@@ -77,6 +77,7 @@ export async function pollAudioReconstructionStatus(
           message: error.message,
           chatId,
           status: reconstructionResponse.status,
+          reconstructionResponse,
         },
         "Audio reconstruction failed"
       );
