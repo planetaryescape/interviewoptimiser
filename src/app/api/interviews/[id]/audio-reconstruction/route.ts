@@ -7,18 +7,18 @@ import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
-import { interviews, jobs } from "~/db/schema";
+import { interviews } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 /**
  * Initiates audio reconstruction for an interview
  */
-export async function GET(request: NextRequest, props: { params: Promise<{ jobId: string }> }) {
+export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
-  logger.info("GET request received at /api/jobs/[jobId]/audio-reconstruction");
+  logger.info("GET request received at /api/interviews/[id]/audio-reconstruction");
   const { userId: clerkUserId } = getAuth(request);
   if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to GET /api/jobs/[jobId]/audio-reconstruction");
+    logger.warn("Unauthorized access attempt to GET /api/interviews/[id]/audio-reconstruction");
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
@@ -33,58 +33,51 @@ export async function GET(request: NextRequest, props: { params: Promise<{ jobId
       });
     }
 
-    const jobId = idHandler.decode(params.jobId);
+    const interviewId = idHandler.decode(params.id);
 
     // Check if the interview exists and belongs to the user
-    const job = await db.query.jobs.findFirst({
-      where: eq(jobs.id, jobId),
+    const interview = await db.query.interviews.findFirst({
+      where: eq(interviews.id, interviewId),
       with: {
-        interviews: {
-          with: {
-            report: true,
-          },
-        },
+        report: true,
+        job: true,
       },
     });
 
-    if (!job) {
-      logger.warn({ jobId }, "Job not found");
-      return NextResponse.json(formatErrorEntity("Job not found"), {
+    if (!interview) {
+      logger.warn({ interviewId }, "Interview not found");
+      return NextResponse.json(formatErrorEntity("Interview not found"), {
         status: 404,
       });
     }
 
-    if (job.userId !== userId && role !== "admin") {
-      logger.warn({ jobId, userId }, "Unauthorized access to job");
+    if (interview.job.userId !== userId && role !== "admin") {
+      logger.warn(
+        { interviewId, jobId: interview.job.id, userId },
+        "Unauthorized access to interview"
+      );
       return NextResponse.json(formatErrorEntity("Unauthorized"), {
         status: 401,
       });
     }
 
-    // Get the interview metadata associated with the job
-    const returnedInterviews = await db.query.interviews.findFirst({
-      where: eq(interviews.jobId, jobId),
-    });
-
-    if (!returnedInterviews || !returnedInterviews.humeChatId) {
-      logger.warn({ jobId }, "No interview found for this job");
-      return NextResponse.json(formatErrorEntity("No interview found for this job"), {
+    if (!interview.humeChatId) {
+      logger.warn({ interviewId }, "No hume chat id found for this interview");
+      return NextResponse.json(formatErrorEntity("No hume chat id found for this interview"), {
         status: 404,
       });
     }
 
     try {
       // Request audio reconstruction from Hume API
-      const reconstructionResponse = await requestChatAudioReconstruction(
-        returnedInterviews.humeChatId
-      );
+      const reconstructionResponse = await requestChatAudioReconstruction(interview.humeChatId);
 
       // Return the reconstruction status
       return NextResponse.json(
         formatEntity(
           {
             reconstruction: reconstructionResponse,
-            jobId,
+            interviewId,
           },
           "generic"
         )
@@ -94,7 +87,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ jobId
         {
           message: error instanceof Error ? error.message : "Unknown error",
           error,
-          jobId,
+          interviewId,
         },
         "Error in audio reconstruction process"
       );
@@ -106,7 +99,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ jobId
     }
   } catch (error) {
     Sentry.withScope((scope) => {
-      scope.setExtra("context", "GET /api/jobs/[jobId]/audio-reconstruction");
+      scope.setExtra("context", "GET /api/interviews/[id]/audio-reconstruction");
       scope.setExtra("error", error);
       Sentry.captureException(error);
     });
@@ -115,7 +108,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ jobId
         message: error instanceof Error ? error.message : "Unknown error",
         error,
       },
-      "Error in GET /api/jobs/[jobId]/audio-reconstruction"
+      "Error in GET /api/interviews/[id]/audio-reconstruction"
     );
     return NextResponse.json(formatErrorEntity("Internal server error"), {
       status: 500,
