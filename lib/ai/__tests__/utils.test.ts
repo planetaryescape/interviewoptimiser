@@ -37,7 +37,7 @@ describe("twoStepAIProcess", () => {
   const mockInitialModel: LanguageModelV1 = {
     specificationVersion: "v1" as const,
     provider: "openai" as const,
-    modelId: "o3-mini",
+    modelId: "o4-mini",
     defaultObjectGenerationMode: "json" as const,
     doGenerate: async () => ({
       text: "",
@@ -57,7 +57,7 @@ describe("twoStepAIProcess", () => {
   const mockGpt4oMini: LanguageModelV1 = {
     specificationVersion: "v1" as const,
     provider: "openai" as const,
-    modelId: "o3-mini",
+    modelId: "o4-mini",
     defaultObjectGenerationMode: "json" as const,
     doGenerate: async () => ({
       text: "",
@@ -100,7 +100,7 @@ describe("twoStepAIProcess", () => {
       response: {
         id: "res_1",
         timestamp: new Date(),
-        modelId: "o3-mini",
+        modelId: "o4-mini",
         messages: [],
       },
       warnings: [],
@@ -119,7 +119,7 @@ describe("twoStepAIProcess", () => {
       response: {
         id: "res_2",
         timestamp: new Date(),
-        modelId: "o3-mini",
+        modelId: "o4-mini",
       },
       usage: {
         promptTokens: mockUsage.prompt_tokens,
@@ -208,7 +208,7 @@ describe("twoStepAIProcess", () => {
       response: {
         id: "res_3",
         timestamp: new Date(),
-        modelId: "o3-mini",
+        modelId: "o4-mini",
         messages: [],
       },
       warnings: [],
@@ -271,7 +271,7 @@ describe("twoStepAIProcess", () => {
       response: {
         id: "res_4",
         timestamp: new Date(),
-        modelId: "o3-mini",
+        modelId: "o4-mini",
         messages: [],
       },
       warnings: [],
@@ -290,7 +290,7 @@ describe("twoStepAIProcess", () => {
       response: {
         id: "res_5",
         timestamp: new Date(),
-        modelId: "o3-mini",
+        modelId: "o4-mini",
       },
       usage: {
         promptTokens: mockUsage.prompt_tokens,
@@ -353,7 +353,7 @@ describe("twoStepAIProcess", () => {
       response: {
         id: "res_6",
         timestamp: new Date(),
-        modelId: "o3-mini",
+        modelId: "o4-mini",
         messages: [],
       },
       warnings: [],
@@ -372,7 +372,7 @@ describe("twoStepAIProcess", () => {
       response: {
         id: "res_7",
         timestamp: new Date(),
-        modelId: "o3-mini",
+        modelId: "o4-mini",
       },
       usage: {
         promptTokens: mockUsage.prompt_tokens,

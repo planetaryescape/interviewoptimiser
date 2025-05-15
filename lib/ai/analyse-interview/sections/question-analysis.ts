@@ -56,7 +56,7 @@ export async function analyzeKeyQuestion({
       schemaDescription: "Analysis of candidate's response to a specific key question",
       system: BASE_SYSTEM_PROMPT,
       prompt: questionPrompt,
-      temperature: 0.4,
+      temperature: 1,
       headers: createRequestHeaders(userEmail),
     });
 
