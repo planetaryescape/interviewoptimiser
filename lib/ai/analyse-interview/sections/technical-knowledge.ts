@@ -97,7 +97,7 @@ Remember to reference specific examples from the transcript for each point in yo
       schemaDescription: `Analysis of ${sectionDescription}`,
       system: BASE_SYSTEM_PROMPT,
       prompt: sectionPrompt,
-      temperature: 0.4,
+      temperature: 1,
       headers: createRequestHeaders(userEmail),
     });
 

@@ -96,7 +96,7 @@ Remember that this section should leave the candidate with a clear roadmap for i
       schemaDescription: `Analysis of ${sectionDescription}`,
       system: BASE_SYSTEM_PROMPT,
       prompt: sectionPrompt,
-      temperature: 0.4,
+      temperature: 1,
       headers: createRequestHeaders(userEmail),
     });
 

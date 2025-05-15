@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     const { jobId: jobIdString, interviewType, duration } = extractRequestSchema.parse(body);
     const jobId = idHandler.decode(jobIdString);
 
-    const model = getOpenAiClient(email)("o3-mini");
+    const model = getOpenAiClient(email)("o4-mini");
 
     const jobDescription = await db.query.jobDescriptions.findFirst({
       where: eq(jobDescriptions.jobId, jobId),

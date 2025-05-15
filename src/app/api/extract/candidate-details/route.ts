@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     const { jobId: jobIdString, cvText } = extractRequestSchema.parse(body);
     const jobId = idHandler.decode(jobIdString);
 
-    const model = getOpenAiClient(email)("o3-mini");
+    const model = getOpenAiClient(email)("o4-mini");
 
     // Run extractions in parallel
     const candidateDetailsResult = await extractCandidateDetails({

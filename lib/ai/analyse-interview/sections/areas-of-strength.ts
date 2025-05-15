@@ -90,7 +90,7 @@ Remember this section will be one of the most valuable for the candidate. Be spe
       schemaDescription: `Analysis of ${sectionDescription}`,
       system: BASE_SYSTEM_PROMPT,
       prompt: sectionPrompt,
-      temperature: 0.4,
+      temperature: 1,
       headers: createRequestHeaders(userEmail),
     });
 

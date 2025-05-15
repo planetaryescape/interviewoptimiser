@@ -5,7 +5,7 @@ import { logger } from "~/lib/logger";
 import { getOpenAiClient } from "~/lib/openai";
 
 /**
- * Performs a two-step AI process where Gemini generates initial text and o3-mini structures it.
+ * Performs a two-step AI process where Gemini generates initial text and o4-mini structures it.
  * @param params Parameters for the two-step AI process
  * @returns The structured output and combined usage statistics
  */
@@ -46,8 +46,8 @@ export async function twoStepAIProcess<T>({
       },
     });
 
-    // Step 2: Structure the output with o3-mini
-    const o3Mini = getOpenAiClient(userEmail)("o3-mini");
+    // Step 2: Structure the output with o4-mini
+    const o3Mini = getOpenAiClient(userEmail)("o4-mini");
     const { object: structuredOutput, usage: o3MiniUsage } = await generateObject({
       model: o3Mini,
       schema,
@@ -114,7 +114,7 @@ export async function twoStepAIProcess<T>({
 }
 
 /**
- * Performs a single-step AI process using o3-mini to generate structured output directly.
+ * Performs a single-step AI process using o4-mini to generate structured output directly.
  * @param params Parameters for the single-step AI process
  * @returns The structured output and usage statistics
  */
