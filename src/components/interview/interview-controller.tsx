@@ -24,7 +24,6 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import type { User } from "~/db/schema";
-import { logger } from "~/lib/logger";
 
 export function InterviewController() {
   const params = useParams();
@@ -109,45 +108,6 @@ export function InterviewController() {
       if (!interviewEnded) {
         setInterviewEnded(true);
       }
-    },
-  });
-
-  // Audio reconstruction mutation
-  const { mutate: requestAudioReconstruction } = useMutation({
-    mutationFn: async () => {
-      const response = await fetch(`/api/jobs/${params.jobId}/audio-reconstruction`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to initiate audio reconstruction");
-      }
-
-      return response.json();
-    },
-    onSuccess: (data) => {
-      logger.info(
-        { jobId: params.jobId, reconstructionId: data.data.reconstruction.id },
-        "Audio reconstruction initiated"
-      );
-    },
-    onError: (error) => {
-      Sentry.withScope((scope) => {
-        scope.setContext("params", params);
-        scope.setExtra("message", error instanceof Error ? error.message : "Unknown error");
-
-        Sentry.captureException(error);
-      });
-      logger.error(
-        {
-          message: error instanceof Error ? error.message : "Unknown error",
-          error,
-        },
-        "Error initiating audio reconstruction"
-      );
     },
   });
 
@@ -244,7 +204,6 @@ export function InterviewController() {
         actualTime: Math.floor(elapsedTime / 60),
         transcript: formatTranscriptToJsonString(messages),
       });
-      requestAudioReconstruction();
     }
   }, [
     status.value,
@@ -260,7 +219,6 @@ export function InterviewController() {
     params.jobId,
     sendSessionSettings,
     endInterview,
-    requestAudioReconstruction,
   ]);
 
   // Usage tracking

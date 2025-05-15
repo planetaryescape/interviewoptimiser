@@ -10,6 +10,7 @@ import {
 } from "@/stores/useActiveInterviewStore";
 import { formatInterviewType } from "@/utils/conversation_config";
 import { VoiceProvider } from "@humeai/voice-react";
+import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -22,6 +23,15 @@ import { InterviewController } from "./interview/interview-controller";
 import { TimerDisplay } from "./interview/timer-display";
 import { Messages } from "./messages";
 import { ShortInterviewTakeover } from "./short-interview-takeover";
+import { Button } from "./ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 
 // Minimum interview duration in seconds
 const MIN_INTERVIEW_DURATION = 150; // 2.5 minutes
@@ -52,6 +62,7 @@ export function InterviewContainer({
   const interviewDataLoaded = useRef(false);
   const configId = process.env.NEXT_PUBLIC_HUME_CONFIG_ID;
   const [isInterviewTooShort, setIsInterviewTooShort] = useState(false);
+  const [isGenerateReportErrorDialogOpen, setIsGenerateReportErrorDialogOpen] = useState(false);
 
   const { systemPrompt, interview, isLoading } = useCustomisedSystemPrompt({
     jobId,
@@ -79,6 +90,37 @@ export function InterviewContainer({
     }
   }, [interview, setActiveInterviewChat, isLoading, jobId]);
 
+  // Audio reconstruction mutation
+  const { mutate: requestAudioReconstruction } = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/interviews/${interviewId}/audio-reconstruction`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to initiate audio reconstruction");
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      setShowTakeover(false);
+      resetState();
+      router.push(`/dashboard/jobs/${jobId}/reports`);
+    },
+    onError: (error) => {
+      Sentry.withScope((scope) => {
+        scope.setContext("params", { jobId, interviewId });
+        scope.setExtra("message", error instanceof Error ? error.message : "Unknown error");
+
+        Sentry.captureException(error);
+      });
+    },
+  });
+
   const generateReportMutation = useMutation({
     mutationFn: async () => {
       const body = {
@@ -104,19 +146,22 @@ export function InterviewContainer({
       queryClient.invalidateQueries({
         queryKey: ["job", jobId],
       });
-      setShowTakeover(false);
-      resetState();
-      router.push(`/dashboard/jobs/${jobId}/reports`);
+      queryClient.invalidateQueries({
+        queryKey: ["interview", interviewId],
+      });
+      requestAudioReconstruction();
     },
     onError: (error) => {
       console.error("Error generating report:", error);
       toast.error("Failed to generate report. Please try again.");
       setShowTakeover(false);
+      setIsGenerateReportErrorDialogOpen(true);
 
-      queryClient.invalidateQueries({
-        queryKey: ["job", jobId],
+      Sentry.withScope((scope) => {
+        scope.setContext("params", { jobId, interviewId });
+        scope.setExtra("message", error instanceof Error ? error.message : "Unknown error");
+        Sentry.captureException(error);
       });
-      router.push(`/dashboard/jobs/${jobId}/reports`);
     },
   });
 
@@ -126,7 +171,8 @@ export function InterviewContainer({
       setShowTakeover(true);
 
       // Check if interview duration is at least 3 minutes
-      const actualTimeInSeconds = activeInterview?.actualTime || 0;
+      const actualTimeInSeconds =
+        (activeInterview?.actualTime || interview?.data.actualTime || 0) * 60;
 
       if (actualTimeInSeconds < MIN_INTERVIEW_DURATION) {
         setIsInterviewTooShort(true);
@@ -134,13 +180,24 @@ export function InterviewContainer({
         generateReportMutation.mutate();
       }
     }
-  }, [interviewEnded, generateReportMutation, setShowTakeover, activeInterview]);
+  }, [interviewEnded, generateReportMutation, setShowTakeover, activeInterview, interview]);
 
   useEffect(() => {
     if (interview?.data.duration) {
       setTotalTime(interview.data.duration * 60);
     }
   }, [interview, setTotalTime]);
+
+  const handleRetryGenerateReport = () => {
+    setIsGenerateReportErrorDialogOpen(false);
+    setShowTakeover(true);
+    generateReportMutation.mutate();
+  };
+
+  const handleCancelGenerateReport = () => {
+    setIsGenerateReportErrorDialogOpen(false);
+    router.push(`/dashboard/jobs/${jobId}/reports`);
+  };
 
   if (isLoading) {
     return (
@@ -232,6 +289,27 @@ export function InterviewContainer({
               <GeneratingReportTakeover />
             ))}
         </AnimatePresence>
+
+        <Dialog
+          open={isGenerateReportErrorDialogOpen}
+          onOpenChange={setIsGenerateReportErrorDialogOpen}
+        >
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Report Generation Failed</DialogTitle>
+              <DialogDescription>
+                We encountered an issue while generating your interview report. Would you like to
+                try again?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex flex-row justify-end gap-2 sm:justify-end">
+              <Button variant="outline" onClick={handleCancelGenerateReport}>
+                Cancel
+              </Button>
+              <Button onClick={handleRetryGenerateReport}>Try Again</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </VoiceProvider>
     </div>
   );
