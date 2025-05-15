@@ -8,6 +8,7 @@ import { InterviewStartModal } from "@/components/interview-start-modal";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { useJob } from "@/hooks/useJob";
+import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
 import { useVoice } from "@humeai/voice-react";
@@ -26,6 +27,7 @@ export function InterviewPlaceholder() {
   const jobId = params.jobId as string;
   const { connect, status, chatMetadata } = useVoice();
   const { data: job, isLoading, error } = useJob(jobId);
+  const { data: user, isLoading: isUserLoading } = useUser();
   const router = useRouter();
 
   const [interviewToBeCreated, setInterviewToBeCreated] = useState<
@@ -120,7 +122,7 @@ export function InterviewPlaceholder() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isUserLoading) {
     return (
       <div className="h-full flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">Loading interview details...</div>
@@ -135,6 +137,8 @@ export function InterviewPlaceholder() {
       </div>
     );
   }
+
+  const hasEnoughMinutes = user?.minutes && user.minutes >= (interviewToBeCreated?.duration || 0);
 
   return (
     <div className="h-full flex flex-col">
@@ -241,10 +245,16 @@ export function InterviewPlaceholder() {
             <Button
               size="lg"
               onClick={() => setShowModal(true)}
+              disabled={!hasEnoughMinutes}
               className="relative group px-8 py-6 text-lg hover:scale-105 transition-transform"
             >
               <MessageCircle className="mr-2 h-5 w-5 group-hover:animate-wiggle" />
               Start Interview
+              {!hasEnoughMinutes && (
+                <span className="absolute -bottom-8 whitespace-nowrap text-xs text-destructive font-medium">
+                  Not enough minutes available
+                </span>
+              )}
             </Button>
           </motion.div>
 
@@ -278,6 +288,7 @@ export function InterviewPlaceholder() {
         onStart={handleStartInterview}
         isLoading={status.value === "connecting" || isCreatingInterview}
         duration={interviewToBeCreated?.duration}
+        availableMinutes={user?.minutes}
       />
     </div>
   );
