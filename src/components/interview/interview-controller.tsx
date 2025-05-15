@@ -275,6 +275,14 @@ export function InterviewController() {
         // Decrement minutes used
         decrementMutation.mutate();
 
+        if (activeInterview) {
+          setActiveInterview({
+            ...activeInterview,
+            actualTime: Math.floor(currentTime / 60),
+            transcript: formatTranscriptToJsonString(messages),
+          });
+        }
+
         partialInterviewMutation.mutate({
           ...activeInterview,
           jobId: params.jobId as string,
@@ -293,6 +301,7 @@ export function InterviewController() {
     activeInterview,
     params.jobId,
     chatMetadata?.chatId,
+    setActiveInterview,
   ]);
 
   return null; // Controller component doesn't render anything
