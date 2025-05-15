@@ -8,7 +8,11 @@ import type { JobDescription } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 const KeyQuestionsSchema = z.object({
-  keyQuestions: z.array(z.string()),
+  keyQuestions: z
+    .array(z.string().describe("Individual key interview question for the specific role"))
+    .describe(
+      "Array of key questions that must be asked to every candidate applying for this role. Should return empty array if no questions can be generated."
+    ),
 });
 
 export interface ExtractKeyQuestionsParams {

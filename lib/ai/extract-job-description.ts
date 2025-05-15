@@ -9,21 +9,61 @@ import { logger } from "~/lib/logger";
 const JobDescriptionSchema = createInsertSchema(jobDescriptions);
 
 export const StructuredJobDescriptionSchema = JobDescriptionSchema.extend({
-  company: z.string(),
-  role: z.string(),
-  requiredQualifications: z.array(z.string()),
-  requiredExperience: z.array(z.string()),
-  requiredSkills: z.array(z.string()),
-  preferredQualifications: z.array(z.string()),
-  preferredSkills: z.array(z.string()),
-  responsibilities: z.array(z.string()),
-  benefits: z.array(z.string()),
-  location: z.string(),
-  employmentType: z.string(),
-  seniority: z.string(),
-  industry: z.string(),
-  keyTechnologies: z.array(z.string()),
-  keywords: z.array(z.string()),
+  company: z
+    .string()
+    .describe("Name of the company offering the position. Return empty string if not found."),
+  role: z.string().describe("Job title or role being offered. Return empty string if not found."),
+  requiredQualifications: z
+    .array(z.string().describe("Required degree, certification, or educational qualification"))
+    .describe(
+      "List of required educational qualifications and certifications. Return empty array if none found."
+    ),
+  requiredExperience: z
+    .array(z.string().describe("Required work experience or background"))
+    .describe("List of required experience requirements. Return empty array if none found."),
+  requiredSkills: z
+    .array(z.string().describe("Required skill (technical or soft)"))
+    .describe(
+      "List of required skills (both technical and soft skills). Return empty array if none found."
+    ),
+  preferredQualifications: z
+    .array(z.string().describe("Preferred but not mandatory qualification"))
+    .describe(
+      "List of preferred (but not required) qualifications. Return empty array if none found."
+    ),
+  preferredSkills: z
+    .array(z.string().describe("Preferred but not mandatory skill"))
+    .describe("List of preferred (but not required) skills. Return empty array if none found."),
+  responsibilities: z
+    .array(z.string().describe("Job responsibility or duty"))
+    .describe("List of job responsibilities and duties. Return empty array if none found."),
+  benefits: z
+    .array(z.string().describe("Job benefit or perk"))
+    .describe("List of mentioned benefits and perks. Return empty array if none found."),
+  location: z
+    .string()
+    .describe("Job location (city/country/remote). Return empty string if not found."),
+  employmentType: z
+    .string()
+    .describe(
+      "Type of employment (full-time, part-time, contract, etc.). Return empty string if not found."
+    ),
+  seniority: z
+    .string()
+    .describe(
+      "Seniority level of the position (entry, junior, mid, senior, etc.). Return empty string if not found."
+    ),
+  industry: z.string().describe("Industry sector of the job. Return empty string if not found."),
+  keyTechnologies: z
+    .array(z.string().describe("Key technology, tool, platform, or framework mentioned"))
+    .describe(
+      "List of specific technologies, tools, platforms, or frameworks mentioned. Return empty array if none found."
+    ),
+  keywords: z
+    .array(z.string().describe("Important keyword or phrase relevant for ATS matching"))
+    .describe(
+      "List of important keywords and phrases relevant for ATS matching. Return empty array if none found."
+    ),
 }).omit({
   id: true,
   jobId: true,
@@ -111,7 +151,7 @@ export async function extractJobDescription({
 
       Important:
       - Extract the information EXACTLY as it appears in the job description
-      - If certain information is not available, provide empty arrays for list fields or empty strings for text fields
+      - For any field where information is not found, return an empty string for text fields or empty array for array fields
       - Be comprehensive - capture all relevant information
       - Do not add any information that is not explicitly stated in the job description
       - Pay special attention to exact terminology used, as ATS systems match keywords precisely
