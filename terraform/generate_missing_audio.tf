@@ -4,14 +4,15 @@ module "generate_missing_audio_lambda" {
   region        = local.region
   project_name  = local.project_name
   environment_variables = {
-    DATABASE_URL       = var.DATABASE_URL
-    OPENAI_API_KEY     = var.OPENAI_API_KEY
-    REPORT_LAMBDA_NAME = module.generate_report_lambda.function_name
-    PINO_LOG_LEVEL     = "info"
-    DISCORD_BOT_TOKEN  = var.DISCORD_BOT_TOKEN
-    HUME_API_KEY       = var.HUME_API_KEY
-    SENTRY_DSN         = "https://5a46050ef988ec233196cd7ce06a4fc0@o4508119114514432.ingest.de.sentry.io/4509276040134736"
-    API_GATEWAY_URL    = "https://90w85lvw6l.execute-api.eu-west-2.amazonaws.com/prod/shared-infra-add-to-queue"
+    DATABASE_URL           = var.DATABASE_URL
+    OPENAI_API_KEY         = var.OPENAI_API_KEY
+    REPORT_LAMBDA_NAME     = module.generate_report_lambda.function_name
+    PINO_LOG_LEVEL         = "info"
+    DISCORD_BOT_TOKEN      = var.DISCORD_BOT_TOKEN
+    HUME_API_KEY           = var.HUME_API_KEY
+    SENTRY_RELEASE_VERSION = var.sentry_release_version
+    SENTRY_DSN             = "https://5a46050ef988ec233196cd7ce06a4fc0@o4508119114514432.ingest.de.sentry.io/4509276040134736"
+    API_GATEWAY_URL        = "https://90w85lvw6l.execute-api.eu-west-2.amazonaws.com/prod/shared-infra-add-to-queue"
   }
 }
 

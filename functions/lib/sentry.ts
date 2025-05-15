@@ -4,6 +4,7 @@ import * as Sentry from "@sentry/aws-serverless";
 export function initSentry() {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
+    release: process.env.SENTRY_RELEASE_VERSION,
     // integrations: [nodeProfilingIntegration()],
 
     // Set sampling rate for profiling - this is relative to tracesSampleRate

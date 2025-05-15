@@ -5,12 +5,13 @@ module "generate_report_lambda" {
   project_name  = local.project_name
 
   environment_variables = {
-    DATABASE_URL      = var.DATABASE_URL
-    OPENAI_API_KEY    = var.OPENAI_API_KEY
-    HELICONE_API_KEY  = var.HELICONE_API_KEY
-    POSTHOG_KEY       = var.POSTHOG_KEY
-    DISCORD_BOT_TOKEN = var.DISCORD_BOT_TOKEN
-    SENTRY_DSN        = "https://a1c3a134e74ec680a4cc42024dee1a08@o4508119114514432.ingest.de.sentry.io/4508248038572112"
+    DATABASE_URL           = var.DATABASE_URL
+    OPENAI_API_KEY         = var.OPENAI_API_KEY
+    HELICONE_API_KEY       = var.HELICONE_API_KEY
+    POSTHOG_KEY            = var.POSTHOG_KEY
+    DISCORD_BOT_TOKEN      = var.DISCORD_BOT_TOKEN
+    SENTRY_DSN             = "https://a1c3a134e74ec680a4cc42024dee1a08@o4508119114514432.ingest.de.sentry.io/4508248038572112"
+    SENTRY_RELEASE_VERSION = var.sentry_release_version
 
     SQS_QUEUE_URL = module.generate_report_lambda_sqs.sqs_queue_url
     DLQ_URL       = module.generate_report_lambda_sqs.dlq_url

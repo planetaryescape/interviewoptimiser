@@ -5,15 +5,16 @@ module "save_chat_audio_to_s3_lambda" {
   project_name  = local.project_name
 
   environment_variables = {
-    DATABASE_URL      = var.DATABASE_URL
-    OPENAI_API_KEY    = var.OPENAI_API_KEY
-    HELICONE_API_KEY  = var.HELICONE_API_KEY
-    POSTHOG_KEY       = var.POSTHOG_KEY
-    DISCORD_BOT_TOKEN = var.DISCORD_BOT_TOKEN
-    SENTRY_DSN        = "https://2d9dd3b4af832d4da3eafb6b792fc663@o4508119114514432.ingest.de.sentry.io/4509272856854608"
-    HUME_API_KEY      = var.HUME_API_KEY
-    AUDIO_BUCKET_NAME = aws_s3_bucket.audio_recordings.id
-    AUDIO_CDN_DOMAIN  = aws_cloudfront_distribution.audio_cdn.domain_name
+    DATABASE_URL           = var.DATABASE_URL
+    OPENAI_API_KEY         = var.OPENAI_API_KEY
+    HELICONE_API_KEY       = var.HELICONE_API_KEY
+    POSTHOG_KEY            = var.POSTHOG_KEY
+    DISCORD_BOT_TOKEN      = var.DISCORD_BOT_TOKEN
+    SENTRY_DSN             = "https://2d9dd3b4af832d4da3eafb6b792fc663@o4508119114514432.ingest.de.sentry.io/4509272856854608"
+    SENTRY_RELEASE_VERSION = var.sentry_release_version
+    HUME_API_KEY           = var.HUME_API_KEY
+    AUDIO_BUCKET_NAME      = aws_s3_bucket.audio_recordings.id
+    AUDIO_CDN_DOMAIN       = aws_cloudfront_distribution.audio_cdn.domain_name
 
     SQS_QUEUE_URL = module.save_chat_audio_to_s3_lambda_sqs.sqs_queue_url
     DLQ_URL       = module.save_chat_audio_to_s3_lambda_sqs.dlq_url
