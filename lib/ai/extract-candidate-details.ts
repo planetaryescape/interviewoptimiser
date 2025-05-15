@@ -6,15 +6,29 @@ import { logger } from "~/lib/logger";
 
 // Schema for candidate details extraction
 const CandidateDetailsSchema = z.object({
-  name: z.string(),
-  email: z.string(),
-  phone: z.string(),
-  location: z.string(),
-  currentRole: z.string(),
-  professionalSummary: z.string(),
-  linkedinUrl: z.string(),
-  portfolioUrl: z.string(),
-  otherUrls: z.array(z.string()),
+  name: z.string().describe("Candidate's full name. Return empty string if not found."),
+  email: z.string().describe("Candidate's email address. Return empty string if not found."),
+  phone: z.string().describe("Candidate's phone number. Return empty string if not found."),
+  location: z
+    .string()
+    .describe("Candidate's location (city/country). Return empty string if not found."),
+  currentRole: z
+    .string()
+    .describe("Candidate's current or most recent job title. Return empty string if not found."),
+  professionalSummary: z
+    .string()
+    .describe(
+      "Brief summary of candidate's professional profile or career objectives. Return empty string if not found."
+    ),
+  linkedinUrl: z
+    .string()
+    .describe("Candidate's LinkedIn profile URL. Return empty string if not found."),
+  portfolioUrl: z
+    .string()
+    .describe("Candidate's portfolio or personal website URL. Return empty string if not found."),
+  otherUrls: z
+    .array(z.string().describe("Additional professional URLs"))
+    .describe("Array of other professional online profiles. Return empty array if none found."),
 });
 
 export type CandidateDetails = z.infer<typeof CandidateDetailsSchema>;
@@ -62,11 +76,11 @@ export async function extractCandidateDetails({
          - This should be a concise representation of how they describe themselves professionally
 
       5. Online Presence:
-         - LinkedIn URL (required - if not found in the CV, use "Not provided")
-         - Portfolio/personal website URL (required - if not found in the CV, use "Not provided")
-         - Other professional online profiles (required - provide as an array, use empty array [] if none found)
+         - LinkedIn URL (if not found, return empty string)
+         - Portfolio/personal website URL (if not found, return empty string)
+         - Other professional online profiles (provide as an array, return empty array if none found)
 
-      Do not fabricate or guess information that isn't clearly stated in the CV. For both LinkedIn URL and portfolio URL, which are required, use "Not provided" if they're not in the CV. For other URLs, always include an array even if empty.
+      Do not fabricate or guess information that isn't clearly stated in the CV. For any field where information is not found, return an empty string for text fields or empty array for array fields.
 
       CV Text: ${submittedCVText}
 
@@ -87,14 +101,6 @@ export async function extractCandidateDetails({
         ...(userEmail && { "Helicone-User-Id": userEmail }),
       },
     });
-
-    // Ensure required fields have default values if not provided
-    if (!structuredOutput.portfolioUrl) {
-      structuredOutput.portfolioUrl = "Not provided";
-    }
-    if (!Array.isArray(structuredOutput.otherUrls)) {
-      structuredOutput.otherUrls = [];
-    }
 
     // Validate the output against the schema - use parse instead of safeParse to throw errors
     const validatedOutput = CandidateDetailsSchema.parse(structuredOutput);

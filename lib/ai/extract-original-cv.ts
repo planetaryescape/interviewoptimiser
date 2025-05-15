@@ -5,70 +5,121 @@ import { z } from "zod";
 import { logger } from "~/lib/logger";
 
 const experienceSchema = z.object({
-  title: z.string(),
-  company: z.string(),
-  location: z.string(),
-  startDate: z.string(),
-  endDate: z.string().nullable(),
-  description: z.string(),
-  current: z.boolean(),
+  title: z.string().describe("Job title. Return empty string if not found."),
+  company: z.string().describe("Company name. Return empty string if not found."),
+  location: z.string().describe("Job location. Return empty string if not found."),
+  startDate: z
+    .string()
+    .describe("Start date in the format provided in the CV. Return empty string if not found."),
+  endDate: z
+    .string()
+    .nullable()
+    .describe("End date in the format provided in the CV, or null if current position."),
+  description: z.string().describe("Job description. Return empty string if not found."),
+  current: z
+    .boolean()
+    .describe(
+      "Whether this is a current position. Return false if not explicitly indicated as current."
+    ),
 });
 
 const ExtendedOriginalCVSchema = z.object({
-  experiences: z.array(experienceSchema),
-  skills: z.array(
-    z.object({
-      skill: z.string(),
-    })
-  ),
-  links: z.array(
-    z.object({
-      name: z.string(),
-      url: z.string(),
-    })
-  ),
-  customSections: z.array(
-    z.object({
-      title: z.string(),
-      content: z.string(),
-    })
-  ),
+  experiences: z
+    .array(experienceSchema)
+    .describe("Array of work experiences. Return empty array if none found."),
+  skills: z
+    .array(
+      z.object({
+        skill: z.string().describe("Individual skill. Return empty string if not found."),
+      })
+    )
+    .describe("List of skills mentioned in the CV. Return empty array if none found."),
+  links: z
+    .array(
+      z.object({
+        name: z
+          .string()
+          .describe(
+            "Name of the link (e.g., 'LinkedIn', 'Portfolio'). Return empty string if not found."
+          ),
+        url: z.string().describe("URL of the link. Return empty string if not found."),
+      })
+    )
+    .describe("Professional links extracted from the CV. Return empty array if none found."),
+  customSections: z
+    .array(
+      z.object({
+        title: z
+          .string()
+          .describe("Title of the custom section. Return empty string if not found."),
+        content: z
+          .string()
+          .describe("Content of the custom section. Return empty string if not found."),
+      })
+    )
+    .describe(
+      "Other sections from the CV like certifications, languages, interests, etc. Return empty array if none found."
+    ),
 });
 
 export const StructuredOriginalCVSchema = ExtendedOriginalCVSchema.extend({
-  name: z.string(),
-  title: z.string(),
-  email: z.string(),
-  phone: z.string(),
-  location: z.string(),
-  summary: z.string(),
-  experiences: z.array(experienceSchema),
-  educations: z.array(
-    z.object({
-      degree: z.string(),
-      school: z.string(),
-      location: z.string(),
-      startDate: z.string(),
-      endDate: z.string().nullable(),
-    })
-  ),
-  skills: z.array(
-    z.object({
-      skill: z.string(),
-    })
-  ),
-  links: z.array(
-    z.object({
-      name: z.string(),
-      url: z.string(),
-    })
-  ),
-  customSections: z.array(
-    z.object({
-      title: z.string(),
-      content: z.string(),
-    })
-  ),
+  name: z.string().describe("Candidate's full name. Return empty string if not found."),
+  title: z.string().describe("Professional title/role. Return empty string if not found."),
+  email: z.string().describe("Email address. Return empty string if not found."),
+  phone: z.string().describe("Phone number. Return empty string if not found."),
+  location: z.string().describe("Location (city/country). Return empty string if not found."),
+  summary: z
+    .string()
+    .describe("Professional summary or profile section. Return empty string if not found."),
+  experiences: z
+    .array(experienceSchema)
+    .describe("Array of work experiences. Return empty array if none found."),
+  educations: z
+    .array(
+      z.object({
+        degree: z.string().describe("Degree or qualification. Return empty string if not found."),
+        school: z.string().describe("School or university name. Return empty string if not found."),
+        location: z.string().describe("School location. Return empty string if not found."),
+        startDate: z
+          .string()
+          .describe("Start date of education. Return empty string if not found."),
+        endDate: z.string().nullable().describe("End date of education, or null if current."),
+      })
+    )
+    .describe("Educational background. Return empty array if none found."),
+  skills: z
+    .array(
+      z.object({
+        skill: z.string().describe("Individual skill. Return empty string if not found."),
+      })
+    )
+    .describe("List of skills mentioned in the CV. Return empty array if none found."),
+  links: z
+    .array(
+      z.object({
+        name: z
+          .string()
+          .describe(
+            "Name of the link (e.g., 'LinkedIn', 'Portfolio'). Return empty string if not found."
+          ),
+        url: z.string().describe("URL of the link. Return empty string if not found."),
+      })
+    )
+    .describe("Professional links extracted from the CV. Return empty array if none found."),
+  customSections: z
+    .array(
+      z.object({
+        title: z
+          .string()
+          .describe("Title of the custom section. Return empty string if not found."),
+        content: z
+          .string()
+          .describe("Content of the custom section. Return empty string if not found."),
+      })
+    )
+    .describe(
+      "Other sections from the CV like certifications, languages, interests, etc. Return empty array if none found."
+    ),
 });
 
 export interface ExtractOriginalCVParams {
@@ -137,8 +188,8 @@ export async function extractOriginalCV({
       - Extract the information EXACTLY as it appears in the CV without any improvements or modifications
       - Preserve the original wording, formatting, and structure as much as possible
       - Do not add any information that is not explicitly stated in the CV
-      - If certain information is not available, use reasonable defaults based on the candidate details provided
-      - For current positions or education without an end date, use null instead of omitting the field
+      - For any field where information is not found, return empty string for text fields, empty array for array fields, or false for boolean fields
+      - For current positions or education without an end date, use null for the end date
 
       CV Text:
       ${submittedCVText}
