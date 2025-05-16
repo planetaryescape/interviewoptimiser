@@ -1,4 +1,5 @@
 import * as R from "remeda";
+import type { Interview } from "~/db/schema";
 
 /**
  * Formats structured data for prompt inclusion
@@ -72,12 +73,12 @@ export function processTranscript(transcriptString: string): any[] {
 
 /**
  * Extracts key questions from job description
- * @param structuredJobDescription - The job description data
+ * @param interview - The job description data
  * @returns Array of key questions or undefined if none available
  */
-export function extractKeyQuestions(structuredJobDescription?: any): string[] | undefined {
-  if (structuredJobDescription?.keyQuestions?.length) {
-    return structuredJobDescription.keyQuestions;
+export function extractKeyQuestions(interview?: Interview): string[] | undefined {
+  if (interview?.keyQuestions?.length) {
+    return interview.keyQuestions;
   }
   return undefined;
 }

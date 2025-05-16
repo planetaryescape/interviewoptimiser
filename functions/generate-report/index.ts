@@ -69,10 +69,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
         }
 
         const interview = await db
-          .select({
-            transcript: interviews.transcript,
-            type: interviews.type,
-          })
+          .select()
           .from(interviews)
           .where(eq(interviews.id, interviewId))
           .then(([interview]) => interview);
@@ -129,6 +126,7 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           structuredCV: structuredCV?.data,
           structuredJobDescription: structuredJobDescription?.data,
           structuredCandidateDetails: structuredCandidateDetails?.data,
+          interview,
         });
 
         if (!generatedReport?.data) {
