@@ -1,3 +1,5 @@
+import { idHandler } from "@/lib/utils/idHandler";
+import { formatInterviewType } from "@/utils/conversation_config";
 import {
   Body,
   Button,
@@ -13,16 +15,17 @@ import {
 } from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
 import { config } from "~/config";
+import type { InterviewType } from "~/db/schema";
 
 /**
  * Props for the ReportCompletedEmail component
  */
 interface ReportCompletedEmailProps {
   firstName?: string;
-  jobId: string | number;
-  interviewId: string | number;
-  reportId: string | number;
-  interviewType: string;
+  jobId: number;
+  interviewId: number;
+  reportId: number;
+  interviewType: InterviewType;
   role: string;
   company: string;
 }
@@ -36,7 +39,7 @@ export const ReportCompletedEmail = ({
   role,
   company,
 }: ReportCompletedEmailProps) => {
-  const reportUrl = `${config.baseUrl}/jobs/${jobId}/interview/${interviewId}/reports/${reportId}`;
+  const reportUrl = `${config.baseUrl}/jobs/${idHandler.encode(jobId)}/interview/${idHandler.encode(interviewId)}/reports/${idHandler.encode(reportId)}`;
 
   return (
     <Html>
@@ -77,9 +80,10 @@ export const ReportCompletedEmail = ({
               <Text className="text-base">Hi {firstName ?? "there"},</Text>
 
               <Text className="text-base">
-                Great news! Your <strong>{interviewType}</strong> interview report for the{" "}
-                <strong>{role}</strong> position at <strong>{company}</strong> is now ready for you
-                to review.
+                Great news! Your{" "}
+                <strong>{formatInterviewType(interviewType as InterviewType)}</strong> interview
+                report for the <strong>{role}</strong> position at <strong>{company}</strong> is now
+                ready for you to review.
               </Text>
 
               <Text className="text-base">

@@ -430,27 +430,36 @@ export default function JobReportPage(props: {
         workSans.variable
       )}
     >
-      <PagePreviewToolbar
-        paperSize={paperSize}
-        setPaperSize={setPaperSize}
-        marginSize={marginSize}
-        setMarginSize={setMarginSize}
-        bodyFont={bodyFont}
-        setBodyFont={setBodyFont}
-        headingFont={headingFont}
-        setHeadingFont={setHeadingFont}
-        onShare={handleShare}
-        isSharing={isExporting || isToggling}
-        onSettingsChange={handleSettingsChange}
-        pageSettings={report?.data.pageSettings}
-        includeTranscript={includeTranscript}
-        setIncludeTranscript={setIncludeTranscript}
-        jobId={idHandler.encode(job?.sys.id ?? 0)}
-        onRegenerate={handleRegenerate}
-      />
+      {/* Fixed Toolbar at top */}
+      <div className="sticky top-0 z-10 bg-background shadow-sm">
+        <PagePreviewToolbar
+          paperSize={paperSize}
+          setPaperSize={setPaperSize}
+          marginSize={marginSize}
+          setMarginSize={setMarginSize}
+          bodyFont={bodyFont}
+          setBodyFont={setBodyFont}
+          headingFont={headingFont}
+          setHeadingFont={setHeadingFont}
+          onShare={handleShare}
+          isSharing={isExporting || isToggling}
+          onSettingsChange={handleSettingsChange}
+          pageSettings={report?.data.pageSettings}
+          includeTranscript={includeTranscript}
+          setIncludeTranscript={setIncludeTranscript}
+          jobId={idHandler.encode(job?.sys.id ?? 0)}
+          onRegenerate={handleRegenerate}
+        />
+      </div>
+
+      {/* Scrollable Content */}
       <div
         className={cn("flex-1 overflow-y-auto overflow-x-hidden p-8 bg-background", bodyFont)}
         ref={containerRef}
+        style={{
+          height: report?.data?.interviewAudioUrl ? "calc(100vh - 134px)" : "calc(100vh - 64px)",
+          paddingBottom: report?.data?.interviewAudioUrl ? "76px" : "16px",
+        }}
       >
         <PagePreview
           scale={scale}
@@ -963,6 +972,14 @@ export default function JobReportPage(props: {
           </footer>
         </PagePreview>
       </div>
+
+      {/* Fixed Audio Player at bottom */}
+      {report?.data?.interviewAudioUrl && (
+        <div className="fixed bottom-0 left-0 right-0 z-10">
+          <AudioPlayer audioUrl={report.data.interviewAudioUrl} disabled={false} />
+        </div>
+      )}
+
       <AlertDialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -1003,10 +1020,6 @@ export default function JobReportPage(props: {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      {/* Audio Player - fixed bottom bar */}
-      {report?.data?.interviewAudioUrl && (
-        <AudioPlayer audioUrl={report.data.interviewAudioUrl} disabled={false} />
-      )}
     </div>
   );
 }
