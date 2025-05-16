@@ -214,13 +214,13 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           // Save question analyses to the database if available
           if (generatedReport.questionAnalyses && generatedReport.questionAnalyses.length > 0) {
             logger.info(
-              `Saving ${generatedReport.questionAnalyses.length} question analyses for report ID ${updatedReportId}`
+              `Saving ${generatedReport.questionAnalyses.length} question analyses for report ID ${updatedReport[0].id}`
             );
 
             // Insert each question analysis
             for (const qa of generatedReport.questionAnalyses) {
               await tx.insert(questionAnalysis).values({
-                reportId: updatedReportId,
+                reportId: updatedReport[0].id,
                 question: qa.question,
                 analysis: qa.analysis,
                 score: qa.score,

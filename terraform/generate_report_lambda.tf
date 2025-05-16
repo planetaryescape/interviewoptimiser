@@ -9,6 +9,7 @@ module "generate_report_lambda" {
     OPENAI_API_KEY         = var.OPENAI_API_KEY
     HELICONE_API_KEY       = var.HELICONE_API_KEY
     POSTHOG_KEY            = var.POSTHOG_KEY
+    RESEND_API_KEY         = var.RESEND_API_KEY
     DISCORD_BOT_TOKEN      = var.DISCORD_BOT_TOKEN
     SENTRY_DSN             = "https://a1c3a134e74ec680a4cc42024dee1a08@o4508119114514432.ingest.de.sentry.io/4508248038572112"
     SENTRY_RELEASE_VERSION = var.sentry_release_version
