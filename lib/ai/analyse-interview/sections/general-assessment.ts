@@ -122,6 +122,13 @@ IMPORTANT REMINDER ABOUT COVERAGE:
 - Weight your overall assessment and score toward areas that were adequately demonstrated
 - Acknowledge limitations in your assessment due to areas not covered
 
+FORMAT REQUIREMENTS:
+- Format your entire response in proper Markdown
+- Use headings (## and ###) for clear organization
+- Use bullet points (*) for listing items
+- Use bold (**text**) and italic (*text*) for emphasis
+- Include direct quotes from the transcript in blockquotes (> quote)
+
 Remember: This general assessment will serve as the executive summary of the entire interview analysis. Make it comprehensive, cohesive, and evidence-based, always maintaining the principles of Radical Candor.
 `;
 

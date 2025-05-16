@@ -78,14 +78,20 @@ Your task is to provide 5-7 specific, practical next steps that the candidate ca
    - Include mentor or coaching suggestions where appropriate
 
 FORMAT REQUIREMENTS:
-- Present 5-7 clear, actionable next steps
-- Format each step with a concise action-oriented title, then 1-2 paragraphs of explanation
-- Make each step distinctive and focused on a different area for improvement
-- Ensure steps are practical and realistic for the candidate to implement
-- Phrase recommendations positively and constructively
-- Structure from highest to lowest priority
+- Format your entire response in proper Markdown
+- Use headings (## and ###) for clear organization
+- Use bullet points (*) for listing items
+- Use bold (**text**) and italic (*text*) for emphasis
+- Include direct quotes from the transcript in blockquotes (> quote)
 
-Remember that this section should leave the candidate with a clear roadmap for improvement that feels achievable, motivating, and directly relevant to their specific situation.
+IMPORTANT REMINDERS:
+- Each suggestion MUST be specific and actionable - general advice like "improve communication skills" is NOT sufficient
+- Prioritize recommendations based on what will have the most impact for this specific role
+- Consider both short-term actions (for immediate improvement) and long-term development
+- Ground all recommendations in specific observations from the interview transcript
+- Focus primarily on areas discussed in the interview, but you may include limited additional recommendations if there are clear gaps based on the job description
+
+Remember that your recommendations should be practical, achievable, and directly relevant to the candidate's specific situation. Provide concrete examples and specific action items whenever possible.
 `;
 
     // Generate the structured output

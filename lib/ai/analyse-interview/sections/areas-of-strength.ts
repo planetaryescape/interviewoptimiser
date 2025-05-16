@@ -73,11 +73,18 @@ Your task is to identify 3-5 specific strengths demonstrated by the candidate du
    - Is this an uncommon or particularly valuable strength in the candidate's field?
 
 FORMAT REQUIREMENTS:
-- Identify 3-5 clear, specific strengths (not vague qualities like "good communicator")
-- For each strength, provide a concise title/label, then 1-2 paragraphs of analysis
-- Include direct quotes or specific examples from the transcript for each strength
-- Make each strength distinctive - avoid overlapping or redundant strengths
-- Focus on strengths relevant to the specific role being applied for
+- Format your entire response in proper Markdown
+- Use headings (## and ###) for clear organization
+- Use bullet points (*) for listing items
+- Use bold (**text**) and italic (*text*) for emphasis
+- Include direct quotes from the transcript in blockquotes (> quote)
+
+IMPORTANT:
+- Identify 3-5 distinct, significant strengths supported by clear evidence
+- For each strength, explain why it matters for this specific role
+- Provide concrete examples from the transcript that demonstrate each strength
+- Be specific rather than general - "excellent Python programming skills" rather than "good technical skills"
+- If the candidate has exceptional strengths, don't hesitate to highlight truly outstanding qualities
 
 Remember this section will be one of the most valuable for the candidate. Be specific, evidence-based, and focused on strengths that would genuinely matter in the workplace context.
 `;

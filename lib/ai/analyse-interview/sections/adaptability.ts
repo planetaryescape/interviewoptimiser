@@ -65,22 +65,35 @@ SPECIFIC GUIDANCE FOR ADAPTABILITY ASSESSMENT:
    - Did they demonstrate decision-making abilities despite incomplete information?
    - What evidence suggests they can maintain productivity in fluid situations?
 
-4. FLEXIBILITY IN APPROACH:
-   - Did they demonstrate willingness to adjust methods or processes when necessary?
-   - How did they respond when their initial approaches didn't work?
-   - What evidence suggests they can balance consistency with necessary adaptation?
+4. RESILIENCE:
+   - How do they handle setbacks and failures?
+   - Did they share examples of bouncing back from difficulties?
+   - Did they demonstrate persistence in the face of obstacles?
 
-5. RESILIENCE UNDER PRESSURE:
-   - How did they handle setbacks, failures, or unexpected obstacles?
-   - Did they demonstrate emotional regulation during challenging situations?
-   - What coping mechanisms or recovery strategies did they employ?
+5. CULTURAL ADAPTABILITY:
+   - Did they show awareness of and sensitivity to different work cultures or styles?
+   - Have they successfully worked in diverse teams or environments?
+   - Did they demonstrate intercultural or contextual adaptability?
 
-6. CULTURAL ADAPTABILITY:
-   - Did they show capability to work effectively across different organizational cultures?
-   - How did they adapt their communication or work style to different environments?
-   - What evidence suggests they can thrive in diverse or global contexts?
+6. TECHNOLOGY ADAPTABILITY:
+   - How comfortable are they with learning and adopting new technologies?
+   - Did they share examples of quickly mastering new tools or platforms?
+   - Did they show enthusiasm for technological change rather than resistance?
 
-Remember to reference specific examples from the transcript for each point in your assessment. Look for instances where the candidate discusses how they've handled change, uncertainty, or new challenges, as well as their approach to learning and growth.
+FORMAT REQUIREMENTS:
+- Format your entire response in proper Markdown
+- Use headings (## and ###) for clear organization
+- Use bullet points (*) for listing items
+- Use bold (**text**) and italic (*text*) for emphasis
+- Include direct quotes from the transcript in blockquotes (> quote)
+
+IMPORTANT REMINDER ABOUT COVERAGE:
+- Only assess adaptability aspects that were actually discussed in the interview
+- If adaptability was not explicitly explored, state this clearly
+- Focus your analysis on concrete examples and behaviors demonstrated in the conversation
+- If making inferences, explicitly state the evidence that supports your conclusions
+
+Remember to reference specific examples from the transcript for each point in your assessment. Look for instances where the candidate describes how they handled change, learned new skills, or adjusted their approach based on new information.
 `;
 
     // Generate the structured output
