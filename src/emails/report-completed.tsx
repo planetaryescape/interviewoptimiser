@@ -39,7 +39,7 @@ export const ReportCompletedEmail = ({
   role,
   company,
 }: ReportCompletedEmailProps) => {
-  const reportUrl = `${config.baseUrl}/jobs/${idHandler.encode(jobId)}/interview/${idHandler.encode(interviewId)}/reports/${idHandler.encode(reportId)}`;
+  const reportUrl = `${config.baseUrl}/jobs/${idHandler.encode(jobId)}/reports/${idHandler.encode(reportId)}`;
 
   return (
     <Html>
