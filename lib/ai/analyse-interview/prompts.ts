@@ -39,6 +39,7 @@ export const BASE_USER_PROMPT = `
 Analyze the provided interview transcript and generate a thorough, detailed, and honest assessment focused specifically on {{SECTION_NAME}}.
 
 FORMAT REQUIREMENTS:
+- Note that formatting should be appropriate to the specific section being analyzed - some sections may require paragraph form, while others benefit from structured lists
 - Use proper Markdown formatting with hierarchical headings, bullet points, and emphasis where appropriate
 - Include direct quotes from the transcript to support your points
 - Provide a numerical score (0-100) for this specific evaluation category
@@ -119,7 +120,7 @@ Your task is to provide a detailed analysis of:
      * Self-awareness
 
 FORMAT REQUIREMENTS:
-- Provide a detailed, paragraph-form analysis (200-300 words)
+- Provide a detailed, paragraph-form analysis (200-300 words) - unlike other sections, question analysis should be primarily in paragraph form rather than using extensive bullet points
 - Include direct quotes from the transcript to support your points
 - Score the answer from 0-100 with explicit justification
 - Identify 1-2 specific strengths and 1-2 areas for improvement
