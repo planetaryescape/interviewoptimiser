@@ -7,12 +7,33 @@ import { questionAnalysis } from "~/db/schema/questionAnalysis";
 const ReportSchema = createInsertSchema(reports);
 
 // Question analysis schema
-export const QuestionAnalysisSchema = createInsertSchema(questionAnalysis).omit({
-  id: true,
-  reportId: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const QuestionAnalysisSchema = createInsertSchema(questionAnalysis)
+  .omit({
+    id: true,
+    reportId: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .extend({
+    question: z
+      .string()
+      .describe("The interview question asked to the candidate. Must not be empty."),
+    analysis: z
+      .string()
+      .describe(
+        "Detailed analysis of the candidate's response to the question. Must not be empty."
+      ),
+    score: z
+      .number()
+      .describe(
+        "Score for the answer quality out of 100. Default is 0 if score cannot be determined."
+      ),
+    isKeyQuestion: z
+      .boolean()
+      .describe(
+        "Indicates if this is a significant/key question in the interview. Default is true."
+      ),
+  });
 
 // Fitness for role schema
 export const FitnessForRoleSchema = z.object({
