@@ -8,7 +8,7 @@ import {
   useActiveInterviewEnded,
   useActiveInterviewShowTakeover,
 } from "@/stores/useActiveInterviewStore";
-import { formatInterviewType } from "@/utils/conversation_config";
+import { formatInterviewType } from "@/utils/formatters/format-interview-type";
 import { VoiceProvider } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
