@@ -1,107 +1,9 @@
+import { interviewTypes } from "@/fixtures/interview-types";
 import { z } from "zod";
 import type { CandidateDetails, JobDescription } from "~/db/schema";
 import type { InterviewType } from "~/db/schema/interviews";
 import { StructuredJobDescriptionSchema } from "~/lib/ai/extract-job-description";
-
-export const formatInterviewType = (type: InterviewType) => {
-  return type
-    .split("_")
-    .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-};
-
-export interface InterviewTypeDefinition {
-  type: InterviewType;
-  description: string;
-  exampleQuestions: string[];
-}
-
-export const interviewTypes: InterviewTypeDefinition[] = [
-  {
-    type: "behavioral",
-    description:
-      "A structured interview approach that evaluates past performance as a predictor of future success. Questions focus on specific situations from the candidate's experience, seeking detailed examples of how they handled challenges, demonstrated key competencies, and achieved measurable results. The STAR method (Situation, Task, Action, Result) is used to assess the depth and authenticity of responses.",
-    exampleQuestions: [
-      "Describe a complex project where you had to influence stakeholders with competing priorities. What was your approach, and what was the outcome?",
-      "Tell me about a time when you had to make a difficult decision with incomplete information. How did you approach the analysis, and what did you learn from the results?",
-      "Share an example of when you had to lead a team through a significant change. How did you maintain team morale and productivity?",
-      "Describe a situation where you identified and resolved a systemic problem in your organization. What was your process and the long-term impact?",
-      "Tell me about a time when you had to rebuild trust with a client or team member. What specific steps did you take, and how did you measure success?",
-    ],
-  },
-  {
-    type: "situational",
-    description:
-      "A forward-looking assessment method that presents candidates with realistic, role-specific scenarios to evaluate their decision-making process, problem-solving abilities, and alignment with organizational values. Questions are designed to reveal the candidate's analytical thinking, prioritization skills, and ability to balance multiple stakeholder needs while maintaining professional standards.",
-    exampleQuestions: [
-      "You discover that a senior team member has been bypassing security protocols to meet deadlines. How would you address this situation while maintaining team dynamics and ensuring compliance?",
-      "Your team is simultaneously facing a critical production issue and an important client deadline. Walk me through how you would assess priorities and allocate resources.",
-      "A major project requirement changes two weeks before launch, requiring significant rework. How would you adapt your strategy while managing team morale and stakeholder expectations?",
-      "You identify a potential innovation that could improve efficiency by 30% but requires substantial process changes. How would you build support and manage the transition?",
-      "A team member is consistently delivering high-quality work but is creating conflicts within the team. How would you balance performance and team harmony?",
-    ],
-  },
-  {
-    type: "technical",
-    description:
-      "A comprehensive evaluation of technical expertise, problem-solving methodology, and practical implementation skills. Goes beyond basic knowledge testing to assess system design capabilities, optimization strategies, best practices awareness, and the ability to make technical decisions considering business impact. Includes real-world scenarios, architecture discussions, and code quality evaluation.",
-    exampleQuestions: [
-      "Design a scalable system that processes real-time data from multiple sources. Consider fault tolerance, data consistency, and performance optimization. What trade-offs would you make?",
-      "Explain how you would refactor a legacy system with high technical debt while ensuring business continuity. What would be your step-by-step approach?",
-      "Describe your approach to implementing a secure authentication system. How would you handle session management, password policies, and potential security vulnerabilities?",
-      "Walk me through how you would optimize a slow-performing application. What metrics would you collect, and how would you prioritize improvements?",
-      "How would you design a CI/CD pipeline for a microservices architecture? Consider testing strategies, deployment patterns, and monitoring requirements.",
-    ],
-  },
-  {
-    type: "case_study",
-    description:
-      "An in-depth analytical exercise that evaluates a candidate's ability to solve complex business problems through structured thinking, data analysis, and strategic recommendation development. Assesses the ability to identify key issues, analyze quantitative and qualitative data, develop actionable solutions, and communicate recommendations effectively to various stakeholders.",
-    exampleQuestions: [
-      "Our client is a retail bank facing declining customer satisfaction and increasing digital competitor pressure. Analyze the situation and propose a comprehensive strategy to reverse these trends.",
-      "A global manufacturing company is experiencing supply chain disruptions and rising costs. How would you analyze the root causes and develop both short-term and long-term solutions?",
-      "We're considering entering the Southeast Asian market with our SaaS product. What factors would you analyze to evaluate this opportunity, and how would you structure the market entry strategy?",
-      "A healthcare provider is struggling with long patient wait times despite high resource utilization. How would you approach improving operational efficiency while maintaining quality of care?",
-      "Develop a pricing strategy for a new IoT product targeting both enterprise and consumer segments. Consider market positioning, competitive dynamics, and long-term profitability.",
-    ],
-  },
-  {
-    type: "competency_based",
-    description:
-      "A systematic evaluation of specific skills, behaviors, and competencies critical for role success. Uses detailed exploration of past experiences to assess proficiency in key areas such as leadership, strategic thinking, stakeholder management, innovation, and adaptability. Questions are designed to evaluate both technical competencies and soft skills, with a focus on measuring proficiency levels and development potential.",
-    exampleQuestions: [
-      "Describe a strategic initiative you led that required significant organizational change. How did you develop the vision, align stakeholders, and measure success?",
-      "Tell me about a time when you had to influence decision-makers without direct authority. What strategies did you use, and how did you measure their effectiveness?",
-      "Share an example of how you've built and developed high-performing teams. What specific approaches did you use to identify, nurture, and retain talent?",
-      "Describe a situation where you had to drive innovation in a conservative environment. How did you build support and manage resistance to change?",
-      "Tell me about a time when you had to adapt your leadership style to achieve results with a diverse or challenging team. What specific adjustments did you make and why?",
-    ],
-  },
-  {
-    type: "stress",
-    description:
-      "A controlled high-pressure evaluation designed to assess candidates' resilience, emotional intelligence, and performance under stress. Tests ability to maintain composure, think clearly, and communicate effectively in challenging situations. Evaluates stress management strategies, adaptability, and professional boundaries while maintaining ethical standards.",
-    exampleQuestions: [
-      "Your presentation to the board contains an error that significantly impacts the conclusions. You discover this mid-presentation. How do you handle this situation professionally?",
-      "Multiple critical stakeholders are demanding immediate attention for conflicting priorities. Walk me through how you would maintain professionalism while managing these competing demands.",
-      "You strongly disagree with a new strategy being implemented by senior leadership. How would you constructively voice your concerns while maintaining organizational alignment?",
-      "A key team member resigns during a critical project phase. How do you maintain project momentum while managing team morale and client expectations?",
-      "You discover a mistake in your team's work that has been affecting client reports for months. How do you address this internally and with clients while maintaining trust?",
-    ],
-  },
-  {
-    type: "cultural_fit",
-    description:
-      "A nuanced evaluation of alignment between candidate values, work preferences, and organizational culture. Assesses cultural add versus cultural fit, exploring how candidates can both thrive within and enhance company culture. Examines collaboration styles, communication preferences, ethical decision-making, and commitment to diversity and inclusion.",
-    exampleQuestions: [
-      "Describe a workplace culture where you've been most successful. What specific elements enabled your success, and how do you recreate these conditions in new environments?",
-      "Share an experience where you've contributed to building an inclusive team culture. What specific actions did you take, and how did you measure success?",
-      "Tell me about a time when your personal values aligned with organizational values to drive positive change. What was the impact on team dynamics and results?",
-      "How have you adapted your working style to successfully collaborate with colleagues from different cultural backgrounds or work preferences?",
-      "Describe a situation where you had to balance maintaining company culture with driving necessary cultural change. How did you approach this challenge?",
-    ],
-  },
-];
+import { formatInterviewType } from "./formatters/format-interview-type";
 
 export const StructuredJobDescriptionWithKeyQuestionsSchema = StructuredJobDescriptionSchema.extend(
   {
@@ -126,32 +28,32 @@ export const createInterviewInstructions = ({
   duration = 15,
   interviewType = "behavioral",
 }: InterviewInstructionsParams) => {
-  let structuredDataText = "";
-
-  const hasStructuredData = structuredCandidateDetails || structuredJobDescription;
-
-  if (hasStructuredData) {
-    structuredDataText = "\n\n**Structured Data Available**:\n";
-
-    if (structuredCandidateDetails) {
-      `${structuredDataText}
-
+  let structuredDataDetails = "";
+  if (structuredCandidateDetails) {
+    structuredDataDetails += `
 <structured_candidate_details>
 ${JSON.stringify(structuredCandidateDetails, null, 2)}
 </structured_candidate_details>
-      `;
-    }
+`;
+  }
 
-    if (structuredJobDescription) {
-      `${structuredDataText}
-
+  if (structuredJobDescription) {
+    structuredDataDetails += `
 <structured_job_description>
 ${JSON.stringify(structuredJobDescription, null, 2)}
 </structured_job_description>
+`;
+  }
 
-${
-  keyQuestions?.length
-    ? `<key_questions>
+  const hasStructuredData = structuredCandidateDetails || structuredJobDescription;
+
+  const structuredDataSection = hasStructuredData
+    ? `\n\n**Structured Data Available**:${structuredDataDetails}`
+    : "";
+
+  const questionsSection = structuredJobDescription
+    ? keyQuestions?.length
+      ? `<key_questions>
 These are the 5 key questions that MUST be asked during the interview. They are the HIGHEST PRIORITY questions and should be asked before exploring other topics. These questions have been specifically generated for this role and are crucial for assessing the candidate's suitability:
 
 ${keyQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n")}
@@ -165,10 +67,10 @@ IMPORTANT GUIDELINES FOR QUESTIONS:
    - All key questions have been thoroughly covered
 5. Return to any key questions that weren't fully answered before concluding the interview
 </key_questions>`
-    : `<example_questions>
+      : `<example_questions>
 Here are some example questions typically asked in a ${formatInterviewType(
-        interviewType
-      )} interview. Feel free to adapt these or ask other relevant questions based on the candidate's responses:
+          interviewType
+        )} interview. Feel free to adapt these or ask other relevant questions based on the candidate's responses:
 
 ${interviewTypes
   .find((type) => type.type === interviewType)
@@ -177,19 +79,14 @@ ${interviewTypes
 
 These questions are examples to guide the interview. Feel free to modify them or ask other relevant questions based on the conversation flow and the candidate's responses.
 </example_questions>`
-}
-      `;
-    }
-  }
+    : ""; // No questions section if no job description
 
-  // Information line should include CV text when provided
+  const cvSection = cvText ? `\n\n**Candidate CV:**\n${cvText}` : "";
+
   const infoLine = `\nYou have access to${
     hasStructuredData ? " structured data about the candidate and job role" : ""
-  }${cvText ? " and the candidate's CV" : ""}.${structuredDataText}${
-    cvText ? `\n\n**Candidate CV:**\n${cvText}` : ""
-  }`;
+  }${cvText ? " and the candidate's CV" : ""}.${structuredDataSection}${cvSection}`;
 
-  // Update data usage instructions to mention CV text when available
   const structuredDataUsageText = `${
     hasStructuredData
       ? "You have structured data which provides detailed information about the candidate and job role."
@@ -202,37 +99,29 @@ These questions are examples to guide the interview. Feel free to modify them or
       : ""
   }`;
 
+  const candidateName = structuredCandidateDetails?.name || "Candidate";
+  const jobRole = structuredJobDescription?.role || "target role";
+  const companyName = structuredJobDescription?.company || "target company";
+  const formattedInterviewType = formatInterviewType(interviewType);
+  const interviewTypeDescription = interviewTypes.find(
+    (type) => type.type === interviewType
+  )?.description;
+
   return `
 **Context**:
-You are an AI interviewer called Cora. You are the lead interviewer at Interview Optimiser. You are conducting a ${duration} minute ${formatInterviewType(
-    interviewType
-  )} mock interview with ${
-    structuredCandidateDetails?.name
-  } who is applying for a ${structuredJobDescription?.role} job at ${
-    structuredJobDescription?.company
-  }. Your task is to ask relevant questions based on the ${
-    structuredCandidateDetails?.name
-  }'s responses and the job information provided. Follow these guidelines:
+You are an AI interviewer called Cora. You are the lead interviewer at Interview Optimiser. You are conducting a ${duration} minute ${formattedInterviewType} mock interview with ${candidateName} who is applying for a ${jobRole} job at ${companyName}. Your task is to ask relevant questions based on the ${candidateName}'s responses and the job information provided. Follow these guidelines:
 
-This is a mock interview for a ${structuredJobDescription?.role} job at ${
-    structuredJobDescription?.company
-  }.
+This is a mock interview for a ${jobRole} job at ${companyName}.
 
 IMPORTANT: It is absolutely CRUCIAL that you respect the interview type and ask questions in line with the type of interview.
-Focus on **${formatInterviewType(
-    interviewType
-  )}** questions, designed to help the candidate refine their responses and build confidence. The ${formatInterviewType(
-    interviewType
-  )} interview ${interviewTypes.find((type) => type.type === interviewType)?.description}.
+Focus on **${formattedInterviewType}** questions, designed to help the candidate refine their responses and build confidence. The ${formattedInterviewType} interview ${interviewTypeDescription}.
 
 <role_and_context>
   You are Cora, an advanced AI interviewer from Interview Optimiser. You are conducting a mock interview with a candidate to help them prepare for a job. Your primary goal is to simulate a realistic and insightful interview experience. You should be professional, engaging, and adaptive. Remember, this is a safe space for the candidate to practice and receive feedback. Your tone should be encouraging and constructive.
 
   IMPORTANT: DURATION AND PACING
   The total allocated time for this interview is ${duration} minutes.
-  At the VERY BEGINNING of the interview, clearly state this duration to the candidate (e.g., "Hello ${
-    structuredCandidateDetails?.name || "Candidate"
-  }, we have ${duration} minutes for our session today.").
+  At the VERY BEGINNING of the interview, clearly state this duration to the candidate (e.g., "Hello ${candidateName}, we have ${duration} minutes for our session today.").
   This duration is a CRITICAL factor. You MUST use it to guide the overall pace and depth of the interview.
   - For shorter durations, you'll need to be more focused, ensuring key topics are covered concisely.
   - For longer durations, you have more flexibility to delve deeper into responses and explore related areas.
@@ -250,6 +139,7 @@ Focus on **${formatInterviewType(
 
 <information_available>
   ${infoLine}
+  ${questionsSection}
 </information_available>
 
 <structured_data_usage>
@@ -261,13 +151,9 @@ Focus on **${formatInterviewType(
 </objective>
 
 <very_important>
-  This is a ${formatInterviewType(
-    interviewType
-  )} interview. Stick to ${formatInterviewType(interviewType)} questions.
+  This is a ${formattedInterviewType} interview. Stick to ${formattedInterviewType} questions.
 
-  When introducing yourself, always say: "Hi, I'm Cora, lead interviewer at Interview Optimiser." and then continue with the ${formatInterviewType(
-    interviewType
-  )} introduction. Make this introduction feel natural and personable, as if you're a real interviewer greeting the candidate. Really lean into your role as Cora, the experienced lead interviewer who has conducted hundreds of interviews.
+  When introducing yourself, always say: "Hi, I'm Cora, lead interviewer at Interview Optimiser." and then continue with the ${formattedInterviewType} introduction. Make this introduction feel natural and personable, as if you're a real interviewer greeting the candidate. Really lean into your role as Cora, the experienced lead interviewer who has conducted hundreds of interviews.
 
   Tailor questions based on the candidate's responses and the available information. For example, "Could you elaborate on your approach to handling [specific aspect of experience]?". Adjust the difficulty of the questions based on the candidate's performance. If the candidate is struggling with a question, ask simpler questions. If the candidate is answering well, ask more difficult questions.
 
