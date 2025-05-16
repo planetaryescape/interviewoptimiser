@@ -46,7 +46,7 @@ export function DashboardHeader({ className }: { className?: string }) {
       <div className="mx-auto px-4 md:px-8">
         <div className="relative flex h-16 items-center justify-between">
           <Link
-            href="/dashboard"
+            href="/"
             className="flex items-center space-x-3 transition-all duration-300 hover:opacity-90"
           >
             <Image

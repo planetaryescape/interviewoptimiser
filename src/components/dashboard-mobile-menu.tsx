@@ -66,7 +66,7 @@ export function DashboardMobileMenu({ onFeedbackClick }: DashboardMobileMenuProp
         <div className="flex flex-col h-full">
           <div className="p-6 border-b border-white/20">
             <div className="flex items-center justify-between mb-6">
-              <Link href="/dashboard" className="flex items-center gap-2" onClick={closeMenu}>
+              <Link href="/" className="flex items-center gap-2" onClick={closeMenu}>
                 <Image
                   src="/logo.png"
                   alt={`${config.projectName} Logo`}
