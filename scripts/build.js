@@ -50,6 +50,7 @@ const buildService = (functionName) => {
           release: release, // Explicitly set the release
           finalize: true, // Finalize the release after uploading artifacts
           debug: true, // Enable debug logging from the plugin
+          telemetry: false,
           errorHandler: (err, invocation) => {
             // Add error handler for plugin issues
             console.error(`Sentry Esbuild Plugin Error for ${functionName}:`, err.message);
