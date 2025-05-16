@@ -9,10 +9,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { interviewTypes } from "@/fixtures/interview-types";
 import { useJob } from "@/hooks/useJob";
 import { useUser } from "@/hooks/useUser";
 import { cn } from "@/lib/utils";
-import { interviewTypes } from "@/utils/conversation_config";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Clock, PlusCircle, Settings } from "lucide-react";
 import Link from "next/link";

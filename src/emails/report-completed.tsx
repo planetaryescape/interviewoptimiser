@@ -1,5 +1,5 @@
 import { idHandler } from "@/lib/utils/idHandler";
-import { formatInterviewType } from "@/utils/conversation_config";
+import { formatInterviewType } from "@/utils/formatters/format-interview-type";
 import {
   Body,
   Button,
