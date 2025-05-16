@@ -32,6 +32,7 @@ export async function analyseInterview({
   structuredCV,
   structuredJobDescription,
   structuredCandidateDetails,
+  interview,
 }: AnalyseInterviewParams): Promise<{
   data: InterviewReport;
   questionAnalyses: QuestionAnalysisData[];
@@ -48,7 +49,7 @@ export async function analyseInterview({
     const transcript = processTranscript(transcriptString);
 
     // Extract key questions if available
-    const keyQuestions = extractKeyQuestions(structuredJobDescription);
+    const keyQuestions = extractKeyQuestions(interview);
 
     // Prepare common parameters for all analyzers
     const commonParams = {
