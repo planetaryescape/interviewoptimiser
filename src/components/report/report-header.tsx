@@ -4,6 +4,7 @@ import { idHandler } from "@/lib/utils/idHandler";
 import Image from "next/image";
 import { config } from "~/config";
 import type { Interview } from "~/db/schema";
+import { ReportSection } from "./report-section";
 import type { JobDataProps } from "./types";
 
 interface ReportHeaderProps extends JobDataProps {
@@ -15,67 +16,86 @@ interface ReportHeaderProps extends JobDataProps {
  */
 export function ReportHeader({ job, interview, headingFont }: ReportHeaderProps) {
   return (
-    <header className="mb-16">
-      <div className="flex items-center justify-between mb-10 border-b border-slate-200 pb-6">
-        <div className="flex items-center space-x-6">
-          <Image
-            src="/logo.png"
-            alt={`${config.projectName} Logo`}
-            width={48}
-            height={48}
-            className="opacity-90"
-          />
+    <ReportSection spacing="tight" border="bottom" className="mb-10 print:mb-8">
+      {/* Top section with logo and report ID */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <div className="bg-white p-1.5 shadow-sm rounded-sm">
+            <Image
+              src="/logo.png"
+              alt={`${config.projectName} Logo`}
+              width={40}
+              height={40}
+              className="opacity-90"
+            />
+          </div>
           <div className="flex flex-col">
             <span className="text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-1 font-medium">
-              Confidential Assessment
+              Professional Assessment
             </span>
             <h1 className={cn("text-xl font-semibold text-slate-800 tracking-tight", headingFont)}>
-              Interview Performance Evaluation
+              Interview Performance Report
             </h1>
           </div>
         </div>
-        <div className="text-right bg-slate-50 px-4 py-2 rounded-sm border border-slate-100">
-          <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400 mb-1">Reference</p>
-          <p className="text-sm font-mono text-slate-700">
-            IO-{idHandler.encode(job?.sys.id ?? 0)}
-          </p>
+        <div className="text-right">
+          <div className="inline-block bg-slate-50 px-4 py-2 rounded-sm border border-slate-100">
+            <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400 mb-1">Reference</p>
+            <p className="text-sm font-mono text-slate-700 font-medium">
+              IO-{idHandler.encode(job?.sys.id ?? 0)}
+            </p>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-x-8 gap-y-0 text-sm">
+      {/* Candidate information grid */}
+      <div className="grid grid-cols-4 gap-x-8 gap-y-3">
         <div className="col-span-1">
           <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400 mb-1.5">Candidate</p>
-          <p className="font-medium text-slate-800">{job?.data.candidate}</p>
+          <p className="font-medium text-slate-800">{job?.data.candidate || "Not specified"}</p>
         </div>
         <div className="col-span-1">
           <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400 mb-1.5">Position</p>
-          <p className="font-medium text-slate-800">{job?.data.role}</p>
+          <p className="font-medium text-slate-800">{job?.data.role || "Not specified"}</p>
         </div>
         <div className="col-span-1">
           <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400 mb-1.5">
             Organization
           </p>
-          <p className="font-medium text-slate-800">{job?.data.company}</p>
+          <p className="font-medium text-slate-800">{job?.data.company || "Not specified"}</p>
         </div>
-        <div className="col-span-1 flex flex-col items-start">
-          <div className="flex-1">
+        <div className="col-span-1 flex flex-col">
+          <div className="">
             <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400 mb-1.5">Date</p>
             <p className="font-medium text-slate-800">
-              {new Date(job?.data.createdAt ?? "").toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+              {job?.data.createdAt
+                ? new Date(job.data.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })
+                : "Not recorded"}
             </p>
-          </div>
-          <div className="mt-3 pt-3 border-t border-slate-100 w-full">
-            <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400 mb-1.5">
-              Duration
-            </p>
-            <p className="font-medium text-slate-800">{interview?.data.actualTime ?? 0} minutes</p>
           </div>
         </div>
+        <div className="col-span-1">
+          <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400 mb-1.5">
+            Interview Type
+          </p>
+          <p className="font-medium text-slate-800 capitalize">
+            {interview?.data.type?.replace("_", " ") || "Standard"}
+          </p>
+        </div>
+        <div className="col-span-1">
+          <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400 mb-1.5">Duration</p>
+          <p className="font-medium text-slate-800">
+            {interview?.data.actualTime ? `${interview.data.actualTime} minutes` : "Not recorded"}
+          </p>
+        </div>
+        <div className="col-span-2 text-right mt-1">
+          <p className="text-xs text-slate-500 italic">Generated by {config.projectName}</p>
+        </div>
       </div>
-    </header>
+    </ReportSection>
   );
 }
