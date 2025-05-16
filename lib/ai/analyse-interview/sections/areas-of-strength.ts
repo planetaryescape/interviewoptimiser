@@ -50,7 +50,7 @@ export async function analyzeAreasOfStrength({
 
 SPECIFIC GUIDANCE FOR AREAS OF STRENGTH ASSESSMENT:
 
-Your task is to identify 3-5 specific strengths demonstrated by the candidate during the interview. For each strength:
+Your task is to identify 3-5 specific strengths demonstrated by the candidate during the interview. For each strength, provide a detailed explanation including evidence, relevance, and impact. Aim for a total length of approximately 300-500 words for this section. Ensure your analysis covers:
 
 1. EVIDENCE-BASED IDENTIFICATION:
    - What clear evidence from the transcript supports this as a genuine strength?

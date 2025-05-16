@@ -50,6 +50,8 @@ export async function analyzeSpeakingSkills({
 
 SPECIFIC GUIDANCE FOR SPEAKING SKILLS ASSESSMENT:
 
+Your analysis for this section should be focused and provide specific examples, aiming for approximately 300-400 words. Address the following aspects of the candidate's verbal delivery:
+
 1. VOCAL CLARITY ASSESSMENT:
    - Was the candidate's speech clear and understandable?
    - Did they articulate complex ideas effectively?

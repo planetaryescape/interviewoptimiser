@@ -50,6 +50,8 @@ export async function analyzeProblemSolvingSkills({
 
 SPECIFIC GUIDANCE FOR PROBLEM-SOLVING SKILLS ASSESSMENT:
 
+Your analysis for this section should be highly detailed and evidence-based, aiming for approximately 500-700 words. Deeply explore the candidate's approach to problem-solving using the following framework, citing specific examples and quotes:
+
 1. ANALYTICAL APPROACH:
    - How did the candidate break down complex problems in their examples?
    - Did they identify root causes rather than just symptoms?

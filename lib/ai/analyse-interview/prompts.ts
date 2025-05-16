@@ -175,6 +175,12 @@ Your general assessment should be comprehensive (500-800 words) and include:
 5. At least 3 specific, evidence-based examples from the transcript that highlight key aspects of the candidate's performance
 6. Clear acknowledgment of any areas not adequately covered in the interview
 
+FORMATTING GUIDELINES FOR GENERAL ASSESSMENT:
+- The overall tone should be professional and evaluative.
+- While comprehensive, the language should be terse and to-the-point.
+- Avoid using bullet points for the main content; use paragraph form for a narrative flow.
+- Use sub-headings sparingly, only for major distinct parts of the assessment (e.g., "Overall Performance", "Hiring Recommendation").
+
 Your synthesis must maintain the principles of Radical Candor while providing a well-reasoned holistic view of the candidate.
 `;
 

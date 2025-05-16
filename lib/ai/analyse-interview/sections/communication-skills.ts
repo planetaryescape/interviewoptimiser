@@ -50,6 +50,8 @@ export async function analyzeCommunicationSkills({
 
 SPECIFIC GUIDANCE FOR COMMUNICATION SKILLS ASSESSMENT:
 
+Your analysis for this section should be thorough, covering the aspects below with specific examples and aiming for approximately 400-500 words:
+
 1. CLARITY AND STRUCTURE:
    - How clearly did the candidate convey complex ideas or processes?
    - Did they use logical structure and organization in their responses?

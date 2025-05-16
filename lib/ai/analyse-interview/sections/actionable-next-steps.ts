@@ -50,7 +50,7 @@ export async function analyzeActionableNextSteps({
 
 SPECIFIC GUIDANCE FOR ACTIONABLE NEXT STEPS:
 
-Your task is to provide 5-7 specific, practical next steps that the candidate can take to improve their interview performance and enhance their career prospects. For each next step:
+Your task is to provide 5-7 specific, practical next steps that the candidate can take to improve their interview performance and enhance their career prospects. For each next step, provide clear, evidence-based, and actionable guidance. Aim for a total length of approximately 350-500 words for this entire section. Ensure each step addresses:
 
 1. CLARITY AND SPECIFICITY:
    - Provide concrete, detailed guidance that can be immediately implemented
