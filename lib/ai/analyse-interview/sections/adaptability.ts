@@ -50,6 +50,8 @@ export async function analyzeAdaptability({
 
 SPECIFIC GUIDANCE FOR ADAPTABILITY ASSESSMENT:
 
+Your analysis for this section should provide a detailed evaluation of the candidate's adaptability, using specific examples and quotes from the transcript. Aim for approximately 400-500 words, addressing the following key areas:
+
 1. RESPONSE TO CHANGE:
    - How has the candidate handled significant workplace changes in the past?
    - Did they demonstrate a positive or resistant attitude toward change?

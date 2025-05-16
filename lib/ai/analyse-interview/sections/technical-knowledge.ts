@@ -50,6 +50,8 @@ export async function analyzeTechnicalKnowledge({
 
 SPECIFIC GUIDANCE FOR TECHNICAL KNOWLEDGE ASSESSMENT:
 
+Your analysis for this section must be very detailed, citing specific examples and quotes from the transcript to support your evaluation of the candidate's technical acumen. Aim for approximately 500-700 words, covering the following areas comprehensively:
+
 1. FOUNDATIONAL KNOWLEDGE:
    - Did the candidate demonstrate understanding of key concepts in the field?
    - Were there any significant knowledge gaps in core areas required for the role?

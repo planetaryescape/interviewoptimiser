@@ -50,6 +50,8 @@ export async function analyzeTeamwork({
 
 SPECIFIC GUIDANCE FOR TEAMWORK ASSESSMENT:
 
+Your analysis for this section should be well-supported by specific examples and quotes, aiming for approximately 400-500 words. Evaluate the candidate's teamwork capabilities based on the following dimensions:
+
 1. COLLABORATION STYLE:
    - How does the candidate describe their approach to working with others?
    - Did they demonstrate a willingness to share credit and acknowledge team contributions?

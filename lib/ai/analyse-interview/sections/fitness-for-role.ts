@@ -50,6 +50,8 @@ export async function analyzeFitnessForRole({
 
 SPECIFIC GUIDANCE FOR FITNESS FOR ROLE ASSESSMENT:
 
+Your analysis for this section should be detailed and comprehensive, aiming for approximately 400-600 words. Elaborate on each of the following aspects, using specific examples and quotes from the transcript:
+
 1. TECHNICAL COMPETENCY MATCH:
    - How well do the candidate's demonstrated technical skills align with role requirements?
    - Are there any critical technical gaps or areas of exceptional strength?

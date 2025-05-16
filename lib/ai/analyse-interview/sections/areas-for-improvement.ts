@@ -50,7 +50,7 @@ export async function analyzeAreasForImprovement({
 
 SPECIFIC GUIDANCE FOR AREAS FOR IMPROVEMENT ASSESSMENT:
 
-Your task is to identify 3-5 specific development areas where the candidate could improve based on their interview performance. For each area:
+Your task is to identify 3-5 specific development areas where the candidate could improve based on their interview performance. For each area, provide a detailed and evidence-based explanation, aiming for a total of approximately 300-500 words for this section. Ensure your analysis covers:
 
 1. EVIDENCE-BASED IDENTIFICATION:
    - What clear evidence from the transcript indicates this as an area needing development?
