@@ -27,12 +27,9 @@ import {
   ubuntu,
   workSans,
 } from "@/app/fonts";
-import { Expressions } from "@/components/expressions";
 import { AudioPlayer } from "@/components/interview/audio-player";
 import PagePreview from "@/components/page-preview";
 import { PagePreviewToolbar, marginSizes, paperSizes } from "@/components/page-preview-toolbar";
-import { RadialProsodyChart } from "@/components/radial-prosody-chart";
-import { remarkMarkdownComponents } from "@/components/remark-markdown-components";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -59,42 +56,23 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMeasure } from "@uidotdev/usehooks";
 import "easymde/dist/easymde.min.css";
 import saveAs from "file-saver";
-import { Code, Copy, FileSearch, MessageCircle, Puzzle, Users } from "lucide-react";
-import Image from "next/image";
+import { FileSearch } from "lucide-react";
 import Link from "next/link";
 import { use, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
-import { config } from "~/config";
 import type { InferResultType } from "~/db/helpers";
 import type { Interview, Job, PageSettings, QuestionAnalysis } from "~/db/schema";
 
-function aggregateProsodyData(transcript: string) {
-  const messages = JSON.parse(transcript || "[]");
-
-  const prosodyTotals: { [key: string]: number } = {};
-  let totalMessages = 0;
-
-  for (const message of messages) {
-    if (message.role === "user" && message.prosody) {
-      totalMessages++;
-      for (const [key, value] of Object.entries(message.prosody)) {
-        prosodyTotals[key] = (prosodyTotals[key] || 0) + (value as number);
-      }
-    }
-  }
-
-  const result = Object.entries(prosodyTotals)
-    .map(([name, value]) => ({
-      name: name.charAt(0).toUpperCase() + name.slice(1),
-      value: Math.round((value / totalMessages) * 100),
-    }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 6);
-
-  return result;
-}
+import { CommunicationAnalysis } from "@/components/report/communication-analysis";
+import { CompetencyAssessment } from "@/components/report/competency-assessment";
+import { DevelopmentRecommendations } from "@/components/report/development-recommendations";
+import { ExecutiveSummary } from "@/components/report/executive-summary";
+import { KeyObservations } from "@/components/report/key-observations";
+import { QuestionAnalysisSection } from "@/components/report/question-analysis";
+import { ReportFooter } from "@/components/report/report-footer";
+// Import components
+import { ReportHeader } from "@/components/report/report-header";
+import { TranscriptSection } from "@/components/report/transcript-section";
 
 type ReportWithPageSettings = InferResultType<
   "reports",
@@ -380,7 +358,7 @@ export default function JobReportPage(props: {
       </div>
     );
 
-  if (!report) {
+  if (!report || !job || !interview) {
     return (
       <div className="flex flex-col items-center justify-center w-screen h-screen bg-background text-foreground p-4">
         <FileSearch className="w-16 h-16 mb-4 text-muted-foreground" />
@@ -472,504 +450,32 @@ export default function JobReportPage(props: {
           headingFont={headingFont}
           noBorder
         >
-          {/* Header Section - Refined for professional appearance */}
-          <header className="mb-16">
-            <div className="flex items-center justify-between mb-10 border-b border-slate-200 pb-6">
-              <div className="flex items-center space-x-6">
-                <Image
-                  src="/logo.png"
-                  alt={`${config.projectName} Logo`}
-                  width={48}
-                  height={48}
-                  className="opacity-90"
-                />
-                <div className="flex flex-col">
-                  <span className="text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-1 font-medium">
-                    Confidential Assessment
-                  </span>
-                  <h1
-                    className={cn(
-                      "text-xl font-semibold text-slate-800 tracking-tight",
-                      headingFont
-                    )}
-                  >
-                    Interview Performance Evaluation
-                  </h1>
-                </div>
-              </div>
-              <div className="text-right bg-slate-50 px-4 py-2 rounded-sm border border-slate-100">
-                <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400 mb-1">
-                  Reference
-                </p>
-                <p className="text-sm font-mono text-slate-700">
-                  IO-{idHandler.encode(job?.sys.id ?? 0)}
-                </p>
-              </div>
-            </div>
+          {/* Use the extracted components */}
+          <ReportHeader job={job} interview={interview} headingFont={headingFont} />
 
-            <div className="grid grid-cols-4 gap-x-8 gap-y-0 text-sm">
-              <div className="col-span-1">
-                <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400 mb-1.5">
-                  Candidate
-                </p>
-                <p className="font-medium text-slate-800">{job?.data.candidate}</p>
-              </div>
-              <div className="col-span-1">
-                <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400 mb-1.5">
-                  Position
-                </p>
-                <p className="font-medium text-slate-800">{job?.data.role}</p>
-              </div>
-              <div className="col-span-1">
-                <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400 mb-1.5">
-                  Organization
-                </p>
-                <p className="font-medium text-slate-800">{job?.data.company}</p>
-              </div>
-              <div className="col-span-1 flex flex-col items-start">
-                <div className="flex-1">
-                  <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400 mb-1.5">
-                    Date
-                  </p>
-                  <p className="font-medium text-slate-800">
-                    {new Date(job?.data.createdAt ?? "").toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </p>
-                </div>
-                <div className="mt-3 pt-3 border-t border-slate-100 w-full">
-                  <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400 mb-1.5">
-                    Duration
-                  </p>
-                  <p className="font-medium text-slate-800">
-                    {interview?.data.actualTime ?? 0} minutes
-                  </p>
-                </div>
-              </div>
-            </div>
-          </header>
+          <ExecutiveSummary report={report} headingFont={headingFont} />
 
-          {/* Executive Summary - Redesigned for better information hierarchy */}
-          <section className="mb-16">
-            <div className="flex flex-col">
-              <div>
-                <h2
-                  className={cn(
-                    "text-base font-semibold text-blue-800 uppercase tracking-widest border-b border-slate-300 pb-2 mb-6 w-full",
-                    headingFont
-                  )}
-                >
-                  Executive Summary
-                </h2>
-                <div className="flex gap-8">
-                  <div className="flex-1 max-w-prose">
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      components={{
-                        ...remarkMarkdownComponents,
-                        p: ({ node, ...props }) => (
-                          <p className="mb-4 text-slate-700 leading-relaxed text-sm" {...props} />
-                        ),
-                      }}
-                      className="text-slate-700"
-                    >
-                      {report.data.generalAssessment}
-                    </ReactMarkdown>
-                  </div>
-                  <div className="w-40 flex flex-col items-center border-l border-slate-200 pl-6">
-                    <div
-                      className="mb-3"
-                      aria-label={`Overall score: ${report.data.overallScore}%`}
-                    >
-                      <div className="rounded-full w-20 h-20 border-2 border-blue-200 bg-blue-50 flex items-center justify-center">
-                        <div className="text-2xl font-semibold text-blue-800">
-                          {report.data.overallScore}%
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-xs text-slate-600 uppercase tracking-widest text-center mb-3">
-                      Overall Assessment
-                    </div>
-                    <div>
-                      {report.data.overallScore >= 80 ? (
-                        <div className="bg-green-50 border border-green-200 text-green-800 text-xs px-3 py-0.5 font-medium rounded">
-                          Distinguished
-                        </div>
-                      ) : report.data.overallScore >= 60 ? (
-                        <div className="bg-blue-50 border border-blue-200 text-blue-800 text-xs px-3 py-0.5 font-medium rounded">
-                          Proficient
-                        </div>
-                      ) : (
-                        <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs px-3 py-0.5 font-medium rounded">
-                          Developing
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
+          <CompetencyAssessment report={report} headingFont={headingFont} />
 
-          {/* Detailed Assessment - Redesigned with proper typographic hierarchy */}
-          <section className="mb-16 bg-slate-50 py-8 px-8 border-y border-slate-200">
-            <h2
-              className={cn(
-                "text-base font-semibold text-blue-800 uppercase tracking-widest border-b border-slate-300 pb-2 mb-8 w-full",
-                headingFont
-              )}
-            >
-              Competency Assessment
-            </h2>
-            <div className="space-y-10">
-              {[
-                {
-                  title: "Technical Knowledge",
-                  content: report.data.technicalKnowledge,
-                  score: report.data.technicalKnowledgeScore,
-                  icon: Code,
-                },
-                {
-                  title: "Problem-Solving Skills",
-                  content: report.data.problemSolvingSkills,
-                  score: report.data.problemSolvingSkillsScore,
-                  icon: Puzzle,
-                },
-                {
-                  title: "Communication Skills",
-                  content: report.data.communicationSkills,
-                  score: report.data.communicationSkillsScore,
-                  icon: MessageCircle,
-                },
-                {
-                  title: "Teamwork & Collaboration",
-                  content: report.data.teamwork,
-                  score: report.data.teamworkScore,
-                  icon: Users,
-                },
-              ].map((item, index) => (
-                <div
-                  key={item.title}
-                  className="border-b border-slate-200 pb-8 last:border-0 last:pb-0"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center">
-                      <div className="mr-3 p-1.5 bg-white rounded-sm border border-slate-300">
-                        <item.icon className="w-4 h-4 text-blue-600" />
-                      </div>
-                      <h3 className={cn("text-base font-semibold text-slate-800", headingFont)}>
-                        {item.title}
-                      </h3>
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <div className="flex items-center mb-1" aria-label={`Score: ${item.score}%`}>
-                        <span className="text-sm font-medium text-slate-700 mr-2">
-                          {item.score}%
-                        </span>
-                        <div className="w-24 h-2 bg-slate-200 rounded-sm overflow-hidden">
-                          <div
-                            className={cn(
-                              "h-full",
-                              item.score >= 80
-                                ? "bg-green-600"
-                                : item.score >= 60
-                                  ? "bg-blue-600"
-                                  : "bg-amber-500"
-                            )}
-                            style={{ width: `${item.score}%` }}
-                          />
-                        </div>
-                      </div>
-                      <span className="text-xs uppercase tracking-wider text-slate-600">
-                        {item.score >= 80
-                          ? "Distinguished"
-                          : item.score >= 60
-                            ? "Proficient"
-                            : "Developing"}
-                      </span>
-                    </div>
-                  </div>
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      ...remarkMarkdownComponents,
-                      p: ({ node, ...props }) => (
-                        <p className="mb-4 text-slate-700 leading-relaxed text-sm" {...props} />
-                      ),
-                    }}
-                    className="text-slate-700 text-sm leading-relaxed pl-9 max-w-prose"
-                  >
-                    {item.content}
-                  </ReactMarkdown>
-                </div>
-              ))}
-            </div>
-          </section>
+          <KeyObservations report={report} headingFont={headingFont} />
 
-          {/* Strengths and Areas for Improvement - Redesigned with subtle visual cues */}
-          <section className="mb-16">
-            <h2
-              className={cn(
-                "text-base font-semibold text-blue-800 uppercase tracking-widest border-b border-slate-300 pb-2 mb-8 w-full",
-                headingFont
-              )}
-            >
-              Key Observations
-            </h2>
-            <div className="grid grid-cols-2 gap-8">
-              <div className="border-l-4 border-green-600 pl-6 pt-1">
-                <h3
-                  className={cn(
-                    "text-sm font-semibold text-green-800 mb-5 uppercase tracking-wider",
-                    headingFont
-                  )}
-                >
-                  Areas of Strength
-                </h3>
-                <ul className="space-y-4 text-sm">
-                  {JSON.parse(report.data.areasOfStrength).map(
-                    (strength: string, index: number) => (
-                      <li key={strength} className="flex items-start gap-3">
-                        <span className="text-green-600 font-mono text-xs mt-0.5">
-                          {index + 1}.
-                        </span>
-                        <span className="text-slate-700">{strength}</span>
-                      </li>
-                    )
-                  )}
-                </ul>
-              </div>
-              <div className="border-l-4 border-amber-500 pl-6 pt-1">
-                <h3
-                  className={cn(
-                    "text-sm font-semibold text-amber-800 mb-5 uppercase tracking-wider",
-                    headingFont
-                  )}
-                >
-                  Areas for Development
-                </h3>
-                <ul className="space-y-4 text-sm">
-                  {JSON.parse(report.data.areasForImprovement).map(
-                    (area: string, index: number) => (
-                      <li key={area} className="flex items-start gap-3">
-                        <span className="text-amber-600 font-mono text-xs mt-0.5">
-                          {index + 1}.
-                        </span>
-                        <span className="text-slate-700">{area}</span>
-                      </li>
-                    )
-                  )}
-                </ul>
-              </div>
-            </div>
-          </section>
+          <DevelopmentRecommendations report={report} headingFont={headingFont} />
 
-          {/* Action Plan - Redesigned for academic credibility */}
-          <section className="mb-16 bg-slate-50 py-8 border-y border-slate-200">
-            <h2
-              className={cn(
-                "text-base font-semibold text-blue-800 uppercase tracking-widest border-b border-slate-300 pb-2 mb-6 mx-8 w-auto",
-                headingFont
-              )}
-            >
-              Professional Development Recommendations
-            </h2>
-            <div className="px-8">
-              <ol className="space-y-5 list-decimal pl-5 counter-reset text-slate-700">
-                {JSON.parse(report.data.actionableNextSteps).map((step: string, index: number) => (
-                  <li key={step} className="pl-2 text-sm">
-                    <p className="leading-relaxed">{step}</p>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </section>
+          <QuestionAnalysisSection questionAnalyses={questionAnalyses} headingFont={headingFont} />
 
-          {/* Key Question Analysis - Professional academic style */}
-          {questionAnalyses?.data?.length && questionAnalyses?.data?.length > 0 ? (
-            <section className="mb-16">
-              <h2
-                className={cn(
-                  "text-base font-semibold text-blue-800 uppercase tracking-widest border-b border-slate-300 pb-2 mb-6 w-full",
-                  headingFont
-                )}
-              >
-                Key Question Analysis
-              </h2>
-              <div className="space-y-6">
-                {questionAnalyses.data.map((item) => (
-                  <div key={item.data.id} className="border border-slate-200 rounded-sm">
-                    <div className="bg-slate-50 p-4 border-b border-slate-200">
-                      <div className="flex justify-between items-center">
-                        <h3 className={cn("text-sm font-semibold text-slate-800", headingFont)}>
-                          {item.data.question}
-                        </h3>
-                        <div className="flex items-center">
-                          <span className="text-sm font-medium text-slate-700 mr-2">
-                            {item.data.score}%
-                          </span>
-                          <div className="w-20 h-2 bg-slate-200 rounded-sm overflow-hidden">
-                            <div
-                              className={cn(
-                                "h-full",
-                                item.data.score >= 80
-                                  ? "bg-green-600"
-                                  : item.data.score >= 60
-                                    ? "bg-blue-600"
-                                    : "bg-amber-500"
-                              )}
-                              style={{ width: `${item.data.score}%` }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-4">
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                          ...remarkMarkdownComponents,
-                          p: ({ node, ...props }) => (
-                            <p className="mb-4 text-slate-700 leading-relaxed text-sm" {...props} />
-                          ),
-                        }}
-                        className="text-slate-700 text-sm leading-relaxed"
-                      >
-                        {item.data.analysis}
-                      </ReactMarkdown>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          ) : null}
+          <CommunicationAnalysis
+            interview={interview}
+            headingFont={headingFont}
+            includeTranscript={includeTranscript}
+          />
 
-          {/* Prosody Analysis - Redesigned for academic style */}
-          {includeTranscript && (
-            <section className="mb-16">
-              <h2
-                className={cn(
-                  "text-base font-semibold text-blue-800 uppercase tracking-widest border-b border-slate-300 pb-2 mb-6 w-full",
-                  headingFont
-                )}
-              >
-                Communication Pattern Analysis
-              </h2>
-              <div className="border border-slate-200 p-8">
-                <p className="text-slate-700 mb-8 text-sm max-w-prose leading-relaxed">
-                  The following analysis presents a quantitative assessment of vocal characteristics
-                  exhibited during the interview. The data visualization below illustrates the
-                  prevalence of each characteristic, with the radial distance from center
-                  representing frequency of occurrence in the candidate&apos;s responses.
-                </p>
-                <div
-                  className="w-full mb-8"
-                  aria-label="Vocal characteristics chart showing the prevalence of different speech patterns"
-                >
-                  <RadialProsodyChart
-                    data={aggregateProsodyData(interview?.data.transcript ?? "[]")}
-                  />
-                </div>
-                <div className="mt-8 text-xs text-slate-600 italic border-t border-slate-200 pt-4">
-                  <p>
-                    <span className="font-semibold">Methodology note:</span> Values represent
-                    percentage of responses where each characteristic was detected at significant
-                    levels. Analysis is limited to the six most prevalent characteristics for
-                    clarity of presentation.
-                  </p>
-                </div>
-              </div>
-            </section>
-          )}
+          <TranscriptSection
+            interview={interview}
+            headingFont={headingFont}
+            includeTranscript={includeTranscript}
+          />
 
-          {/* Interview Transcript - Redesigned for better readability */}
-          {includeTranscript && (
-            <section className="mb-16 bg-slate-50 py-8 border-y border-slate-200">
-              <h2
-                className={cn(
-                  "text-base font-semibold text-blue-800 uppercase tracking-widest border-b border-slate-300 pb-2 mb-6 mx-8 w-auto",
-                  headingFont
-                )}
-              >
-                Interview Transcript
-              </h2>
-              <div className="px-8 space-y-4 text-sm">
-                {JSON.parse(interview?.data.transcript ?? "[]").map(
-                  (
-                    message: {
-                      role: string;
-                      content: string;
-                      prosody: Record<string, number>;
-                    },
-                    index: number
-                  ) => {
-                    const persona = message.role
-                      .replace("assistant", "Interviewer")
-                      .replace("user", "Candidate")
-                      ?.trim();
-                    return (
-                      <div
-                        key={message.content}
-                        className={cn(
-                          "p-4 border-l-2",
-                          persona === "Interviewer"
-                            ? "border-blue-400 ml-4 bg-white"
-                            : "border-blue-600 mr-4"
-                        )}
-                      >
-                        <div className="mb-2">
-                          <span
-                            className={cn(
-                              "font-medium text-xs uppercase tracking-wider",
-                              persona === "Interviewer" ? "text-blue-600" : "text-blue-800"
-                            )}
-                          >
-                            {persona}
-                          </span>
-                        </div>
-                        <p className="text-slate-700 leading-relaxed mb-2">
-                          {message.content?.split("{")?.[0] ?? ""}
-                        </p>
-                        {persona === "Candidate" &&
-                        message.prosody &&
-                        Object.keys(message.prosody).length > 0 ? (
-                          <div className="mt-2 pt-2 border-t border-slate-200">
-                            <p className="text-xs uppercase tracking-wider text-slate-600 mb-2">
-                              Vocal characteristics
-                            </p>
-                            <Expressions values={message.prosody} withScores={false} />
-                          </div>
-                        ) : null}
-                      </div>
-                    );
-                  }
-                )}
-              </div>
-            </section>
-          )}
-
-          {/* Footer - Redesigned to be minimalist */}
-          <footer className="text-slate-500 text-xs mt-16 pt-4 border-t border-slate-200">
-            <div className="flex justify-between items-center">
-              <div className="text-left text-xs uppercase tracking-wider">
-                Confidential Document
-              </div>
-              <div>
-                <p className="font-mono">
-                  {config.projectName} •{" "}
-                  {new Date().toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}{" "}
-                  • Ref: IO-{idHandler.encode(report?.sys.id ?? 0)}
-                </p>
-              </div>
-              <div className="text-right text-xs uppercase tracking-wider">Page 1</div>
-            </div>
-          </footer>
+          <ReportFooter report={report} />
         </PagePreview>
       </div>
 
@@ -1006,7 +512,7 @@ export default function JobReportPage(props: {
               className="flex-grow"
             />
             <Button size="icon" variant="outline" onClick={copyShareLink} disabled={!isPublic}>
-              <Copy className="h-4 w-4" />
+              <FileSearch className="h-4 w-4" />
             </Button>
           </div>
           <AlertDialogFooter className="flex justify-between">
