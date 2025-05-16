@@ -80,6 +80,13 @@ SPECIFIC GUIDANCE FOR TECHNICAL KNOWLEDGE ASSESSMENT:
    - Could they adapt their technical explanations to be understandable?
    - Did they bridge technical and business perspectives effectively?
 
+FORMAT REQUIREMENTS:
+- Format your entire response in proper Markdown
+- Use headings (## and ###) for clear organization
+- Use bullet points (*) for listing items
+- Use bold (**text**) and italic (*text*) for emphasis
+- Include direct quotes from the transcript in blockquotes (> quote)
+
 IMPORTANT REMINDER ABOUT COVERAGE:
 - Only assess technical areas that were actually discussed in the interview
 - For technical skills mentioned in the job description but not covered in the interview, clearly state: "This technical area was not covered in the interview"

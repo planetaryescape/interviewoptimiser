@@ -77,7 +77,14 @@ SPECIFIC GUIDANCE FOR SPEAKING SKILLS ASSESSMENT:
 
 PAY SPECIAL ATTENTION TO THE PROSODY DATA in the transcript, which contains AI-detected emotional cues from the candidate's voice. Use this data to distinguish between content issues and delivery issues.
 
-Remember to reference specific examples from the transcript for each point in your assessment, including direct quotes that demonstrate speaking patterns.
+FORMAT REQUIREMENTS:
+- Format your entire response in proper Markdown
+- Use headings (## and ###) for clear organization
+- Use bullet points (*) for listing items
+- Use bold (**text**) and italic (*text*) for emphasis
+- Include direct quotes from the transcript in blockquotes (> quote)
+
+Remember to reference specific examples from the transcript for each point in your assessment. Be detailed in your analysis of the candidate's speaking style, tone, pace, clarity, and overall verbal effectiveness.
 `;
 
     // Generate the structured output

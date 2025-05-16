@@ -73,12 +73,18 @@ Your task is to identify 3-5 specific development areas where the candidate coul
    - How does this improvement area connect to the candidate's existing strengths?
 
 FORMAT REQUIREMENTS:
-- Identify 3-5 specific, actionable improvement areas (not vague critiques like "needs better communication")
-- For each area, provide a concise title/label, then 1-2 paragraphs of analysis
-- Include direct quotes or specific examples from the transcript for each area
-- Make each improvement area distinctive - avoid overlapping or redundant feedback
-- Balance candor with empathy - be direct but not harsh in your assessment
-- Ensure feedback is actionable - focus on aspects the candidate can realistically improve
+- Format your entire response in proper Markdown
+- Use headings (## and ###) for clear organization
+- Use bullet points (*) for listing items
+- Use bold (**text**) and italic (*text*) for emphasis
+- Include direct quotes from the transcript in blockquotes (> quote)
+
+IMPORTANT:
+- Focus on 3-5 distinct, significant areas for improvement rather than minor issues
+- For each area identified, clearly explain the impact it would have on job performance
+- Provide concrete examples from the transcript that demonstrate each weakness
+- Be forthright and direct about serious concerns - don't soften critical feedback
+- If there are few areas for improvement, acknowledge the candidate's strengths but still identify the relative weaknesses
 
 Remember to maintain the principles of Radical Candor - be honest about development needs while showing you care about the candidate's growth and success.
 `;

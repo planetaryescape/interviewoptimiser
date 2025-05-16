@@ -41,12 +41,19 @@ export async function analyzeKeyQuestion({
     );
 
     // Replace placeholders in the user prompt
-    const questionPrompt = QUESTION_ANALYSIS_PROMPT.replace(
+    const questionPrompt = `${QUESTION_ANALYSIS_PROMPT.replace(
       "{{STRUCTURED_DATA}}",
       structuredDataText
     )
       .replace("{{TRANSCRIPT}}", JSON.stringify(transcript))
-      .replace(/{{QUESTION}}/g, question);
+      .replace(/{{QUESTION}}/g, question)}
+
+FORMAT REQUIREMENTS:
+- Format your entire response in proper Markdown
+- Use headings (## and ###) for clear organization
+- Use bullet points (*) for listing items
+- Use bold (**text**) and italic (*text*) for emphasis
+- Include direct quotes from the transcript in blockquotes (> quote)`;
 
     // Generate the structured output
     const { object: structuredOutput, usage } = await generateObject({

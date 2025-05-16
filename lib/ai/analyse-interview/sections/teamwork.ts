@@ -70,17 +70,25 @@ SPECIFIC GUIDANCE FOR TEAMWORK ASSESSMENT:
    - How well did they function as a team member when not in a leadership role?
    - What evidence suggests they can balance autonomy with team cohesion?
 
-5. REMOTE/VIRTUAL TEAMWORK:
-   - Did they show competence in collaborating in remote or virtual environments?
-   - What strategies did they use to maintain connection and alignment when not co-located?
-   - How did they handle the unique challenges of distributed teamwork?
+5. CONTRIBUTION AWARENESS:
+   - How clear is their understanding of their own strengths and contributions?
+   - Did they appropriately credit team members in their examples?
+   - Do they show awareness of how their work affects others?
 
-6. CROSS-FUNCTIONAL COLLABORATION:
-   - How effectively did they work with people from different disciplines or backgrounds?
-   - Did they demonstrate respect for diverse expertise and perspectives?
-   - What evidence suggests they can bridge gaps between different functional areas?
+FORMAT REQUIREMENTS:
+- Format your entire response in proper Markdown
+- Use headings (## and ###) for clear organization
+- Use bullet points (*) for listing items
+- Use bold (**text**) and italic (*text*) for emphasis
+- Include direct quotes from the transcript in blockquotes (> quote)
 
-Remember to reference specific examples from the transcript for each point in your assessment. Look for instances where the candidate describes team interactions, collaborative projects, or situations requiring coordination with others.
+IMPORTANT REMINDER ABOUT COVERAGE:
+- Only assess teamwork aspects that were actually discussed in the interview
+- If teamwork was not explicitly explored, state this clearly
+- Focus your analysis on concrete examples the candidate shared about past team experiences
+- If making inferences about teamwork skills not directly discussed, explain your reasoning and cite specific evidence
+
+Remember to reference specific examples from the transcript for each point in your assessment. Look for instances where the candidate describes how they've worked in teams, handled collaboration challenges, or contributed to collective outcomes.
 `;
 
     // Generate the structured output

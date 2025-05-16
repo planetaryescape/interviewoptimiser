@@ -50,37 +50,50 @@ export async function analyzeCommunicationSkills({
 
 SPECIFIC GUIDANCE FOR COMMUNICATION SKILLS ASSESSMENT:
 
-1. CONTENT ORGANIZATION:
-   - Did the candidate's responses have a clear structure?
-   - Were complex ideas broken down effectively?
-   - Did they prioritize information appropriately?
+1. CLARITY AND STRUCTURE:
+   - How clearly did the candidate convey complex ideas or processes?
+   - Did they use logical structure and organization in their responses?
+   - Were their explanations easy to follow and understand?
 
-2. STORYTELLING AND EXAMPLE USE:
-   - How effectively did they use concrete examples to illustrate points?
-   - Were their examples relevant, specific, and impactful?
-   - Did their storytelling enhance understanding of their capabilities?
+2. LISTENING AND RESPONSIVENESS:
+   - Did they directly answer the questions asked?
+   - Did they demonstrate active listening through their responses?
+   - How well did they adapt when clarification was needed?
 
-3. QUESTION COMPREHENSION:
-   - Did they accurately understand and address the questions asked?
-   - Were clarifications needed frequently?
-   - Did they stay focused on the question or tend to wander off-topic?
+3. CONCISENESS AND PRECISION:
+   - Did they get to the point effectively or ramble unnecessarily?
+   - Did they communicate with appropriate level of detail?
+   - How efficient was their use of language and time?
 
-4. CONCISENESS AND CLARITY:
-   - Were responses appropriately detailed without being overly verbose?
-   - Did they avoid jargon or explain technical terms when necessary?
-   - Did they communicate at the right level for their audience?
+4. TECHNICAL COMMUNICATION:
+   - How effectively did they explain technical concepts or specialized knowledge?
+   - Could they translate complex topics for different audiences?
+   - Did they use technical terminology appropriately?
 
-5. PERSUASIVENESS:
-   - How compelling were their arguments and explanations?
-   - Did they effectively advocate for their skills and experience?
-   - Were they able to explain the "why" behind their actions and decisions?
+5. CONFIDENCE AND PRESENCE:
+   - Did they communicate with appropriate confidence and authority?
+   - How was their verbal presence and impact?
+   - Did their communication style inspire trust and credibility?
 
-6. ACTIVE LISTENING:
-   - Did they demonstrate they were listening to the interviewer?
-   - Did they build on previous questions or refer back to earlier points?
-   - Did they adjust their communication based on feedback?
+6. INTERPERSONAL AWARENESS:
+   - How attuned were they to the interview dynamic?
+   - Did they demonstrate emotional intelligence in their communication?
+   - How effectively did they build rapport through their communication style?
 
-Remember to reference specific examples from the transcript for each point in your assessment. Focus specifically on the CONTENT and ORGANIZATION of their communication, as distinct from their speaking skills (which are covered in a separate section).
+FORMAT REQUIREMENTS:
+- Format your entire response in proper Markdown
+- Use headings (## and ###) for clear organization
+- Use bullet points (*) for listing items
+- Use bold (**text**) and italic (*text*) for emphasis
+- Include direct quotes from the transcript in blockquotes (> quote)
+
+IMPORTANT REMINDER ABOUT COVERAGE:
+- Only assess communication aspects that were actually demonstrated in the interview
+- Focus on language, organization, clarity, listening, and responsiveness
+- Be careful to distinguish between communication skills and other aspects like technical knowledge
+- If a candidate is not a native speaker, be sure to distinguish between language proficiency issues and actual communication skill deficiencies
+
+Remember to reference specific examples from the transcript for each point in your assessment. Pay particular attention to how the candidate structured responses, handled challenging questions, and adapted their communication style throughout the interview.
 `;
 
     // Generate the structured output

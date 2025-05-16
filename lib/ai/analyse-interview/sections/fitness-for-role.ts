@@ -50,43 +50,51 @@ export async function analyzeFitnessForRole({
 
 SPECIFIC GUIDANCE FOR FITNESS FOR ROLE ASSESSMENT:
 
-1. SKILL ALIGNMENT:
-   - How well do the candidate's demonstrated skills match the specific requirements of the role?
-   - Are there any critical skill gaps that would impact their ability to perform effectively?
-   - Did they provide evidence of skills that exceed the basic requirements in valuable ways?
+1. TECHNICAL COMPETENCY MATCH:
+   - How well do the candidate's demonstrated technical skills align with role requirements?
+   - Are there any critical technical gaps or areas of exceptional strength?
+   - Is their technical experience relevant to the specific challenges of this position?
 
-2. EXPERIENCE RELEVANCE:
-   - How closely does their past experience align with the responsibilities of this position?
-   - Did they demonstrate understanding of the industry, market, or specific challenges?
-   - Have they successfully handled similar responsibilities or challenges in the past?
+2. EXPERIENCE ALIGNMENT:
+   - How closely does their past experience match the responsibilities of this role?
+   - Have they worked in similar environments or contexts?
+   - Do they have exposure to the specific tools, systems, or methodologies required?
 
-3. MOTIVATION & INTEREST:
-   - Did they articulate genuine interest in this specific role, company, or industry?
-   - Did they demonstrate understanding of why this role fits their career path?
-   - Did they ask insightful questions about the position or express enthusiasm?
+3. SOFT SKILLS FIT:
+   - How well do their interpersonal and workplace skills align with role demands?
+   - Do they demonstrate the collaboration style needed for this team?
+   - Are their communication abilities appropriate for this position?
 
-4. CULTURAL ALIGNMENT:
-   - Based on their values and working style, how well might they fit the company culture?
-   - Did they demonstrate awareness of the company's mission, values, or culture?
-   - Are there any significant misalignments in work style or expectations?
+4. PROBLEM-SOLVING APPROACH:
+   - Is their problem-solving style suitable for the challenges in this role?
+   - Do they demonstrate appropriate analytical abilities?
+   - Can they balance speed and thoroughness in their approach to problems?
 
-5. GROWTH POTENTIAL:
-   - Did they show capacity to develop in areas where they may currently have gaps?
-   - Did they demonstrate learning agility and adaptability relevant to the role?
-   - How might their career trajectory align with future needs of the role/team?
+5. CULTURAL ALIGNMENT:
+   - How well might they integrate with the company culture?
+   - Do their values and working style appear compatible with the organization?
+   - Would they likely thrive in this specific work environment?
 
-6. COMPARATIVE ADVANTAGE:
-   - What unique strengths or perspectives might they bring to this specific position?
-   - How do their attributes compare to typical candidates for similar roles?
-   - Did they demonstrate any exceptional qualities particularly valuable for this position?
+6. GROWTH POTENTIAL:
+   - Do they demonstrate ability to learn and adapt in areas where they lack experience?
+   - How quickly could they become productive in this role?
+   - Do they show long-term potential beyond the immediate position?
+
+FORMAT REQUIREMENTS:
+- Format your entire response in proper Markdown
+- Use headings (## and ###) for clear organization
+- Use bullet points (*) for listing items
+- Use bold (**text**) and italic (*text*) for emphasis
+- Include direct quotes from the transcript in blockquotes (> quote)
 
 IMPORTANT REMINDER ABOUT COVERAGE:
-- Only assess how the candidate fits role requirements that were actually discussed in the interview
-- For requirements mentioned in the job description but not covered in the interview, clearly state: "This requirement was not covered in the interview"
-- If you make inferences about fitness for aspects of the role not directly discussed, clearly explain your reasoning based on specific evidence from the transcript
-- Focus your assessment on demonstrated skills and qualities, not assumptions about what they might know or do
+- Only assess fitness aspects that were actually covered in the interview
+- For areas not sufficiently explored, clearly state that they couldn't be properly evaluated
+- Identify both specific strengths that would enhance performance and weaknesses that might impact success
+- Consider the relative importance of different skills for this specific role
+- If making inferences about aspects not directly discussed, explain your reasoning and cite specific supporting evidence
 
-Remember to reference specific examples from the transcript for each point in your assessment. Consider the context of the role when evaluating responses, and focus on alignment rather than absolute performance.
+Your assessment should result in a clear, evidence-based evaluation of how well the candidate's demonstrated abilities, experience, and potential align with the requirements of this specific role.
 `;
 
     // Generate the structured output

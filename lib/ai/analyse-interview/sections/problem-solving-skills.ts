@@ -80,6 +80,13 @@ SPECIFIC GUIDANCE FOR PROBLEM-SOLVING SKILLS ASSESSMENT:
    - Were technical solutions well-reasoned and appropriate to the context?
    - Did they balance technical considerations with business needs?
 
+FORMAT REQUIREMENTS:
+- Format your entire response in proper Markdown
+- Use headings (## and ###) for clear organization
+- Use bullet points (*) for listing items
+- Use bold (**text**) and italic (*text*) for emphasis
+- Include direct quotes from the transcript in blockquotes (> quote)
+
 Look for instances where the candidate describes past problem-solving experiences or responds to hypothetical scenarios during the interview. Pay special attention to their thought process, not just the outcomes they achieved.
 
 Remember to reference specific examples from the transcript for each point in your assessment. Be thorough but focused specifically on problem-solving capabilities.
