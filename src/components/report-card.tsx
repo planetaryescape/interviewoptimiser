@@ -1,23 +1,10 @@
 import { Badge } from "@/components/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 import { idHandler } from "@/lib/utils/idHandler";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
-import {
-  Brain,
-  Calendar,
-  ChevronRight,
-  FileText,
-  Lightbulb,
-  Loader2,
-  MessageSquare,
-  Target,
-  Users,
-} from "lucide-react";
+import { Calendar, ChevronRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import type { Report } from "~/db/schema";

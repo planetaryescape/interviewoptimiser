@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     } = await req.json();
     const jobId = idHandler.decode(jobIdString);
     const interviewId = idHandler.decode(interviewIdString);
-    let reportId = idHandler.decode(reportIdString);
+    let reportId = reportIdString ? idHandler.decode(reportIdString) : 0;
     logger.info(
       { jobId, interviewId, reportId },
       "Job ID, interview ID and report ID for report generation"
