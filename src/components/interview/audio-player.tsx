@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
-import { FastForward, Pause, Play, Rewind, Volume2, VolumeX } from "lucide-react";
+import { Download, FastForward, Pause, Play, Rewind, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Button } from "../ui/button";
 
 /**
  * AudioPlayer component for interview audio playback.
@@ -8,7 +9,13 @@ import { useEffect, useRef, useState } from "react";
  * @param audioUrl - The URL of the audio file to play.
  * @param disabled - If true, the player is visually disabled and non-interactive.
  */
-export function AudioPlayer({ audioUrl, disabled }: { audioUrl?: string; disabled?: boolean }) {
+export function AudioPlayer({
+  audioUrl,
+  disabled,
+}: {
+  audioUrl?: string;
+  disabled?: boolean;
+}) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -94,6 +101,44 @@ export function AudioPlayer({ audioUrl, disabled }: { audioUrl?: string; disable
 
   const toggleMute = () => {
     setIsMuted(!isMuted);
+  };
+
+  const handleDownload = () => {
+    if (!audioUrl || disabled) return;
+    const link = document.createElement("a");
+    link.href = audioUrl;
+    // Extract filename from URL or set a default.
+    // This will try to get the part after the last '/' or '?'
+    let filename = "downloaded_audio";
+    try {
+      const urlObj = new URL(audioUrl);
+      const pathParts = urlObj.pathname.split("/");
+      const lastPart = pathParts[pathParts.length - 1];
+      if (lastPart) {
+        filename = lastPart;
+      }
+    } catch (e) {
+      // If URL parsing fails, fallback to a simpler method or keep default
+      const simpleMatch = audioUrl.substring(audioUrl.lastIndexOf("/") + 1).split("?")[0];
+      if (simpleMatch) {
+        filename = simpleMatch;
+      }
+    }
+    // Ensure a fallback extension if none is present
+    if (!filename.includes(".")) {
+      // A common audio extension, adjust if more specific type is known
+      filename += ".mp3";
+    }
+
+    link.setAttribute("download", filename);
+    link.setAttribute("target", "_blank");
+    link.setAttribute("rel", "noopener noreferrer");
+    link.setAttribute("type", "audio/mpeg");
+    link.setAttribute("referrerpolicy", "no-referrer");
+    link.setAttribute("href", audioUrl);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const formatTime = (time: number) => {
@@ -209,41 +254,60 @@ export function AudioPlayer({ audioUrl, disabled }: { audioUrl?: string; disable
           </div>
         </div>
 
-        <div className="relative flex items-center">
-          <button
+        <div className="flex items-center space-x-2">
+          <div
+            className="relative flex items-center"
             onMouseEnter={() => setShowVolumeControl(true)}
             onMouseLeave={() => setShowVolumeControl(false)}
-            onClick={toggleMute}
-            className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            aria-label={isMuted ? "Unmute" : "Mute"}
+          >
+            <button
+              onClick={toggleMute}
+              className={cn(
+                "p-2 rounded-full text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors",
+                disabled && "cursor-not-allowed opacity-50"
+              )}
+              aria-label={isMuted ? "Unmute" : "Mute"}
+              disabled={disabled}
+              type="button"
+            >
+              {isMuted || volume === 0 ? (
+                <VolumeX className="w-5 h-5" />
+              ) : (
+                <Volume2 className="w-5 h-5" />
+              )}
+            </button>
+            {showVolumeControl && (
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 p-2 bg-white dark:bg-gray-800 rounded-md shadow-lg">
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={isMuted ? 0 : volume}
+                  onChange={handleVolumeChange}
+                  className={cn(
+                    "w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600 dark:accent-blue-500",
+                    disabled && "cursor-not-allowed"
+                  )}
+                  aria-label="Volume control"
+                  disabled={disabled}
+                />
+              </div>
+            )}
+          </div>
+
+          <Button
+            onClick={handleDownload}
+            className={cn(
+              "p-2 rounded-full text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors",
+              disabled && "cursor-not-allowed opacity-50"
+            )}
+            aria-label="Download audio"
+            disabled={!audioUrl || disabled}
             type="button"
           >
-            {isMuted || volume === 0 ? (
-              <VolumeX className="w-5 h-5" />
-            ) : (
-              <Volume2 className="w-5 h-5" />
-            )}
-          </button>
-
-          <div
-            className={cn(
-              "absolute right-0 bottom-full mb-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-3 transform origin-bottom-right transition-all duration-200",
-              showVolumeControl ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
-            )}
-            onMouseEnter={() => setShowVolumeControl(true)}
-            onMouseLeave={() => setShowVolumeControl(false)}
-          >
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.01}
-              value={volume}
-              onChange={handleVolumeChange}
-              className="w-24 h-1.5 appearance-none bg-gray-300 dark:bg-gray-600 rounded-full accent-blue-600 dark:accent-blue-500"
-              aria-label="Volume"
-            />
-          </div>
+            <Download className="w-5 h-5" />
+          </Button>
         </div>
       </div>
 
