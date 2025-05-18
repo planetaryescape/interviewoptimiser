@@ -44,6 +44,7 @@ Interview Optimiser follows a modern web application architecture using Next.js 
 - **Form Handling**: React Hook Form with Zod validation
 - **Data Fetching**: TanStack React Query
 - **Animation**: Framer Motion
+- **Charting**: `recharts` (for data visualization like radar charts)
 
 ### 2.2 Backend
 
@@ -167,9 +168,19 @@ Report                               Job Candidate
 - Atomic design methodology:
   - Atoms (buttons, inputs, etc.)
   - Molecules (form groups, card elements)
-  - Organisms (complex forms, data tables)
+  - Organisms (complex forms, data tables, specific section components)
   - Templates (page layouts)
   - Pages (complete views)
+
+  **Example Dashboard Components (Organisms/Presentational):**
+  - `DashboardHero`: Displays the main hero section of the dashboard.
+  - `KeyMetricsSection`: Container for displaying key statistics.
+  - `AnimatedStatCard`: Reusable card for individual animated statistics.
+  - `PerformanceMetricsSection`: Section for detailed performance metrics, including charts and comparison cards.
+  - `ScoreRadarChart`: Component for rendering radar charts (using `recharts`).
+  - `ScoreComparisonCard`: Card for comparing two score values (e.g., recent vs. all-time).
+  - `RecentActivitySection`: Section for displaying a timeline of recent activities.
+  - `ActivityTimelineItem`: Component for an individual item in the activity timeline.
 
 ### 5.3 State Management
 

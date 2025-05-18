@@ -148,7 +148,7 @@ export function InterviewPlaceholder() {
           <ThemeToggle />
         </div>
         <div className="bg-background/40 backdrop-blur-md p-2 rounded-full border border-border/30 shadow-sm">
-          <Link href={`/dashboard/jobs/${jobId}/reports`}>
+          <Link href={`/dashboard/jobs/${jobId}/interviews`}>
             <X className="h-8 w-8 text-muted-foreground" />
           </Link>
         </div>

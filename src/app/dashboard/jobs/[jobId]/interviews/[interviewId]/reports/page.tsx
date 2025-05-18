@@ -6,7 +6,6 @@ import { ReportCard } from "@/components/report-card";
 import { Button } from "@/components/ui/button";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import type { Entity, EntityList } from "@/lib/utils/formatEntity";
 import * as Tabs from "@radix-ui/react-tabs";
@@ -14,7 +13,6 @@ import { useQuery } from "@tanstack/react-query";
 import { BarChart2, Calendar, ChevronRight, FileText, Home, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { usePostHog } from "posthog-js/react";
 import { use, useMemo, useState } from "react";
 import {
   CartesianGrid,
@@ -87,9 +85,6 @@ export default function JobReportsPage(props: {
 }) {
   const params = use(props.params);
   const router = useRouter();
-  const posthog = usePostHog();
-  const { data: user } = useUser();
-  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
   const [isOutOfMinutesDialogOpen, setIsOutOfMinutesDialogOpen] = useState(false);
 
   const {
@@ -121,11 +116,6 @@ export default function JobReportsPage(props: {
   });
 
   const handleRetakeInterview = () => {
-    router.push(`/dashboard/jobs/${params.jobId}`);
-  };
-
-  const handleConfirmRetake = () => {
-    setIsAlertDialogOpen(false);
     router.push(`/dashboard/jobs/${params.jobId}`);
   };
 

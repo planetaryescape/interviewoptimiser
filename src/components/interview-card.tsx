@@ -99,7 +99,7 @@ export const JobCard = ({ job, onDelete, deletingId }: JobCardProps) => {
       <div className="p-4 border-t border-gray-200 dark:border-gray-800 flex justify-between items-center bg-muted/50">
         <Button disabled={!hasInterviews} asChild size="sm" variant="secondary" className="w-full">
           <Link
-            href={`/dashboard/jobs/${idHandler.encode(job.id ?? 0)}/reports`}
+            href={`/dashboard/jobs/${idHandler.encode(job.id ?? 0)}/interviews`}
             className="flex items-center justify-center gap-2"
           >
             {!hasInterviews && <Loader2 className="h-4 w-4 animate-spin" />}

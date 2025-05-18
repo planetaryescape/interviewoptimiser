@@ -39,13 +39,16 @@ export const ReportCompletedEmail = ({
   role,
   company,
 }: ReportCompletedEmailProps) => {
-  const reportUrl = `${config.baseUrl}/jobs/${idHandler.encode(jobId)}/reports/${idHandler.encode(reportId)}`;
+  const reportUrl = `${config.baseUrl}/jobs/${idHandler.encode(
+    jobId
+  )}/reports/${idHandler.encode(reportId)}`;
 
   return (
     <Html>
       <Head />
       <Preview>
-        Your {interviewType} interview report for {role} at {company} is now ready
+        Your {formatInterviewType(interviewType)} interview report for {role} at {company} is now
+        ready
       </Preview>
       <Tailwind
         config={{

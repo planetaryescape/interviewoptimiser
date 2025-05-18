@@ -1,25 +1,21 @@
-import { InterviewContainer } from "@/components/interview-container";
+import InterviewLobby from "@/components/interview-lobby";
 import { getHumeAccessToken } from "@/utils/get-hume-access-token";
 import { Suspense } from "react";
 
 export default async function Page(props: {
-  params: Promise<{ jobId: string; interviewId: string }>;
+  params: Promise<{ jobId: string }>;
 }) {
   const params = await props.params;
   const accessToken = await getHumeAccessToken();
 
   if (!accessToken) {
-    throw new Error("No access token");
+    throw new Error();
   }
 
   return (
     <div className={"grow flex flex-col h-full overflow-auto"}>
       <Suspense fallback={null}>
-        <InterviewContainer
-          accessToken={accessToken}
-          jobId={params.jobId}
-          interviewId={params.interviewId}
-        />
+        <InterviewLobby accessToken={accessToken} jobId={params.jobId} />
       </Suspense>
     </div>
   );

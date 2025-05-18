@@ -313,7 +313,11 @@ export default function JobReportPage(props: {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ jobId: params.jobId }),
+        body: JSON.stringify({
+          jobId: params.jobId,
+          reportId: params.reportId,
+          interviewId: idHandler.encode(report?.data.interviewId ?? 0),
+        }),
       });
 
       if (!response.ok) {
