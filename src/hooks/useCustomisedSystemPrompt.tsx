@@ -42,7 +42,9 @@ export default function useCustomisedSystemPrompt({
       cvText: job.data.submittedCVText,
       structuredCandidateDetails: job.data.candidateDetails,
       structuredJobDescription: job.data.jobDescription,
-      duration: interview.data.duration,
+      duration: interview.data.actualTime
+        ? interview.data.duration - interview.data.actualTime
+        : interview.data.duration,
       interviewType: interview.data.type,
       keyQuestions: interview.data.keyQuestions ?? [],
     });

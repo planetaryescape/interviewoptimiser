@@ -16,7 +16,6 @@ import {
   ListChecks,
   MapPin,
   Star,
-  Tag,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -339,20 +338,6 @@ export function JobDetailsSheet({ jobId, className, variant = "outline" }: JobDe
                       icon={Layers}
                       items={data.data.keyTechnologies}
                     />
-
-                    {/* About the Role */}
-                    <SectionWithIcon icon={FileText} title="About the Role">
-                      <motion.div
-                        variants={itemVariants}
-                        className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground"
-                      >
-                        <div
-                          dangerouslySetInnerHTML={{
-                            __html: data.data.aboutTheRole || "",
-                          }}
-                        />
-                      </motion.div>
-                    </SectionWithIcon>
 
                     {/* Keywords */}
                     {data.data.keywords && data.data.keywords.length > 0 && (

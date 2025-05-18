@@ -118,6 +118,7 @@ export function InterviewContainer({
 
         Sentry.captureException(error);
       });
+      resetState();
     },
   });
 
@@ -150,6 +151,7 @@ export function InterviewContainer({
         queryKey: ["interview", interviewId],
       });
       requestAudioReconstruction();
+      resetState();
     },
     onError: (error) => {
       console.error("Error generating report:", error);
@@ -162,14 +164,13 @@ export function InterviewContainer({
         scope.setExtra("message", error instanceof Error ? error.message : "Unknown error");
         Sentry.captureException(error);
       });
+      resetState();
     },
   });
 
   useEffect(() => {
     if (interviewEnded && !hasGeneratedReportRef.current) {
-      hasGeneratedReportRef.current = true;
       setShowTakeover(true);
-
       // Check if interview duration is at least 3 minutes
       const actualTimeInSeconds =
         (activeInterview?.actualTime || interview?.data.actualTime || 0) * 60;
@@ -178,13 +179,18 @@ export function InterviewContainer({
         setIsInterviewTooShort(true);
       } else {
         generateReportMutation.mutate();
+        hasGeneratedReportRef.current = true;
       }
     }
   }, [interviewEnded, generateReportMutation, setShowTakeover, activeInterview, interview]);
 
   useEffect(() => {
     if (interview?.data.duration) {
-      setTotalTime(interview.data.duration * 60);
+      const totalTime = interview.data.actualTime
+        ? interview.data.duration - interview.data.actualTime
+        : interview.data.duration;
+
+      setTotalTime(totalTime * 60);
     }
   }, [interview, setTotalTime]);
 
@@ -217,7 +223,9 @@ export function InterviewContainer({
           systemPrompt,
           context: {
             text: `You are an AI interviewer called Cora, the lead interviewer at Interview Optimiser. You are conducting a ${
-              interview?.data?.duration
+              interview?.data?.actualTime
+                ? interview?.data.duration - interview?.data.actualTime
+                : interview?.data.duration
             } minute ${formatInterviewType(
               interview?.data?.type || "behavioral"
             )} mock interview with ${

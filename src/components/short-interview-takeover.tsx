@@ -5,14 +5,16 @@ import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 export function ShortInterviewTakeover({ jobId }: { jobId: string }) {
   const deletedRef = useRef(false);
+  const params = useParams();
 
   const deleteShortInterviewMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`/api/interviews/${jobId}`, {
+      const response = await fetch(`/api/interviews/${params.interviewId}`, {
         method: "DELETE",
       });
       if (!response.ok) {
@@ -100,12 +102,12 @@ export function ShortInterviewTakeover({ jobId }: { jobId: string }) {
               Back to Dashboard
             </Link>
           </Button>
-          <Button
-            className="w-full sm:w-auto flex items-center gap-2"
-            onClick={() => deleteShortInterviewMutation.mutate()}
-          >
-            <RefreshCw className="w-4 h-4" />
-            Start a New Interview
+
+          <Button className="w-full sm:w-auto flex items-center gap-2" asChild>
+            <Link href={`/dashboard/jobs/${jobId}/interviews/new`}>
+              <RefreshCw className="w-4 h-4" />
+              Start a New Interview
+            </Link>
           </Button>
         </motion.div>
       </motion.div>
