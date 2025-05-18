@@ -12,6 +12,7 @@ export interface RecentInterviewItem {
   jobRole: string | null;
   interviewType: Interview["type"] | null;
   interviewCreatedAt: Date | null;
+  jobId: number;
 }
 
 export type TimelineItemData =

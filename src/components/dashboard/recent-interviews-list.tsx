@@ -1,3 +1,4 @@
+import { idHandler } from "@/lib/utils/idHandler";
 import {
   ChatBubbleLeftEllipsisIcon,
   ClockIcon,
@@ -12,6 +13,7 @@ export interface RecentInterviewItem {
   jobRole: string | null;
   interviewType: string | null;
   interviewCreatedAt: Date | null;
+  jobId: number;
 }
 
 interface RecentInterviewsListProps {
@@ -61,7 +63,11 @@ export const RecentInterviewsList = ({ interviews }: RecentInterviewsListProps) 
                   {interview.reportId && (
                     <p className="mt-1 text-xs">
                       <Link
-                        href={`/dashboard/reports/${interview.reportId}`}
+                        href={`/dashboard/jobs/${idHandler.encode(
+                          interview.jobId
+                        )}/interviews/${idHandler.encode(
+                          interview.interviewId
+                        )}/reports/${idHandler.encode(interview.reportId)}`}
                         className="font-medium text-primary hover:text-primary/80 flex items-center"
                       >
                         <DocumentTextIcon className="h-3.5 w-3.5 mr-1" /> View Report

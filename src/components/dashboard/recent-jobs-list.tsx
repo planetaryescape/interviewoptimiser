@@ -1,3 +1,4 @@
+import { idHandler } from "@/lib/utils/idHandler";
 import { BriefcaseIcon, BuildingOfficeIcon, ClockIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 import Link from "next/link";
@@ -40,7 +41,7 @@ export const RecentJobsList = ({ jobs }: RecentJobsListProps) => {
                 <div>
                   <div className="text-sm">
                     <Link
-                      href={`/dashboard/jobs/${job.id}`}
+                      href={`/dashboard/jobs/${idHandler.encode(job.id)}`}
                       className="font-medium text-foreground hover:text-primary"
                     >
                       {job.role || "N/A"}

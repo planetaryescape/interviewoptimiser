@@ -93,6 +93,7 @@ export async function GET() {
         jobRole: jobs.role,
         interviewType: interviews.type,
         interviewCreatedAt: interviews.createdAt,
+        jobId: jobs.id,
       })
       .from(interviews)
       .innerJoin(jobs, eq(interviews.jobId, jobs.id))
@@ -115,7 +116,7 @@ export async function GET() {
         )
       );
 
-    const minutesSpentPracticing = Math.floor((practiceTimeResult[0]?.totalSeconds || 0) / 60);
+    const minutesSpentPracticing = Math.floor(practiceTimeResult[0]?.totalSeconds || 0);
 
     // 4. Average Scores (User-Specific)
     const allCompletedReportIds = (
