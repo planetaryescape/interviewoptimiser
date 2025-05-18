@@ -119,8 +119,8 @@ export const PerformanceMetricsSection = ({
       <h2 className="text-2xl font-headingSecondary mb-6 text-foreground/90 flex items-center">
         <BarChart3 className="mr-3 h-6 w-6 text-primary opacity-80" /> Performance Metrics
       </h2>
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-2 bg-card border border-border/20 dark:border-border/30 p-4 sm:p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+      <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
+        <div className="lg:col-span-3 bg-card border border-border/20 dark:border-border/30 p-4 sm:p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
           <h3 className="text-lg font-semibold mb-4 text-primary">{primaryScoresTitle}</h3>
           <div className="h-72 md:h-80 lg:h-96">
             <ScoreRadarChart data={radarDataPrimary} />

@@ -115,7 +115,7 @@ export function InterviewSettings({
                         variant={hasEnoughMinutes ? "secondary" : "destructive"}
                         className="font-medium text-xs py-0 h-5"
                       >
-                        {user.minutes} minutes
+                        <span className="text-xs">{user.minutes} min</span>
                       </Badge>
                     </div>
                     <Link

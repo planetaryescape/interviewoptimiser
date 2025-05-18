@@ -102,14 +102,14 @@ export function JobDetailsSheet({ jobId, className, variant = "outline" }: JobDe
   }) => (
     <motion.div
       variants={itemVariants}
-      className="border-b border-gray-100 dark:border-gray-800 pb-6 mb-6 last:border-0 last:mb-0 last:pb-0"
+      className="border-b border-border pb-6 mb-6 last:border-0 last:mb-0 last:pb-0"
     >
       <div className="flex items-start">
-        <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-md text-blue-600 dark:text-blue-400 mr-4">
+        <div className="p-2 bg-accent rounded-md text-accent-foreground mr-4">
           <Icon className="w-5 h-5" />
         </div>
         <div className="flex-1">
-          <h3 className="text-sm font-semibold mb-3 text-gray-800 dark:text-gray-200">{title}</h3>
+          <h3 className="text-sm font-semibold mb-3 text-foreground">{title}</h3>
           {children}
         </div>
       </div>
@@ -144,8 +144,8 @@ export function JobDetailsSheet({ jobId, className, variant = "outline" }: JobDe
               variants={listItemVariants}
               className="flex items-start"
             >
-              <ChevronRight className="w-4 h-4 text-blue-500 dark:text-blue-400 mt-0.5 mr-2 flex-shrink-0" />
-              <span className="text-sm text-gray-600 dark:text-gray-300">{item}</span>
+              <ChevronRight className="w-4 h-4 text-accent-foreground mt-0.5 mr-2 flex-shrink-0" />
+              <span className="text-sm text-muted-foreground">{item}</span>
             </motion.li>
           ))}
         </motion.ul>
@@ -161,10 +161,7 @@ export function JobDetailsSheet({ jobId, className, variant = "outline" }: JobDe
           View Job Details
         </Button>
       </SheetTrigger>
-      <SheetContent
-        className="w-full sm:max-w-xl overflow-y-auto bg-white dark:bg-gray-950 p-0"
-        side="right"
-      >
+      <SheetContent className="w-full sm:max-w-xl overflow-y-auto bg-card p-0" side="right">
         <MotionConfig
           transition={{
             type: "spring",
@@ -178,13 +175,13 @@ export function JobDetailsSheet({ jobId, className, variant = "outline" }: JobDe
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="sticky top-0 z-10 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 py-4 px-6"
+                className="sticky top-0 z-10 border-b border-border bg-card py-4 px-6"
               >
                 <div className="flex justify-between items-center">
                   <motion.h2
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white"
+                    className="text-xl font-semibold tracking-tight text-card-foreground"
                   >
                     Job Description
                   </motion.h2>
@@ -201,7 +198,7 @@ export function JobDetailsSheet({ jobId, className, variant = "outline" }: JobDe
               </motion.div>
 
               {/* Content area */}
-              <div className="flex-1 overflow-y-auto p-6">
+              <div className="flex-1 overflow-y-auto p-6 bg-card text-card-foreground">
                 {isLoading ? (
                   <div className="flex justify-center items-center h-full">
                     <ParticleSwarmLoader />
@@ -343,29 +340,33 @@ export function JobDetailsSheet({ jobId, className, variant = "outline" }: JobDe
                       items={data.data.keyTechnologies}
                     />
 
+                    {/* About the Role */}
+                    <SectionWithIcon icon={FileText} title="About the Role">
+                      <motion.div
+                        variants={itemVariants}
+                        className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground"
+                      >
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: data.data.aboutTheRole || "",
+                          }}
+                        />
+                      </motion.div>
+                    </SectionWithIcon>
+
                     {/* Keywords */}
                     {data.data.keywords && data.data.keywords.length > 0 && (
                       <motion.div variants={itemVariants} className="pt-4">
-                        <h3 className="text-sm font-semibold mb-3 text-gray-800 dark:text-gray-200">
-                          Keywords
-                        </h3>
+                        <h3 className="text-sm font-semibold mb-3 text-foreground">Keywords</h3>
                         <div className="flex flex-wrap gap-2">
-                          {data.data.keywords.map((keyword: string, index: number) => (
-                            <motion.span
-                              key={`keyword-${keyword}`}
-                              initial={{ scale: 0.8, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              transition={{
-                                delay: 0.1 * index,
-                                type: "spring",
-                                stiffness: 500,
-                                damping: 30,
-                              }}
-                              className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+                          {data.data.keywords.map((keyword: string) => (
+                            <motion.div
+                              key={keyword}
+                              variants={itemVariants}
+                              className="bg-accent text-accent-foreground px-3 py-1 rounded-full text-xs font-medium"
                             >
-                              <Tag className="mr-1 h-3 w-3" />
                               {keyword}
-                            </motion.span>
+                            </motion.div>
                           ))}
                         </div>
                       </motion.div>

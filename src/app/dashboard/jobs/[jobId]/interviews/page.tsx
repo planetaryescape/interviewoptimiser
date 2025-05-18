@@ -129,10 +129,6 @@ export default function JobReportsPage(props: {
   });
   const job = jobData?.data; // Extracted job data
 
-  const handleNewInterview = () => {
-    router.push(`/dashboard/jobs/${params.jobId}/new-interview`);
-  };
-
   const { totalPracticeMinutesThisJob, latestInterviewScoresThisJob, averageScoresThisJob } =
     useMemo(() => {
       if (!interviews.length) {
@@ -369,11 +365,10 @@ export default function JobReportsPage(props: {
             </div>
             <div className="flex items-center gap-2">
               <JobDetailsSheet jobId={params.jobId} />
-              <Button
-                onClick={handleNewInterview}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground"
-              >
-                <RefreshCw className="mr-2 h-4 w-4" /> New Interview
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground" asChild>
+                <Link href={`/dashboard/jobs/${params.jobId}/interviews/new`}>
+                  <RefreshCw className="mr-2 h-4 w-4" /> New Interview
+                </Link>
               </Button>
             </div>
           </div>
@@ -423,8 +418,10 @@ export default function JobReportsPage(props: {
                 Practice an interview for the &quot;{job.role || "current"}
                 &quot; role to generate your first report and see detailed feedback here.
               </p>
-              <Button onClick={handleNewInterview} className="min-w-40">
-                Start New Interview
+              <Button asChild>
+                <Link href={`/dashboard/jobs/${params.jobId}/interviews/new`}>
+                  Start New Interview
+                </Link>
               </Button>
             </div>
           ) : (
