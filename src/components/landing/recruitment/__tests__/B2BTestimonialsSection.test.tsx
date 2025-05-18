@@ -1,66 +1,69 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
-import B2BTestimonialsSection from "../sections/B2BTestimonialsSection";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import "@testing-library/jest-dom/vitest";
 
-// Import setup file for mocks
-import "../__tests__/setup";
-
-// Mock embla-carousel-react to avoid the TypeError
-vi.mock("embla-carousel-react", () => ({
-  useEmblaCarousel: () => [() => {}, { scrollPrev: vi.fn(), scrollNext: vi.fn() }],
+// Try with doMock as it's not hoisted
+vi.doMock("embla-carousel-react", () => ({
+  default: () => [
+    // This mocks the default export
+    vi.fn(), // carouselRef
+    {
+      // api object
+      scrollPrev: vi.fn(),
+      scrollNext: vi.fn(),
+      on: vi.fn(),
+      off: vi.fn(),
+      scrollTo: vi.fn(),
+      scrollSnapList: vi.fn(() => []),
+      selectedScrollSnap: vi.fn(() => 0),
+      canScrollPrev: vi.fn(() => true),
+      canScrollNext: vi.fn(() => true),
+      scrollProgress: vi.fn(() => 0),
+    },
+  ],
 }));
 
-// Skip all tests due to embla-carousel-react mock issues
-describe.skip("B2BTestimonialsSection", () => {
-  it("renders the section title", () => {
-    render(<B2BTestimonialsSection />);
+describe("B2BTestimonialsSection", () => {
+  // Test to ensure the mock is applied and vi is available
+  it("should have vi defined and mock embla-carousel-react", async () => {
+    // Dynamically import the component *after* vi.doMock has been called
+    const B2BTestimonialsSectionWithMock = (await import("../sections/B2BTestimonialsSection"))
+      .default;
+    render(<B2BTestimonialsSectionWithMock />);
+    expect(vi).toBeDefined();
+    // Add a basic assertion related to the component if needed,
+    // but the main goal here is to check if vi.doMock works and vi is defined.
     expect(
       screen.getByText("Why Hiring Teams & Candidates Rate Our AI Highly")
     ).toBeInTheDocument();
   });
 
-  it("renders all testimonials", () => {
-    render(<B2BTestimonialsSection />);
-
-    // Check for the first testimonial
-    expect(screen.getByText(/Our AI doesn't just ask questions/i)).toBeInTheDocument();
-    expect(screen.getByText("Anonymised User Feedback")).toBeInTheDocument();
-
-    // Check for the second testimonial
-    expect(screen.getByText(/The AI felt like a real interviewer/i)).toBeInTheDocument();
-    expect(screen.getByText("User Review")).toBeInTheDocument();
-
-    // Check for the third testimonial
-    expect(screen.getByText(/I've used several interview practice tools/i)).toBeInTheDocument();
-    expect(screen.getByText("Practice User")).toBeInTheDocument();
+  it("renders the section title correctly", async () => {
+    const B2BTestimonialsSectionWithMock = (await import("../sections/B2BTestimonialsSection"))
+      .default;
+    render(<B2BTestimonialsSectionWithMock />);
+    expect(
+      screen.getByText("Why Hiring Teams & Candidates Rate Our AI Highly")
+    ).toBeInTheDocument();
   });
 
-  it("renders carousel navigation controls", () => {
-    render(<B2BTestimonialsSection />);
-    expect(screen.getByTestId("carousel-next")).toBeInTheDocument();
-    expect(screen.getByTestId("carousel-previous")).toBeInTheDocument();
-  });
-
-  it("renders quote icons", () => {
-    render(<B2BTestimonialsSection />);
-    // There should be 3 quote icons, one for each testimonial
-    const quoteIcons = screen.getAllByTestId("quote-icon");
-    expect(quoteIcons.length).toBe(3);
-  });
-
-  it("renders testimonial content", () => {
-    render(<B2BTestimonialsSection />);
-
-    // Check for testimonial text snippets
-    expect(screen.getByText(/Our AI doesn't just ask questions/i)).toBeInTheDocument();
+  it("renders testimonial content correctly", async () => {
+    const B2BTestimonialsSectionWithMock = (await import("../sections/B2BTestimonialsSection"))
+      .default;
+    render(<B2BTestimonialsSectionWithMock />);
+    // Check for presence of testimonial content (adjust selectors as needed)
     expect(screen.getByText(/Anonymised User Feedback/i)).toBeInTheDocument();
+    expect(screen.getByText(/User Review/i)).toBeInTheDocument();
+    expect(screen.getByText(/Practice User/i)).toBeInTheDocument();
+    // Check for a snippet of one of the quotes
+    expect(screen.getByText(/truly listens/i)).toBeInTheDocument();
   });
 
-  it("renders navigation buttons", () => {
-    render(<B2BTestimonialsSection />);
-
-    // Look for navigation button text or accessible names
-    const buttons = screen.getAllByRole("button");
-    expect(buttons.length).toBeGreaterThanOrEqual(2);
+  it("renders navigation buttons", async () => {
+    const B2BTestimonialsSectionWithMock = (await import("../sections/B2BTestimonialsSection"))
+      .default;
+    render(<B2BTestimonialsSectionWithMock />);
+    expect(screen.getByRole("button", { name: /Previous slide/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Next slide/i })).toBeInTheDocument();
   });
 });

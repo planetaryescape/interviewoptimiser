@@ -31,7 +31,7 @@ type JobDetailsSheetProps = {
   variant?: "default" | "outline" | "secondary" | "ghost";
 };
 
-export function JobDetailsSheet({ jobId, className, variant = "default" }: JobDetailsSheetProps) {
+export function JobDetailsSheet({ jobId, className, variant = "outline" }: JobDetailsSheetProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const { data, isLoading, error } = useQuery<Entity<JobDescription>>({

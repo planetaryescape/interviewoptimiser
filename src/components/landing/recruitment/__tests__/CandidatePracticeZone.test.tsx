@@ -2,9 +2,6 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import CandidatePracticeZone from "../sections/CandidatePracticeZone";
 
-// Import setup file for mocks
-import "../__tests__/setup";
-
 describe("CandidatePracticeZone", () => {
   it("renders the section title", () => {
     render(<CandidatePracticeZone />);

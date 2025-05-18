@@ -57,7 +57,7 @@ export const ScoreComparisonCard = ({
         <p className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors">
           {last3Score.toFixed(1)}
         </p>
-        <p className="text-xs text-muted-foreground">/ 5 (Last 3)</p>
+        <p className="text-xs text-muted-foreground">(Last 3)</p>
       </div>
 
       <div className="flex items-center text-xs">
