@@ -67,7 +67,7 @@ export function useJobSubmission({
       setShowTakeover(true);
       setTimeout(() => {
         resetStore();
-        router.push(`/dashboard/jobs/${idHandler.encode(data.sys.id ?? 0)}`);
+        router.push(`/dashboard/jobs/${idHandler.encode(data.sys.id ?? 0)}/interviews/new`);
       }, 9000);
     },
     onError: (error) => {
