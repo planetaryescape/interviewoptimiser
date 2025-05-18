@@ -18,23 +18,12 @@ import {
   Calendar,
   ChevronRight,
   Clock,
-  FileText,
-  MessageSquare, // Keep for PerformanceMetricsSection if it uses it
+  FileText, // Keep for PerformanceMetricsSection if it uses it
   RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useMemo, useState } from "react";
-import {
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import type { InferResultType } from "~/db/helpers";
 import type { Report as FullReportType, Job } from "~/db/schema"; // Renamed to FullReportType
 
