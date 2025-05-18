@@ -17,10 +17,18 @@ const API_KEY = process.env.INTERVIEWOPTIMISER_API_KEY;
 export async function POST(req: NextRequest) {
   try {
     logger.info("Received request at /api/report");
-    const { jobId: jobIdString, interviewId: interviewIdString } = await req.json();
+    const {
+      jobId: jobIdString,
+      interviewId: interviewIdString,
+      reportId: reportIdString,
+    } = await req.json();
     const jobId = idHandler.decode(jobIdString);
     const interviewId = idHandler.decode(interviewIdString);
-    logger.info({ jobId, interviewId }, "Job ID and interview ID for report generation");
+    let reportId = idHandler.decode(reportIdString);
+    logger.info(
+      { jobId, interviewId, reportId },
+      "Job ID, interview ID and report ID for report generation"
+    );
 
     const { userId: clerkUserId } = getAuth(req);
     if (!clerkUserId) {
@@ -34,7 +42,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const reportId = await db.transaction(async (tx) => {
+    reportId = await db.transaction(async (tx) => {
+      if (reportId) return reportId;
+
       const interview = await tx.query.interviews.findFirst({
         where: eq(interviews.id, interviewId),
       });
@@ -45,7 +55,7 @@ export async function POST(req: NextRequest) {
           scope.setExtra("jobId", jobId);
           Sentry.captureException(new Error("Interview not found"));
         });
-        return NextResponse.json({ error: "Interview not found" }, { status: 404 });
+        return 0;
       }
 
       const report = await tx
@@ -74,6 +84,10 @@ export async function POST(req: NextRequest) {
 
       return report[0].id;
     });
+
+    if (reportId === 0) {
+      return NextResponse.json({ error: "Report not found" }, { status: 404 });
+    }
 
     // Configure the API requests
     const reportRequest = fetch(API_GATEWAY_URL, {

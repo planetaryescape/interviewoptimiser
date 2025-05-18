@@ -315,7 +315,7 @@ export function ReportCard({ report, jobId }: ReportCardProps) {
               className="w-full relative transition-all duration-300"
             >
               <Link
-                href={`/dashboard/jobs/${jobId}/reports/${idHandler.encode(report.id)}`}
+                href={`/dashboard/jobs/${jobId}/interviews/${idHandler.encode(report.interviewId)}/reports/${idHandler.encode(report.id)}`}
                 className="flex items-center justify-center gap-2"
               >
                 <FileText className="w-4 h-4" />

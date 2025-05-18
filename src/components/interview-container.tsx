@@ -109,7 +109,7 @@ export function InterviewContainer({
     onSuccess: () => {
       setShowTakeover(false);
       resetState();
-      router.push(`/dashboard/jobs/${jobId}/reports`);
+      router.push(`/dashboard/jobs/${jobId}/interviews`);
     },
     onError: (error) => {
       Sentry.withScope((scope) => {
@@ -196,7 +196,7 @@ export function InterviewContainer({
 
   const handleCancelGenerateReport = () => {
     setIsGenerateReportErrorDialogOpen(false);
-    router.push(`/dashboard/jobs/${jobId}/reports`);
+    router.push(`/dashboard/jobs/${jobId}/interviews`);
   };
 
   if (isLoading) {

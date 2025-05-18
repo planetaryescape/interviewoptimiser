@@ -32,6 +32,14 @@ initSentry();
 
 const sqs = new SQSClient({ region: process.env.AWS_REGION });
 
+// Helper function to sanitize strings by removing null characters
+const sanitizeString = (str: string | undefined | null): string | null => {
+  if (typeof str === "string") {
+    return str.replace(/\u0000/g, "");
+  }
+  return str === undefined ? null : str; // Ensure undefined becomes null
+};
+
 export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
   try {
     logger.info({ event }, "Received event");
@@ -115,6 +123,86 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
             }),
           ]);
 
+        // Sanitize structuredJobDescription.data if it exists
+        if (structuredJobDescription?.data) {
+          const jdData = structuredJobDescription.data;
+          jdData.company = sanitizeString(jdData.company) ?? "";
+          jdData.role = sanitizeString(jdData.role) ?? "";
+          if (Array.isArray(jdData.requiredQualifications)) {
+            jdData.requiredQualifications = jdData.requiredQualifications.map(
+              (s) => sanitizeString(s) ?? ""
+            );
+          } else {
+            jdData.requiredQualifications = []; // Assuming type is string[] (non-nullable array)
+          }
+          if (Array.isArray(jdData.requiredExperience)) {
+            jdData.requiredExperience = jdData.requiredExperience.map(
+              (s) => sanitizeString(s) ?? ""
+            );
+          } else {
+            jdData.requiredExperience = [];
+          }
+          if (Array.isArray(jdData.requiredSkills)) {
+            jdData.requiredSkills = jdData.requiredSkills.map((s) => sanitizeString(s) ?? "");
+          } else {
+            jdData.requiredSkills = [];
+          }
+          if (Array.isArray(jdData.preferredQualifications)) {
+            jdData.preferredQualifications = jdData.preferredQualifications.map(
+              (s) => sanitizeString(s) ?? ""
+            );
+          } else {
+            jdData.preferredQualifications = [];
+          }
+          if (Array.isArray(jdData.preferredSkills)) {
+            jdData.preferredSkills = jdData.preferredSkills.map((s) => sanitizeString(s) ?? "");
+          } else {
+            jdData.preferredSkills = [];
+          }
+          if (Array.isArray(jdData.responsibilities)) {
+            jdData.responsibilities = jdData.responsibilities.map((s) => sanitizeString(s) ?? "");
+          } else {
+            jdData.responsibilities = [];
+          }
+          if (Array.isArray(jdData.benefits)) {
+            jdData.benefits = jdData.benefits.map((s) => sanitizeString(s) ?? "");
+          } else {
+            jdData.benefits = [];
+          }
+          jdData.location = sanitizeString(jdData.location) ?? "";
+          jdData.employmentType = sanitizeString(jdData.employmentType) ?? "";
+          jdData.seniority = sanitizeString(jdData.seniority) ?? "";
+          jdData.industry = sanitizeString(jdData.industry) ?? "";
+          if (Array.isArray(jdData.keyTechnologies)) {
+            jdData.keyTechnologies = jdData.keyTechnologies.map((s) => sanitizeString(s) ?? "");
+          } else {
+            jdData.keyTechnologies = [];
+          }
+          if (Array.isArray(jdData.keywords)) {
+            jdData.keywords = jdData.keywords.map((s) => sanitizeString(s) ?? "");
+          } else {
+            jdData.keywords = [];
+          }
+        }
+
+        // Sanitize structuredCandidateDetails.data if it exists
+        if (structuredCandidateDetails?.data) {
+          const cdData = structuredCandidateDetails.data;
+          cdData.name = sanitizeString(cdData.name) ?? "";
+          cdData.email = sanitizeString(cdData.email) ?? "";
+          cdData.phone = sanitizeString(cdData.phone) ?? "";
+          cdData.location = sanitizeString(cdData.location) ?? "";
+          cdData.currentRole = sanitizeString(cdData.currentRole) ?? "";
+          cdData.professionalSummary = sanitizeString(cdData.professionalSummary) ?? "";
+          cdData.linkedinUrl = sanitizeString(cdData.linkedinUrl) ?? "";
+          cdData.portfolioUrl = sanitizeString(cdData.portfolioUrl) ?? "";
+          if (Array.isArray(cdData.otherUrls)) {
+            cdData.otherUrls = cdData.otherUrls.map((s) => sanitizeString(s) ?? "");
+          } else {
+            cdData.otherUrls = [];
+          }
+        }
+
         logger.info({ jobId }, "Parallel data extraction completed");
 
         // Generate the interview analysis with structured data
@@ -134,10 +222,58 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           throw new Error("Failed to generate report");
         }
 
+        // Sanitize generatedReport.data
+        const reportData = generatedReport.data;
+        reportData.generalAssessment = sanitizeString(reportData.generalAssessment) ?? "";
+        reportData.candidateName = sanitizeString(reportData.candidateName) ?? "";
+        reportData.companyName = sanitizeString(reportData.companyName) ?? "";
+        reportData.roleName = sanitizeString(reportData.roleName) ?? "";
+        if ("fitnessForRole" in reportData) {
+          reportData.fitnessForRole =
+            sanitizeString(reportData.fitnessForRole as string | null | undefined) ?? "";
+        }
+        reportData.speakingSkills = sanitizeString(reportData.speakingSkills) ?? "";
+        reportData.communicationSkills = sanitizeString(reportData.communicationSkills) ?? "";
+        reportData.problemSolvingSkills = sanitizeString(reportData.problemSolvingSkills) ?? "";
+        reportData.technicalKnowledge = sanitizeString(reportData.technicalKnowledge) ?? "";
+        reportData.teamwork = sanitizeString(reportData.teamwork) ?? "";
+        reportData.adaptability = sanitizeString(reportData.adaptability) ?? "";
+
+        if (Array.isArray(reportData.areasOfStrength)) {
+          reportData.areasOfStrength = reportData.areasOfStrength.map(
+            (item) => sanitizeString(item) ?? ""
+          );
+        } else {
+          reportData.areasOfStrength = []; // Assuming type is string[] (non-nullable array)
+        }
+        if (Array.isArray(reportData.areasForImprovement)) {
+          reportData.areasForImprovement = reportData.areasForImprovement.map(
+            (item) => sanitizeString(item) ?? ""
+          );
+        } else {
+          reportData.areasForImprovement = []; // Assuming type is string[] (non-nullable array)
+        }
+        if (Array.isArray(reportData.actionableNextSteps)) {
+          reportData.actionableNextSteps = reportData.actionableNextSteps.map(
+            (item) => sanitizeString(item) ?? ""
+          );
+        } else {
+          reportData.actionableNextSteps = []; // Assuming type is string[] (non-nullable array)
+        }
+
+        // Sanitize questionAnalyses
+        if (generatedReport.questionAnalyses && generatedReport.questionAnalyses.length > 0) {
+          generatedReport.questionAnalyses = generatedReport.questionAnalyses.map((qa) => ({
+            ...qa,
+            question: sanitizeString(qa.question) ?? "",
+            analysis: sanitizeString(qa.analysis) ?? "",
+          }));
+        }
+
         // Define variables for email
         const interviewType = interview.type || "Interview";
-        const company = generatedReport.data.companyName || job.company || "Company";
-        const role = generatedReport.data.roleName || job.role || "Position";
+        const company = reportData.companyName || job.company || "Company";
+        const role = reportData.roleName || job.role || "Position";
 
         const updatedReportId = await db.transaction(async (tx): Promise<number> => {
           // Save structured job description to database if available
@@ -184,28 +320,30 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
               .onConflictDoNothing();
           }
 
+          logger.info({ generatedReport }, "Generated report");
+
           // Update the report with generated analysis
           const updatedReport = await tx
             .update(reports)
             .set({
               interviewId,
-              generalAssessment: generatedReport.data.generalAssessment,
-              overallScore: generatedReport.data.overallScore,
-              speakingSkills: generatedReport.data.speakingSkills,
-              speakingSkillsScore: generatedReport.data.speakingSkillsScore,
-              communicationSkills: generatedReport.data.communicationSkills,
-              communicationSkillsScore: generatedReport.data.communicationSkillsScore,
-              problemSolvingSkills: generatedReport.data.problemSolvingSkills,
-              problemSolvingSkillsScore: generatedReport.data.problemSolvingSkillsScore,
-              technicalKnowledge: generatedReport.data.technicalKnowledge,
-              technicalKnowledgeScore: generatedReport.data.technicalKnowledgeScore,
-              teamwork: generatedReport.data.teamwork,
-              teamworkScore: generatedReport.data.teamworkScore,
-              adaptability: generatedReport.data.adaptability,
-              adaptabilityScore: generatedReport.data.adaptabilityScore,
-              areasOfStrength: JSON.stringify(generatedReport.data.areasOfStrength),
-              areasForImprovement: JSON.stringify(generatedReport.data.areasForImprovement),
-              actionableNextSteps: JSON.stringify(generatedReport.data.actionableNextSteps),
+              generalAssessment: reportData.generalAssessment,
+              overallScore: reportData.overallScore,
+              speakingSkills: reportData.speakingSkills,
+              speakingSkillsScore: reportData.speakingSkillsScore,
+              communicationSkills: reportData.communicationSkills,
+              communicationSkillsScore: reportData.communicationSkillsScore,
+              problemSolvingSkills: reportData.problemSolvingSkills,
+              problemSolvingSkillsScore: reportData.problemSolvingSkillsScore,
+              technicalKnowledge: reportData.technicalKnowledge,
+              technicalKnowledgeScore: reportData.technicalKnowledgeScore,
+              teamwork: reportData.teamwork,
+              teamworkScore: reportData.teamworkScore,
+              adaptability: reportData.adaptability,
+              adaptabilityScore: reportData.adaptabilityScore,
+              areasOfStrength: JSON.stringify(reportData.areasOfStrength),
+              areasForImprovement: JSON.stringify(reportData.areasForImprovement),
+              actionableNextSteps: JSON.stringify(reportData.actionableNextSteps),
               isCompleted: true,
             })
             .where(eq(reports.id, reportId))
@@ -217,6 +355,10 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
               `Saving ${generatedReport.questionAnalyses.length} question analyses for report ID ${updatedReport[0].id}`
             );
 
+            const existingQuestionAnalysesToBeDeleted = await tx.query.questionAnalysis.findMany({
+              where: eq(questionAnalysis.reportId, updatedReport[0].id),
+            });
+
             // Insert each question analysis
             for (const qa of generatedReport.questionAnalyses) {
               await tx.insert(questionAnalysis).values({
@@ -227,15 +369,19 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
                 isKeyQuestion: qa.isKeyQuestion,
               });
             }
+
+            for (const qa of existingQuestionAnalysesToBeDeleted) {
+              await tx.delete(questionAnalysis).where(eq(questionAnalysis.id, qa.id));
+            }
           }
 
           // Update the job with candidate, company, and role information
           await tx
             .update(jobs)
             .set({
-              candidate: generatedReport.data.candidateName,
-              company: generatedReport.data.companyName,
-              role: generatedReport.data.roleName,
+              candidate: reportData.candidateName,
+              company: reportData.companyName,
+              role: reportData.roleName,
               completed: true,
             })
             .where(eq(jobs.id, jobId));
@@ -292,12 +438,14 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
             "User ID": userId,
             "User Email": user?.email ?? "Unknown",
             "Interview ID": jobId,
-            "Interview URL": `${
-              config.baseUrl
-            }/dashboard/interviews/${idHandler.encode(jobId)}/reports`,
-            Company: generatedReport.data.companyName,
-            Role: generatedReport.data.roleName,
-            "Overall Score": generatedReport.data.overallScore,
+            "Interview URL": `${config.baseUrl}/dashboard/jobs/${idHandler.encode(
+              jobId
+            )}/interviews/${idHandler.encode(
+              interviewId
+            )}/reports/${idHandler.encode(updatedReportId)}`,
+            Company: reportData.companyName,
+            Role: reportData.roleName,
+            "Overall Score": reportData.overallScore,
           },
         });
 

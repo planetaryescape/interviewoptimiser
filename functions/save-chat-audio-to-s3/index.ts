@@ -6,7 +6,7 @@ import type { SQSEvent, SQSRecord } from "aws-lambda";
 import { eq } from "drizzle-orm";
 import { config } from "~/config";
 import { db } from "~/db";
-import { reports } from "~/db/schema";
+import { interviews, reports } from "~/db/schema";
 import { sendDiscordDM } from "~/lib/discord";
 import { logger } from "~/lib/logger";
 import { initSentry } from "../lib/sentry";
@@ -39,6 +39,15 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
           userId,
         } = JSON.parse(record.body);
         reportId = id;
+
+        const interview = await db.query.interviews.findFirst({
+          where: eq(interviews.id, interviewId),
+        });
+
+        if (!interview) {
+          logger.error({ reportId, interviewId }, "Interview not found");
+          throw new Error("Interview not found");
+        }
 
         const user = await getUserFromId(userId);
         logger.info({ reportId, interviewId }, "Processing interview audio save request");
@@ -84,7 +93,9 @@ export const handler = Sentry.wrapHandler(async (event: SQSEvent) => {
             "User ID": userId,
             "User Email": user?.email ?? "Unknown",
             "Report ID": reportId,
-            "Report URL": `${config.baseUrl}/dashboard/reports/${idHandler.encode(reportId)}`,
+            "Report URL": `${config.baseUrl}/dashboard/jobs/${idHandler.encode(
+              interview.jobId
+            )}/interviews/${idHandler.encode(interviewId)}/reports/${idHandler.encode(reportId)}`,
             "Audio URL": cloudFrontUrl,
           },
         });

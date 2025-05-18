@@ -104,7 +104,10 @@
 - **Standard Card**: White background, subtle shadow, 12px corner radius
 - **Interactive Card**: Hover and active states
 - **Information Card**: Icon, heading, and body text structure
-- **Metric Card**: Large number display with label and optional trend indicator
+- **Metric Card**: 
+  - **Standard Metric Card**: Large number display with label. Used for general statistics.
+  - **Animated Stat Card**: Extends the standard metric card with hover animations (e.g., subtle lift, shadow changes, background glows) and an associated icon. Used for key performance indicators on the dashboard (e.g., Total Jobs, Total Interviews).
+  - **Score Comparison Card**: Displays a primary score (e.g., "Last 3 Interviews" average) alongside a secondary comparison score (e.g., "All Time" average). Includes a trend indicator (up, down, neutral) and an associated icon. Used for detailed performance breakdowns on the dashboard.
 
 #### Navigation
 
@@ -116,7 +119,7 @@
 #### Data Visualization
 
 - **Progress Bar**: Linear indicator with percentage
-- **Charts**: Bar, line, and radar charts for performance data
+- **Charts**: Bar, line, and radar charts for performance data. `recharts` library is utilized for implementing interactive charts, such as the radar chart for visualizing multiple performance scores on the dashboard.
 - **Score Indicators**: Circular or linear meters showing assessment scores
 - **Comparison Tables**: Side-by-side metric comparisons
 
@@ -126,8 +129,12 @@
 
 - Top navigation bar
 - Optional sidebar navigation
-- Content area with grid-based card layout
-- Quick action bar
+- Content area typically features:
+  - A `DashboardHero` component for the main page title and an engaging visual introduction.
+  - A `KeyMetricsSection` displaying high-level statistics using `AnimatedStatCard`s.
+  - A `PerformanceMetricsSection` providing detailed score breakdowns, often including a `ScoreRadarChart` and multiple `ScoreComparisonCard`s.
+  - A `RecentActivitySection` presenting a timeline of recent events (e.g., jobs added, interviews completed) using `ActivityTimelineItem`s.
+- Quick action bar (e.g., "Create New Job" button)
 
 #### Interview Session Layout
 

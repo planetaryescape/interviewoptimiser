@@ -21,7 +21,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ChevronRight,
   FileText,
-  Home,
   Loader2,
   Maximize,
   RefreshCw,
@@ -225,17 +224,17 @@ export function PagePreviewToolbar({
       <div className="px-4 py-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex items-center text-sm text-muted-foreground max-w-5xl mx-auto w-full">
           <Link
-            href="/dashboard"
+            href="/dashboard/jobs"
             className="flex items-center hover:text-foreground transition-colors"
           >
-            <Home className="h-4 w-4" />
+            Jobs
           </Link>
           <ChevronRight className="h-4 w-4 mx-2" />
           <Link
-            href={`/dashboard/jobs/${jobId}/reports`}
+            href={`/dashboard/jobs/${jobId}/interviews`}
             className="hover:text-foreground transition-colors"
           >
-            Reports
+            Interviews
           </Link>
           <ChevronRight className="h-4 w-4 mx-2" />
           <span className="text-foreground">Report Preview</span>
