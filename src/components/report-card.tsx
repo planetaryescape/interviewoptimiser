@@ -24,7 +24,7 @@ import type { Report } from "~/db/schema";
 import { Skeleton } from "./ui/skeleton";
 
 interface ReportCardProps {
-  report: Report;
+  report?: Report;
   jobId: string;
 }
 
@@ -34,50 +34,25 @@ export function ReportCard({ report, jobId }: ReportCardProps) {
   if (!report?.isCompleted) {
     return (
       <Card className="relative overflow-hidden border-gray-200 dark:border-gray-800 transition-all duration-200 hover:shadow-md dark:hover:shadow-gray-900/30">
-        <CardContent className="p-0">
-          {/* Background gradient pulse animation */}
+        <CardContent className="p-4 space-y-3">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 via-indigo-50/50 to-blue-50/50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 opacity-80 dark:opacity-30 animate-pulse" />
-
-          <div className="relative p-6 space-y-6">
-            <div className="w-full space-y-4">
-              <div className="flex items-center gap-2">
-                <Skeleton className="h-6 w-32" />
-                <Skeleton className="h-6 w-40" />
-              </div>
-
-              <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full w-full overflow-hidden">
-                <div
-                  className="h-full bg-gray-200 dark:bg-gray-700 animate-pulse"
-                  style={{ width: "65%" }}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-6">
-              {[...Array(4)].map((_, idx) => (
-                <div key={`skeleton-item-${idx + 1}`} className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Skeleton className="h-4 w-4" />
-                    <Skeleton className="h-4 w-20" />
-                  </div>
-                  <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gray-200 dark:bg-gray-700 animate-pulse"
-                      style={{ width: `${Math.floor(Math.random() * 30 + 40)}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className="relative flex items-center justify-between">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-5 w-16" />
           </div>
-
-          <div className="relative bg-white/80 dark:bg-gray-900/80 p-4 backdrop-blur-sm border-t border-gray-200 dark:border-gray-800">
+          <Skeleton className="h-4 w-full" />
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 pt-1">
+            <Skeleton className="h-3 w-3/4" />
+            <Skeleton className="h-3 w-2/3" />
+            <Skeleton className="h-3 w-1/2" />
+            <Skeleton className="h-3 w-3/4" />
+          </div>
+          <div className="relative pt-2">
             <Button variant="outline" className="w-full relative overflow-hidden" disabled>
               <span className="relative z-10 flex items-center">
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 Generating Report
               </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-100/30 via-indigo-100/30 to-blue-100/30 dark:from-blue-900/30 dark:via-indigo-900/30 dark:to-blue-900/30 animate-pulse" />
             </Button>
           </div>
         </CardContent>
@@ -121,215 +96,78 @@ export function ReportCard({ report, jobId }: ReportCardProps) {
       onHoverEnd={() => setIsHovered(false)}
     >
       <Card className="relative overflow-hidden border border-gray-200 dark:border-gray-800 transition-all duration-300 group hover:shadow-xl dark:hover:shadow-gray-900/30">
-        {/* Animated gradient line at top */}
-        <div
-          className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${
-            scoreInfo.color === "green"
-              ? "from-emerald-400 via-green-500 to-emerald-600"
-              : scoreInfo.color === "yellow"
-                ? "from-amber-400 via-yellow-500 to-amber-600"
-                : "from-rose-400 via-red-500 to-rose-600"
-          }`}
-        />
-
         <CardContent className="p-0">
-          <div className="p-6">
-            {/* Header with date and score badge */}
-            <div className="flex justify-between items-start mb-5">
+          <div className="p-4">
+            <div className="flex justify-between items-center mb-3">
               <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-full bg-gray-100 dark:bg-gray-800">
-                  <Calendar className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
-                </div>
-                <span className="text-sm text-gray-500 dark:text-gray-400">{formattedDate}</span>
+                <Calendar className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
+                <span className="text-xs text-gray-500 dark:text-gray-400">{formattedDate}</span>
               </div>
-
               <Badge
                 variant={scoreInfo.variant}
-                className="px-2.5 py-0.5 font-medium text-xs uppercase tracking-wide"
+                className="px-2 py-0.5 font-medium text-xs tracking-wide"
               >
                 {scoreInfo.label}
               </Badge>
             </div>
 
-            {/* Score visualization and breakdown */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-6">
-              {/* Score circle - taking 1/5 of space */}
-              <div className="md:col-span-1 flex flex-col items-center justify-center">
-                <div className="relative flex items-center justify-center">
-                  {/* Background circle */}
-                  <svg className="w-24 h-24" aria-label="Score circle">
-                    <title>Score circle</title>
-                    <circle
-                      cx="48"
-                      cy="48"
-                      r="40"
-                      fill="none"
-                      stroke={
-                        scoreInfo.color === "green"
-                          ? "rgb(220 252 231)"
-                          : scoreInfo.color === "yellow"
-                            ? "rgb(254 249 195)"
-                            : "rgb(254 226 226)"
-                      }
-                      strokeWidth="8"
-                      className="dark:opacity-30"
-                    />
-                    {/* Foreground circle showing score percentage */}
-                    <circle
-                      cx="48"
-                      cy="48"
-                      r="40"
-                      fill="none"
-                      stroke={
-                        scoreInfo.color === "green"
-                          ? "rgb(34 197 94)"
-                          : scoreInfo.color === "yellow"
-                            ? "rgb(234 179 8)"
-                            : "rgb(239 68 68)"
-                      }
-                      strokeWidth="8"
-                      strokeDasharray={`${2 * Math.PI * 40 * (report.overallScore / 100)} ${
-                        2 * Math.PI * 40 * (1 - report.overallScore / 100)
-                      }`}
-                      strokeDashoffset={2 * Math.PI * 10}
-                      transform="rotate(-90, 48, 48)"
-                    />
-                  </svg>
-                  {/* Score percentage in center */}
-                  <div className="absolute font-bold text-xl">{report.overallScore}%</div>
-                </div>
-                <span className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mt-2 text-center">
-                  Overall Score
-                </span>
-              </div>
-
-              {/* Skills grid - 4/5 of space */}
-              <div className="md:col-span-4 grid grid-cols-2 gap-4">
-                <TooltipProvider>
-                  {[
-                    {
-                      icon: Brain,
-                      label: "Technical Knowledge",
-                      score: report.technicalKnowledgeScore,
-                      tooltip: report.technicalKnowledge,
-                    },
-                    {
-                      icon: MessageSquare,
-                      label: "Communication",
-                      score: report.communicationSkillsScore,
-                      tooltip: report.communicationSkills,
-                    },
-                    {
-                      icon: Target,
-                      label: "Problem Solving",
-                      score: report.problemSolvingSkillsScore,
-                      tooltip: report.problemSolvingSkills,
-                    },
-                    {
-                      icon: Users,
-                      label: "Teamwork",
-                      score: report.teamworkScore,
-                      tooltip: report.teamwork,
-                    },
-                  ].map((skill) => {
-                    const skillScoreInfo = getScoreVariant(skill.score);
-
-                    return (
-                      <Tooltip key={skill.label}>
-                        <TooltipTrigger asChild>
-                          <div className="space-y-2 p-3 rounded-lg bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800 transition-colors hover:bg-white dark:hover:bg-gray-900 hover:border-gray-200 dark:hover:border-gray-700">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <skill.icon
-                                  className={cn(
-                                    "w-4 h-4",
-                                    skillScoreInfo.color === "green"
-                                      ? "text-green-500"
-                                      : skillScoreInfo.color === "yellow"
-                                        ? "text-yellow-500"
-                                        : "text-red-500"
-                                  )}
-                                />
-                                <span className="text-sm font-medium">{skill.label}</span>
-                              </div>
-                              <span className="text-xs font-bold bg-white dark:bg-gray-800 px-2 py-1 rounded-md">
-                                {skill.score}%
-                              </span>
-                            </div>
-                            <Progress
-                              value={skill.score}
-                              className="h-1.5"
-                              style={{
-                                backgroundColor:
-                                  skillScoreInfo.color === "green"
-                                    ? "rgb(34 197 94)"
-                                    : skillScoreInfo.color === "yellow"
-                                      ? "rgb(234 179 8)"
-                                      : "rgb(239 68 68)",
-                              }}
-                            />
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent side="top" sideOffset={5} className="max-w-[280px]">
-                          <p className="text-sm">{skill.tooltip}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    );
-                  })}
-                </TooltipProvider>
-              </div>
+            <div className="mb-3">
+              <span className="text-2xl font-bold text-foreground">{report.overallScore}%</span>
+              <span className="text-sm text-muted-foreground ml-1">Overall Score</span>
             </div>
 
-            {/* Key insight */}
-            <div className="mb-6 px-4 py-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-100 dark:border-blue-900/50">
-              <div className="flex items-start gap-3">
-                <Lightbulb className="w-5 h-5 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-1">
-                    Key Strength
-                  </h4>
-                  <p className="text-sm text-blue-600 dark:text-blue-400 line-clamp-2">
-                    {topStrength}
-                  </p>
+            <div className="mb-4 space-y-1.5">
+              <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                Key Skills
+              </h5>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span>Problem Solving:</span>
+                  <span className="font-medium text-foreground">
+                    {report.problemSolvingSkillsScore}%
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Communication:</span>
+                  <span className="font-medium text-foreground">
+                    {report.communicationSkillsScore}%
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Tech Knowledge:</span>
+                  <span className="font-medium text-foreground">
+                    {report.technicalKnowledgeScore}%
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Role Fit:</span>
+                  <span className="font-medium text-foreground">{report.fitnessForRoleScore}%</span>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Footer with action button */}
-          <div className="relative bg-gradient-to-r from-gray-50 to-white dark:from-gray-900/80 dark:to-gray-950 p-4 border-t border-gray-200 dark:border-gray-800 overflow-hidden">
-            {/* Decorative sparkles that appear on hover */}
-            <motion.div
-              className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-300 dark:via-blue-600 to-transparent"
-              initial={{ scaleX: 0, opacity: 0 }}
-              animate={{
-                scaleX: isHovered ? 1 : 0,
-                opacity: isHovered ? 0.7 : 0,
-              }}
-              transition={{ duration: 0.3 }}
-            />
+            {topStrength !== "No strengths identified" && (
+              <div className="mb-4">
+                <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">
+                  Top Strength
+                </h5>
+                <p className="text-xs text-foreground truncate">{topStrength}</p>
+              </div>
+            )}
 
-            <Button
-              asChild
-              variant={isHovered ? "default" : "outline"}
-              className="w-full relative transition-all duration-300"
-            >
+            <div className="bg-gray-50 dark:bg-gray-800/30 px-4 py-3 border-t border-gray-200 dark:border-gray-800">
               <Link
                 href={`/dashboard/jobs/${jobId}/interviews/${idHandler.encode(report.interviewId)}/reports/${idHandler.encode(report.id)}`}
-                className="flex items-center justify-center gap-2"
               >
-                <FileText className="w-4 h-4" />
-                <span>View Full Report</span>
-                <motion.div
-                  animate={{
-                    x: isHovered ? 3 : 0,
-                  }}
-                  transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-primary hover:bg-primary/5 dark:hover:bg-primary/10 border-primary/50 hover:border-primary/70"
                 >
-                  <ChevronRight className="w-4 h-4" />
-                </motion.div>
+                  View Full Report <ChevronRight className="w-3.5 h-3.5 ml-1.5" />
+                </Button>
               </Link>
-            </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

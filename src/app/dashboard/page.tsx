@@ -141,8 +141,9 @@ export default function DashboardPage() {
       />
 
       <PerformanceMetricsSection
-        last3InterviewsScores={averageScores.last3Interviews}
-        allTimeScores={averageScores.allTime}
+        primaryScores={averageScores.last3Interviews}
+        comparisonScores={averageScores.allTime}
+        primaryScoresTitle="Last 3 Interviews Snapshot"
       />
 
       <RecentActivitySection recentJobs={recentJobs} recentInterviews={recentInterviews} />

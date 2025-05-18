@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@/hooks/useUser";
 import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
-import { BarChart3, Cog, Home, MessageSquare, ScrollText, Star } from "lucide-react";
+import { Briefcase, Cog, Home, MessageSquare, ScrollText, Star } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -50,6 +50,9 @@ export function DashboardSidebar() {
               <span className="font-semibold text-foreground">Jobs</span>
             </div>
             <NavItem href="/dashboard" icon={Home}>
+              Dashboard
+            </NavItem>
+            <NavItem href="/dashboard/jobs" icon={Briefcase}>
               Jobs
             </NavItem>
             {isAdmin && (
@@ -57,7 +60,7 @@ export function DashboardSidebar() {
                 <div className="mt-6 mb-2 px-3">
                   <p className="text-xs font-medium text-muted-foreground">Admin</p>
                 </div>
-                <NavItem href="/dashboard/admin" icon={BarChart3}>
+                <NavItem href="/dashboard/admin/jobs" icon={Briefcase}>
                   Jobs
                 </NavItem>
                 <NavItem href="/dashboard/admin/changelog" icon={ScrollText}>

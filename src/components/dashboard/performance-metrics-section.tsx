@@ -27,9 +27,25 @@ interface AverageScoreSet {
   [key: string]: number; // For dynamic access
 }
 
+/**
+ * Props for the PerformanceMetricsSection component.
+ */
 interface PerformanceMetricsSectionProps {
-  last3InterviewsScores: AverageScoreSet;
-  allTimeScores: AverageScoreSet;
+  /**
+   * The primary set of scores to display, typically the most recent or focused data set (e.g., latest interview for a job, or last 3 interviews overall).
+   * This data is used for the radar chart and as the primary value in comparison cards.
+   */
+  primaryScores: AverageScoreSet;
+  /**
+   * The set of scores to compare against, typically a baseline or historical average (e.g., all-time average scores for a job or overall).
+   * This data is used as the comparison value in score comparison cards.
+   */
+  comparisonScores: AverageScoreSet;
+  /**
+   * The title to be displayed above the radar chart, describing the primaryScores data.
+   * For example, "Last 3 Interviews Snapshot" or "Latest Interview Performance (This Job)".
+   */
+  primaryScoresTitle: string;
 }
 
 const scoreDisplayConfig = [
@@ -92,10 +108,11 @@ const formatScoresForRadar = (scores: AverageScoreSet): RadarChartDataPoint[] =>
 };
 
 export const PerformanceMetricsSection = ({
-  last3InterviewsScores,
-  allTimeScores,
+  primaryScores,
+  comparisonScores,
+  primaryScoresTitle,
 }: PerformanceMetricsSectionProps) => {
-  const radarDataLast3 = formatScoresForRadar(last3InterviewsScores);
+  const radarDataPrimary = formatScoresForRadar(primaryScores);
 
   return (
     <section className="mb-8">
@@ -104,9 +121,9 @@ export const PerformanceMetricsSection = ({
       </h2>
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-2 bg-card border border-border/20 dark:border-border/30 p-4 sm:p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-          <h3 className="text-lg font-semibold mb-4 text-primary">Last 3 Interviews Snapshot</h3>
+          <h3 className="text-lg font-semibold mb-4 text-primary">{primaryScoresTitle}</h3>
           <div className="h-72 md:h-80 lg:h-96">
-            <ScoreRadarChart data={radarDataLast3} />
+            <ScoreRadarChart data={radarDataPrimary} />
           </div>
         </div>
         <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -115,8 +132,8 @@ export const PerformanceMetricsSection = ({
               key={key}
               title={title}
               Icon={Icon}
-              last3Score={last3InterviewsScores[key] !== undefined ? last3InterviewsScores[key] : 0}
-              allTimeScore={allTimeScores[key] !== undefined ? allTimeScores[key] : 0}
+              last3Score={primaryScores[key] !== undefined ? primaryScores[key] : 0}
+              allTimeScore={comparisonScores[key] !== undefined ? comparisonScores[key] : 0}
             />
           ))}
         </div>
