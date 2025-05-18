@@ -96,13 +96,12 @@ export async function GET() {
         jobId: jobs.id,
       })
       .from(interviews)
-      .innerJoin(jobs, eq(interviews.jobId, jobs.id))
-      .leftJoin(reports, and(eq(interviews.id, reports.interviewId), eq(reports.isCompleted, true)))
-      .where(eq(jobs.userId, dbUserId))
+      .leftJoin(jobs, eq(interviews.jobId, jobs.id))
+      .leftJoin(reports, and(eq(interviews.id, reports.interviewId)))
+      .where(and(eq(jobs.userId, dbUserId), eq(reports.isCompleted, true)))
       .orderBy(desc(interviews.createdAt))
       .limit(3);
 
-    // 3. Calculate Minutes Spent Practicing (User-Specific for completed interviews)
     const practiceTimeResult = await db
       .select({ totalSeconds: sql<number>`sum(${interviews.actualTime})::int` })
       .from(interviews)
@@ -136,6 +135,7 @@ export async function GET() {
       .where(and(eq(reports.isCompleted, true), eq(jobs.userId, dbUserId)))
       .orderBy(desc(interviews.createdAt))
       .limit(3);
+
     const recentCompletedReportIds = recentCompletedInterviewsWithReports.map((r) => r.reportId);
 
     const scoreFields: { [key: string]: ReportScoreColumn } = {

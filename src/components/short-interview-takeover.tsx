@@ -1,15 +1,32 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
+import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 export function ShortInterviewTakeover({ jobId }: { jobId: string }) {
-  const router = useRouter();
+  const deletedRef = useRef(false);
 
-  const handleRestartInterview = () => {
-    router.push(`/dashboard/jobs/${jobId}`);
-  };
+  const deleteShortInterviewMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/interviews/${jobId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to delete interview");
+      }
+    },
+  });
+
+  useEffect(() => {
+    if (!deletedRef.current) {
+      deleteShortInterviewMutation.mutate();
+      deletedRef.current = true;
+    }
+  }, [deleteShortInterviewMutation]);
 
   return (
     <motion.div
@@ -85,7 +102,7 @@ export function ShortInterviewTakeover({ jobId }: { jobId: string }) {
           </Button>
           <Button
             className="w-full sm:w-auto flex items-center gap-2"
-            onClick={handleRestartInterview}
+            onClick={() => deleteShortInterviewMutation.mutate()}
           >
             <RefreshCw className="w-4 h-4" />
             Start a New Interview

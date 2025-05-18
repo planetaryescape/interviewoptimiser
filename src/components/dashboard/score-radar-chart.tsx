@@ -142,9 +142,16 @@ export const ScoreRadarChart = ({ data, className }: ScoreRadarChartProps) => {
             borderRadius: "var(--radius)",
             boxShadow: "0 4px 12px hsla(var(--shadow-color), 0.1)",
           }}
-          labelStyle={{ color: "hsl(var(--popover-foreground))", fontWeight: "bold" }}
+          labelStyle={{
+            color: "hsl(var(--popover-foreground))",
+            fontWeight: "bold",
+          }}
           itemStyle={{ color: "hsl(var(--popover-foreground))" }}
-          cursor={{ stroke: "hsl(var(--primary) / 0.5)", strokeWidth: 1, strokeDasharray: "3 3" }}
+          cursor={{
+            stroke: "hsl(var(--primary) / 0.5)",
+            strokeWidth: 1,
+            strokeDasharray: "3 3",
+          }}
         />
       </RadarChart>
     </ResponsiveContainer>

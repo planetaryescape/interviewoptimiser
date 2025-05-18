@@ -41,7 +41,7 @@ export const RecentJobsList = ({ jobs }: RecentJobsListProps) => {
                 <div>
                   <div className="text-sm">
                     <Link
-                      href={`/dashboard/jobs/${idHandler.encode(job.id)}`}
+                      href={`/dashboard/jobs/${idHandler.encode(job.id)}/interviews`}
                       className="font-medium text-foreground hover:text-primary"
                     >
                       {job.role || "N/A"}
