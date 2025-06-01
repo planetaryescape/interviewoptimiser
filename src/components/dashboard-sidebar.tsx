@@ -11,7 +11,7 @@ import { useState } from "react";
 import { FeedbackModal } from "./feedback-modal";
 import { Separator } from "./ui/separator";
 
-export function DashboardSidebar() {
+export function DashboardSidebar({ className }: { className?: string }) {
   const { data: user } = useUser();
   const isAdmin = user?.role === "admin";
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
@@ -42,7 +42,12 @@ export function DashboardSidebar() {
   );
 
   return (
-    <aside className="w-64 relative hidden md:flex flex-col justify-between bg-card border-r border-border">
+    <aside
+      className={cn(
+        "w-64 relative hidden md:flex flex-col justify-between bg-card border-r border-border",
+        className
+      )}
+    >
       <div className="relative flex-1 flex flex-col min-h-0">
         <div className="flex-1 flex flex-col pt-8 pb-4 px-4">
           <div className="flex flex-col space-y-1 mb-6">

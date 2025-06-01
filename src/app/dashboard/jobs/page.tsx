@@ -20,7 +20,7 @@ import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Briefcase as BriefcaseIcon, FileText, Grid, List, Plus } from "lucide-react";
+import { FileText, Grid, List, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -52,7 +52,7 @@ async function fetchJobs() {
 }
 
 export default function JobsSection() {
-  const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "table">("table");
   const [currentPage, setCurrentPage] = useState(1);
   const [isOutOfMinutesDialogOpen, setIsOutOfMinutesDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -133,7 +133,7 @@ export default function JobsSection() {
   return (
     <div className="p-4 md:p-8 space-y-6 md:space-y-8">
       <JobsPageHero /> {/* Added JobsPageHero component */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-end items-center">
         <div className="flex items-center space-x-2">
           <Button size="sm" onClick={handleCreateNewJob}>
             <span className="hidden md:inline">Create New Job</span>

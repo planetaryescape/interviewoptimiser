@@ -18,20 +18,32 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const showHeader = !isCreateJob && !isInterviewPage;
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-background">
+    <div
+      className={cn(
+        "grid grid-cols-[auto_1fr] grid-rows-[auto_1fr] flex-col w-full min-h-screen max-h-screen h-screen bg-background"
+      )}
+    >
       {showHeader && (
         <ClerkProvider dynamic>
-          <div className="fixed top-0 left-0 right-0 z-[9999]">
+          <div className="row-span-1 col-span-2 z-[9999]">
             <DashboardHeader />
           </div>
         </ClerkProvider>
       )}
 
-      <div className={cn("flex flex-1", showHeader && "pt-16")}>
-        {showSidebar && <DashboardSidebar />}
+      {showSidebar && (
+        <DashboardSidebar className={cn("col-span-1", showHeader ? "row-span-1" : "row-span-2")} />
+      )}
 
-        <main className="flex-1 overflow-auto bg-background text-foreground">{children}</main>
-      </div>
+      <main
+        className={cn(
+          "col-span-1 flex-1 overflow-auto bg-background text-foreground",
+          showHeader ? "row-span-1" : "row-span-2",
+          showSidebar ? "col-span-1" : "col-span-2"
+        )}
+      >
+        {children}
+      </main>
 
       <Toaster
         position="top-center"

@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardDescription, CardTitle } from "@/components/acertenity-card";
+import { Card, CardTitle } from "@/components/acertenity-card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,141 +22,185 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { idHandler } from "@/lib/utils/idHandler";
-import { Building2, Calendar, Loader2, MoreVertical, User2 } from "lucide-react";
+import { Award, Briefcase, Building2, Calendar, Loader2, MoreVertical } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import type { InferResultType } from "~/db/helpers";
-import { Skeleton } from "./ui/skeleton";
 
-type JobWithCandidateDetailsAndJobDescriptionAndInterviews = InferResultType<
+// Type inferred from the database schema for a job and its relations
+type InferredJobWithDetails = InferResultType<
   "jobs",
   {
-    candidateDetails: true;
+    candidateDetails: true; // This will be ignored in the UI display
     jobDescription: true;
     interviews: true;
+    // 'status' is handled by the UI-specific type below
   }
 >;
 
+// UI-specific type that extends the inferred type to include an optional status
+export interface JobForUICard extends InferredJobWithDetails {
+  status?: string | null;
+  // 'role', 'company', 'createdAt', etc., are inherited from InferredJobWithDetails if they are direct columns on the 'jobs' table.
+}
+
 interface JobCardProps {
-  job: JobWithCandidateDetailsAndJobDescriptionAndInterviews;
+  job: JobForUICard;
   onDelete?: (id: number) => void;
   deletingId: number | null;
 }
 
 export const JobCard = ({ job, onDelete, deletingId }: JobCardProps) => {
+  const calculateAverageScore = (
+    interviews: Array<{ overallScore?: number | null; [key: string]: any }> | undefined
+  ): string => {
+    if (!interviews || interviews.length === 0) {
+      return "-";
+    }
+    const validScores = interviews
+      .map((interview) => interview.overallScore)
+      .filter((score) => typeof score === "number") as number[];
+
+    if (validScores.length === 0) {
+      return "-";
+    }
+    const sum = validScores.reduce((acc, score) => acc + score, 0);
+    const average = sum / validScores.length;
+    return average.toFixed(1);
+  };
+
   const [open, setOpen] = useState(false);
-  const hasInterviews = Boolean(job.interviews.length);
 
   return (
-    <Card
-      className={cn(
-        "transition-all duration-300 flex flex-col relative overflow-hidden",
-        "hover:shadow-lg hover:border-primary/50",
-        "group"
-      )}
-    >
-      <CardHeader className="pb-2">
-        {!hasInterviews ? (
-          <CardTitle className="text-lg font-semibold">
-            <Skeleton className="w-full h-6" />
-            <div className="text-sm text-muted-foreground">
-              <Skeleton className="w-1/2 h-4" />
-            </div>
-          </CardTitle>
-        ) : (
-          <CardTitle className="space-y-1 text-xl font-semibold tracking-tight">
+    <Link href={`/dashboard/jobs/${idHandler.encode(job.id ?? 0)}`} className="block group h-full">
+      <Card
+        className={cn(
+          "transition-all duration-300 flex flex-col relative overflow-hidden h-full",
+          "hover:shadow-lg hover:border-primary/50 border border-border"
+        )}
+      >
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold tracking-tight line-clamp-2">
             {job.jobDescription?.role || job.role || "Role Not Specified"}
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Building2 className="h-4 w-4" />
-              <span>{job.jobDescription?.company || job.company || "Company Not Specified"}</span>
-            </div>
           </CardTitle>
-        )}
-      </CardHeader>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground pt-1">
+            <Building2 className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate">
+              {job.jobDescription?.company || job.company || "Company Not Specified"}
+            </span>
+          </div>
+        </CardHeader>
 
-      <CardContent className="flex-1">
-        {!hasInterviews ? (
-          <CardDescription className="space-y-3 flex flex-col">
-            <Skeleton className="w-1/2 h-4" />
-            <Skeleton className="w-1/2 h-4" />
-          </CardDescription>
-        ) : (
-          <CardDescription className="space-y-4">
-            <div className="flex items-center gap-2 text-sm">
-              <User2 className="h-4 w-4 text-muted-foreground" />
-              <span>
-                {job.candidateDetails?.name || job.candidate || "Candidate Name Not Available"}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span>{new Date(job.createdAt).toLocaleDateString()}</span>
-            </div>
-          </CardDescription>
-        )}
-      </CardContent>
+        <CardContent className="flex-1 space-y-2 text-sm">
+          <div className="flex items-center gap-2">
+            <Briefcase className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <span>Interviews: {job.interviews?.length || 0}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Award className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <span>Avg. Score: {calculateAverageScore(job.interviews)}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <span>{new Date(job.createdAt).toLocaleDateString()}</span>
+          </div>
+          <div>
+            <span
+              className={cn(
+                "px-2 py-0.5 text-xs font-medium rounded-full",
+                job.status === "Active"
+                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                  : job.status === "Paused"
+                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+                    : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+              )}
+            >
+              {job.status || "N/A"}
+            </span>
+          </div>
+        </CardContent>
 
-      <div className="p-4 border-t border-gray-200 dark:border-gray-800 flex justify-between items-center bg-muted/50">
-        <Button disabled={!hasInterviews} asChild size="sm" variant="secondary" className="w-full">
-          <Link
-            href={`/dashboard/jobs/${idHandler.encode(job.id ?? 0)}/interviews`}
-            className="flex items-center justify-center gap-2"
-          >
-            {!hasInterviews && <Loader2 className="h-4 w-4 animate-spin" />}
-            {hasInterviews ? "View Reports" : "Generating Report"}
-          </Link>
-        </Button>
-
-        {onDelete && (
-          <DropdownMenu open={open} onOpenChange={setOpen}>
-            <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="ghost" className="ml-2">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <DropdownMenuItem
-                    onSelect={(e) => e.preventDefault()}
-                    className="text-destructive"
+        <div className="p-3 border-t border-border flex justify-end items-center bg-muted/30 mt-auto">
+          {onDelete && (
+            <DropdownMenu open={open} onOpenChange={setOpen}>
+              <DropdownMenuTrigger
+                asChild
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              >
+                <Button size="icon" variant="ghost" className="h-7 w-7">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              >
+                <DropdownMenuItem asChild>
+                  <Link
+                    href={`/dashboard/jobs/${idHandler.encode(job.id ?? 0)}/interviews`}
+                    className="w-full cursor-pointer"
                   >
-                    Delete
-                  </DropdownMenuItem>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete the job and all
-                      associated data.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => {
-                        setOpen(false);
-                        onDelete?.(job.id);
+                    View Job
+                  </Link>
+                </DropdownMenuItem>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                       }}
-                      disabled={deletingId === job.id}
+                      className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
                     >
-                      {deletingId === job.id ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Deleting...
-                        </>
-                      ) : (
-                        "Delete"
-                      )}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-      </div>
-    </Card>
+                      Delete
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                  >
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete the job and all
+                        associated data.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => {
+                          setOpen(false);
+                          onDelete?.(job.id);
+                        }}
+                        disabled={deletingId === job.id}
+                        className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                      >
+                        {deletingId === job.id ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Deleting...
+                          </>
+                        ) : (
+                          "Delete"
+                        )}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+      </Card>
+    </Link>
   );
 };
