@@ -1,8 +1,8 @@
 ---
 trigger: glob
-description:
 globs: *.js,*.ts,*.tsx,*.jsx,*.mjs,*.cjs
 ---
+
 - Always document your functions well and clearly to show what they are doing and what parameters they need and what they return.
 - Always document your types well and clearly to show what each property is.
 - Use JSDoc to document your functions and types. Don't put JSDoc comments on react components.
@@ -17,3 +17,4 @@ globs: *.js,*.ts,*.tsx,*.jsx,*.mjs,*.cjs
 - In NextJS, prefer API endpoints to server actions.
 - use kebab case for route directories (e.g., `api/hello-world/route`). use kebab case for components (e.g. `components/link-button.tsx`)
 - Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
+- When importing types please be explicit in your import that it's a type with import type { ... } from ''; or import { type ... } from '';

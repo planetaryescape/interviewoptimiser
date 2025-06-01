@@ -4,7 +4,6 @@ import {
   InterviewSettings,
   type NewInterviewWithPublicJobId,
 } from "@/components/interview-settings";
-import { InterviewStartModal } from "@/components/interview-start-modal";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { useJob } from "@/hooks/useJob";
@@ -20,6 +19,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { InterviewStartModal } from "./interview-start-modal";
 
 export function InterviewPlaceholder() {
   const [showModal, setShowModal] = useState(false);

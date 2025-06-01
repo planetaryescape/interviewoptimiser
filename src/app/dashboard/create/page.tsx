@@ -1,21 +1,18 @@
 "use client";
 
 import { CreateJobErrorModal } from "@/components/create-optimization/CreateJobErrorModal";
-import { OutOfMinutesModal } from "@/components/create-optimization/OutOfMinutesModal";
 import { ProcessingTakeover } from "@/components/create-optimization/ProcessingTakeover";
 import { useUser } from "@/hooks/useUser";
 import {
   useCreateJobActions,
   useCreateJobAdditionalInfo,
   useCreateJobCVText,
-  useCreateJobIsOutOfMinutesDialogOpen,
   useCreateJobIsScheduleErrorDialogOpen,
   useCreateJobJobDescriptionText,
   useCreateJobShowTakeover,
   useCreateJobStep,
 } from "@/stores/createJobStore";
 import { AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ContentArea } from "./components/ContentArea";
 import { useJobSubmission } from "./hooks/useJobSubmission";
@@ -26,16 +23,13 @@ export default function CreateJob() {
   const jobDescriptionText = useCreateJobJobDescriptionText();
   const additionalInfo = useCreateJobAdditionalInfo();
   const showTakeover = useCreateJobShowTakeover();
-  const isOutOfMinutesDialogOpen = useCreateJobIsOutOfMinutesDialogOpen();
   const isScheduleErrorDialogOpen = useCreateJobIsScheduleErrorDialogOpen();
 
-  const { setStep, setIsOutOfMinutesDialogOpen, setIsScheduleErrorDialogOpen } =
-    useCreateJobActions();
+  const { setStep, setIsScheduleErrorDialogOpen } = useCreateJobActions();
 
   const [animateStep, setAnimateStep] = useState<number | null>(null);
   const [animationDir, setAnimationDir] = useState(0);
   const { data: user } = useUser();
-  const router = useRouter();
 
   // Handle animation timing
   useEffect(() => {
@@ -82,10 +76,6 @@ export default function CreateJob() {
     setIsScheduleErrorDialogOpen(false);
   };
 
-  const handleBuyMinutes = () => {
-    router.push("/pricing");
-  };
-
   return (
     <>
       {/* Main content with navigation controls */}
@@ -97,13 +87,6 @@ export default function CreateJob() {
         onNext={handleNextStep}
         onSubmit={handleSubmit}
         animateStep={animateStep}
-      />
-
-      {/* Modals */}
-      <OutOfMinutesModal
-        isOpen={isOutOfMinutesDialogOpen}
-        onClose={() => setIsOutOfMinutesDialogOpen(false)}
-        onBuyMinutes={handleBuyMinutes}
       />
 
       <CreateJobErrorModal

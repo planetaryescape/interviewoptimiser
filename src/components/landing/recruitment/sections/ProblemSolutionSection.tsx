@@ -10,18 +10,30 @@ export default function ProblemSolutionSection() {
   const problems = [
     { id: "problem-1", text: "Keyword screens miss high‑potential talent." },
     { id: "problem-2", text: "Interview scheduling blocks your pipeline." },
-    { id: "problem-3", text: "One‑way video feels staged, yields thin insight." },
+    {
+      id: "problem-3",
+      text: "One‑way video feels staged, yields thin insight.",
+    },
     { id: "problem-4", text: "High costs & time drain for initial screening." },
   ];
 
   const solutions = [
-    { id: "solution-1", text: "Interview every applicant—no CV filter required." },
-    { id: "solution-2", text: "Zero calendar friction—candidates click a link, talk anytime." },
+    {
+      id: "solution-1",
+      text: "Interview every applicant—no CV filter required.",
+    },
+    {
+      id: "solution-2",
+      text: "Zero calendar friction—candidates click a link, talk anytime.",
+    },
     {
       id: "solution-3",
       text: "Our proven adaptive dialogue (refined over 759+ practice sessions) reveals true thinking under pressure.",
     },
-    { id: "solution-4", text: "Slash screening costs & free up your recruiters." },
+    {
+      id: "solution-4",
+      text: "Slash screening costs & free up your recruiters.",
+    },
   ];
 
   const containerVariants = {

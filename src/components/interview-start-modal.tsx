@@ -281,8 +281,9 @@ export function InterviewStartModal({
                 </p>
                 {!hasEnoughMinutes && (
                   <p className="mt-2 font-medium">
-                    You only have {availableMinutes} minute{availableMinutes === 1 ? "" : "s"}{" "}
-                    available. Please top up your account to continue.
+                    You only have {availableMinutes} minute
+                    {availableMinutes === 1 ? "" : "s"} available. Please top up your account to
+                    continue.
                     <Link href="/pricing" className="block mt-2">
                       <Button
                         size="sm"
