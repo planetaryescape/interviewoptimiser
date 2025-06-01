@@ -13,8 +13,7 @@ export const JobsPageHero = () => {
           Your Practice Job Roles
         </h1>
         <p className="mt-2 text-lg text-muted-foreground max-w-3xl">
-          Create and manage job descriptions for roles you&apos;re targeting. Practice interviews
-          tailored to your specific career goals.
+          Create and manage job roles you&apos;re targeting.
         </p>
       </div>
 

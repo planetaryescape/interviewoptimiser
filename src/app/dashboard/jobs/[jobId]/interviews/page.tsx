@@ -1,40 +1,41 @@
 "use client";
 
 import { OutOfMinutesModal } from "@/components/create-optimization/OutOfMinutesModal";
-import { PerformanceMetricsSection } from "@/components/dashboard/performance-metrics-section"; // Added import
+import { AnimatedStatCard } from "@/components/dashboard/animated-stat-card";
+import { InterviewsTable } from "@/components/dashboard/interviews-table";
+import { PerformanceMetricsSection } from "@/components/dashboard/performance-metrics-section";
+import { ScoreComparisonCard } from "@/components/dashboard/score-comparison-card";
 import { JobDetailsSheet } from "@/components/job-details-sheet";
-import { ReportCard } from "@/components/report-card";
 import { Button } from "@/components/ui/button";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import type { EntityList } from "@/lib/utils/formatEntity";
+import { formatInterviewType } from "@/utils/formatters/format-interview-type";
 import * as Tabs from "@radix-ui/react-tabs";
 import { useQuery } from "@tanstack/react-query";
 import {
-  AlertTriangle, // For error display
-  BarChart2, // Keep for PerformanceMetricsSection if it uses it or similar
+  AlertTriangle,
+  ArrowLeft,
+  Award,
+  BarChart2, // Added for analytics empty state
   Briefcase,
-  Calendar,
-  ChevronRight,
   Clock,
-  FileText, // Keep for PerformanceMetricsSection if it uses it
-  RefreshCw,
+  FileText,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useMemo, useState } from "react";
 import type { InferResultType } from "~/db/helpers";
-import type { Report as FullReportType, Job } from "~/db/schema"; // Renamed to FullReportType
+import type { Job } from "~/db/schema";
 
 type InterviewWithReport = InferResultType<
   "interviews",
   {
-    report: true; // This indicates the relation is loaded, but not its detailed type
+    report: true;
   }
 >;
 
-// Represents the subset of report fields typically fetched with the interview list
 interface FetchedReportPartial {
   id: number;
   interviewId: number;
@@ -47,9 +48,8 @@ interface FetchedReportPartial {
   teamworkScore: number;
   adaptabilityScore: number;
   isCompleted: boolean;
-  createdAt: Date; // Assuming createdAt is usually fetched with the report relation
-  updatedAt: Date; // Assuming updatedAt is usually fetched with the report relation
-  // Note: Fields like generalAssessment, areasOfStrength, transcript, etc., are likely not in this partial fetch
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // Define the score keys for consistency at module level
@@ -94,18 +94,18 @@ function aggregateProsodyData(transcript: string) {
 export default function JobReportsPage(props: {
   params: Promise<{ jobId: string }>;
 }) {
-  const params = use(props.params);
+  const { jobId } = use(props.params);
   const router = useRouter();
   const [isOutOfMinutesDialogOpen, setIsOutOfMinutesDialogOpen] = useState(false);
 
   const {
     data: interviewsData,
-    isLoading: interviewsLoading, // Renamed for clarity
-    error: interviewsError, // Renamed for clarity
+    isLoading: interviewsLoading,
+    error: interviewsError,
   } = useQuery<EntityList<InterviewWithReport>>({
-    queryKey: ["job-interviews", params.jobId],
+    queryKey: ["job-interviews", jobId],
     queryFn: async () => {
-      const response = await fetch(`/api/jobs/${params.jobId}/interviews`);
+      const response = await fetch(`/api/jobs/${jobId}/interviews`);
       if (!response.ok) {
         throw new Error("Failed to fetch interviews");
       }
@@ -115,16 +115,17 @@ export default function JobReportsPage(props: {
   });
 
   const interviews = interviewsData?.data || [];
+  console.log("interviews:", interviews);
 
   const {
-    data: jobData, // Renamed for clarity
-    isLoading: jobIsLoading, // Renamed for clarity
-    error: jobError, // Renamed for clarity
+    data: jobData,
+    isLoading: jobIsLoading,
+    error: jobError,
   } = useQuery({
-    queryKey: ["job", params.jobId],
+    queryKey: ["job", jobId],
     queryFn: async () => {
       const jobRepo = await getRepository<Job>("jobs");
-      return await jobRepo.getById(params.jobId);
+      return await jobRepo.getById(jobId);
     },
   });
   const job = jobData?.data; // Extracted job data
@@ -237,48 +238,7 @@ export default function JobReportsPage(props: {
     return prepared;
   }, [interviews]);
 
-  const prosodyChartData = useMemo(() => {
-    if (!interviews.length) return { data: [], prosodies: [] };
-
-    const allProsodyData = interviews.flatMap((interview) =>
-      aggregateProsodyData(interview.data.transcript || "[]")
-    );
-
-    const prosodyTotals = allProsodyData.reduce(
-      (acc, { name }) => {
-        acc[name] = (acc[name] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>
-    );
-
-    const topProsodies = Object.entries(prosodyTotals)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 6)
-      .map(([name]) => name);
-
-    const data = interviews
-      .sort((a, b) => new Date(a.data.createdAt!).getTime() - new Date(b.data.createdAt!).getTime())
-      .map((report) => {
-        const prosodyData = aggregateProsodyData(report.data.transcript || "[]");
-
-        const reducedProsodyData = topProsodies.reduce(
-          (acc, prosodyName) => {
-            acc[prosodyName] = prosodyData.find((p) => p.name === prosodyName)?.value || 0;
-            return acc;
-          },
-          {} as Record<string, number>
-        );
-
-        return {
-          date: new Date(report.data.createdAt).toLocaleDateString(),
-          ...reducedProsodyData,
-        };
-      });
-
-    return { data, prosodies: topProsodies };
-  }, [interviews]);
-
+  // Early return for loading state
   if (interviewsLoading || jobIsLoading) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
@@ -287,6 +247,7 @@ export default function JobReportsPage(props: {
     );
   }
 
+  // Early return for error state
   if (interviewsError || jobError) {
     return (
       <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] p-4 text-center">
@@ -303,6 +264,7 @@ export default function JobReportsPage(props: {
     );
   }
 
+  // Early return if job data is not available after loading and no error
   if (!job) {
     // Handle case where job data might be null after loading without error
     return (
@@ -320,180 +282,132 @@ export default function JobReportsPage(props: {
   }
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col">
-      {/* Header section */}
-      <div className="border-b border-border bg-card sticky top-0 z-10">
-        <div className="container max-w-7xl mx-auto py-6 px-4">
-          <div className="flex items-center text-sm text-muted-foreground mb-3">
-            <Link
-              href="/dashboard/jobs"
-              className="flex items-center hover:text-foreground transition-colors"
-            >
-              <Briefcase className="h-3.5 w-3.5 mr-1.5" />
-              Jobs
+    <ScrollArea className="h-full">
+      <div className="flex-1 space-y-6 p-4 pt-6 md:p-8">
+        {/* Navigation and Page Title */}
+        <div className="flex flex-col space-y-4 md:flex-row md:items-start md:justify-between md:space-y-0">
+          <div className="flex-grow">
+            <Link href="/dashboard/jobs" passHref>
+              <Button variant="outline" className="mb-3">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to All Jobs
+              </Button>
             </Link>
-            <ChevronRight className="h-3.5 w-3.5 mx-2" />
-            <span className="text-foreground font-medium">
-              {job.role || "Job"} - Interview Reports
-            </span>
+            <h2 className="text-3xl font-bold tracking-tight">{job?.role || "Job Interviews"}</h2>
+            {job?.company && <p className="text-xl text-muted-foreground">at {job.company}</p>}
           </div>
-
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight mb-1 text-foreground flex items-center flex-wrap gap-2">
-                {job.role || "Selected Job"}
-                <span className="text-muted-foreground font-medium text-base">
-                  at {job.company || "Company"}
-                </span>
-              </h1>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5" />
-                  Job Created:
-                  {job.createdAt &&
-                    new Date(job.createdAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <FileText className="w-3.5 h-3.5" />
-                  {interviews.length} {interviews.length === 1 ? "Report" : "Reports"} Generated
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <JobDetailsSheet jobId={params.jobId} />
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground" asChild>
-                <Link href={`/dashboard/jobs/${params.jobId}/interviews/new`}>
-                  <RefreshCw className="mr-2 h-4 w-4" /> New Interview
-                </Link>
-              </Button>
-            </div>
+          <div className="flex flex-shrink-0 items-center space-x-2">
+            {job && <JobDetailsSheet jobId={jobId} />}
+            <Button onClick={() => router.push(`/dashboard/jobs/${jobId}/interviews/new`)}>
+              <Briefcase className="mr-2 h-4 w-4" /> New Interview
+            </Button>
           </div>
         </div>
-      </div>
 
-      {/* Key Metrics for this Job - New Section */}
-      <div className="container max-w-7xl mx-auto px-4 py-6">
-        <div className="grid gap-4 md:grid-cols-2 mb-8">
-          <div className="bg-card border border-border/20 p-6 rounded-xl shadow-md">
-            <div className="flex items-center text-muted-foreground mb-2">
-              <FileText className="w-5 h-5 mr-2 text-primary opacity-80" />
-              <h3 className="text-md font-medium">Interviews Conducted (This Job)</h3>
-            </div>
-            <p className="text-3xl font-bold text-foreground">{interviews.length}</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Total interview reports generated for this specific job role.
-            </p>
+        {/* Key Metrics (This Job) */}
+        <section>
+          <h3 className="text-xl font-semibold tracking-tight mb-4">Key Metrics (This Job)</h3>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ScoreComparisonCard
+              title="Avg. Overall Score"
+              Icon={Award}
+              last3Score={averageScoresThisJob.overallScore}
+              allTimeScore={averageScoresThisJob.overallScore}
+            />
+            <AnimatedStatCard
+              title="Total Interviews"
+              Icon={FileText}
+              value={`${interviews.length}${
+                interviews.length === 1 ? " interview" : " interviews"
+              }`}
+              description="Total interviews conducted for this job."
+            />
+            <AnimatedStatCard
+              title="Total Practice Time"
+              Icon={Clock}
+              value={`${totalPracticeMinutesThisJob} min`}
+              description="Combined duration of all practice interviews for this job."
+            />
           </div>
-          <div className="bg-card border border-border/20 p-6 rounded-xl shadow-md">
-            <div className="flex items-center text-muted-foreground mb-2">
-              <Clock className="w-5 h-5 mr-2 text-primary opacity-80" />
-              <h3 className="text-md font-medium">Total Practice Time (This Job)</h3>
-            </div>
-            <p className="text-3xl font-bold text-foreground">
-              {totalPracticeMinutesThisJob} <span className="text-lg font-normal">mins</span>
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Combined duration of all practice interviews for this job.
-            </p>
-          </div>
-        </div>
-      </div>
+        </section>
 
-      {/* Main content area */}
-      <ScrollArea className="flex-grow">
-        <div className="container max-w-7xl mx-auto px-4 pb-8">
-          {" "}
-          {/* Added pb-8 for bottom padding */}
-          {interviews.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <FileText className="w-16 h-16 text-muted-foreground mb-4" />
-              <h2 className="text-xl font-semibold text-foreground mb-2">
-                No Reports Yet for This Job
-              </h2>
-              <p className="text-muted-foreground mb-6 max-w-md">
-                Practice an interview for the &quot;{job.role || "current"}
-                &quot; role to generate your first report and see detailed feedback here.
-              </p>
-              <Button asChild>
-                <Link href={`/dashboard/jobs/${params.jobId}/interviews/new`}>
-                  Start New Interview
-                </Link>
-              </Button>
-            </div>
-          ) : (
-            <Tabs.Root defaultValue="reports" className="flex flex-col">
-              <Tabs.List className="flex gap-1 border-b border-border">
-                <Tabs.Trigger
-                  value="reports"
-                  className="group relative px-4 py-3 text-sm font-medium transition-colors hover:text-foreground data-[state=active]:text-primary -mb-px"
-                >
-                  <div className="flex items-center gap-2">
-                    {" "}
-                    <FileText className="w-4 h-4" /> Reports{" "}
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary transform origin-left scale-x-0 transition-transform group-data-[state=active]:scale-x-100" />
-                </Tabs.Trigger>
-                <Tabs.Trigger
-                  value="analytics"
-                  className="group relative px-4 py-3 text-sm font-medium transition-colors hover:text-foreground data-[state=active]:text-primary -mb-px"
-                >
-                  <div className="flex items-center gap-2">
-                    {" "}
-                    <BarChart2 className="w-4 h-4" /> Analytics{" "}
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary transform origin-left scale-x-0 transition-transform group-data-[state=active]:scale-x-100" />
-                </Tabs.Trigger>
-              </Tabs.List>
+        {/* Tabs for Reports and Analytics */}
+        <section className="mt-6">
+          <Tabs.Root defaultValue="reports" className="space-y-4">
+            <Tabs.List className="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground">
+              <Tabs.Trigger
+                value="reports"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow"
+              >
+                Reports
+              </Tabs.Trigger>
+              <Tabs.Trigger
+                value="analytics"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow"
+              >
+                Analytics
+              </Tabs.Trigger>
+            </Tabs.List>
 
-              <Tabs.Content value="reports" className="outline-none pt-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {interviews
-                    .sort(
-                      (a, b) =>
-                        new Date(b.data.createdAt).getTime() - new Date(a.data.createdAt).getTime()
-                    )
-                    .map((interview) => (
-                      <ReportCard
-                        key={interview.sys.id}
-                        report={interview.data.report as FullReportType | undefined} // Cast to FullReportType for ReportCard
-                        jobId={params.jobId}
-                      />
-                    ))}
+            <Tabs.Content value="reports">
+              {interviews.length > 0 ? (
+                <InterviewsTable
+                  interviews={interviews.map((interviewEntity) => ({
+                    id: interviewEntity.data.id,
+                    createdAt: interviewEntity.data.createdAt,
+                    duration: interviewEntity.data.actualTime ?? 0,
+                    type: formatInterviewType(interviewEntity.data.type ?? "General"),
+                    report: interviewEntity.data.report as FetchedReportPartial | null,
+                  }))}
+                  jobId={jobId}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
+                  <FileText className="mb-4 h-12 w-12 text-muted-foreground" />
+                  <h3 className="text-xl font-semibold">No Interviews Yet</h3>
+                  <p className="text-muted-foreground">
+                    Start an interview for this job to see reports here.
+                  </p>
+                  <Button
+                    onClick={() => router.push(`/dashboard/jobs/${jobId}/interviews/new`)}
+                    className="mt-4"
+                  >
+                    <Briefcase className="mr-2 h-4 w-4" /> Start New Interview
+                  </Button>
                 </div>
-              </Tabs.Content>
+              )}
+            </Tabs.Content>
 
-              <Tabs.Content value="analytics" className="outline-none pt-6">
-                {/* New Analytics Content using PerformanceMetricsSection */}
-                {latestInterviewScoresThisJob && averageScoresThisJob ? (
+            <Tabs.Content value="analytics">
+              {interviews.length > 0 ? (
+                <section>
+                  <h3 className="text-xl font-semibold tracking-tight mb-4">
+                    Performance Snapshot
+                  </h3>
                   <PerformanceMetricsSection
                     primaryScores={latestInterviewScoresThisJob}
                     comparisonScores={averageScoresThisJob}
-                    primaryScoresTitle="Latest Interview Performance (This Job)"
+                    primaryScoresTitle="Latest Interview (This Job)"
                   />
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-64 text-muted-foreground bg-card p-6 rounded-lg shadow">
-                    <BarChart2 className="w-12 h-12 mb-4 opacity-50" />
-                    <p className="text-lg font-medium mb-1">Analytics Data Not Available</p>
-                    <p className="text-sm text-center">
-                      Complete at least one interview for this job to see performance analytics.
-                    </p>
-                  </div>
-                )}
-              </Tabs.Content>
-            </Tabs.Root>
-          )}
-        </div>
-      </ScrollArea>
-
+                </section>
+              ) : (
+                <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
+                  <BarChart2 className="mb-4 h-12 w-12 text-muted-foreground" />
+                  <h3 className="text-xl font-semibold">No Analytics Yet</h3>
+                  <p className="text-muted-foreground">
+                    Complete interviews for this job to see performance analytics.
+                  </p>
+                </div>
+              )}
+            </Tabs.Content>
+          </Tabs.Root>
+        </section>
+      </div>
       <OutOfMinutesModal
         isOpen={isOutOfMinutesDialogOpen}
         onClose={() => setIsOutOfMinutesDialogOpen(false)}
         onBuyMinutes={() => router.push("/pricing")}
       />
-    </div>
+    </ScrollArea>
   );
 }
