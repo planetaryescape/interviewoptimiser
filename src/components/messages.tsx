@@ -25,7 +25,7 @@ export const Messages = forwardRef<ComponentRef<typeof motion.div>, Record<never
     return (
       <motion.div
         layoutScroll
-        className="relative h-full flex flex-col items-center justify-center bg-gradient-to-b from-background via-background/50 to-background overflow-hidden"
+        className="relative h-full flex flex-col items-center justify-end pb-8 bg-gradient-to-b from-background via-background/50 to-background overflow-hidden"
         ref={ref}
       >
         {/* Background Pattern */}
@@ -50,7 +50,7 @@ export const Messages = forwardRef<ComponentRef<typeof motion.div>, Record<never
 
         {/* Messages Container */}
         <motion.div
-          className="relative max-w-3xl w-full mx-auto px-6 flex flex-col items-center justify-center gap-8"
+          className="relative max-w-3xl w-full mx-auto px-6 flex flex-col items-center justify-end gap-4"
           layout
         >
           <AnimatePresence mode="popLayout">
@@ -80,7 +80,7 @@ export const Messages = forwardRef<ComponentRef<typeof motion.div>, Record<never
                 >
                   <div
                     className={cn(
-                      "rounded-2xl p-6 backdrop-blur-sm border transition-all duration-300",
+                      "rounded-2xl p-4 backdrop-blur-sm border transition-all duration-300",
                       msg.type === "assistant_message"
                         ? "bg-primary/5 border-primary/10 hover:border-primary/20"
                         : "bg-secondary/5 border-secondary/10 hover:border-secondary/20",
@@ -126,5 +126,3 @@ export const Messages = forwardRef<ComponentRef<typeof motion.div>, Record<never
     );
   }
 );
-
-export default Messages;

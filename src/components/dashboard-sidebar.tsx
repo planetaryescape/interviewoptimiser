@@ -9,6 +9,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { FeedbackModal } from "./feedback-modal";
+import { Separator } from "./ui/separator";
 
 export function DashboardSidebar() {
   const { data: user } = useUser();
@@ -45,19 +46,19 @@ export function DashboardSidebar() {
       <div className="relative flex-1 flex flex-col min-h-0">
         <div className="flex-1 flex flex-col pt-8 pb-4 px-4">
           <div className="flex flex-col space-y-1 mb-6">
-            <div className="flex items-center text-foreground mb-2 px-3">
-              <Home className="h-4 w-4 mr-2 text-primary" />
-              <span className="font-semibold text-foreground">Jobs</span>
-            </div>
             <NavItem href="/dashboard" icon={Home}>
               Dashboard
             </NavItem>
             <NavItem href="/dashboard/jobs" icon={Briefcase}>
               Jobs
             </NavItem>
+            <NavItem href="/dashboard/settings" icon={Cog}>
+              Settings
+            </NavItem>
+            <Separator className="mt-16" />
             {isAdmin && (
-              <>
-                <div className="mt-6 mb-2 px-3">
+              <div className="mt-16 bg-gray-300 dark:bg-gray-700">
+                <div className="mt-8 mb-2 px-3">
                   <p className="text-xs font-medium text-muted-foreground">Admin</p>
                 </div>
                 <NavItem href="/dashboard/admin/jobs" icon={Briefcase}>
@@ -69,15 +70,8 @@ export function DashboardSidebar() {
                 <NavItem href="/dashboard/admin/feature-requests" icon={Star}>
                   Feature Requests
                 </NavItem>
-              </>
+              </div>
             )}
-
-            <div className="mt-6 mb-2 px-3">
-              <p className="text-xs font-medium text-muted-foreground">Settings</p>
-            </div>
-            <NavItem href="/dashboard/settings" icon={Cog}>
-              Settings
-            </NavItem>
           </div>
         </div>
 
