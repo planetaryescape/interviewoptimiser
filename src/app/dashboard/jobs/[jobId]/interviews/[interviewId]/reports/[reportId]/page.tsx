@@ -436,7 +436,7 @@ export default function JobReportPage(props: {
 
       {/* Scrollable Content */}
       <div
-        className={cn("flex-1 overflow-y-auto overflow-x-hidden p-8 bg-background", bodyFont)}
+        className={cn("flex-1 overflow-y-auto overflow-x-hidden p-8 bg-muted", bodyFont)}
         ref={containerRef}
         style={{
           height: report?.data?.interviewAudioUrl ? "calc(100vh - 134px)" : "calc(100vh - 64px)",
