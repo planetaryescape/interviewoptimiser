@@ -142,6 +142,21 @@ export async function POST(request: Request) {
 
   if (data.type === "user.updated") {
     try {
+      let customerId: string | undefined;
+      const customerSearch = await stripe.customers.search({
+        query: `email:${data.data.email_addresses[0].email_address}`,
+      });
+
+      if (!customerSearch.data[0]) {
+        logger.info({ ...context, data: data.data }, "Customer not found, creating customer");
+        const customer = await stripe.customers.create({
+          email: data.data.email_addresses[0].email_address,
+        });
+        customerId = customer.id;
+      } else {
+        customerId = customerSearch.data[0].id;
+      }
+
       await db
         .update(users)
         .set({
@@ -149,6 +164,8 @@ export async function POST(request: Request) {
           firstname: data.data.first_name,
           lastname: data.data.last_name,
           clerkUserId: data.data.id,
+          stripeCustomerId: customerId,
+          username: data.data.email_addresses[0].email_address,
         })
         .where(eq(users.clerkUserId, data.data.id));
       logger.info({ ...context, data: data.data }, "User updated");

@@ -242,8 +242,8 @@ export function PagePreviewToolbar({
       </div>
 
       {/* Toolbar */}
-      <div className="px-4 py-3 bg-gradient-to-b from-background/80 to-background border-b backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex flex-wrap gap-4 items-center justify-between max-w-5xl mx-auto w-full">
+      <div className="px-4 py-3 bg-background border-b">
+        <div className="flex flex-wrap gap-4 items-center justify-start max-w-5xl mx-auto w-full">
           {/* Document Settings Group */}
           <div className="flex flex-wrap items-center gap-3">
             <ToolbarItem label="Paper Size">
@@ -326,10 +326,10 @@ export function PagePreviewToolbar({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    variant="secondary"
+                    variant="outline"
                     size="sm"
                     disabled={isSharing}
-                    className="h-9 px-4 shadow-sm transition-colors hover:bg-secondary/80"
+                    className="transition-colors"
                   >
                     {isSharing ? (
                       <Loader2 className="h-4 w-4 animate-spin md:mr-2" />
@@ -346,17 +346,17 @@ export function PagePreviewToolbar({
               </DropdownMenu>
 
               <Button
-                variant="secondary"
+                variant="outline"
                 size="sm"
                 onClick={() => setIsReviewDialogOpen(true)}
-                className="h-9 px-4 shadow-sm transition-colors hover:bg-secondary/80"
+                className="transition-colors"
               >
                 <StarIcon className="h-4 w-4 md:mr-2 text-yellow-500" />
                 <span className="hidden sm:inline">Review</span>
               </Button>
 
               {regenerateButtonEnabled && onRegenerate && (
-                <Button variant="secondary" size="sm" onClick={onRegenerate} className="h-8">
+                <Button variant="outline" size="sm" onClick={onRegenerate}>
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Regenerate
                 </Button>
