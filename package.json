@@ -115,7 +115,7 @@
     "nextjs-toploader": "^3.7.15",
     "openai": "^4.71.0",
     "openai-realtime-api": "^1.0.7",
-    "oxlint": "^0.11.0",
+    "oxlint": "^0.18.1",
     "pdf-parse": "^1.1.1",
     "pdfreader": "^3.0.5",
     "pino": "^9.5.0",
