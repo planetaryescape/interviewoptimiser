@@ -33,12 +33,12 @@ export const users = pgTable(
       .notNull(),
     minutes: p.integer().notNull().default(2),
   }),
-  (users) => ({
-    usernameIndex: uniqueIndex("users_username_idx").on(users.username),
-    stripeCustomerIdIndex: uniqueIndex("users_stripe_customer_id_idx").on(users.stripeCustomerId),
-    emailIndex: uniqueIndex("users_email_idx").on(users.email),
-    clerkUserIdIndex: uniqueIndex("users_clerk_user_id_idx").on(users.clerkUserId),
-  })
+  (users) => [
+    uniqueIndex("users_username_idx").on(users.username),
+    uniqueIndex("users_stripe_customer_id_idx").on(users.stripeCustomerId),
+    uniqueIndex("users_email_idx").on(users.email),
+    uniqueIndex("users_clerk_user_id_idx").on(users.clerkUserId),
+  ]
 );
 
 export const userRelations = relations(users, ({ many, one }) => ({
