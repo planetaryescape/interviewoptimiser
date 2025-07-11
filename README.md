@@ -70,6 +70,11 @@ bun install
 doppler setup
 ```
 
+**Important**: Ensure the following critical environment variable is set:
+- `ID_ENCODING_SALT`: A secure random string used for encoding IDs. Generate one using `openssl rand -base64 32`
+
+See `.env.example` for a complete list of required environment variables.
+
 4. Run database migrations:
 
 ```bash

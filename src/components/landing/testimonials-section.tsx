@@ -22,7 +22,7 @@ async function getTestimonials() {
 
 export function TestimonialsSection() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" }, [
-    Autoplay({ delay: 5000, stopOnInteraction: true }),
+    Autoplay({ delay: 5000, stopOnInteraction: true }) as any,
   ]);
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false);
   const [nextBtnEnabled, setNextBtnEnabled] = useState(false);

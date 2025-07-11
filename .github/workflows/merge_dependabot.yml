@@ -1,36 +1,377 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
-name: Merge Dependabot PRs
+name: Auto-merge Dependabot PRs
 
 on:
-  push:
-    branches: [main, dev, qa]
-  pull_request:
-    branches: [main, dev, qa]
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
-  auto-merge-dependabot:
-    name: Auto merge dependabot PR
-    timeout-minutes: 10
+  metadata:
+    name: Fetch Dependabot metadata
+    if: github.actor == 'dependabot[bot]' || github.event.pull_request.user.login == 'dependabot[bot]'
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' }}
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read
+    outputs:
+      update-type: ${{ steps.metadata.outputs.update-type }}
+      dependency-type: ${{ steps.metadata.outputs.dependency-type }}
+      dependency-names: ${{ steps.metadata.outputs.dependency-names }}
+      previous-version: ${{ steps.metadata.outputs.previous-version }}
+      new-version: ${{ steps.metadata.outputs.new-version }}
+      cvss: ${{ steps.metadata.outputs.cvss }}
+      cveid: ${{ steps.metadata.outputs.cveid }}
+      compatibility-score: ${{ steps.metadata.outputs.compatibility-score }}
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@6c439dc8bdf85cadbbce9ed30d1c7b959517bc49 # v2.12.2
+        with:
+          egress-policy: audit
+          disable-sudo: true
+          disable-telemetry: true
+
+      - name: Fetch metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@08eff52bf64351f401fb50d4972fa95b9f2c2d1b # v2.4.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  security-validation:
+    name: Validate dependencies
+    needs: metadata
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+      security-events: write
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@6c439dc8bdf85cadbbce9ed30d1c7b959517bc49 # v2.12.2
+        with:
+          egress-policy: audit
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+        env:
+          NODE_ENV: test
+
+      - name: Run tests
+        id: tests
+        run: |
+          if [ -f "package.json" ] && grep -q '"test"' package.json; then
+            bun run test || echo "test_failed=true" >> $GITHUB_OUTPUT
+          else
+            echo "No tests found, skipping..."
+          fi
+        env:
+          NODE_ENV: test
+          CI: true
+
+      - name: Run linter
+        id: lint
+        run: |
+          if [ -f "package.json" ] && grep -q '"lint"' package.json; then
+            bun run lint || echo "lint_failed=true" >> $GITHUB_OUTPUT
+          elif [ -f "package.json" ] && grep -q '"biome:check"' package.json; then
+            bun run biome:check || echo "lint_failed=true" >> $GITHUB_OUTPUT
+          else
+            echo "No linter found, skipping..."
+          fi
+
+      - name: Build project
+        id: build
+        run: |
+          if [ -f "package.json" ] && grep -q '"build"' package.json; then
+            bun run build || echo "build_failed=true" >> $GITHUB_OUTPUT
+          else
+            echo "No build script found, skipping..."
+          fi
+        env:
+          NODE_ENV: production
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Type check
+        id: typecheck
+        run: |
+          if [ -f "package.json" ] && grep -q '"typecheck"' package.json; then
+            bun run typecheck || echo "typecheck_failed=true" >> $GITHUB_OUTPUT
+          else
+            echo "No typecheck script found, skipping..."
+          fi
+
+      - name: Security audit
+        id: audit
+        continue-on-error: true
+        run: |
+          # Run npm audit for security vulnerabilities
+          npx better-npm-audit audit --level high --production || echo "audit_failed=true" >> $GITHUB_OUTPUT
+
+      - name: License check
+        id: license
+        continue-on-error: true
+        run: |
+          # Check for problematic licenses
+          npx license-checker --summary --failOn "GPL-3.0;AGPL-3.0;LGPL-3.0" || echo "license_failed=true" >> $GITHUB_OUTPUT
+
+      - name: Post validation comment
+        if: |
+          steps.tests.outputs.test_failed == 'true' ||
+          steps.lint.outputs.lint_failed == 'true' ||
+          steps.build.outputs.build_failed == 'true' ||
+          steps.typecheck.outputs.typecheck_failed == 'true' ||
+          steps.audit.outputs.audit_failed == 'true' ||
+          steps.license.outputs.license_failed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const failures = [];
+            if ('${{ steps.tests.outputs.test_failed }}' === 'true') failures.push('❌ Tests');
+            if ('${{ steps.lint.outputs.lint_failed }}' === 'true') failures.push('❌ Linting');
+            if ('${{ steps.build.outputs.build_failed }}' === 'true') failures.push('❌ Build');
+            if ('${{ steps.typecheck.outputs.typecheck_failed }}' === 'true') failures.push('❌ Type Check');
+            if ('${{ steps.audit.outputs.audit_failed }}' === 'true') failures.push('⚠️ Security Audit');
+            if ('${{ steps.license.outputs.license_failed }}' === 'true') failures.push('⚠️ License Check');
+
+            const comment = `## 🤖 Dependabot Validation Results
+
+            The following checks failed:
+            ${failures.join('\n')}
+
+            This PR cannot be auto-merged until all checks pass.`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  auto-merge-decision:
+    name: Auto-merge decision
+    needs: [metadata, security-validation]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      eligible: ${{ steps.eligibility.outputs.eligible }}
+      reason: ${{ steps.eligibility.outputs.reason }}
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@6c439dc8bdf85cadbbce9ed30d1c7b959517bc49 # v2.12.2
+        with:
+          egress-policy: audit
+
+      - name: Determine auto-merge eligibility
+        id: eligibility
+        run: |
+          echo "Checking auto-merge eligibility..."
+          echo "Update type: ${{ needs.metadata.outputs.update-type }}"
+          echo "Dependency type: ${{ needs.metadata.outputs.dependency-type }}"
+          echo "CVE ID: ${{ needs.metadata.outputs.cveid }}"
+          echo "CVSS Score: ${{ needs.metadata.outputs.cvss }}"
+
+          # Auto-merge eligibility rules
+          ELIGIBLE="false"
+          REASON=""
+
+          # Security updates are always eligible if CVSS < 7.0
+          if [[ "${{ needs.metadata.outputs.cveid }}" != "" ]]; then
+            CVSS_SCORE="${{ needs.metadata.outputs.cvss }}"
+            if [[ -z "$CVSS_SCORE" ]] || (( $(echo "$CVSS_SCORE < 7.0" | bc -l) )); then
+              ELIGIBLE="true"
+              REASON="Security update (CVE: ${{ needs.metadata.outputs.cveid }}, CVSS: ${CVSS_SCORE:-'N/A'})"
+            else
+              REASON="High severity security update requires manual review (CVSS: $CVSS_SCORE)"
+            fi
+          # GitHub Actions - all minor and patch
+          elif [[ "${{ needs.metadata.outputs.dependency-names }}" == *"actions/"* ]]; then
+            if [[ "${{ needs.metadata.outputs.update-type }}" == "version-update:semver-patch" ]] || \
+               [[ "${{ needs.metadata.outputs.update-type }}" == "version-update:semver-minor" ]]; then
+              ELIGIBLE="true"
+              REASON="GitHub Actions ${{ needs.metadata.outputs.update-type }}"
+            fi
+          # Development dependencies - patch and minor only
+          elif [[ "${{ needs.metadata.outputs.dependency-type }}" == "development" ]] || \
+               [[ "${{ needs.metadata.outputs.dependency-type }}" == "indirect:development" ]]; then
+            if [[ "${{ needs.metadata.outputs.update-type }}" == "version-update:semver-patch" ]] || \
+               [[ "${{ needs.metadata.outputs.update-type }}" == "version-update:semver-minor" ]]; then
+              ELIGIBLE="true"
+              REASON="Development dependency ${{ needs.metadata.outputs.update-type }}"
+            fi
+          # Production dependencies - patch only, indirect minor also OK
+          elif [[ "${{ needs.metadata.outputs.dependency-type }}" == "direct:production" ]]; then
+            if [[ "${{ needs.metadata.outputs.update-type }}" == "version-update:semver-patch" ]]; then
+              ELIGIBLE="true"
+              REASON="Production dependency patch"
+            fi
+          elif [[ "${{ needs.metadata.outputs.dependency-type }}" == "indirect:production" ]]; then
+            if [[ "${{ needs.metadata.outputs.update-type }}" == "version-update:semver-patch" ]] || \
+               [[ "${{ needs.metadata.outputs.update-type }}" == "version-update:semver-minor" ]]; then
+              ELIGIBLE="true"
+              REASON="Indirect production dependency ${{ needs.metadata.outputs.update-type }}"
+            fi
+          fi
+
+          echo "eligible=$ELIGIBLE" >> $GITHUB_OUTPUT
+          echo "reason=$REASON" >> $GITHUB_OUTPUT
+
+          if [[ "$ELIGIBLE" == "true" ]]; then
+            echo "✅ Eligible for auto-merge: $REASON"
+          else
+            echo "❌ Not eligible for auto-merge: ${REASON:-'Does not meet auto-merge criteria'}"
+          fi
+
+  wait-for-checks:
+    name: Wait for CI checks
+    needs: [auto-merge-decision]
+    if: needs.auto-merge-decision.outputs.eligible == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@6c439dc8bdf85cadbbce9ed30d1c7b959517bc49 # v2.12.2
+        with:
+          egress-policy: audit
+
+      - name: Wait for CI checks
+        uses: lewagon/wait-on-check-action@v1.4.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          check-regexp: ^(?!Auto-merge|Dependabot).*$
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 30
+          allowed-conclusions: success,skipped
+          verbose: true
+
+  auto-merge:
+    name: Auto-merge PR
+    needs: [metadata, auto-merge-decision, wait-for-checks]
+    if: needs.auto-merge-decision.outputs.eligible == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@6c439dc8bdf85cadbbce9ed30d1c7b959517bc49 # v2.12.2
+        with:
+          egress-policy: audit
+
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        if: vars.DEPENDABOT_APP_ID != ''
+        continue-on-error: true
+        with:
+          app-id: ${{ vars.DEPENDABOT_APP_ID }}
+          private-key: ${{ secrets.DEPENDABOT_APP_PRIVATE_KEY }}
+
+      - name: Approve PR
+        run: |
+          gh pr review --approve "$PR_URL" \
+            --body "Auto-approved: ${{ needs.auto-merge-decision.outputs.reason }}
+
+            **Dependency**: ${{ needs.metadata.outputs.dependency-names }}
+            **Version**: ${{ needs.metadata.outputs.previous-version }} → ${{ needs.metadata.outputs.new-version }}"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge
+        run: |
+          gh pr merge --auto \
+            --squash \
+            --delete-branch \
+            "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  manual-review-comment:
+    name: Add manual review comment
+    needs: [metadata, auto-merge-decision]
+    if: needs.auto-merge-decision.outputs.eligible == 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       pull-requests: write
-      contents: write
     steps:
-      - name: Dependabot metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@v2
+      - name: Harden Runner
+        uses: step-security/harden-runner@6c439dc8bdf85cadbbce9ed30d1c7b959517bc49 # v2.12.2
         with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
-      - name: Merge PR from dependabot
-        uses: fastify/github-action-merge-dependabot@v3.11.0
+          egress-policy: audit
+
+      - name: Add comment for manual review
+        uses: actions/github-script@v7
         with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
-          target: minor
-          merge-method: rebase
+          script: |
+            const updateType = '${{ needs.metadata.outputs.update-type }}';
+            const dependencyType = '${{ needs.metadata.outputs.dependency-type }}';
+            const dependencyNames = '${{ needs.metadata.outputs.dependency-names }}';
+            const previousVersion = '${{ needs.metadata.outputs.previous-version }}';
+            const newVersion = '${{ needs.metadata.outputs.new-version }}';
+            const cvss = '${{ needs.metadata.outputs.cvss }}';
+            const reason = '${{ needs.auto-merge-decision.outputs.reason }}';
+
+            let comment = `## 🔍 Manual Review Required
+
+            This Dependabot PR requires manual review and approval.
+
+            **Reason**: ${reason || `${updateType} update for ${dependencyType} dependency`}
+
+            ### Update Details
+            - **Dependency**: ${dependencyNames}
+            - **Type**: ${dependencyType}
+            - **Update**: ${updateType}
+            - **Version**: ${previousVersion} → ${newVersion}`;
+
+            if (cvss) {
+              comment += `\n- **CVSS Score**: ${cvss} (High severity)`;
+            }
+
+            if (updateType.includes('major')) {
+              comment += `\n\n### ⚠️ Major Version Update
+            Please review:
+            - Breaking changes in the changelog
+            - Migration guide if available
+            - Impact on existing code
+            - Update related dependencies if needed`;
+            }
+
+            comment += `\n\n### Next Steps
+            1. Review the changes and changelog
+            2. Test locally if needed
+            3. Approve and merge manually when ready`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

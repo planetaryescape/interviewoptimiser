@@ -1,39 +1,168 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
-
 version: 2
 updates:
-  # Maintain dependencies for GitHub Actions
+  # GitHub Actions dependencies
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
-      time: "23:40"
-    open-pull-requests-limit: 10
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 5
     commit-message:
-      prefix: "actions:"
-      include: scope
+      prefix: "ci(deps)"
+      prefix-development: "ci(deps-dev)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "ci"
+    reviewers:
+      - "bhekanik"
+    pull-request-branch-name:
+      separator: "-"
+    rebase-strategy: "auto"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
 
-  # Maintain dependencies for npm
+  # NPM dependencies with comprehensive grouping
+  # Note: This project uses Bun as the package manager, not npm
+  # Dependabot doesn't have native bun support yet, but can still check package.json
+  # The dependency-review workflow handles security audits using bun
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "daily"
-      time: "23:40"
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "Europe/London"
     open-pull-requests-limit: 10
     commit-message:
-      prefix: "npm:"
-      include: scope
+      prefix: "fix(deps)"
+      prefix-development: "chore(deps-dev)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "javascript"
+    reviewers:
+      - "bhekanik"
+    pull-request-branch-name:
+      separator: "-"
+    rebase-strategy: "auto"
+    versioning-strategy: "increase"
+    ignore:
+      # Ignore major updates by default for stability
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+      # Specific version constraints
+      - dependency-name: "@types/node"
+        versions: [">=22"]
+    groups:
+      # Critical framework dependencies grouped together
+      next-and-react:
+        patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+        update-types:
+          - "minor"
+          - "patch"
+      # Production dependencies (excluding frameworks)
+      production-dependencies:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+        exclude-patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+      # Development dependencies with smart exclusions
+      development-dependencies:
+        dependency-type: "development"
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "aws-sdk"
+          - "@types/*"
+          - "*test*"
+          - "vitest"
+          - "@testing-library/*"
+          - "@biomejs/*"
+          - "biome"
+        update-types:
+          - "minor"
+          - "patch"
+      # AWS dependencies require careful updates
+      aws-dependencies:
+        patterns:
+          - "aws-*"
+          - "@aws-*"
+          - "aws-sdk"
+        update-types:
+          - "minor"
+          - "patch"
+      # TypeScript type definitions
+      types:
+        patterns:
+          - "@types/*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Testing framework dependencies
+      testing:
+        patterns:
+          - "*test*"
+          - "vitest"
+          - "@testing-library/*"
+          - "msw"
+        update-types:
+          - "minor"
+          - "patch"
+      # Linting and formatting tools
+      linting-and-formatting:
+        patterns:
+          - "@biomejs/*"
+          - "biome"
+          - "prettier"
+          - "eslint*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Major updates tracked separately for manual review
+      major-updates:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
 
-  - package-ecosystem: docker
-    directory: /
+  # Docker dependencies
+  - package-ecosystem: "docker"
+    directory: "/"
     schedule:
-      interval: daily
-      time: "23:40"
-      timezone: Etc/UTC
-    open-pull-requests-limit: 10
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 5
     commit-message:
-      prefix: "docker:"
-      include: scope
+      prefix: "build(docker)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "infrastructure"
+    reviewers:
+      - "bhekanik"
+    pull-request-branch-name:
+      separator: "-"
+    rebase-strategy: "auto"
+    groups:
+      docker-dependencies:
+        patterns:
+          - "*"

@@ -54,3 +54,5 @@ terraform/terraform.tfstate.backup
 
 # Cursor
 .cursor/mcp.json
+
+.claude

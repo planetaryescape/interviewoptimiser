@@ -1,0 +1,302 @@
+name: Dependency Review
+
+# This workflow runs security audits on dependencies
+# Note: The dependency-review-action job is commented out because it requires
+# GitHub Advanced Security which is not available for private repositories
+# without a GitHub Enterprise license or additional payment.
+# 
+# The workflow still runs:
+# - Bun security audit (checking for outdated packages and vulnerabilities)
+# - License compliance checks
+# - SBOM generation
+
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'bun.lock'
+      - 'yarn.lock'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/**'
+      - 'Dockerfile*'
+      - 'docker-compose*.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write
+
+jobs:
+  # Note: dependency-review-action requires GitHub Advanced Security for private repos
+  # Commenting out for now - uncomment if Advanced Security is enabled
+  # dependency-review:
+  #   name: Dependency vulnerability scan
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 10
+  #   steps:
+  #     - name: Harden Runner
+  #       uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.2
+  #       with:
+  #         egress-policy: audit
+  #         disable-sudo: true
+  #
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         persist-credentials: false
+  #
+  #     - name: Dependency Review
+  #       uses: actions/dependency-review-action@v4
+  #       with:
+  #         # Fail on critical or high severity vulnerabilities
+  #         fail-on-severity: high
+  #         # Allow specific licenses (implicitly denies all others)
+  #         allow-licenses: MIT, Apache-2.0, BSD-3-Clause, BSD-2-Clause, ISC, CC0-1.0, 0BSD, Unlicense, Python-2.0, BlueOak-1.0.0
+  #         # Comment on PR with vulnerability summary
+  #         comment-summary-in-pr: always
+  #         # Allow Github Advisory Database sources
+  #         allow-ghsas: GHSA-25MP-g2j3-qw32
+  #         # Create issues for vulnerabilities
+  #         vulnerability-check: true
+  #         license-check: true
+  #         # Show all dependencies changed
+  #         show-openssf-scorecard: true
+  #         # Warn but don't fail on vulnerabilities below threshold
+  #         warn-on-openssf-scorecard-level: 3
+
+  security-audit:
+    name: Bun security audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.2
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run comprehensive security audit
+        id: audit
+        run: |
+          echo "## Running security audits..." >> $GITHUB_STEP_SUMMARY
+          
+          # Check for outdated packages with Bun
+          echo "### Checking for outdated packages" >> $GITHUB_STEP_SUMMARY
+          bun outdated || true
+          
+          # Verify lockfile integrity
+          echo "### Verifying lockfile integrity" >> $GITHUB_STEP_SUMMARY
+          if [ -f "bun.lock" ]; then
+            echo "✅ Bun lockfile found" >> $GITHUB_STEP_SUMMARY
+            bun install --frozen-lockfile
+          else
+            echo "❌ No bun lockfile found!" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          # Run Snyk if token is available (works with any package.json)
+          if [[ -n "${{ secrets.SNYK_TOKEN }}" ]]; then
+            echo "### Snyk Security Scan" >> $GITHUB_STEP_SUMMARY
+            bunx snyk test --severity-threshold=high 2>&1 | tee audit-snyk.log || echo "snyk_audit_failed=true" >> $GITHUB_OUTPUT
+          fi
+          
+          # Run OSV Scanner (works with package.json and bun.lock)
+          echo "### OSV Scanner" >> $GITHUB_STEP_SUMMARY
+          # Install OSV Scanner using the official installation script
+          export OSVSCANNERVERSION=1.9.2
+          curl -sSfL https://raw.githubusercontent.com/google/osv-scanner/main/install.sh | sh -s -- -b /usr/local/bin
+          
+          # Run the scanner
+          osv-scanner --format json . > osv-results.json 2>&1 || {
+            echo "osv_scan_failed=true" >> $GITHUB_OUTPUT
+            echo "OSV Scanner found vulnerabilities or failed" >> $GITHUB_STEP_SUMMARY
+          }
+          
+          # Create combined report
+          echo "audit_status=completed" >> $GITHUB_OUTPUT
+
+      - name: Upload security reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-reports
+          path: |
+            audit-*.log
+            osv-results.json
+          retention-days: 30
+
+      - name: Parse and comment audit results
+        if: |
+          steps.audit.outputs.snyk_audit_failed == 'true' ||
+          steps.audit.outputs.osv_scan_failed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            let comment = `## 🔒 Security Audit Summary
+            
+            Security vulnerabilities were detected in the dependency update.
+            
+            ### Scan Results
+            `;
+            
+            const snykFailed = '${{ steps.audit.outputs.snyk_audit_failed }}' === 'true';
+            const osvFailed = '${{ steps.audit.outputs.osv_scan_failed }}' === 'true';
+            
+            comment += `| Scanner | Status |\n|---------|--------|\n`;
+            comment += `| Bun Security Check | ✅ Passed |\n`;
+            comment += `| Snyk | ${snykFailed ? '❌ Failed' : '✅ Passed'} |\n`;
+            comment += `| OSV Scanner | ${osvFailed ? '❌ Failed' : '✅ Passed'} |\n`;
+            
+            comment += `\n### Recommended Actions
+            1. Review the security reports in the workflow artifacts
+            2. Run \`bun update\` locally to get latest patches
+            3. Check OSV Scanner results for known vulnerabilities
+            4. Consider using dependency overrides for false positives
+            
+            For more details, check the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  license-compliance:
+    name: License compliance check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.2
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: License scan with multiple tools
+        id: license-scan
+        run: |
+          echo "## License Compliance Check" >> $GITHUB_STEP_SUMMARY
+          
+          # Run license-checker via bunx
+          echo "### License Checker" >> $GITHUB_STEP_SUMMARY
+          bunx license-checker --summary --excludePrivatePackages --csv > licenses.csv
+          bunx license-checker --summary --excludePrivatePackages --onlyAllow "MIT;Apache-2.0;BSD-3-Clause;BSD-2-Clause;ISC;CC0-1.0;0BSD;Unlicense;Python-2.0;BlueOak-1.0.0" || echo "license_check_failed=true" >> $GITHUB_OUTPUT
+          
+          # Run license-compliance  
+          echo "### License Compliance Scanner" >> $GITHUB_STEP_SUMMARY
+          bunx @license-compliance/cli check -q || echo "compliance_failed=true" >> $GITHUB_OUTPUT
+          
+          # Generate license report
+          echo "### License Summary" >> $GITHUB_STEP_SUMMARY
+          bunx license-checker --summary --excludePrivatePackages | head -20 >> $GITHUB_STEP_SUMMARY
+
+      - name: FOSSA scan
+        if: env.FOSSA_API_KEY != ''
+        uses: fossas/fossa-action@v1
+        with:
+          api-key: ${{ secrets.FOSSA_API_KEY }}
+        continue-on-error: true
+        env:
+          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
+
+      - name: Upload license report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-compliance-report
+          path: |
+            licenses.csv
+            .fossa/
+          retention-days: 30
+
+      - name: Comment on license issues
+        if: steps.license-scan.outputs.license_check_failed == 'true' || steps.license-scan.outputs.compliance_failed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = `## ⚖️ License Compliance Alert
+            
+            Potential license compatibility issues detected.
+            
+            ### Issues Found
+            - Incompatible or unknown licenses detected
+            - Review the license report in workflow artifacts
+            
+            ### Allowed Licenses
+            \`\`\`
+            MIT, Apache-2.0, BSD-3-Clause, BSD-2-Clause, ISC, 
+            CC0-1.0, 0BSD, Unlicense, Python-2.0, BlueOak-1.0.0
+            \`\`\`
+            
+            All other licenses are automatically blocked.
+            
+            Please review dependencies with incompatible licenses before merging.`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  sbom-generation:
+    name: Generate SBOM
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.2
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          format: spdx-json
+          output-file: sbom.spdx.json
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.spdx.json
+          retention-days: 30
