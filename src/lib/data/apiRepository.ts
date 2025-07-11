@@ -1,4 +1,5 @@
 import type { Entity, EntityList } from "../utils/formatEntity";
+import { secureFetch } from "../utils/secure-fetch";
 import type { GenericRepository } from "./genericRepository";
 
 export class ApiRepository<T extends { id?: number }> implements GenericRepository<T> {
@@ -9,7 +10,7 @@ export class ApiRepository<T extends { id?: number }> implements GenericReposito
   }
 
   private async fetchWithErrorHandling(url: string, options?: RequestInit): Promise<any> {
-    const response = await fetch(url, options);
+    const response = await secureFetch(url, options);
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || "An error occurred");
@@ -38,9 +39,6 @@ export class ApiRepository<T extends { id?: number }> implements GenericReposito
   async create(item: Omit<T, "id">): Promise<Entity<T>> {
     return this.fetchWithErrorHandling(`${this.baseUrl}`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify(item),
     });
   }
@@ -48,9 +46,6 @@ export class ApiRepository<T extends { id?: number }> implements GenericReposito
   async update(id: string, item: Partial<T>): Promise<Entity<T> | null> {
     return this.fetchWithErrorHandling(`${this.baseUrl}/${id}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify(item),
     });
   }

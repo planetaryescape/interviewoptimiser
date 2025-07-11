@@ -1,3 +1,10 @@
+import {
+  generateCSRFToken,
+  getCSRFToken,
+  isCSRFExemptPath,
+  isCSRFProtectedMethod,
+  setCSRFCookie,
+} from "@/lib/csrf";
 import { checkRateLimit, getRateLimitCategory } from "@/lib/rate-limit";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
@@ -16,7 +23,41 @@ const isPublicApiRoute = createRouteMatcher([
   "/api/public/(.*)",
 ]);
 
-const isExcludedFromRateLimit = createRouteMatcher(["/api/health", "/api/ping", "/api/status"]);
+const isExcludedFromRateLimit = createRouteMatcher([
+  "/api/health",
+  "/api/ping",
+  "/api/status",
+  "/api/csrf-token",
+]);
+
+async function csrfMiddleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  const method = request.method;
+
+  // Skip CSRF check for exempt paths or non-protected methods
+  if (!isCSRFProtectedMethod(method) || isCSRFExemptPath(pathname)) {
+    return null;
+  }
+
+  // Skip CSRF check for public API routes
+  if (isPublicApiRoute(request)) {
+    return null;
+  }
+
+  // Validate CSRF token for protected routes
+  const csrfToken = await getCSRFToken(request);
+  if (!csrfToken) {
+    return NextResponse.json(
+      {
+        error: "Invalid CSRF token",
+        message: "CSRF validation failed. Please refresh the page and try again.",
+      },
+      { status: 403 }
+    );
+  }
+
+  return null;
+}
 
 async function rateLimitMiddleware(request: NextRequest) {
   if (!isApiRoute(request) || isExcludedFromRateLimit(request)) {
@@ -53,6 +94,13 @@ async function rateLimitMiddleware(request: NextRequest) {
 }
 
 export default clerkMiddleware(async (auth, req) => {
+  // Apply CSRF protection first
+  const csrfResponse = await csrfMiddleware(req);
+  if (csrfResponse) {
+    return csrfResponse;
+  }
+
+  // Then apply rate limiting
   const rateLimitResponse = await rateLimitMiddleware(req);
   if (rateLimitResponse) {
     return rateLimitResponse;
