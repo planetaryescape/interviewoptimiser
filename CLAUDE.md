@@ -358,3 +358,35 @@ expect(errors).toContain("Duration must be positive");
 - `reports`: AI-generated performance analysis
 - `customizations`: User preferences and settings
 - `questions`: Question banks and templates
+
+## Rate Limiting
+
+The application implements rate limiting to protect against DoS attacks and API abuse.
+
+### Configuration
+
+Rate limiting uses Vercel KV (Redis-compatible). Required environment variables:
+
+```bash
+KV_REST_API_URL=your_vercel_kv_url
+KV_REST_API_TOKEN=your_vercel_kv_token
+```
+
+### Rate Limits by Endpoint Type
+
+| Endpoint Type | Requests | Window | Examples |
+|--------------|----------|---------|----------|
+| Auth Webhooks | 10 | 15 min | `/api/webhooks/auth` |
+| Webhooks | 100 | 1 min | `/api/webhooks/stripe` |
+| API Routes | 60 | 1 min | `/api/jobs/*` |
+| Public API | 30 | 1 min | `/api/public/*` |
+| File Upload | 10 | 10 min | `/api/extract`, `/api/upload` |
+| Reports | 20 | 10 min | `/api/reports/*` |
+| AI Operations | 20 | 10 min | `/api/interviews/*` |
+
+### Implementation
+
+- Integrated in Next.js middleware (`src/middleware.ts`)
+- Uses sliding window algorithm
+- Returns 429 status when limit exceeded
+- Includes rate limit headers in responses

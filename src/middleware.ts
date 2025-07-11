@@ -1,4 +1,7 @@
+import { checkRateLimit, getRateLimitCategory } from "@/lib/rate-limit";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 const isProtectedRoute = createRouteMatcher(["/dashboard(.*)", "/account(.*)"]);
 const isApiRoute = createRouteMatcher(["/api(.*)"]);
@@ -13,7 +16,46 @@ const isPublicApiRoute = createRouteMatcher([
   "/api/public/(.*)",
 ]);
 
+async function rateLimitMiddleware(request: NextRequest) {
+  if (!isApiRoute(request)) {
+    return null;
+  }
+
+  const category = getRateLimitCategory(request.nextUrl.pathname);
+  const { success, limit, remaining, reset } = await checkRateLimit(request, category);
+
+  if (!success) {
+    return NextResponse.json(
+      {
+        error: "Too many requests",
+        message: "You have exceeded the rate limit. Please try again later.",
+      },
+      {
+        status: 429,
+        headers: {
+          "X-RateLimit-Limit": limit.toString(),
+          "X-RateLimit-Remaining": remaining.toString(),
+          "X-RateLimit-Reset": new Date(reset * 1000).toISOString(),
+          "Retry-After": Math.max(0, reset - Math.floor(Date.now() / 1000)).toString(),
+        },
+      }
+    );
+  }
+
+  const response = NextResponse.next();
+  response.headers.set("X-RateLimit-Limit", limit.toString());
+  response.headers.set("X-RateLimit-Remaining", remaining.toString());
+  response.headers.set("X-RateLimit-Reset", new Date(reset * 1000).toISOString());
+
+  return response;
+}
+
 export default clerkMiddleware(async (auth, req) => {
+  const rateLimitResponse = await rateLimitMiddleware(req);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   if (isProtectedRoute(req)) {
     await auth.protect();
   }
@@ -26,9 +68,7 @@ export default clerkMiddleware(async (auth, req) => {
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
     "/(api|trpc)(.*)",
   ],
 };
