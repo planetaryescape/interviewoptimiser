@@ -90,12 +90,6 @@ const nextConfig: NextConfig = {
         test: /\.map$/,
         use: "null-loader",
       });
-
-      // Handle optional encoding dependency for html-to-docx
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        encoding: false,
-      };
     }
 
     config.module.rules.push({
