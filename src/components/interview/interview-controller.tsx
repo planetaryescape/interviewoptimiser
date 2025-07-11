@@ -30,6 +30,7 @@ export function InterviewController() {
   const queryClient = useQueryClient();
   const lastDecrementTimeRef = useRef<number>(0);
   const endingInterviewRef = useRef(false);
+  const unmountedRef = useRef(false);
 
   const callDurationTimestamp = useActiveInterviewCallDuration();
   const totalTime = useActiveInterviewTotalTime();
@@ -60,25 +61,44 @@ export function InterviewController() {
 
   const interviewStartedRef = useRef(false);
 
+  // Set unmounted flag on component unmount
+  useEffect(() => {
+    return () => {
+      unmountedRef.current = true;
+    };
+  }, []);
+
   useEffect(() => {
     if (!interviewStartedRef.current) {
       connect();
       interviewStartedRef.current = true;
     }
-  }, [connect]);
+
+    return () => {
+      if (status.value === "connected") {
+        disconnect();
+      }
+    };
+  }, [connect, disconnect, status.value]);
 
   // Update store with voice state
   useEffect(() => {
-    if (voiceTimestamp) {
+    let mounted = true;
+
+    if (mounted && voiceTimestamp) {
       setCallDurationTimestamp(voiceTimestamp);
     }
 
-    if (messages && messages.length > 0) {
+    if (mounted && messages && messages.length > 0) {
       // Convert the voice messages to the format expected by our store
       const storeCompatibleMessages = formatTranscript(messages);
 
       setMessages(storeCompatibleMessages);
     }
+
+    return () => {
+      mounted = false;
+    };
   }, [voiceTimestamp, messages, setCallDurationTimestamp, setMessages]);
 
   // End of interview mutation
@@ -88,25 +108,29 @@ export function InterviewController() {
       return await interviewRepo.update(idHandler.encode(activeInterview?.id ?? 0), interview);
     },
     onSuccess: () => {
-      sendAssistantInput("hang_up");
-      disconnect();
-      queryClient.invalidateQueries({
-        queryKey: ["job", params.jobId],
-      });
-      if (!interviewEnded) {
-        setInterviewEnded(true);
+      if (!unmountedRef.current) {
+        sendAssistantInput("hang_up");
+        disconnect();
+        queryClient.invalidateQueries({
+          queryKey: ["job", params.jobId],
+        });
+        if (!interviewEnded) {
+          setInterviewEnded(true);
+        }
       }
     },
     onError: (error) => {
-      sendAssistantInput("hang_up");
-      disconnect();
-      Sentry.withScope((scope) => {
-        scope.setContext("params", params);
-        Sentry.captureException(error);
-      });
-      toast.error("Error ending interview. Just be patient, we will try again.");
-      if (!interviewEnded) {
-        setInterviewEnded(true);
+      if (!unmountedRef.current) {
+        sendAssistantInput("hang_up");
+        disconnect();
+        Sentry.withScope((scope) => {
+          scope.setContext("params", params);
+          Sentry.captureException(error);
+        });
+        toast.error("Error ending interview. Just be patient, we will try again.");
+        if (!interviewEnded) {
+          setInterviewEnded(true);
+        }
       }
     },
   });
@@ -118,7 +142,7 @@ export function InterviewController() {
       return await interviewRepo.update(idHandler.encode(activeInterview?.id ?? 0), interview);
     },
     onSuccess: (interview) => {
-      if (interview) {
+      if (!unmountedRef.current && interview) {
         setActiveInterview({
           ...interview.data,
           id: interview.data.id || 0,
@@ -134,12 +158,14 @@ export function InterviewController() {
       }
     },
     onError: (error) => {
-      Sentry.withScope((scope) => {
-        scope.setContext("params", params);
-        scope.setExtra("error", error);
-        Sentry.captureException(error);
-      });
-      toast.error("Error updating interview. Please try again.");
+      if (!unmountedRef.current) {
+        Sentry.withScope((scope) => {
+          scope.setContext("params", params);
+          scope.setExtra("error", error);
+          Sentry.captureException(error);
+        });
+        toast.error("Error updating interview. Please try again.");
+      }
     },
   });
 
@@ -151,16 +177,26 @@ export function InterviewController() {
       return response;
     },
     onSuccess: (updatedUser) => {
-      if (updatedUser && updatedUser.data.minutes <= 0) {
-        disconnect();
-        toast.error("You've run out of minutes. The interview has been stopped.");
-      }
+      if (!unmountedRef.current) {
+        if (updatedUser && updatedUser.data.minutes <= 0) {
+          disconnect();
+          toast.error("You've run out of minutes. The interview has been stopped.");
+        }
 
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+        queryClient.invalidateQueries({ queryKey: ["user"] });
+      }
     },
     onError: (error) => {
-      console.error("Error decrementing minutes:", error);
-      toast.error("Failed to update remaining minutes");
+      if (!unmountedRef.current) {
+        Sentry.captureException(error, {
+          contexts: {
+            function: {
+              name: "decrementMutation.onError",
+            },
+          },
+        });
+        toast.error("Failed to update remaining minutes");
+      }
     },
   });
 
@@ -176,14 +212,16 @@ export function InterviewController() {
 
   // Time-based actions
   useEffect(() => {
-    if (status.value !== "connected") return;
+    let mounted = true;
+
+    if (!mounted || status.value !== "connected") return;
     if (!callDurationTimestamp) return;
     if (interviewEnded || endingInterviewRef.current) return;
 
     const elapsedTime = unformatTime(callDurationTimestamp);
 
     // One minute warning
-    if (elapsedTime === totalTime - 60 && !wrapUpSent) {
+    if (mounted && elapsedTime === totalTime - 60 && !wrapUpSent) {
       handleSendUserInput(ONE_MINUTE_LEFT_MESSAGE);
       sendSessionSettings({
         context: {
@@ -195,7 +233,7 @@ export function InterviewController() {
     }
 
     // End interview
-    if (elapsedTime === totalTime && !interviewEnded && !endingInterviewRef.current) {
+    if (mounted && elapsedTime === totalTime && !interviewEnded && !endingInterviewRef.current) {
       endingInterviewRef.current = true;
       endInterview({
         ...activeInterview,
@@ -205,6 +243,10 @@ export function InterviewController() {
         transcript: formatTranscriptToJsonString(messages),
       });
     }
+
+    return () => {
+      mounted = false;
+    };
   }, [
     status.value,
     callDurationTimestamp,
@@ -223,33 +265,41 @@ export function InterviewController() {
 
   // Usage tracking
   useEffect(() => {
-    if (status.value === "connected") {
+    let mounted = true;
+
+    if (mounted && status.value === "connected") {
       if (!callDurationTimestamp) return;
 
       const currentTime = unformatTime(callDurationTimestamp);
       if (Math.floor(currentTime / 60) > Math.floor(lastDecrementTimeRef.current / 60)) {
         lastDecrementTimeRef.current = currentTime;
 
-        // Decrement minutes used
-        decrementMutation.mutate();
+        if (mounted) {
+          // Decrement minutes used
+          decrementMutation.mutate();
 
-        if (activeInterview) {
-          setActiveInterview({
+          if (activeInterview) {
+            setActiveInterview({
+              ...activeInterview,
+              actualTime: Math.floor(currentTime / 60),
+              transcript: formatTranscriptToJsonString(messages),
+            });
+          }
+
+          partialInterviewMutation.mutate({
             ...activeInterview,
+            jobId: params.jobId as string,
+            humeChatId: chatMetadata?.chatId || activeInterview?.humeChatId,
             actualTime: Math.floor(currentTime / 60),
             transcript: formatTranscriptToJsonString(messages),
           });
         }
-
-        partialInterviewMutation.mutate({
-          ...activeInterview,
-          jobId: params.jobId as string,
-          humeChatId: chatMetadata?.chatId || activeInterview?.humeChatId,
-          actualTime: Math.floor(currentTime / 60),
-          transcript: formatTranscriptToJsonString(messages),
-        });
       }
     }
+
+    return () => {
+      mounted = false;
+    };
   }, [
     status.value,
     callDurationTimestamp,
