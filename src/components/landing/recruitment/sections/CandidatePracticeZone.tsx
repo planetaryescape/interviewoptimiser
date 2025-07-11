@@ -30,7 +30,7 @@ export default function CandidatePracticeZone() {
       opacity: 1,
       y: 0,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 100,
         damping: 12,
       },
@@ -54,7 +54,7 @@ export default function CandidatePracticeZone() {
       opacity: 1,
       scale: 1,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 200,
         damping: 15,
       },
@@ -95,7 +95,7 @@ export default function CandidatePracticeZone() {
               className="flex flex-col items-center"
               variants={statItemVariants}
               whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              transition={{ type: "spring" as const, stiffness: 300, damping: 20 }}
             >
               <motion.span
                 className="text-3xl md:text-4xl font-bold text-primary mb-2"

@@ -62,7 +62,7 @@ export default function FAQSection() {
       y: 0,
       transition: {
         delay: i * 0.05,
-        type: "spring",
+        type: "spring" as const,
         stiffness: 100,
         damping: 12,
       },
@@ -96,7 +96,7 @@ export default function FAQSection() {
               <AccordionItem value={faq.question}>
                 <motion.div
                   whileHover={{ x: 5 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  transition={{ type: "spring" as const, stiffness: 400, damping: 25 }}
                 >
                   <AccordionTrigger className="text-left hover:no-underline">
                     <span className="hover:underline">{faq.question}</span>

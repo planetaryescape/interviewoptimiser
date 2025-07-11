@@ -9,6 +9,8 @@ import { logger } from "~/lib/logger";
 // @ts-expect-error TODO: Fix this
 import HTMLtoDOCX from "html-to-docx";
 
+export const runtime = "nodejs";
+
 export async function POST(req: NextRequest) {
   try {
     logger.info({ event: "generate-docx" }, "Generating DOCX");
