@@ -1,5 +1,6 @@
+import { NextRequest } from "next/server";
 import { describe, expect, it } from "vitest";
-import { getRateLimitCategory } from "./rate-limit";
+import { getIdentifier, getRateLimitCategory } from "./rate-limit";
 
 describe("Rate Limiting", () => {
   describe("getRateLimitCategory", () => {
@@ -38,6 +39,44 @@ describe("Rate Limiting", () => {
       expect(getRateLimitCategory("/api/users")).toBe("api");
       expect(getRateLimitCategory("/api/jobs")).toBe("api");
       expect(getRateLimitCategory("/api/settings")).toBe("api");
+    });
+  });
+
+  describe("getIdentifier", () => {
+    it("should validate IPv4 addresses", () => {
+      const validRequest = new NextRequest("http://localhost/api/test", {
+        headers: { "cf-connecting-ip": "192.168.1.1" },
+      });
+      expect(getIdentifier(validRequest)).toBe("192.168.1.1");
+
+      const invalidRequest = new NextRequest("http://localhost/api/test", {
+        headers: { "cf-connecting-ip": "256.256.256.256" },
+      });
+      expect(getIdentifier(invalidRequest)).toBe("127.0.0.1");
+    });
+
+    it("should validate IPv6 addresses", () => {
+      const validRequest = new NextRequest("http://localhost/api/test", {
+        headers: { "cf-connecting-ip": "2001:db8::8a2e:370:7334" },
+      });
+      expect(getIdentifier(validRequest)).toBe("2001:db8::8a2e:370:7334");
+
+      const invalidRequest = new NextRequest("http://localhost/api/test", {
+        headers: { "cf-connecting-ip": "gggg::1" },
+      });
+      expect(getIdentifier(invalidRequest)).toBe("127.0.0.1");
+    });
+
+    it("should reject malicious input", () => {
+      const xssRequest = new NextRequest("http://localhost/api/test", {
+        headers: { "x-forwarded-for": "<script>alert('xss')</script>" },
+      });
+      expect(getIdentifier(xssRequest)).toBe("127.0.0.1");
+
+      const sqlRequest = new NextRequest("http://localhost/api/test", {
+        headers: { "x-real-ip": "'; DROP TABLE users; --" },
+      });
+      expect(getIdentifier(sqlRequest)).toBe("127.0.0.1");
     });
   });
 });

@@ -16,8 +16,10 @@ const isPublicApiRoute = createRouteMatcher([
   "/api/public/(.*)",
 ]);
 
+const isExcludedFromRateLimit = createRouteMatcher(["/api/health", "/api/ping", "/api/status"]);
+
 async function rateLimitMiddleware(request: NextRequest) {
-  if (!isApiRoute(request)) {
+  if (!isApiRoute(request) || isExcludedFromRateLimit(request)) {
     return null;
   }
 
