@@ -37,15 +37,21 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
         pageSettings: true,
         interview: {
           with: {
-            job: true,
+            job: {
+              columns: {
+                userId: true,
+              },
+            },
           },
         },
       },
     });
 
     if (!userReport) {
-      return NextResponse.json(formatErrorEntity("Report not found"), {
-        status: 404,
+      // Return 403 instead of 404 to avoid leaking information about report existence
+      logger.warn({ reportId }, "Report not found or unauthorized access");
+      return NextResponse.json(formatErrorEntity("Unauthorized"), {
+        status: 403,
       });
     }
 
