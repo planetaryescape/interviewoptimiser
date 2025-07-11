@@ -1,143 +1,118 @@
-import { getUserFromClerkId } from "@/lib/auth";
+import { withAuth } from "@/lib/auth-middleware";
 import { sanitiseUserInputText } from "@/lib/sanitiseUserInputText";
 import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
-import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { desc, eq } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { config } from "~/config";
 import { db } from "~/db";
 import { jobs } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
-export async function POST(request: NextRequest) {
-  logger.info("POST request received at /api/jobs");
-  const { userId: clerkUserId } = getAuth(request);
-  if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to POST /api/jobs");
-    return NextResponse.json(formatErrorEntity("Unauthorized"), {
-      status: 401,
-    });
-  }
+export const POST = withAuth(
+  async (request, { user }) => {
+    logger.info("POST request received at /api/jobs");
 
-  try {
-    const { id: userId } = await getUserFromClerkId(clerkUserId);
-    if (!userId) {
-      logger.warn({ clerkUserId }, "User not found in database");
-      return NextResponse.json(formatErrorEntity("User not found"), {
-        status: 404,
+    try {
+      const body = await request.json();
+      const { submittedCVText, jobDescriptionText, additionalInfo, duration, type } = body;
+      logger.info("Received job data");
+
+      const [newJob] = await db.transaction(async (tx) => {
+        logger.info({}, "Sanitising user input");
+        const sanitisedSubmittedCVText = sanitiseUserInputText(submittedCVText, {
+          truncate: true,
+          maxLength: config.maxTextLengths.cv,
+        });
+        const sanitisedJobDescriptionText = sanitiseUserInputText(jobDescriptionText, {
+          truncate: true,
+          maxLength: config.maxTextLengths.jobDescription,
+        });
+        const sanitisedAdditionalInfo = sanitiseUserInputText(additionalInfo, {
+          truncate: true,
+          maxLength: config.maxTextLengths.additionalInfo,
+        });
+
+        logger.info({}, "Creating new job");
+        const [createdJob] = await tx
+          .insert(jobs)
+          .values({
+            userId: user.id,
+            submittedCVText: sanitisedSubmittedCVText,
+            jobDescriptionText: sanitisedJobDescriptionText,
+            additionalInfo: sanitisedAdditionalInfo,
+          })
+          .returning();
+
+        logger.info({ jobId: createdJob.id }, "Successfully created new job");
+
+        return [createdJob];
       });
-    }
 
-    const body = await request.json();
-    const { submittedCVText, jobDescriptionText, additionalInfo, duration, type } = body;
-    logger.info("Received job data");
+      logger.info({ jobId: newJob.id }, "Successfully created new job");
 
-    const [newJob] = await db.transaction(async (tx) => {
-      logger.info({}, "Sanitising user input");
-      const sanitisedSubmittedCVText = sanitiseUserInputText(submittedCVText, {
-        truncate: true,
-        maxLength: config.maxTextLengths.cv,
+      return NextResponse.json(formatEntity(newJob, "job"), {
+        status: 201,
       });
-      const sanitisedJobDescriptionText = sanitiseUserInputText(jobDescriptionText, {
-        truncate: true,
-        maxLength: config.maxTextLengths.jobDescription,
+    } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setExtra("context", "POST /api/jobs");
+        scope.setExtra("error", error);
+        Sentry.captureException(error);
       });
-      const sanitisedAdditionalInfo = sanitiseUserInputText(additionalInfo, {
-        truncate: true,
-        maxLength: config.maxTextLengths.additionalInfo,
-      });
-
-      logger.info({}, "Creating new job");
-      const [createdJob] = await tx
-        .insert(jobs)
-        .values({
-          userId,
-          submittedCVText: sanitisedSubmittedCVText,
-          jobDescriptionText: sanitisedJobDescriptionText,
-          additionalInfo: sanitisedAdditionalInfo,
-        })
-        .returning();
-
-      logger.info({ jobId: createdJob.id }, "Successfully created new job");
-
-      return [createdJob];
-    });
-
-    logger.info({ jobId: newJob.id }, "Successfully created new job");
-
-    return NextResponse.json(formatEntity(newJob, "job"), {
-      status: 201,
-    });
-  } catch (error) {
-    Sentry.withScope((scope) => {
-      scope.setExtra("context", "POST /api/jobs");
-      scope.setExtra("error", error);
-      Sentry.captureException(error);
-    });
-    logger.error(
-      {
-        message: error instanceof Error ? error.message : "Unknown error",
-        error,
-      },
-      "Error in POST /api/jobs"
-    );
-    return NextResponse.json(formatErrorEntity("Internal server error"), {
-      status: 500,
-    });
-  }
-}
-
-export async function GET(request: NextRequest) {
-  logger.info("GET request received at /api/jobs");
-  const { userId: clerkUserId } = getAuth(request);
-  if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to GET /api/jobs");
-    return NextResponse.json(formatErrorEntity("Unauthorized"), {
-      status: 401,
-    });
-  }
-
-  try {
-    const { id: userId } = await getUserFromClerkId(clerkUserId);
-    if (!userId) {
-      logger.warn({ clerkUserId }, "User not found in database");
-      return NextResponse.json(formatErrorEntity("User not found"), {
-        status: 404,
-      });
-    }
-
-    const userJobs = await db.query.jobs.findMany({
-      where: eq(jobs.userId, userId),
-      orderBy: desc(jobs.createdAt),
-      with: {
-        interviews: {
-          with: {
-            report: true,
-          },
+      logger.error(
+        {
+          message: error instanceof Error ? error.message : "Unknown error",
+          error,
         },
-        candidateDetails: true,
-        jobDescription: true,
-      },
-    });
+        "Error in POST /api/jobs"
+      );
+      return NextResponse.json(formatErrorEntity("Internal server error"), {
+        status: 500,
+      });
+    }
+  },
+  { routeName: "POST /api/jobs" }
+);
 
-    logger.info({ count: userJobs.length }, "Successfully retrieved jobs");
-    return NextResponse.json(formatEntityList(userJobs, "job"));
-  } catch (error) {
-    Sentry.withScope((scope) => {
-      scope.setExtra("context", "GET /api/jobs");
-      scope.setExtra("error", error);
-      Sentry.captureException(error);
-    });
-    logger.error(
-      {
-        message: error instanceof Error ? error.message : "Unknown error",
-        error,
-      },
-      "Error in GET /api/jobs"
-    );
-    return NextResponse.json(formatErrorEntity("Internal server error"), {
-      status: 500,
-    });
-  }
-}
+export const GET = withAuth(
+  async (request, { user }) => {
+    logger.info("GET request received at /api/jobs");
+
+    try {
+      const userJobs = await db.query.jobs.findMany({
+        where: eq(jobs.userId, user.id),
+        orderBy: desc(jobs.createdAt),
+        with: {
+          interviews: {
+            with: {
+              report: true,
+            },
+          },
+          candidateDetails: true,
+          jobDescription: true,
+        },
+      });
+
+      logger.info({ count: userJobs.length }, "Successfully retrieved jobs");
+      return NextResponse.json(formatEntityList(userJobs, "job"));
+    } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setExtra("context", "GET /api/jobs");
+        scope.setExtra("error", error);
+        Sentry.captureException(error);
+      });
+      logger.error(
+        {
+          message: error instanceof Error ? error.message : "Unknown error",
+          error,
+        },
+        "Error in GET /api/jobs"
+      );
+      return NextResponse.json(formatErrorEntity("Internal server error"), {
+        status: 500,
+      });
+    }
+  },
+  { routeName: "GET /api/jobs" }
+);

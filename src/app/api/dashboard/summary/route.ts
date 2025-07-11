@@ -1,9 +1,10 @@
-import { getUserFromClerkId } from "@/lib/auth";
-import { auth } from "@clerk/nextjs/server";
+import { withAuthAsync } from "@/lib/auth-middleware";
+import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import { and, avg, desc, eq, inArray, sql } from "drizzle-orm";
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
 import { interviews, jobs, reports } from "~/db/schema";
+import { logger } from "~/lib/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -53,135 +54,128 @@ async function calculateAllAverageScores(reportIds: number[]): Promise<{ [key: s
   };
 }
 
-export async function GET() {
-  try {
-    const authResult = await auth();
-    const clerkUserId = authResult.userId;
+export async function GET(request: NextRequest) {
+  return withAuthAsync(
+    async (request, { user }) => {
+      try {
+        const dbUserId = user.id;
 
-    if (!clerkUserId) {
-      return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
-    }
+        // 1. Job Stats & Recent Jobs (User-Specific)
+        const totalJobsResult = await db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(jobs)
+          .where(eq(jobs.userId, dbUserId));
+        const totalJobs = totalJobsResult[0]?.count || 0;
 
-    // Get internal DB user ID from Clerk ID
-    const { id: dbUserId } = await getUserFromClerkId(clerkUserId);
+        const recentJobsData = await db
+          .select({
+            id: jobs.id,
+            role: jobs.role,
+            company: jobs.company,
+            createdAt: jobs.createdAt,
+          })
+          .from(jobs)
+          .where(eq(jobs.userId, dbUserId))
+          .orderBy(desc(jobs.createdAt))
+          .limit(3);
 
-    if (!dbUserId) {
-      // Handle case where user is authenticated with Clerk but not found in local DB
-      return NextResponse.json(
-        { success: false, message: "User not found in application database." },
-        { status: 404 }
-      );
-    }
+        // 2. Interview Stats & Recent Interviews (User-Specific)
+        const totalInterviewsResult = await db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(interviews)
+          .innerJoin(jobs, eq(interviews.jobId, jobs.id))
+          .where(eq(jobs.userId, dbUserId));
+        const totalInterviews = totalInterviewsResult[0]?.count || 0;
 
-    // 1. Job Stats & Recent Jobs (User-Specific)
-    const totalJobsResult = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(jobs)
-      .where(eq(jobs.userId, dbUserId));
-    const totalJobs = totalJobsResult[0]?.count || 0;
+        const recentInterviewsData = await db
+          .select({
+            interviewId: interviews.id,
+            reportId: reports.id,
+            jobRole: jobs.role,
+            interviewType: interviews.type,
+            interviewCreatedAt: interviews.createdAt,
+            jobId: jobs.id,
+          })
+          .from(interviews)
+          .leftJoin(jobs, eq(interviews.jobId, jobs.id))
+          .leftJoin(reports, and(eq(interviews.id, reports.interviewId)))
+          .where(and(eq(jobs.userId, dbUserId), eq(reports.isCompleted, true)))
+          .orderBy(desc(interviews.createdAt))
+          .limit(3);
 
-    const recentJobsData = await db
-      .select({
-        id: jobs.id,
-        role: jobs.role,
-        company: jobs.company,
-        createdAt: jobs.createdAt,
-      })
-      .from(jobs)
-      .where(eq(jobs.userId, dbUserId))
-      .orderBy(desc(jobs.createdAt))
-      .limit(3);
+        const practiceTimeResult = await db
+          .select({ totalSeconds: sql<number>`sum(${interviews.actualTime})::int` })
+          .from(interviews)
+          .innerJoin(jobs, eq(interviews.jobId, jobs.id))
+          .innerJoin(reports, eq(interviews.id, reports.interviewId))
+          .where(
+            and(
+              eq(jobs.userId, dbUserId),
+              eq(reports.isCompleted, true),
+              sql`${interviews.actualTime} IS NOT NULL`
+            )
+          );
 
-    // 2. Interview Stats & Recent Interviews (User-Specific)
-    const totalInterviewsResult = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(interviews)
-      .innerJoin(jobs, eq(interviews.jobId, jobs.id))
-      .where(eq(jobs.userId, dbUserId));
-    const totalInterviews = totalInterviewsResult[0]?.count || 0;
+        const minutesSpentPracticing = Math.floor(practiceTimeResult[0]?.totalSeconds || 0);
 
-    const recentInterviewsData = await db
-      .select({
-        interviewId: interviews.id,
-        reportId: reports.id,
-        jobRole: jobs.role,
-        interviewType: interviews.type,
-        interviewCreatedAt: interviews.createdAt,
-        jobId: jobs.id,
-      })
-      .from(interviews)
-      .leftJoin(jobs, eq(interviews.jobId, jobs.id))
-      .leftJoin(reports, and(eq(interviews.id, reports.interviewId)))
-      .where(and(eq(jobs.userId, dbUserId), eq(reports.isCompleted, true)))
-      .orderBy(desc(interviews.createdAt))
-      .limit(3);
+        // 4. Average Scores (User-Specific)
+        const allCompletedReportIds = (
+          await db
+            .select({ id: reports.id })
+            .from(reports)
+            .innerJoin(interviews, eq(reports.interviewId, interviews.id))
+            .innerJoin(jobs, eq(interviews.jobId, jobs.id))
+            .where(and(eq(reports.isCompleted, true), eq(jobs.userId, dbUserId)))
+        ).map((r) => r.id);
 
-    const practiceTimeResult = await db
-      .select({ totalSeconds: sql<number>`sum(${interviews.actualTime})::int` })
-      .from(interviews)
-      .innerJoin(jobs, eq(interviews.jobId, jobs.id))
-      .innerJoin(reports, eq(interviews.id, reports.interviewId))
-      .where(
-        and(
-          eq(jobs.userId, dbUserId),
-          eq(reports.isCompleted, true),
-          sql`${interviews.actualTime} IS NOT NULL`
-        )
-      );
+        const recentCompletedInterviewsWithReports = await db
+          .select({ reportId: reports.id })
+          .from(interviews)
+          .innerJoin(jobs, eq(interviews.jobId, jobs.id))
+          .innerJoin(reports, eq(interviews.id, reports.interviewId))
+          .where(and(eq(reports.isCompleted, true), eq(jobs.userId, dbUserId)))
+          .orderBy(desc(interviews.createdAt))
+          .limit(3);
 
-    const minutesSpentPracticing = Math.floor(practiceTimeResult[0]?.totalSeconds || 0);
+        const recentCompletedReportIds = recentCompletedInterviewsWithReports.map(
+          (r) => r.reportId
+        );
 
-    // 4. Average Scores (User-Specific)
-    const allCompletedReportIds = (
-      await db
-        .select({ id: reports.id })
-        .from(reports)
-        .innerJoin(interviews, eq(reports.interviewId, interviews.id))
-        .innerJoin(jobs, eq(interviews.jobId, jobs.id))
-        .where(and(eq(reports.isCompleted, true), eq(jobs.userId, dbUserId)))
-    ).map((r) => r.id);
+        const [last3InterviewsScores, allTimeScores] = await Promise.all([
+          calculateAllAverageScores(recentCompletedReportIds),
+          calculateAllAverageScores(allCompletedReportIds),
+        ]);
 
-    const recentCompletedInterviewsWithReports = await db
-      .select({ reportId: reports.id })
-      .from(interviews)
-      .innerJoin(jobs, eq(interviews.jobId, jobs.id))
-      .innerJoin(reports, eq(interviews.id, reports.interviewId))
-      .where(and(eq(reports.isCompleted, true), eq(jobs.userId, dbUserId)))
-      .orderBy(desc(interviews.createdAt))
-      .limit(3);
-
-    const recentCompletedReportIds = recentCompletedInterviewsWithReports.map((r) => r.reportId);
-
-    const [last3InterviewsScores, allTimeScores] = await Promise.all([
-      calculateAllAverageScores(recentCompletedReportIds),
-      calculateAllAverageScores(allCompletedReportIds),
-    ]);
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        jobStats: { totalJobs },
-        recentJobs: recentJobsData,
-        interviewStats: {
-          totalInterviews,
-          minutesSpentPracticing,
-        },
-        recentInterviews: recentInterviewsData,
-        averageScores: {
-          last3Interviews: last3InterviewsScores,
-          allTime: allTimeScores,
-        },
-      },
-    });
-  } catch (error) {
-    console.error("Error fetching dashboard summary:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Failed to fetch dashboard summary.",
-        error: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 }
-    );
-  }
+        return NextResponse.json({
+          success: true,
+          data: {
+            jobStats: { totalJobs },
+            recentJobs: recentJobsData,
+            interviewStats: {
+              totalInterviews,
+              minutesSpentPracticing,
+            },
+            recentInterviews: recentInterviewsData,
+            averageScores: {
+              last3Interviews: last3InterviewsScores,
+              allTime: allTimeScores,
+            },
+          },
+        });
+      } catch (error) {
+        logger.error({ error }, "Error fetching dashboard summary");
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Failed to fetch dashboard summary.",
+            error: error instanceof Error ? error.message : String(error),
+          },
+          { status: 500 }
+        );
+      }
+    },
+    request,
+    undefined,
+    { routeName: "GET /api/dashboard/summary" }
+  );
 }
