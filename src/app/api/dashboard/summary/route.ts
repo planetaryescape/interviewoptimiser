@@ -7,36 +7,50 @@ import { interviews, jobs, reports } from "~/db/schema";
 
 export const dynamic = "force-dynamic";
 
-// Define a union type for all possible score columns
-type ReportScoreColumn =
-  | typeof reports.overallScore
-  | typeof reports.communicationSkillsScore
-  | typeof reports.fitnessForRoleScore
-  | typeof reports.speakingSkillsScore
-  | typeof reports.problemSolvingSkillsScore
-  | typeof reports.technicalKnowledgeScore
-  | typeof reports.teamworkScore
-  | typeof reports.adaptabilityScore;
-
 /**
- * Calculates the average of a specific score column from a given set of report IDs.
- * @param scoreColumn - The Drizzle ORM column object for the score.
- * @param reportIds - An array of report IDs to calculate the average for.
- * @returns The average score, or 0 if no reports are found or reportIds is empty.
+ * Calculates all average scores for a given set of report IDs in a single query.
+ * @param reportIds - An array of report IDs to calculate the averages for.
+ * @returns An object containing all average scores.
  */
-async function calculateAverageScore(
-  scoreColumn: ReportScoreColumn,
-  reportIds: number[]
-): Promise<number> {
+async function calculateAllAverageScores(reportIds: number[]): Promise<{ [key: string]: number }> {
   if (!reportIds || reportIds.length === 0) {
-    return 0;
+    return {
+      overallScore: 0,
+      communicationSkillsScore: 0,
+      fitnessForRoleScore: 0,
+      speakingSkillsScore: 0,
+      problemSolvingSkillsScore: 0,
+      technicalKnowledgeScore: 0,
+      teamworkScore: 0,
+      adaptabilityScore: 0,
+    };
   }
+
   const result = await db
-    .select({ value: avg(scoreColumn) })
+    .select({
+      overallScore: avg(reports.overallScore),
+      communicationSkillsScore: avg(reports.communicationSkillsScore),
+      fitnessForRoleScore: avg(reports.fitnessForRoleScore),
+      speakingSkillsScore: avg(reports.speakingSkillsScore),
+      problemSolvingSkillsScore: avg(reports.problemSolvingSkillsScore),
+      technicalKnowledgeScore: avg(reports.technicalKnowledgeScore),
+      teamworkScore: avg(reports.teamworkScore),
+      adaptabilityScore: avg(reports.adaptabilityScore),
+    })
     .from(reports)
     .where(and(eq(reports.isCompleted, true), inArray(reports.id, reportIds)));
 
-  return Number(result[0]?.value) || 0;
+  const scores = result[0];
+  return {
+    overallScore: Number(scores?.overallScore) || 0,
+    communicationSkillsScore: Number(scores?.communicationSkillsScore) || 0,
+    fitnessForRoleScore: Number(scores?.fitnessForRoleScore) || 0,
+    speakingSkillsScore: Number(scores?.speakingSkillsScore) || 0,
+    problemSolvingSkillsScore: Number(scores?.problemSolvingSkillsScore) || 0,
+    technicalKnowledgeScore: Number(scores?.technicalKnowledgeScore) || 0,
+    teamworkScore: Number(scores?.teamworkScore) || 0,
+    adaptabilityScore: Number(scores?.adaptabilityScore) || 0,
+  };
 }
 
 export async function GET() {
@@ -138,24 +152,10 @@ export async function GET() {
 
     const recentCompletedReportIds = recentCompletedInterviewsWithReports.map((r) => r.reportId);
 
-    const scoreFields: { [key: string]: ReportScoreColumn } = {
-      overallScore: reports.overallScore,
-      communicationSkillsScore: reports.communicationSkillsScore,
-      fitnessForRoleScore: reports.fitnessForRoleScore,
-      speakingSkillsScore: reports.speakingSkillsScore,
-      problemSolvingSkillsScore: reports.problemSolvingSkillsScore,
-      technicalKnowledgeScore: reports.technicalKnowledgeScore,
-      teamworkScore: reports.teamworkScore,
-      adaptabilityScore: reports.adaptabilityScore,
-    };
-
-    const last3InterviewsScores: { [key: string]: number } = {};
-    const allTimeScores: { [key: string]: number } = {};
-
-    for (const [key, field] of Object.entries(scoreFields)) {
-      last3InterviewsScores[key] = await calculateAverageScore(field, recentCompletedReportIds);
-      allTimeScores[key] = await calculateAverageScore(field, allCompletedReportIds);
-    }
+    const [last3InterviewsScores, allTimeScores] = await Promise.all([
+      calculateAllAverageScores(recentCompletedReportIds),
+      calculateAllAverageScores(allCompletedReportIds),
+    ]);
 
     return NextResponse.json({
       success: true,
