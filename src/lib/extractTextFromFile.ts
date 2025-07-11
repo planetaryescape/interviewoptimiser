@@ -1,7 +1,8 @@
 "use server";
 
 import mammoth from "mammoth";
-import { PdfReader } from "pdfreader";
+// @ts-expect-error TODO: fix this
+import * as pdf from "pdf-parse/lib/pdf-parse.js";
 import { logger } from "../../lib/logger";
 
 export async function extractTextFromFile(file: File): Promise<string> {
@@ -10,19 +11,14 @@ export async function extractTextFromFile(file: File): Promise<string> {
 
   if (file.type === "application/pdf") {
     const buffer = Buffer.from(uint8Array);
-    let text = "";
-    new PdfReader().parseBuffer(buffer, (err, item) => {
-      if (err) {
-        logger.error({ err }, "Error parsing PDF");
-        throw new Error("Error parsing PDF");
-      } else if (!item) {
-        logger.warn("end of buffer");
-      } else if (item.text) {
-        text += item.text;
-      }
-    });
-
-    return text;
+    try {
+      const data = await pdf(buffer);
+      logger.info({ textLength: data.text?.trim().length }, "Extracted text from PDF");
+      return data.text?.trim() || "";
+    } catch (error) {
+      logger.error({ error }, "Error parsing PDF");
+      throw new Error("Error parsing PDF");
+    }
   } else if (
     file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
     file.type === "application/msword"
