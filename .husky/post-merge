@@ -1,6 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 # Check if package.json changed in the merge
 if git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD | grep -q "^package.json$"; then
   echo "📦 package.json changed, running bun install..."

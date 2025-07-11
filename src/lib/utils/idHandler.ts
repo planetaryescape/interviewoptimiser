@@ -20,4 +20,9 @@ class IDHandler {
   }
 }
 
-export const idHandler = new IDHandler("qT6uuo!8J@ZuhwE6qzU@P.h34jZ-*J@");
+const salt = process.env.ID_ENCODING_SALT;
+if (!salt) {
+  throw new Error("ID_ENCODING_SALT environment variable is required");
+}
+
+export const idHandler = new IDHandler(salt);

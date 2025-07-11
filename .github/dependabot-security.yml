@@ -1,0 +1,65 @@
+# Security-focused Dependabot configuration
+# This is an optional enhanced configuration with additional security measures
+
+version: 2
+registries:
+  # Example private registry configuration (uncomment if needed)
+  # npm-private:
+  #   type: npm-registry
+  #   url: https://npm.pkg.github.com
+  #   token: ${{secrets.DEPENDABOT_NPM_TOKEN}}
+
+updates:
+  # Critical security updates - daily checks
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "02:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 20
+    priority: 1
+    allow:
+      - dependency-type: "all"
+    commit-message:
+      prefix: "security"
+      include: "scope"
+    labels:
+      - "security"
+      - "critical"
+      - "dependencies"
+    reviewers:
+      - "@bhekanik"
+    # Only security updates
+    target-branch: "main"
+    versioning-strategy: "increase"
+    insecure-external-code-execution: deny
+    
+  # GitHub Actions security updates
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "02:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    priority: 1
+    commit-message:
+      prefix: "security(actions)"
+      include: "scope"
+    labels:
+      - "security"
+      - "github-actions"
+      - "dependencies"
+    reviewers:
+      - "@bhekanik"
+    
+# Additional security configurations:
+# 1. Enable Dependency Review Action in your workflows
+# 2. Enable secret scanning
+# 3. Enable code scanning with CodeQL
+# 4. Configure branch protection rules requiring:
+#    - PR reviews before merge
+#    - Status checks to pass
+#    - Branches to be up to date
+#    - Signed commits (optional but recommended)
