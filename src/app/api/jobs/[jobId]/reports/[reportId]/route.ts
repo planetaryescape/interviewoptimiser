@@ -61,10 +61,22 @@ export async function GET(
       where: eq(reports.id, reportId),
       with: {
         pageSettings: true,
+        interview: true,
       },
     });
 
     if (!userReport) {
+      return NextResponse.json(formatErrorEntity("Report not found"), {
+        status: 404,
+      });
+    }
+
+    // Verify that the report belongs to the specified job
+    if (userReport.interview.jobId !== jobId) {
+      logger.warn(
+        { reportId, jobId, actualJobId: userReport.interview.jobId },
+        "Report does not belong to the specified job"
+      );
       return NextResponse.json(formatErrorEntity("Report not found"), {
         status: 404,
       });
