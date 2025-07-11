@@ -71,7 +71,7 @@ export default function PricingPreviewSection() {
       opacity: 1,
       y: 0,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 100,
         damping: 12,
         delay: i * 0.1,
@@ -81,7 +81,7 @@ export default function PricingPreviewSection() {
       y: -10,
       boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 300,
         damping: 20,
       },
@@ -137,7 +137,7 @@ export default function PricingPreviewSection() {
                         animate={{ scale: 1 }}
                         transition={{
                           delay: 0.3 + index * 0.1 + featureIndex * 0.05,
-                          type: "spring",
+                          type: "spring" as const,
                         }}
                       >
                         <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />

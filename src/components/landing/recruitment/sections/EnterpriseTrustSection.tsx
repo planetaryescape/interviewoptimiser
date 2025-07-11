@@ -21,7 +21,7 @@ export default function EnterpriseTrustSection() {
       opacity: 1,
       y: 0,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 100,
         damping: 12,
       },
@@ -34,7 +34,7 @@ export default function EnterpriseTrustSection() {
       opacity: 1,
       scale: 1,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 300,
         damping: 20,
       },
@@ -56,7 +56,7 @@ export default function EnterpriseTrustSection() {
             <motion.div
               initial={{ rotate: -10, scale: 0.8 }}
               whileInView={{ rotate: 0, scale: 1 }}
-              transition={{ type: "spring", stiffness: 200, damping: 15 }}
+              transition={{ type: "spring" as const, stiffness: 200, damping: 15 }}
               viewport={{ once: true }}
             >
               <Shield className="h-12 w-12 mb-4 text-primary" />
@@ -83,7 +83,7 @@ export default function EnterpriseTrustSection() {
             <motion.div
               initial={{ rotate: 10, scale: 0.8 }}
               whileInView={{ rotate: 0, scale: 1 }}
-              transition={{ type: "spring", stiffness: 200, damping: 15 }}
+              transition={{ type: "spring" as const, stiffness: 200, damping: 15 }}
               viewport={{ once: true }}
             >
               <Server className="h-12 w-12 mb-4 text-primary" />

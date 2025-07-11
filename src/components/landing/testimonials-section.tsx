@@ -22,7 +22,6 @@ async function getTestimonials() {
 
 export function TestimonialsSection() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" }, [
-    // @ts-expect-error - The type definitions for embla-carousel-autoplay are incompatible with embla-carousel-react
     Autoplay({ delay: 5000, stopOnInteraction: true }),
   ]);
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false);

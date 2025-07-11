@@ -47,7 +47,7 @@ export default function ContactFormSection() {
       opacity: 1,
       y: 0,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 100,
         damping: 12,
       },
@@ -60,7 +60,7 @@ export default function ContactFormSection() {
       opacity: 1,
       scale: 1,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 100,
         damping: 15,
       },
@@ -97,7 +97,7 @@ export default function ContactFormSection() {
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.2 }}
+                transition={{ type: "spring" as const, stiffness: 200, damping: 20, delay: 0.2 }}
               >
                 <svg
                   className="w-16 h-16 mx-auto text-green-500 mb-4"

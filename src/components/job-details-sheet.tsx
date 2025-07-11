@@ -69,7 +69,7 @@ export function JobDetailsSheet({ jobId, className, variant = "outline" }: JobDe
       y: 0,
       opacity: 1,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 300,
         damping: 24,
       },
@@ -82,7 +82,7 @@ export function JobDetailsSheet({ jobId, className, variant = "outline" }: JobDe
       x: 0,
       opacity: 1,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 500,
         damping: 30,
       },
@@ -163,7 +163,7 @@ export function JobDetailsSheet({ jobId, className, variant = "outline" }: JobDe
       <SheetContent className="w-full sm:max-w-xl overflow-y-auto bg-card p-0" side="right">
         <MotionConfig
           transition={{
-            type: "spring",
+            type: "spring" as const,
             stiffness: 300,
             damping: 30,
           }}
@@ -232,7 +232,7 @@ export function JobDetailsSheet({ jobId, className, variant = "outline" }: JobDe
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{
-                          type: "spring",
+                          type: "spring" as const,
                           stiffness: 300,
                           damping: 25,
                           delay: 0.1,
@@ -247,7 +247,7 @@ export function JobDetailsSheet({ jobId, className, variant = "outline" }: JobDe
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{
-                          type: "spring",
+                          type: "spring" as const,
                           stiffness: 300,
                           damping: 25,
                           delay: 0.2,
@@ -260,7 +260,7 @@ export function JobDetailsSheet({ jobId, className, variant = "outline" }: JobDe
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{
-                          type: "spring",
+                          type: "spring" as const,
                           stiffness: 300,
                           damping: 25,
                           delay: 0.3,

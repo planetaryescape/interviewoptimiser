@@ -65,12 +65,10 @@ export function StepperContentArea({
   };
 
   const transition = {
-    type: "spring",
+    type: "spring" as const,
     stiffness: 150,
     damping: 18,
     mass: 1.1,
-    duration: 0.4,
-    ease: [0.2, 0, 0.3, 1],
   };
 
   // Effect to animate contentWrapperRef's height when measuredHeight of the current step's content changes
@@ -79,7 +77,7 @@ export function StepperContentArea({
       controls.start({
         height: measuredHeight,
         transition: {
-          type: "spring",
+          type: "spring" as const,
           stiffness: 300,
           damping: 30,
         },
