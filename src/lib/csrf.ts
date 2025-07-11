@@ -1,4 +1,3 @@
-import { createHmac, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 
@@ -12,17 +11,34 @@ export interface CSRFTokenData {
   timestamp: number;
 }
 
-export function generateCSRFToken(): string {
-  const token = randomBytes(CSRF_TOKEN_LENGTH).toString("hex");
+export async function generateCSRFToken(): Promise<string> {
+  const tokenBytes = new Uint8Array(CSRF_TOKEN_LENGTH);
+  crypto.getRandomValues(tokenBytes);
+  const token = Array.from(tokenBytes)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
   const timestamp = Date.now();
   const data = `${token}.${timestamp}`;
 
-  const signature = createHmac("sha256", CSRF_SECRET).update(data).digest("hex");
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(CSRF_SECRET),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
+  const signatureBuffer = await crypto.subtle.sign("HMAC", key, encoder.encode(data));
+  const signature = Array.from(new Uint8Array(signatureBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 
   return `${data}.${signature}`;
 }
 
-export function validateCSRFToken(token: string): boolean {
+export async function validateCSRFToken(token: string): Promise<boolean> {
   if (!token) return false;
 
   const parts = token.split(".");
@@ -38,7 +54,20 @@ export function validateCSRFToken(token: string): boolean {
   if (tokenAge > maxAge) return false;
 
   const data = `${tokenPart}.${timestampStr}`;
-  const expectedSignature = createHmac("sha256", CSRF_SECRET).update(data).digest("hex");
+
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(CSRF_SECRET),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
+  const signatureBuffer = await crypto.subtle.sign("HMAC", key, encoder.encode(data));
+  const expectedSignature = Array.from(new Uint8Array(signatureBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 
   return signature === expectedSignature;
 }
@@ -52,7 +81,7 @@ export async function getCSRFToken(request: NextRequest): Promise<string | null>
     return null;
   }
 
-  return validateCSRFToken(cookieToken) ? cookieToken : null;
+  return (await validateCSRFToken(cookieToken)) ? cookieToken : null;
 }
 
 export async function setCSRFCookie(token: string) {

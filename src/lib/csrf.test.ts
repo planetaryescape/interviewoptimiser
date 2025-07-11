@@ -8,47 +8,47 @@ import {
 
 describe("CSRF Protection", () => {
   describe("generateCSRFToken", () => {
-    it("should generate a token with three parts", () => {
-      const token = generateCSRFToken();
+    it("should generate a token with three parts", async () => {
+      const token = await generateCSRFToken();
       const parts = token.split(".");
       expect(parts).toHaveLength(3);
     });
 
-    it("should generate unique tokens", () => {
-      const token1 = generateCSRFToken();
-      const token2 = generateCSRFToken();
+    it("should generate unique tokens", async () => {
+      const token1 = await generateCSRFToken();
+      const token2 = await generateCSRFToken();
       expect(token1).not.toBe(token2);
     });
   });
 
   describe("validateCSRFToken", () => {
-    it("should validate a freshly generated token", () => {
-      const token = generateCSRFToken();
-      expect(validateCSRFToken(token)).toBe(true);
+    it("should validate a freshly generated token", async () => {
+      const token = await generateCSRFToken();
+      expect(await validateCSRFToken(token)).toBe(true);
     });
 
-    it("should reject invalid token format", () => {
-      expect(validateCSRFToken("invalid")).toBe(false);
-      expect(validateCSRFToken("part1.part2")).toBe(false);
-      expect(validateCSRFToken("")).toBe(false);
+    it("should reject invalid token format", async () => {
+      expect(await validateCSRFToken("invalid")).toBe(false);
+      expect(await validateCSRFToken("part1.part2")).toBe(false);
+      expect(await validateCSRFToken("")).toBe(false);
     });
 
-    it("should reject tampered tokens", () => {
-      const token = generateCSRFToken();
+    it("should reject tampered tokens", async () => {
+      const token = await generateCSRFToken();
       const parts = token.split(".");
       const tamperedToken = `${parts[0]}.${parts[1]}.tampered`;
-      expect(validateCSRFToken(tamperedToken)).toBe(false);
+      expect(await validateCSRFToken(tamperedToken)).toBe(false);
     });
 
-    it("should reject expired tokens", () => {
+    it("should reject expired tokens", async () => {
       // Mock Date.now to simulate an old token
       const originalNow = Date.now;
       Date.now = vi.fn(() => originalNow() - 25 * 60 * 60 * 1000); // 25 hours ago
 
-      const oldToken = generateCSRFToken();
+      const oldToken = await generateCSRFToken();
 
       Date.now = originalNow;
-      expect(validateCSRFToken(oldToken)).toBe(false);
+      expect(await validateCSRFToken(oldToken)).toBe(false);
     });
   });
 
