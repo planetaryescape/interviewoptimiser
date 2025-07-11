@@ -51,12 +51,35 @@ export function getRateLimiter(type: keyof typeof rateLimitConfigs) {
   return rateLimiters[type];
 }
 
-export function getIdentifier(request: NextRequest): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  const realIp = request.headers.get("x-real-ip");
-  const cfConnectingIp = request.headers.get("cf-connecting-ip");
+function isValidIP(ip: string): boolean {
+  const ipv4Regex =
+    /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+  const ipv6Regex =
+    /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
 
-  return cfConnectingIp || realIp || forwarded?.split(",")[0] || "127.0.0.1";
+  return ipv4Regex.test(ip) || ipv6Regex.test(ip);
+}
+
+export function getIdentifier(request: NextRequest): string {
+  const cfConnectingIp = request.headers.get("cf-connecting-ip");
+  if (cfConnectingIp && isValidIP(cfConnectingIp)) {
+    return cfConnectingIp;
+  }
+
+  const forwarded = request.headers.get("x-forwarded-for");
+  if (forwarded) {
+    const firstIp = forwarded.split(",")[0].trim();
+    if (isValidIP(firstIp)) {
+      return firstIp;
+    }
+  }
+
+  const realIp = request.headers.get("x-real-ip");
+  if (realIp && isValidIP(realIp)) {
+    return realIp;
+  }
+
+  return "127.0.0.1";
 }
 
 export async function checkRateLimit(
@@ -74,15 +97,25 @@ export async function checkRateLimit(
     };
   }
 
-  const identifier = getIdentifier(request);
-  const result = await rateLimiter.limit(identifier);
+  try {
+    const identifier = getIdentifier(request);
+    const result = await rateLimiter.limit(identifier);
 
-  return {
-    success: result.success,
-    limit: result.limit,
-    remaining: result.remaining,
-    reset: result.reset,
-  };
+    return {
+      success: result.success,
+      limit: result.limit,
+      remaining: result.remaining,
+      reset: result.reset,
+    };
+  } catch (error) {
+    console.error("Rate limiting error:", error);
+    return {
+      success: true,
+      limit: 0,
+      remaining: 0,
+      reset: 0,
+    };
+  }
 }
 
 export function getRateLimitCategory(pathname: string): keyof typeof rateLimitConfigs {
