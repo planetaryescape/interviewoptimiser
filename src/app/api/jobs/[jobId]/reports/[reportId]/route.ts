@@ -6,7 +6,7 @@ import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
-import { reports } from "~/db/schema";
+import { jobs, reports } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export async function GET(
@@ -32,7 +32,30 @@ export async function GET(
       });
     }
 
+    const jobId = idHandler.decode(params.jobId);
     const reportId = idHandler.decode(params.reportId);
+
+    // Verify job ownership
+    const job = await db.query.jobs.findFirst({
+      where: eq(jobs.id, jobId),
+    });
+
+    if (!job) {
+      logger.warn({ jobId }, "Job not found");
+      return NextResponse.json(formatErrorEntity("Job not found"), {
+        status: 404,
+      });
+    }
+
+    if (job.userId !== userId) {
+      logger.warn(
+        { jobId, userId, jobUserId: job.userId },
+        "Unauthorized access attempt to job report"
+      );
+      return NextResponse.json(formatErrorEntity("Unauthorized"), {
+        status: 403,
+      });
+    }
 
     const userReport = await db.query.reports.findFirst({
       where: eq(reports.id, reportId),

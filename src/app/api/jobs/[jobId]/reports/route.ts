@@ -6,7 +6,7 @@ import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
-import { interviews } from "~/db/schema";
+import { interviews, jobs } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export async function GET(request: NextRequest, props: { params: Promise<{ jobId: string }> }) {
@@ -31,6 +31,28 @@ export async function GET(request: NextRequest, props: { params: Promise<{ jobId
     }
 
     const jobId = idHandler.decode(params.jobId);
+
+    // Verify job ownership
+    const job = await db.query.jobs.findFirst({
+      where: eq(jobs.id, jobId),
+    });
+
+    if (!job) {
+      logger.warn({ jobId }, "Job not found");
+      return NextResponse.json(formatErrorEntity("Job not found"), {
+        status: 404,
+      });
+    }
+
+    if (job.userId !== userId) {
+      logger.warn(
+        { jobId, userId, jobUserId: job.userId },
+        "Unauthorized access attempt to job reports"
+      );
+      return NextResponse.json(formatErrorEntity("Unauthorized"), {
+        status: 403,
+      });
+    }
 
     const jobInterviews = await db.query.interviews.findMany({
       where: eq(interviews.jobId, jobId),
