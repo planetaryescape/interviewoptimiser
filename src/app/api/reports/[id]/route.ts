@@ -35,12 +35,28 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
       where: eq(reports.id, reportId),
       with: {
         pageSettings: true,
+        interview: {
+          with: {
+            job: true,
+          },
+        },
       },
     });
 
     if (!userReport) {
       return NextResponse.json(formatErrorEntity("Report not found"), {
         status: 404,
+      });
+    }
+
+    // Verify ownership through the job
+    if (userReport.interview.job.userId !== userId) {
+      logger.warn(
+        { reportId, userId, jobUserId: userReport.interview.job.userId },
+        "Unauthorized access attempt to report"
+      );
+      return NextResponse.json(formatErrorEntity("Unauthorized"), {
+        status: 403,
       });
     }
 
