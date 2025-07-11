@@ -1,3 +1,4 @@
+import { CSRFProvider } from "@/components/csrf-provider";
 import PostHogPageView from "@/components/posthog-pageview";
 import { CSPostHogProvider } from "@/components/providers/posthog";
 import { ReactQueryProvider } from "@/components/react-query-provider";
@@ -119,23 +120,25 @@ export default function RootLayout({
         >
           <ReactQueryProvider>
             <CSPostHogProvider>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-                disableTransitionOnChange
-              >
-                <NextTopLoader />
-                <Suspense fallback={null}>
-                  <ClerkProvider dynamic>
-                    <PostHogPageView />
-                  </ClerkProvider>
-                </Suspense>
-                {/* <ConditionalBlackFridayBanner /> */}
-                <main className="min-h-screen flex flex-col p-[env(safe-area-inset-top,1.25rem)_env(safe-area-inset-right,1.25rem)_env(safe-area-inset-bottom,1.25rem)_env(safe-area-inset-left,1.25rem)]">
-                  {children}
-                </main>
-              </ThemeProvider>
+              <CSRFProvider>
+                <ThemeProvider
+                  attribute="class"
+                  defaultTheme="system"
+                  enableSystem
+                  disableTransitionOnChange
+                >
+                  <NextTopLoader />
+                  <Suspense fallback={null}>
+                    <ClerkProvider dynamic>
+                      <PostHogPageView />
+                    </ClerkProvider>
+                  </Suspense>
+                  {/* <ConditionalBlackFridayBanner /> */}
+                  <main className="min-h-screen flex flex-col p-[env(safe-area-inset-top,1.25rem)_env(safe-area-inset-right,1.25rem)_env(safe-area-inset-bottom,1.25rem)_env(safe-area-inset-left,1.25rem)]">
+                    {children}
+                  </main>
+                </ThemeProvider>
+              </CSRFProvider>
               <SpeedInsights />
             </CSPostHogProvider>
           </ReactQueryProvider>

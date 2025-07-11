@@ -3,6 +3,7 @@
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { sanitiseUserInputText } from "@/lib/sanitiseUserInputText";
 import { idHandler } from "@/lib/utils/idHandler";
+import { secureFetch } from "@/lib/utils/secure-fetch";
 import { useCreateJobActions } from "@/stores/createJobStore";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation } from "@tanstack/react-query";
@@ -34,22 +35,16 @@ export function useJobSubmission({
       const jobsRepository = await getRepository<NewJob>("jobs", true);
       const createdJob = await jobsRepository.create(job);
 
-      const jobDescriptionExtractionPromise = fetch("/api/extract/job-description", {
+      const jobDescriptionExtractionPromise = secureFetch("/api/extract/job-description", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           jobId: idHandler.encode(createdJob.sys.id ?? 0),
           jobDescriptionText,
         }),
       });
 
-      const candidateDetailsExtractionPromise = fetch("/api/extract/candidate-details", {
+      const candidateDetailsExtractionPromise = secureFetch("/api/extract/candidate-details", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           jobId: idHandler.encode(createdJob.sys.id ?? 0),
           cvText,
