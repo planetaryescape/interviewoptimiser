@@ -14,6 +14,7 @@ import { db } from "~/db";
 import { customisations, deletedUsers, jobs, statistics, users } from "~/db/schema";
 import { sendDiscordDM } from "~/lib/discord";
 import { logger } from "~/lib/logger";
+import PostHogClient from "~/lib/posthog";
 import { resend } from "~/lib/resend";
 import { stripe } from "~/lib/stripe";
 
@@ -42,7 +43,8 @@ export async function POST(request: Request) {
     logger.info({ ...context, customer }, "Stripe customer created");
 
     try {
-      const userEmail = data.data.email_addresses[0].email_address;
+      // Normalize email to ensure consistent casing
+      const userEmail = data.data.email_addresses[0].email_address.toLowerCase().trim();
       
       // Check if this email was previously deleted and used free minutes
       logger.info({}, "Checking for previously deleted user");
@@ -54,11 +56,13 @@ export async function POST(request: Request) {
         .limit(1);
 
       let minutesToAllocate = 0;
+      let isReturningDeletedUser = false;
       
       if (previouslyDeleted && previouslyDeleted.hasUsedFreeMinutes) {
         logger.info({ ...context, previouslyDeleted }, "User was previously deleted and used free minutes");
         // Don't give free minutes to users who deleted their account after using free minutes
         minutesToAllocate = 0;
+        isReturningDeletedUser = true;
       } else {
         // New user or user who never used their free minutes
         minutesToAllocate =
@@ -109,6 +113,36 @@ export async function POST(request: Request) {
 
       logger.info({ ...context, data, user }, "User created");
 
+      // Track analytics for returning deleted users
+      if (isReturningDeletedUser && previouslyDeleted) {
+        const posthog = PostHogClient();
+        const daysSinceDeletion = Math.floor(
+          (new Date().getTime() - new Date(previouslyDeleted.deletedAt).getTime()) / (1000 * 60 * 60 * 24)
+        );
+        
+        await posthog.capture({
+          distinctId: data.data.id, // Using Clerk ID for consistency
+          event: "returning_deleted_user",
+          properties: {
+            email_hash: emailHash,
+            days_since_deletion: daysSinceDeletion,
+            deletion_date: previouslyDeleted.deletedAt,
+            had_used_free_minutes: previouslyDeleted.hasUsedFreeMinutes,
+            minutes_allocated: minutesToAllocate,
+          },
+        });
+        await posthog.shutdown();
+        
+        logger.info(
+          { 
+            ...context, 
+            daysSinceDeletion,
+            previousDeletionDate: previouslyDeleted.deletedAt 
+          }, 
+          "Returning deleted user tracked"
+        );
+      }
+
       logger.info({}, "Sending welcome email");
       const emailResponse = await resend.emails.send({
         from: `${config.projectName} Team <welcome@${config.domain}>`,
@@ -119,27 +153,46 @@ export async function POST(request: Request) {
       logger.info({ ...context, emailResponse }, "Welcome email sent");
 
       // Send admin notification
+      const adminNotificationSubject = isReturningDeletedUser 
+        ? `⚠️ Returning Deleted User - ${userEmail}`
+        : `New User Signup - ${userEmail}`;
+        
       await resend.emails.send({
         from: `${config.projectName} Notifications <notifications@${config.domain}>`,
         to: config.supportEmail,
-        subject: `New User Signup - ${data.data.email_addresses[0].email_address}`,
+        subject: adminNotificationSubject,
         react: AdminNotificationEmail({
-          eventType: "signup",
+          eventType: isReturningDeletedUser ? "returning_deleted_user" : "signup",
           userData: {
-            email: data.data.email_addresses[0].email_address,
+            email: userEmail,
             firstName: data.data.first_name,
             lastName: data.data.last_name,
             timestamp: new Date().toISOString(),
+            isReturningDeletedUser,
+            minutesAllocated: minutesToAllocate,
+            ...(isReturningDeletedUser && previouslyDeleted && {
+              previousDeletionDate: previouslyDeleted.deletedAt.toISOString(),
+              daysSinceDeletion: Math.floor(
+                (new Date().getTime() - new Date(previouslyDeleted.deletedAt).getTime()) / (1000 * 60 * 60 * 24)
+              ),
+            }),
           },
         }),
       });
 
       await sendDiscordDM({
-        title: "🎉 New user signup",
+        title: isReturningDeletedUser ? "⚠️ Returning deleted user signup" : "🎉 New user signup",
         metadata: {
-          Email: data.data.email_addresses[0].email_address,
+          Email: userEmail,
           Name: `${data.data.first_name} ${data.data.last_name}`,
           Timestamp: new Date().toISOString(),
+          ...(isReturningDeletedUser && {
+            "Returning User": "Yes",
+            "Minutes Allocated": minutesToAllocate,
+            "Days Since Deletion": previouslyDeleted ? Math.floor(
+              (new Date().getTime() - new Date(previouslyDeleted.deletedAt).getTime()) / (1000 * 60 * 60 * 24)
+            ) : "Unknown",
+          }),
         },
       });
 
