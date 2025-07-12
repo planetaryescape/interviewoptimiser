@@ -13,23 +13,35 @@ import { Tailwind } from "@react-email/tailwind";
 import { config } from "~/config";
 
 interface AdminNotificationEmailProps {
-  eventType: "signup" | "deletion";
+  eventType: "signup" | "deletion" | "returning_deleted_user";
   userData: {
     email: string;
     firstName?: string;
     lastName?: string;
     timestamp: string;
+    isReturningDeletedUser?: boolean;
+    minutesAllocated?: number;
+    previousDeletionDate?: string;
+    daysSinceDeletion?: number;
   };
 }
 
 export const AdminNotificationEmail = ({ eventType, userData }: AdminNotificationEmailProps) => {
   const isSignup = eventType === "signup";
+  const isReturningUser = eventType === "returning_deleted_user";
+  const isDeletion = eventType === "deletion";
+
+  const getEventTitle = () => {
+    if (isReturningUser) return "⚠️ Returning Deleted User";
+    if (isSignup) return "New User Signup";
+    return "User Account Deleted";
+  };
 
   return (
     <Html>
       <Head />
       <Preview>
-        {isSignup ? "New User Signup" : "User Account Deleted"} - {userData.email}
+        {getEventTitle()} - {userData.email}
       </Preview>
       <Tailwind
         config={{
@@ -58,8 +70,16 @@ export const AdminNotificationEmail = ({ eventType, userData }: AdminNotificatio
           />
           <Container className="p-45 bg-white rounded-lg shadow">
             <Heading className="text-2xl font-bold text-brand mb-6 text-center">
-              {isSignup ? "New User Signup" : "User Account Deleted"}
+              {getEventTitle()}
             </Heading>
+            
+            {isReturningUser && (
+              <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <Text className="text-yellow-800 font-medium text-center">
+                  This user previously deleted their account and is signing up again
+                </Text>
+              </div>
+            )}
 
             <Section className="mb-8">
               <div className="mb-4 p-6 bg-gray-50 rounded-lg">
@@ -81,6 +101,23 @@ export const AdminNotificationEmail = ({ eventType, userData }: AdminNotificatio
                   <Text className="text-gray-700">
                     <span className="font-semibold">Timestamp:</span> {userData.timestamp}
                   </Text>
+                  {isReturningUser && (
+                    <>
+                      <Text className="text-gray-700">
+                        <span className="font-semibold">Minutes Allocated:</span> {userData.minutesAllocated || 0}
+                      </Text>
+                      {userData.previousDeletionDate && (
+                        <Text className="text-gray-700">
+                          <span className="font-semibold">Previous Deletion:</span> {userData.previousDeletionDate}
+                        </Text>
+                      )}
+                      {userData.daysSinceDeletion !== undefined && (
+                        <Text className="text-gray-700">
+                          <span className="font-semibold">Days Since Deletion:</span> {userData.daysSinceDeletion}
+                        </Text>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             </Section>
