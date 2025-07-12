@@ -2,6 +2,7 @@ export * from "./candidateDetails";
 export * from "./changelogs";
 export * from "./countries";
 export * from "./customisations";
+export * from "./deletedUsers";
 export * from "./featureRequestLikes";
 export * from "./featureRequests";
 export * from "./images";

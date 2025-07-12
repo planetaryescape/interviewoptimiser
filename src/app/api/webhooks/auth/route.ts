@@ -4,13 +4,14 @@ import WelcomeEmail from "@/emails/welcome";
 import { getUserFromClerkId } from "@/lib/auth";
 import { createDefaultApiRouteContext } from "@/lib/createDefaultApiRouteContext";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
+import { hashEmail } from "@/lib/utils/emailHash";
 import * as Sentry from "@sentry/nextjs";
 import { countDistinct, eq, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { NextResponse } from "next/server";
 import { config } from "~/config";
 import { db } from "~/db";
-import { customisations, jobs, statistics, users } from "~/db/schema";
+import { customisations, deletedUsers, jobs, statistics, users } from "~/db/schema";
 import { sendDiscordDM } from "~/lib/discord";
 import { logger } from "~/lib/logger";
 import { resend } from "~/lib/resend";
@@ -41,18 +42,40 @@ export async function POST(request: Request) {
     logger.info({ ...context, customer }, "Stripe customer created");
 
     try {
+      const userEmail = data.data.email_addresses[0].email_address;
+      
+      // Check if this email was previously deleted and used free minutes
+      logger.info({}, "Checking for previously deleted user");
+      const emailHash = hashEmail(userEmail);
+      const [previouslyDeleted] = await db
+        .select()
+        .from(deletedUsers)
+        .where(eq(deletedUsers.emailHash, emailHash))
+        .limit(1);
+
+      let minutesToAllocate = 0;
+      
+      if (previouslyDeleted && previouslyDeleted.hasUsedFreeMinutes) {
+        logger.info({ ...context, previouslyDeleted }, "User was previously deleted and used free minutes");
+        // Don't give free minutes to users who deleted their account after using free minutes
+        minutesToAllocate = 0;
+      } else {
+        // New user or user who never used their free minutes
+        minutesToAllocate =
+          config.earlyBirdPromo.enabled && numOfUsers.count < config.earlyBirdPromo.userCount
+            ? config.earlyBirdPromo.minutes
+            : config.startingFreeMinutes;
+      }
+
       logger.info({}, "Creating new user");
       const newUser = newUserSchema.parse({
-        username: data.data.email_addresses[0].email_address,
+        username: userEmail,
         firstname: data.data.first_name,
         lastname: data.data.last_name,
         clerkUserId: data.data.id,
-        email: data.data.email_addresses[0].email_address,
+        email: userEmail,
         role: "user",
-        minutes:
-          config.earlyBirdPromo.enabled && numOfUsers.count < config.earlyBirdPromo.userCount
-            ? config.earlyBirdPromo.minutes
-            : config.startingFreeMinutes,
+        minutes: minutesToAllocate,
         stripeCustomerId: customer.id,
       });
 
@@ -225,6 +248,15 @@ export async function POST(request: Request) {
         // Delete customisations
         logger.info({}, "Deleting customisations");
         await tx.delete(customisations).where(eq(customisations.userId, userId));
+
+        // Record the deleted user's hashed email before deletion
+        logger.info({}, "Recording deleted user email hash");
+        const emailHash = hashEmail(email);
+        await tx.insert(deletedUsers).values({
+          emailHash,
+          clerkUserId,
+          hasUsedFreeMinutes: user.minutes < config.startingFreeMinutes, // User has used some minutes
+        });
 
         // Finally, delete the user
         logger.info({}, "Deleting user");
