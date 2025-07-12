@@ -1,6 +1,6 @@
+import { desc, sql } from "drizzle-orm";
 import { db } from "~/db";
 import { deletedUsers } from "~/db/schema";
-import { desc, sql } from "drizzle-orm";
 
 export interface ReturningUserStats {
   totalReturningUsers: number;
@@ -14,14 +14,12 @@ export interface ReturningUserStats {
  */
 export async function getReturningUserStats(): Promise<ReturningUserStats> {
   // Get total count of deleted users
-  const [totalCount] = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(deletedUsers);
+  const [totalCount] = await db.select({ count: sql<number>`count(*)` }).from(deletedUsers);
 
   // Get count from last 30 days
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  
+
   const [last30Days] = await db
     .select({ count: sql<number>`count(*)` })
     .from(deletedUsers)

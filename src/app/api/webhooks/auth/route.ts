@@ -3,8 +3,8 @@ import AdminNotificationEmail from "@/emails/admin-notification";
 import WelcomeEmail from "@/emails/welcome";
 import { getUserFromClerkId } from "@/lib/auth";
 import { createDefaultApiRouteContext } from "@/lib/createDefaultApiRouteContext";
-import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import { hashEmail } from "@/lib/utils/emailHash";
+import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
 import { countDistinct, eq, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     try {
       // Normalize email to ensure consistent casing
       const userEmail = data.data.email_addresses[0].email_address.toLowerCase().trim();
-      
+
       // Check if this email was previously deleted and used free minutes
       logger.info({}, "Checking for previously deleted user");
       const emailHash = hashEmail(userEmail);
@@ -57,9 +57,12 @@ export async function POST(request: Request) {
 
       let minutesToAllocate = 0;
       let isReturningDeletedUser = false;
-      
-      if (previouslyDeleted && previouslyDeleted.hasUsedFreeMinutes) {
-        logger.info({ ...context, previouslyDeleted }, "User was previously deleted and used free minutes");
+
+      if (previouslyDeleted?.hasUsedFreeMinutes) {
+        logger.info(
+          { ...context, previouslyDeleted },
+          "User was previously deleted and used free minutes"
+        );
         // Don't give free minutes to users who deleted their account after using free minutes
         minutesToAllocate = 0;
         isReturningDeletedUser = true;
@@ -117,9 +120,10 @@ export async function POST(request: Request) {
       if (isReturningDeletedUser && previouslyDeleted) {
         const posthog = PostHogClient();
         const daysSinceDeletion = Math.floor(
-          (new Date().getTime() - new Date(previouslyDeleted.deletedAt).getTime()) / (1000 * 60 * 60 * 24)
+          (new Date().getTime() - new Date(previouslyDeleted.deletedAt).getTime()) /
+            (1000 * 60 * 60 * 24)
         );
-        
+
         await posthog.capture({
           distinctId: data.data.id, // Using Clerk ID for consistency
           event: "returning_deleted_user",
@@ -132,13 +136,13 @@ export async function POST(request: Request) {
           },
         });
         await posthog.shutdown();
-        
+
         logger.info(
-          { 
-            ...context, 
+          {
+            ...context,
             daysSinceDeletion,
-            previousDeletionDate: previouslyDeleted.deletedAt 
-          }, 
+            previousDeletionDate: previouslyDeleted.deletedAt,
+          },
           "Returning deleted user tracked"
         );
       }
@@ -153,10 +157,10 @@ export async function POST(request: Request) {
       logger.info({ ...context, emailResponse }, "Welcome email sent");
 
       // Send admin notification
-      const adminNotificationSubject = isReturningDeletedUser 
+      const adminNotificationSubject = isReturningDeletedUser
         ? `⚠️ Returning Deleted User - ${userEmail}`
         : `New User Signup - ${userEmail}`;
-        
+
       await resend.emails.send({
         from: `${config.projectName} Notifications <notifications@${config.domain}>`,
         to: config.supportEmail,
@@ -170,12 +174,14 @@ export async function POST(request: Request) {
             timestamp: new Date().toISOString(),
             isReturningDeletedUser,
             minutesAllocated: minutesToAllocate,
-            ...(isReturningDeletedUser && previouslyDeleted && {
-              previousDeletionDate: previouslyDeleted.deletedAt.toISOString(),
-              daysSinceDeletion: Math.floor(
-                (new Date().getTime() - new Date(previouslyDeleted.deletedAt).getTime()) / (1000 * 60 * 60 * 24)
-              ),
-            }),
+            ...(isReturningDeletedUser &&
+              previouslyDeleted && {
+                previousDeletionDate: previouslyDeleted.deletedAt.toISOString(),
+                daysSinceDeletion: Math.floor(
+                  (new Date().getTime() - new Date(previouslyDeleted.deletedAt).getTime()) /
+                    (1000 * 60 * 60 * 24)
+                ),
+              }),
           },
         }),
       });
@@ -189,9 +195,12 @@ export async function POST(request: Request) {
           ...(isReturningDeletedUser && {
             "Returning User": "Yes",
             "Minutes Allocated": minutesToAllocate,
-            "Days Since Deletion": previouslyDeleted ? Math.floor(
-              (new Date().getTime() - new Date(previouslyDeleted.deletedAt).getTime()) / (1000 * 60 * 60 * 24)
-            ) : "Unknown",
+            "Days Since Deletion": previouslyDeleted
+              ? Math.floor(
+                  (new Date().getTime() - new Date(previouslyDeleted.deletedAt).getTime()) /
+                    (1000 * 60 * 60 * 24)
+                )
+              : "Unknown",
           }),
         },
       });
@@ -290,6 +299,11 @@ export async function POST(request: Request) {
       const firstName = user.firstName;
       const lastName = user.lastName;
 
+      if (!email) {
+        logger.error({ ...context, user }, "User email not found");
+        throw new Error("User email not found");
+      }
+
       await db.transaction(async (tx) => {
         logger.info({}, "Deleting CV-related data");
         // Delete CV-related data
@@ -308,7 +322,8 @@ export async function POST(request: Request) {
         await tx.insert(deletedUsers).values({
           emailHash,
           clerkUserId,
-          hasUsedFreeMinutes: user.minutes < config.startingFreeMinutes, // User has used some minutes
+          hasUsedFreeMinutes:
+            (user.minutes ?? config.startingFreeMinutes) < config.startingFreeMinutes, // User has used some minutes
         });
 
         // Finally, delete the user

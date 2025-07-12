@@ -12,9 +12,7 @@ export const deletedUsers = pgTable(
     clerkUserId: p.varchar({ length: 255 }), // Keep for audit purposes
     hasUsedFreeMinutes: p.boolean().default(true).notNull(), // Track if they used free minutes
   }),
-  (deletedUsers) => [
-    uniqueIndex("deleted_users_email_hash_idx").on(deletedUsers.emailHash),
-  ]
+  (deletedUsers) => [uniqueIndex("deleted_users_email_hash_idx").on(deletedUsers.emailHash)]
 );
 
 export type DeletedUser = typeof deletedUsers.$inferSelect;
