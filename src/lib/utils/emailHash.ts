@@ -1,4 +1,4 @@
-import { createHash } from "crypto";
+import { createHash } from "node:crypto";
 import { config } from "~/config";
 
 /**
@@ -8,15 +8,15 @@ import { config } from "~/config";
 export function hashEmail(email: string): string {
   // Normalize email to lowercase
   const normalizedEmail = email.toLowerCase().trim();
-  
+
   // Use a secret salt from config or environment
   // This prevents rainbow table attacks and ensures hashes are unique to our system
-  const salt = process.env.EMAIL_HASH_SALT || config.projectName + "-deleted-users-salt";
-  
+  const salt = process.env.EMAIL_HASH_SALT || `${config.projectName}-deleted-users-salt`;
+
   // Create SHA-256 hash with salt
   const hash = createHash("sha256");
   hash.update(salt + normalizedEmail);
-  
+
   return hash.digest("hex");
 }
 
