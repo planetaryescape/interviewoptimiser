@@ -72,7 +72,7 @@ export const AdminNotificationEmail = ({ eventType, userData }: AdminNotificatio
             <Heading className="text-2xl font-bold text-brand mb-6 text-center">
               {getEventTitle()}
             </Heading>
-            
+
             {isReturningUser && (
               <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <Text className="text-yellow-800 font-medium text-center">
@@ -104,16 +104,19 @@ export const AdminNotificationEmail = ({ eventType, userData }: AdminNotificatio
                   {isReturningUser && (
                     <>
                       <Text className="text-gray-700">
-                        <span className="font-semibold">Minutes Allocated:</span> {userData.minutesAllocated || 0}
+                        <span className="font-semibold">Minutes Allocated:</span>{" "}
+                        {userData.minutesAllocated || 0}
                       </Text>
                       {userData.previousDeletionDate && (
                         <Text className="text-gray-700">
-                          <span className="font-semibold">Previous Deletion:</span> {userData.previousDeletionDate}
+                          <span className="font-semibold">Previous Deletion:</span>{" "}
+                          {userData.previousDeletionDate}
                         </Text>
                       )}
                       {userData.daysSinceDeletion !== undefined && (
                         <Text className="text-gray-700">
-                          <span className="font-semibold">Days Since Deletion:</span> {userData.daysSinceDeletion}
+                          <span className="font-semibold">Days Since Deletion:</span>{" "}
+                          {userData.daysSinceDeletion}
                         </Text>
                       )}
                     </>
