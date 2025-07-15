@@ -40,7 +40,10 @@ export const reports = pgTable(
     createdAt: p.timestamp().defaultNow().notNull(),
     updatedAt: p.timestamp().defaultNow().notNull(),
   }),
-  (reports) => [index("reports_interview_id_idx").on(reports.interviewId)]
+  (reports) => [
+    index("reports_interview_id_idx").on(reports.interviewId),
+    index("reports_is_completed_idx").on(reports.isCompleted),
+  ]
 );
 
 export const reportRelations = relations(reports, ({ one, many }) => ({
