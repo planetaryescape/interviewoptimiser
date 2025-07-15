@@ -36,7 +36,10 @@ export const interviews = pgTable(
     createdAt: p.timestamp().defaultNow().notNull(),
     updatedAt: p.timestamp().defaultNow().notNull(),
   }),
-  (interviews) => [index("interviews_job_id_idx").on(interviews.jobId)]
+  (interviews) => [
+    index("interviews_job_id_idx").on(interviews.jobId),
+    index("interviews_job_created_idx").on(interviews.jobId, interviews.createdAt),
+  ]
 );
 
 export const interviewRelations = relations(interviews, ({ one }) => ({

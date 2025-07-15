@@ -57,6 +57,13 @@
       "when": 1747184159262,
       "tag": "0007_harsh_johnny_storm",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1752614927837,
+      "tag": "0008_daffy_susan_delgado",
+      "breakpoints": true
     }
   ]
 }
