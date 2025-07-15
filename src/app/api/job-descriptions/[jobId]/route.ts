@@ -1,64 +1,47 @@
-import { getUserFromClerkId } from "@/lib/auth";
+import { withAuth } from "@/lib/auth-middleware";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
-import { getAuth } from "@clerk/nextjs/server";
 import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { db } from "~/db";
 import { jobDescriptions } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
-export async function GET(request: NextRequest, props: { params: Promise<{ jobId: string }> }) {
-  const params = await props.params;
-  logger.info("GET request received at /api/job-descriptions/[jobId]");
+export const GET = withAuth<{ jobId: string }>(
+  async (request, { user, params }) => {
+    try {
+      const jobId = idHandler.decode(params!.jobId);
 
-  const { userId: clerkUserId } = getAuth(request);
-  if (!clerkUserId) {
-    logger.warn("Unauthorized access attempt to GET /api/job-descriptions/[jobId]");
-    return NextResponse.json(formatErrorEntity("Unauthorized"), {
-      status: 401,
-    });
-  }
+      const jobDescription = await db.query.jobDescriptions.findFirst({
+        where: eq(jobDescriptions.jobId, jobId),
+      });
 
-  try {
-    const { id: userId } = await getUserFromClerkId(clerkUserId);
-    if (!userId) {
-      logger.warn({ clerkUserId }, "User not found in database");
-      return NextResponse.json(formatErrorEntity("User not found"), {
-        status: 404,
+      if (!jobDescription) {
+        return NextResponse.json(formatErrorEntity("Job description not found"), {
+          status: 404,
+        });
+      }
+
+      logger.info({ id: jobDescription.id }, "Successfully retrieved job description");
+      return NextResponse.json(formatEntity(jobDescription, "jobDescription"));
+    } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setExtra("context", "GET /api/job-descriptions/[jobId]");
+        scope.setExtra("error", error);
+        Sentry.captureException(error);
+      });
+      logger.error(
+        {
+          message: error instanceof Error ? error.message : "Unknown error",
+          error,
+        },
+        "Error in GET /api/job-descriptions/[jobId]"
+      );
+      return NextResponse.json(formatErrorEntity("Internal server error"), {
+        status: 500,
       });
     }
-
-    const jobId = idHandler.decode(params.jobId);
-
-    const jobDescription = await db.query.jobDescriptions.findFirst({
-      where: eq(jobDescriptions.jobId, jobId),
-    });
-
-    if (!jobDescription) {
-      return NextResponse.json(formatErrorEntity("Job description not found"), {
-        status: 404,
-      });
-    }
-
-    logger.info({ id: jobDescription.id }, "Successfully retrieved job description");
-    return NextResponse.json(formatEntity(jobDescription, "jobDescription"));
-  } catch (error) {
-    Sentry.withScope((scope) => {
-      scope.setExtra("context", "GET /api/job-descriptions/[jobId]");
-      scope.setExtra("error", error);
-      Sentry.captureException(error);
-    });
-    logger.error(
-      {
-        message: error instanceof Error ? error.message : "Unknown error",
-        error,
-      },
-      "Error in GET /api/job-descriptions/[jobId]"
-    );
-    return NextResponse.json(formatErrorEntity("Internal server error"), {
-      status: 500,
-    });
-  }
-}
+  },
+  { routeName: "GET /api/job-descriptions/[jobId]" }
+);
