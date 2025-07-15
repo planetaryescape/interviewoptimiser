@@ -1,20 +1,11 @@
 import { getReturningUserStats } from "@/lib/analytics/returning-users";
-import { getUserFromClerkId } from "@/lib/auth";
+import { withAuth } from "@/lib/auth-middleware";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
-import { getAuth } from "@clerk/nextjs/server";
 import { type NextRequest, NextResponse } from "next/server";
 import { logger } from "~/lib/logger";
 
-export async function GET(request: NextRequest) {
+export const GET = withAuth(async (request: NextRequest, { user }) => {
   try {
-    const { userId: clerkUserId } = getAuth(request);
-
-    if (!clerkUserId) {
-      return NextResponse.json(formatErrorEntity("Authentication required"), { status: 401 });
-    }
-
-    const user = await getUserFromClerkId(clerkUserId);
-
     // Only allow admins to access this endpoint
     if (user.role !== "admin") {
       return NextResponse.json(formatErrorEntity("Unauthorized - Admin access required"), {
@@ -31,4 +22,4 @@ export async function GET(request: NextRequest) {
     logger.error({ error }, "Failed to fetch returning user analytics");
     return NextResponse.json(formatErrorEntity(error), { status: 500 });
   }
-}
+});
