@@ -13,7 +13,18 @@ import { NextResponse } from "next/server";
 import { Webhook } from "svix";
 import { config } from "~/config";
 import { db } from "~/db";
-import { customisations, deletedUsers, jobs, statistics, users } from "~/db/schema";
+import {
+  customisations,
+  deletedUsers,
+  featureRequestLikes,
+  featureRequests,
+  images,
+  jobs,
+  organizationMembers,
+  reviews,
+  statistics,
+  users,
+} from "~/db/schema";
 import { sendDiscordDM } from "~/lib/discord";
 import { logger } from "~/lib/logger";
 import PostHogClient from "~/lib/posthog";
@@ -344,32 +355,72 @@ export async function POST(request: Request) {
         }
 
         await db.transaction(async (tx) => {
-          logger.info({}, "Deleting CV-related data");
-          // Delete CV-related data
+          try {
+            logger.info({ userId }, "Starting user deletion transaction");
 
-          logger.info({}, "Deleting interviews");
-          // Delete optimizations
-          await tx.delete(jobs).where(eq(jobs.userId, userId));
+            // Delete feature request likes
+            logger.info({}, "Deleting feature request likes");
+            await tx.delete(featureRequestLikes).where(eq(featureRequestLikes.userId, userId));
+            logger.info({}, "Feature request likes deleted");
 
-          // Delete customisations
-          logger.info({}, "Deleting customisations");
-          await tx.delete(customisations).where(eq(customisations.userId, userId));
+            // Delete feature requests
+            logger.info({}, "Deleting feature requests");
+            await tx.delete(featureRequests).where(eq(featureRequests.userId, userId));
+            logger.info({}, "Feature requests deleted");
 
-          // Record the deleted user's hashed email before deletion
-          logger.info({}, "Recording deleted user email hash");
-          const emailHash = hashEmail(email);
-          await tx.insert(deletedUsers).values({
-            emailHash,
-            clerkUserId,
-            hasUsedFreeMinutes:
-              (user.minutes ?? config.startingFreeMinutes) < config.startingFreeMinutes, // User has used some minutes
-          });
+            // Delete reviews
+            logger.info({}, "Deleting reviews");
+            await tx.delete(reviews).where(eq(reviews.userId, userId));
+            logger.info({}, "Reviews deleted");
 
-          // Finally, delete the user
-          logger.info({}, "Deleting user");
-          const result = await tx.delete(users).where(eq(users.id, userId));
+            // Delete images (note: uses promptId column to reference users)
+            logger.info({}, "Deleting images");
+            await tx.delete(images).where(eq(images.promptId, userId));
+            logger.info({}, "Images deleted");
 
-          logger.info({ ...context, result }, "User and related data deleted");
+            // Delete organization memberships
+            logger.info({}, "Deleting organization memberships");
+            await tx.delete(organizationMembers).where(eq(organizationMembers.userId, userId));
+            logger.info({}, "Organization memberships deleted");
+
+            // Delete jobs (this cascades to interviews, reports, etc.)
+            logger.info({}, "Deleting jobs");
+            await tx.delete(jobs).where(eq(jobs.userId, userId));
+            logger.info({}, "Jobs deleted");
+
+            // Delete customisations
+            logger.info({}, "Deleting customisations");
+            await tx.delete(customisations).where(eq(customisations.userId, userId));
+            logger.info({}, "Customisations deleted");
+
+            // Record the deleted user's hashed email before deletion
+            logger.info({}, "Recording deleted user email hash");
+            const emailHash = hashEmail(email);
+            await tx.insert(deletedUsers).values({
+              emailHash,
+              clerkUserId,
+              hasUsedFreeMinutes:
+                (user.minutes ?? config.startingFreeMinutes) < config.startingFreeMinutes, // User has used some minutes
+            });
+            logger.info({}, "Deleted user record created");
+
+            // Finally, delete the user
+            logger.info({}, "Deleting user");
+            await tx.delete(users).where(eq(users.id, userId));
+            logger.info({}, "User deleted");
+
+            logger.info({ ...context, userId }, "User deletion transaction completed successfully");
+          } catch (error) {
+            logger.error(
+              {
+                message: error instanceof Error ? error.message : "Unknown error",
+                error,
+                userId,
+              },
+              "Error during user deletion transaction - rolling back"
+            );
+            throw error; // This will trigger the transaction rollback
+          }
         });
 
         logger.info({ email }, "Sending account deleted email");
