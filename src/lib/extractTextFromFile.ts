@@ -5,7 +5,13 @@ import mammoth from "mammoth";
 import * as pdf from "pdf-parse/lib/pdf-parse.js";
 import { logger } from "../../lib/logger";
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB limit
+
 export async function extractTextFromFile(file: File): Promise<string> {
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error(`File size exceeds ${MAX_FILE_SIZE / (1024 * 1024)}MB limit`);
+  }
+
   const buffer = await file.arrayBuffer();
   const uint8Array = new Uint8Array(buffer);
 

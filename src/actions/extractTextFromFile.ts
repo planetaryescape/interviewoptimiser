@@ -7,12 +7,18 @@ import { logger } from "~/lib/logger";
 // @ts-expect-error TODO: fix this
 import * as pdf from "pdf-parse/lib/pdf-parse.js";
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB limit
+
 export async function extractTextFromFile(formData: FormData): Promise<string> {
   try {
     const file = formData.get("file") as File;
     logger.info({ file }, "Received file");
     if (!file) {
       throw new Error("No file provided");
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error(`File size exceeds ${MAX_FILE_SIZE / (1024 * 1024)}MB limit`);
     }
 
     const buffer = await file.arrayBuffer();
