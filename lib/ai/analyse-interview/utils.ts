@@ -1,5 +1,10 @@
 import * as R from "remeda";
+import type { z } from "zod";
 import type { Interview } from "~/db/schema";
+import type { CandidateDetails } from "~/lib/ai/extract-candidate-details";
+import type { StructuredJobDescriptionSchema } from "~/lib/ai/extract-job-description";
+import type { StructuredOriginalCVSchema } from "~/lib/ai/extract-original-cv";
+import type { TranscriptEntry } from "./types";
 
 /**
  * Formats structured data for prompt inclusion
@@ -9,9 +14,9 @@ import type { Interview } from "~/db/schema";
  * @returns Formatted structured data text
  */
 export function formatStructuredData(
-  structuredCV?: any,
-  structuredJobDescription?: any,
-  structuredCandidateDetails?: any
+  structuredCV?: z.infer<typeof StructuredOriginalCVSchema>,
+  structuredJobDescription?: z.infer<typeof StructuredJobDescriptionSchema>,
+  structuredCandidateDetails?: CandidateDetails
 ): string {
   let structuredDataText = "No structured data available for this analysis.";
 
@@ -52,7 +57,7 @@ export function formatStructuredData(
  * @param transcriptString - Raw transcript string
  * @returns Processed transcript array
  */
-export function processTranscript(transcriptString: string): any[] {
+export function processTranscript(transcriptString: string): TranscriptEntry[] {
   if (!transcriptString) {
     throw new Error("No transcript found");
   }

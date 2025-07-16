@@ -16,9 +16,9 @@ interface AnimationData {
   h: number;
   nm: string;
   ddd: number;
-  assets: any[];
-  layers: any[];
-  markers: any[];
+  assets: unknown[];
+  layers: unknown[];
+  markers: unknown[];
 }
 
 export default function HeroVisual() {

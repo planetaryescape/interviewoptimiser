@@ -17,7 +17,7 @@ export type AuthContext = {
   clerkUserId: string;
 };
 
-export type AuthenticatedHandler<TParams = any> = (
+export type AuthenticatedHandler<TParams = Record<string, unknown>> = (
   request: NextRequest,
   context: AuthContext & { params?: TParams }
 ) => Promise<Response>;
@@ -45,7 +45,7 @@ export type AuthenticatedHandler<TParams = any> = (
  *   { routeName: 'getReport' }
  * );
  */
-export function withAuth<TParams = any>(
+export function withAuth<TParams = Record<string, unknown>>(
   handler: AuthenticatedHandler<TParams>,
   options?: {
     routeName?: string;
@@ -109,7 +109,7 @@ export function withAuth<TParams = any>(
  * Alternative middleware for routes that use auth() instead of getAuth()
  * This is for consistency with routes that might already use the auth() pattern
  */
-export async function withAuthAsync<TParams = any>(
+export async function withAuthAsync<TParams = Record<string, unknown>>(
   handler: AuthenticatedHandler<TParams>,
   request: NextRequest,
   routeSegment?: { params: Promise<TParams> },

@@ -17,7 +17,7 @@ export const GET = withAuth(async (request: NextRequest, { user }) => {
 
     logger.info({ stats }, "Returning user analytics fetched");
 
-    return NextResponse.json(formatEntity(stats, "generic"));
+    return NextResponse.json(formatEntity({ ...stats, id: undefined }, "statistics"));
   } catch (error) {
     logger.error({ error }, "Failed to fetch returning user analytics");
     return NextResponse.json(formatErrorEntity(error), { status: 500 });

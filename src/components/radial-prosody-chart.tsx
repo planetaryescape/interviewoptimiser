@@ -13,8 +13,20 @@ interface RadialProsodyChartProps {
   data: { name: string; value: number }[];
 }
 
+interface RadarShapePoint {
+  x: number;
+  y: number;
+}
+
+interface RadarShapeProps {
+  points: RadarShapePoint[];
+  fill: string;
+  stroke: string;
+  fillOpacity: number;
+}
+
 // Custom shape for curved radar
-const CurvedRadarShape = (props: any) => {
+const CurvedRadarShape = (props: RadarShapeProps) => {
   const { points, fill, stroke, fillOpacity } = props;
 
   // Create path with bezier curves between points

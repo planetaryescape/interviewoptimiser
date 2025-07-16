@@ -65,11 +65,21 @@ async function fetchDashboardSummary(): Promise<DashboardData> {
     throw new Error(errorData.message || "Failed to fetch dashboard summary");
   }
   const result = await response.json();
-  const transformActivityDates = (activity: any) => {
-    if (activity.createdAt) activity.createdAt = new Date(activity.createdAt);
-    if (activity.interviewCreatedAt)
-      activity.interviewCreatedAt = new Date(activity.interviewCreatedAt);
-    return activity;
+  interface ActivityItem {
+    createdAt?: string | Date;
+    interviewCreatedAt?: string | Date;
+    [key: string]: unknown;
+  }
+
+  const transformActivityDates = <T extends ActivityItem>(activity: T): T => {
+    const transformed = { ...activity };
+    if (transformed.createdAt && typeof transformed.createdAt === "string") {
+      transformed.createdAt = new Date(transformed.createdAt);
+    }
+    if (transformed.interviewCreatedAt && typeof transformed.interviewCreatedAt === "string") {
+      transformed.interviewCreatedAt = new Date(transformed.interviewCreatedAt);
+    }
+    return transformed;
   };
   result.data.recentJobs = result.data.recentJobs.map(transformActivityDates);
   result.data.recentInterviews = result.data.recentInterviews.map(transformActivityDates);

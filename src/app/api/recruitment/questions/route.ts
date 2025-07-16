@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/nextjs";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
+import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import type { InterviewType } from "~/db/schema/interviews";
 import { interviewTypeEnum } from "~/db/schema/interviews";
 import type { JobDescription } from "~/db/schema/jobDescriptions";
@@ -33,7 +33,7 @@ export type GeneratedQuestion = {
 
 export const POST = withAuth(
   async (request, { user }) => {
-    let parsedBody: any;
+    let parsedBody: unknown;
     try {
       if (!user?.id || !user.email) {
         logger.warn(
@@ -116,7 +116,7 @@ export const POST = withAuth(
         user: userEmail,
       });
 
-      return NextResponse.json(formatEntity(mappedQuestions, "questions"), {
+      return NextResponse.json(formatEntityList(mappedQuestions, "questions"), {
         status: 200,
       });
     } catch (error) {
