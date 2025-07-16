@@ -83,7 +83,7 @@ interface CustomAngleTickProps {
   payload: {
     value: string;
   };
-  textAnchor: string;
+  textAnchor: "start" | "middle" | "end" | "inherit";
   [key: string]: unknown;
 }
 
@@ -126,7 +126,7 @@ export const ScoreRadarChart = ({ data, className }: ScoreRadarChartProps) => {
         <PolarGrid stroke="hsl(var(--border) / 0.5)" gridType="circle" />
         <PolarAngleAxis
           dataKey="subject"
-          tick={<CustomAngleTick />}
+          tick={CustomAngleTick as any}
           stroke="hsl(var(--foreground) / 0.7)"
         />
         <PolarRadiusAxis
@@ -144,7 +144,7 @@ export const ScoreRadarChart = ({ data, className }: ScoreRadarChartProps) => {
           fill="url(#radarGradient)"
           fillOpacity={1}
           strokeWidth={2.5}
-          shape={<CurvedRadarShape />}
+          shape={CurvedRadarShape as any}
           dot={{
             r: 4,
             fill: "hsl(var(--background))",

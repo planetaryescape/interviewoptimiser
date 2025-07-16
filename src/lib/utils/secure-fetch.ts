@@ -60,11 +60,16 @@ export function createSecureQueryClient(): QueryClient {
         },
       },
       mutations: {
-        mutationFn: async ({
-          url,
-          method = "POST",
-          body,
-        }: { url: string; method?: string; body?: unknown }): Promise<unknown> => {
+        mutationFn: async (variables: unknown) => {
+          const {
+            url,
+            method = "POST",
+            body,
+          } = variables as {
+            url: string;
+            method?: string;
+            body?: unknown;
+          };
           const response = await secureFetch(url, {
             method,
             body: JSON.stringify(body),

@@ -38,7 +38,7 @@ export function useJobSubmission({
       const jobDescriptionExtractionPromise = secureFetch("/api/extract/job-description", {
         method: "POST",
         body: JSON.stringify({
-          jobId: idHandler.encode(createdJob.sys.id ?? 0),
+          jobId: idHandler.encode(typeof createdJob.sys.id === "number" ? createdJob.sys.id : 0),
           jobDescriptionText,
         }),
       });
@@ -46,7 +46,7 @@ export function useJobSubmission({
       const candidateDetailsExtractionPromise = secureFetch("/api/extract/candidate-details", {
         method: "POST",
         body: JSON.stringify({
-          jobId: idHandler.encode(createdJob.sys.id ?? 0),
+          jobId: idHandler.encode(typeof createdJob.sys.id === "number" ? createdJob.sys.id : 0),
           cvText,
         }),
       });
@@ -62,7 +62,9 @@ export function useJobSubmission({
       setShowTakeover(true);
       setTimeout(() => {
         resetStore();
-        router.push(`/dashboard/jobs/${idHandler.encode(data.sys.id ?? 0)}/interviews/new`);
+        router.push(
+          `/dashboard/jobs/${idHandler.encode(typeof data.sys.id === "number" ? data.sys.id : 0)}/interviews/new`
+        );
       }, 9000);
     },
     onError: (error) => {

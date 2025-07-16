@@ -18,7 +18,7 @@ export function ReportFooter({ report }: Omit<ReportDataProps, "headingFont">) {
               month: "long",
               day: "numeric",
             })}{" "}
-            • Ref: IO-{idHandler.encode(report?.sys.id ?? 0)}
+            • Ref: IO-{idHandler.encode(typeof report?.sys.id === "number" ? report.sys.id : 0)}
           </p>
         </div>
         <div className="text-right text-xs uppercase tracking-wider">Page 1</div>

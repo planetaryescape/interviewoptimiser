@@ -89,7 +89,11 @@ export default function ChangelogList() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => likeMutation.mutate(changelog.sys.id ?? 0)}
+                      onClick={() =>
+                        likeMutation.mutate(
+                          typeof changelog.sys.id === "number" ? changelog.sys.id : 0
+                        )
+                      }
                       disabled={likeMutation.isPending}
                     >
                       <ThumbsUp className="mr-2 h-4 w-4" />

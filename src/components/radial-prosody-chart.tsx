@@ -133,7 +133,7 @@ export function RadialProsodyChart({ data }: RadialProsodyChartProps) {
               stroke: colors.primary,
             }}
             isAnimationActive={true}
-            shape={<CurvedRadarShape />}
+            shape={CurvedRadarShape as any}
           />
           <Tooltip
             content={({ active, payload }) => {
