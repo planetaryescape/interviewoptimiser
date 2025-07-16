@@ -42,7 +42,7 @@ export function ReportHeader({ job, interview, headingFont }: ReportHeaderProps)
           <div className="inline-block bg-slate-50 px-4 py-2 rounded-sm border border-slate-100">
             <p className="text-[10px] uppercase tracking-[0.15em] text-slate-400 mb-1">Reference</p>
             <p className="text-sm font-mono text-slate-700 font-medium">
-              IO-{idHandler.encode(job?.sys.id ?? 0)}
+              IO-{idHandler.encode(typeof job?.sys.id === "number" ? job.sys.id : 0)}
             </p>
           </div>
         </div>

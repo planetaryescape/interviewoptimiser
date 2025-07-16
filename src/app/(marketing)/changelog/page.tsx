@@ -146,7 +146,11 @@ export default function ChangelogPage() {
                           variant="outline"
                           size="sm"
                           className="ml-4 border-primary/20 hover:bg-primary/5"
-                          onClick={() => likeMutation.mutate(changelog.sys.id ?? 0)}
+                          onClick={() =>
+                            likeMutation.mutate(
+                              typeof changelog.sys.id === "number" ? changelog.sys.id : 0
+                            )
+                          }
                           disabled={likeMutation.isPending}
                           aria-label="Like this update"
                         >

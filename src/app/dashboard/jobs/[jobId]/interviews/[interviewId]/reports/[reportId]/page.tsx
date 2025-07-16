@@ -116,7 +116,9 @@ export default function JobReportPage(props: {
     queryKey: ["interview", params.reportId],
     queryFn: async () => {
       const interviewRepo = await getRepository<Interview>("interviews");
-      return await interviewRepo.getById(idHandler.encode(report?.data.interviewId ?? 0));
+      return await interviewRepo.getById(
+        idHandler.encode(typeof report?.data.interviewId === "number" ? report.data.interviewId : 0)
+      );
     },
     enabled: !!params.reportId,
   });
@@ -223,9 +225,12 @@ export default function JobReportPage(props: {
       const reportRepo = await getRepository<ReportWithPageSettings>(
         `jobs/${params.jobId}/reports`
       );
-      return reportRepo.update(idHandler.encode(report?.sys.id ?? 0), {
-        isPublic: newPublicStatus,
-      });
+      return reportRepo.update(
+        idHandler.encode(typeof report?.sys.id === "number" ? report.sys.id : 0),
+        {
+          isPublic: newPublicStatus,
+        }
+      );
     },
     onSuccess: (_, newPublicStatus) => {
       queryClient.invalidateQueries({
@@ -256,7 +261,9 @@ export default function JobReportPage(props: {
     mutationFn: async (settings: Partial<PageSettings>) => {
       const pageSettingsRepo = await getRepository<PageSettings>("page-settings");
       return pageSettingsRepo.update(
-        idHandler.encode(report?.data.pageSettings?.id ?? 0),
+        idHandler.encode(
+          typeof report?.data.pageSettings?.id === "number" ? report.data.pageSettings.id : 0
+        ),
         settings
       );
     },
@@ -291,11 +298,14 @@ export default function JobReportPage(props: {
   };
 
   const handleViewPublic = () => {
-    window.open(`/job/${idHandler.encode(job?.sys.id ?? 0)}`, "_blank");
+    window.open(
+      `/job/${idHandler.encode(typeof job?.sys.id === "number" ? job.sys.id : 0)}`,
+      "_blank"
+    );
   };
 
   const copyShareLink = () => {
-    const shareLink = `${window.location.origin}/job/${idHandler.encode(job?.sys.id ?? 0)}`;
+    const shareLink = `${window.location.origin}/job/${idHandler.encode(typeof job?.sys.id === "number" ? job.sys.id : 0)}`;
     navigator.clipboard.writeText(shareLink);
     toast.success("Link copied to clipboard", {
       description: "You can now share this link with others.",
@@ -316,7 +326,9 @@ export default function JobReportPage(props: {
         body: JSON.stringify({
           jobId: params.jobId,
           reportId: params.reportId,
-          interviewId: idHandler.encode(report?.data.interviewId ?? 0),
+          interviewId: idHandler.encode(
+            typeof report?.data.interviewId === "number" ? report.data.interviewId : 0
+          ),
         }),
       });
 
@@ -429,7 +441,7 @@ export default function JobReportPage(props: {
           pageSettings={report?.data.pageSettings}
           includeTranscript={includeTranscript}
           setIncludeTranscript={setIncludeTranscript}
-          jobId={idHandler.encode(job?.sys.id ?? 0)}
+          jobId={idHandler.encode(typeof job?.sys.id === "number" ? job.sys.id : 0)}
           onRegenerate={handleRegenerate}
         />
       </div>
@@ -510,7 +522,7 @@ export default function JobReportPage(props: {
           </div>
           <div className="flex items-center space-x-2">
             <Input
-              value={`${window.location.origin}/report/${idHandler.encode(report?.sys.id ?? 0)}`}
+              value={`${window.location.origin}/report/${idHandler.encode(typeof report?.sys.id === "number" ? report.sys.id : 0)}`}
               readOnly
               onClick={(e) => e.currentTarget.select()}
               className="flex-grow"
