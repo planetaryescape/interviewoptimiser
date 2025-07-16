@@ -1,12 +1,19 @@
+import type { Entity, EntityList } from "@/lib/utils/formatEntity";
 import { useQuery } from "@tanstack/react-query";
+
+interface LookupItem {
+  id?: number;
+  name: string;
+  [key: string]: unknown;
+}
 
 async function fetchLookupData(endpoint: string) {
   const response = await fetch(`/api/lookups/${endpoint}`);
   if (!response.ok) {
     throw new Error("Network response was not ok");
   }
-  const data = await response.json();
-  return data.data.map((item: any) => ({
+  const data: EntityList<LookupItem> = await response.json();
+  return data.data.map((item) => ({
     id: item.sys.id,
     name: item.data.name,
   }));

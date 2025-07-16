@@ -58,7 +58,12 @@ export const POST = withAuth(
 
       logger.info({ jobId }, "Successfully extracted key questions");
 
-      return NextResponse.json(formatEntity(keyQuestionsResult.data.keyQuestions, "questions"));
+      return NextResponse.json(
+        formatEntity(
+          { questions: keyQuestionsResult.data.keyQuestions, id: undefined },
+          "questions"
+        )
+      );
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "POST /api/extract/questions");

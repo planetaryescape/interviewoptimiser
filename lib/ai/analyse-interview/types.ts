@@ -8,6 +8,15 @@ import type { StructuredJobDescriptionSchema } from "~/lib/ai/extract-job-descri
 import type { StructuredOriginalCVSchema } from "~/lib/ai/extract-original-cv";
 
 /**
+ * Represents a single transcript entry with speaker, content, and optional prosody data
+ */
+export interface TranscriptEntry {
+  role: "user" | "assistant";
+  content: string;
+  prosody?: Array<[string, number]>;
+}
+
+/**
  * Base parameters used for all analyze functions
  */
 export interface BaseAnalyzeParams {
@@ -18,7 +27,7 @@ export interface BaseAnalyzeParams {
   /**
    * The parsed interview transcript
    */
-  transcript: any[];
+  transcript: TranscriptEntry[];
   /**
    * Optional user email for tracking purposes
    */

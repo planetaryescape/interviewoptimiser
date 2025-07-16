@@ -24,8 +24,21 @@ interface ScoreRadarChartProps {
   className?: string;
 }
 
+interface RadarShapePoint {
+  x: number;
+  y: number;
+}
+
+interface RadarShapeProps {
+  points: RadarShapePoint[];
+  fill: string;
+  stroke: string;
+  fillOpacity: number;
+  strokeWidth: number;
+}
+
 // Custom shape for curved radar (adapted from radial-prosody-chart.tsx)
-const CurvedRadarShape = (props: any) => {
+const CurvedRadarShape = (props: RadarShapeProps) => {
   const { points, fill, stroke, fillOpacity, strokeWidth } = props;
 
   const pathData = useMemo(() => {
@@ -64,8 +77,18 @@ const CurvedRadarShape = (props: any) => {
   );
 };
 
+interface CustomAngleTickProps {
+  x: number;
+  y: number;
+  payload: {
+    value: string;
+  };
+  textAnchor: string;
+  [key: string]: unknown;
+}
+
 // Custom tick for PolarAngleAxis to adjust styling and position
-const CustomAngleTick = (props: any) => {
+const CustomAngleTick = (props: CustomAngleTickProps) => {
   const { x, y, payload, textAnchor, ...rest } = props;
   return (
     <Text

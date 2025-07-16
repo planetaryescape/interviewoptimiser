@@ -32,7 +32,7 @@ export type StatusType = "success" | "error";
 export type Entity<T = unknown> = {
   status: StatusType;
   sys: {
-    id?: number;
+    id?: number | string;
     entity: EntityType;
     createdAt?: string;
     updatedAt?: string;
@@ -68,7 +68,9 @@ export type EntityList<T = unknown> = {
   data: Omit<Entity<T>, "success">[];
 };
 
-export const formatEntity = <T extends { id?: number; [key: string]: any } | undefined>(
+export const formatEntity = <
+  T extends { id?: number | string; [key: string]: unknown } | undefined,
+>(
   data: T,
   entity: EntityType,
   status: StatusType = "success"
@@ -83,7 +85,7 @@ export const formatEntity = <T extends { id?: number; [key: string]: any } | und
   };
 };
 
-export const formatEntityList = <T extends { id?: number; [key: string]: any }>(
+export const formatEntityList = <T extends { id?: number | string; [key: string]: unknown }>(
   data: T[],
   entity: EntityType,
   status: StatusType = "success"
