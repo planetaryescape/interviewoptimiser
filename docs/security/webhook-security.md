@@ -61,7 +61,7 @@ const svixSignature = request.headers.get("svix-signature");
 
 // All headers must be present
 if (!svixId || !svixTimestamp || !svixSignature) {
-  return new Response("Error occurred -- no svix headers", {
+  return NextResponse.json(formatErrorEntity("Missing webhook signature headers"), {
     status: 401,
   });
 }
@@ -75,7 +75,7 @@ try {
   });
   // Process verified webhook...
 } catch (err) {
-  return new Response("Verification error", { status: 401 });
+  return NextResponse.json(formatErrorEntity("Invalid webhook signature"), { status: 401 });
 }
 ```
 
@@ -83,8 +83,8 @@ try {
 
 When webhook verification fails, the application returns a `401 Unauthorized` response:
 
-1. **Missing Headers**: Returns "Error occurred -- no svix headers"
-2. **Invalid Signature**: Returns "Verification error"
+1. **Missing Headers**: Returns `formatErrorEntity("Missing webhook signature headers")`
+2. **Invalid Signature**: Returns `formatErrorEntity("Invalid webhook signature")`
 3. **Expired Timestamp**: Automatically handled by Svix (default 5-minute window)
 
 ## Security Best Practices

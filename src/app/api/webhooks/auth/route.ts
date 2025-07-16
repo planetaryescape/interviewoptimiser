@@ -5,6 +5,7 @@ import { getUserFromClerkId } from "@/lib/auth";
 import { createDefaultApiRouteContext } from "@/lib/createDefaultApiRouteContext";
 import { hashEmail } from "@/lib/utils/emailHash";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
+import type { ClerkWebhookPayload } from "@/types/clerk-webhooks";
 import * as Sentry from "@sentry/nextjs";
 import { countDistinct, eq, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
@@ -50,13 +51,13 @@ export async function POST(request: Request) {
     const body = await request.text();
     const wh = new Webhook(WEBHOOK_SECRET);
 
-    let data: any;
+    let data: ClerkWebhookPayload;
     try {
       data = wh.verify(body, {
         "svix-id": svix_id,
         "svix-timestamp": svix_timestamp,
         "svix-signature": svix_signature,
-      }) as any;
+      }) as ClerkWebhookPayload;
     } catch (err) {
       logger.warn(
         { ...context, error: err instanceof Error ? err.message : "Unknown error" },
@@ -190,7 +191,7 @@ export async function POST(request: Request) {
           from: `${config.projectName} Team <welcome@${config.domain}>`,
           to: email,
           subject: `Welcome to ${config.projectName}`,
-          react: WelcomeEmail({ firstName: data.data.first_name }),
+          react: WelcomeEmail({ firstName: data.data.first_name || undefined }),
         });
         logger.info({ ...context, emailResponse }, "Welcome email sent");
 
@@ -207,8 +208,8 @@ export async function POST(request: Request) {
             eventType: isReturningDeletedUser ? "returning_deleted_user" : "signup",
             userData: {
               email: userEmail,
-              firstName: data.data.first_name,
-              lastName: data.data.last_name,
+              firstName: data.data.first_name || undefined,
+              lastName: data.data.last_name || undefined,
               timestamp: new Date().toISOString(),
               isReturningDeletedUser,
               minutesAllocated: minutesToAllocate,
@@ -431,7 +432,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       {
-        webhookType: data.type,
+        webhookType: (data as ClerkWebhookPayload).type,
         message: "Unhandled webhook type",
       },
       { status: 200 }
