@@ -359,42 +359,42 @@ export async function POST(request: Request) {
             logger.info({ userId }, "Starting user deletion transaction");
 
             // Delete feature request likes
-            logger.info({}, "Deleting feature request likes");
+            logger.info({ userId }, "Deleting feature request likes");
             await tx.delete(featureRequestLikes).where(eq(featureRequestLikes.userId, userId));
-            logger.info({}, "Feature request likes deleted");
+            logger.info({ userId }, "Feature request likes deleted");
 
             // Delete feature requests
-            logger.info({}, "Deleting feature requests");
+            logger.info({ userId }, "Deleting feature requests");
             await tx.delete(featureRequests).where(eq(featureRequests.userId, userId));
-            logger.info({}, "Feature requests deleted");
+            logger.info({ userId }, "Feature requests deleted");
 
             // Delete reviews
-            logger.info({}, "Deleting reviews");
+            logger.info({ userId }, "Deleting reviews");
             await tx.delete(reviews).where(eq(reviews.userId, userId));
-            logger.info({}, "Reviews deleted");
+            logger.info({ userId }, "Reviews deleted");
 
             // Delete images (note: uses promptId column to reference users)
-            logger.info({}, "Deleting images");
+            logger.info({ userId }, "Deleting images");
             await tx.delete(images).where(eq(images.promptId, userId));
-            logger.info({}, "Images deleted");
+            logger.info({ userId }, "Images deleted");
 
             // Delete organization memberships
-            logger.info({}, "Deleting organization memberships");
+            logger.info({ userId }, "Deleting organization memberships");
             await tx.delete(organizationMembers).where(eq(organizationMembers.userId, userId));
-            logger.info({}, "Organization memberships deleted");
+            logger.info({ userId }, "Organization memberships deleted");
 
             // Delete jobs (this cascades to interviews, reports, etc.)
-            logger.info({}, "Deleting jobs");
+            logger.info({ userId }, "Deleting jobs");
             await tx.delete(jobs).where(eq(jobs.userId, userId));
-            logger.info({}, "Jobs deleted");
+            logger.info({ userId }, "Jobs deleted");
 
             // Delete customisations
-            logger.info({}, "Deleting customisations");
+            logger.info({ userId }, "Deleting customisations");
             await tx.delete(customisations).where(eq(customisations.userId, userId));
-            logger.info({}, "Customisations deleted");
+            logger.info({ userId }, "Customisations deleted");
 
             // Record the deleted user's hashed email before deletion
-            logger.info({}, "Recording deleted user email hash");
+            logger.info({ userId }, "Recording deleted user email hash");
             const emailHash = hashEmail(email);
             await tx.insert(deletedUsers).values({
               emailHash,
@@ -402,12 +402,22 @@ export async function POST(request: Request) {
               hasUsedFreeMinutes:
                 (user.minutes ?? config.startingFreeMinutes) < config.startingFreeMinutes, // User has used some minutes
             });
-            logger.info({}, "Deleted user record created");
+            logger.info({ userId }, "Deleted user record created");
 
             // Finally, delete the user
-            logger.info({}, "Deleting user");
+            logger.info({ userId }, "Deleting user");
             await tx.delete(users).where(eq(users.id, userId));
-            logger.info({}, "User deleted");
+            logger.info({ userId }, "User deleted");
+
+            // Decrement the user count in statistics
+            logger.info({ userId }, "Updating statistics");
+            await tx
+              .update(statistics)
+              .set({
+                usersCount: sql`${statistics.usersCount} - 1`,
+              })
+              .where(eq(statistics.id, 1));
+            logger.info({ userId }, "Statistics updated");
 
             logger.info({ ...context, userId }, "User deletion transaction completed successfully");
           } catch (error) {
