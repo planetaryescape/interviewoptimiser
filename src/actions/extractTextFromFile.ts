@@ -1,13 +1,12 @@
 "use server";
 
+import { MAX_FILE_SIZE } from "@/lib/constants";
 import * as Sentry from "@sentry/nextjs";
 import mammoth from "mammoth";
 import { logger } from "~/lib/logger";
 
 // @ts-expect-error TODO: fix this
 import * as pdf from "pdf-parse/lib/pdf-parse.js";
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB limit
 
 export async function extractTextFromFile(formData: FormData): Promise<string> {
   try {
@@ -17,8 +16,12 @@ export async function extractTextFromFile(formData: FormData): Promise<string> {
       throw new Error("No file provided");
     }
 
+    if (!file.size || typeof file.size !== "number") {
+      throw new Error("Invalid file: missing or invalid size property");
+    }
+
     if (file.size > MAX_FILE_SIZE) {
-      throw new Error(`File size exceeds ${MAX_FILE_SIZE / (1024 * 1024)}MB limit`);
+      throw new Error(`File size exceeds ${MAX_FILE_SIZE / (1024 * 1024)} MB limit`);
     }
 
     const buffer = await file.arrayBuffer();
