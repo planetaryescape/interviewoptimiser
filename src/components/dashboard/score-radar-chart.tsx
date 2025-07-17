@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import * as React from "react";
 import { useMemo } from "react";
 import {
   PolarAngleAxis,
@@ -104,79 +105,93 @@ const CustomAngleTick = (props: CustomAngleTickProps) => {
   );
 };
 
-export const ScoreRadarChart = ({ data, className }: ScoreRadarChartProps) => {
-  if (!data || data.length === 0) {
+export const ScoreRadarChart = React.memo(
+  ({ data, className }: ScoreRadarChartProps) => {
+    if (!data || data.length === 0) {
+      return (
+        <div
+          className={cn("flex items-center justify-center h-full text-muted-foreground", className)}
+        >
+          No score data available to display chart.
+        </div>
+      );
+    }
     return (
-      <div
-        className={cn("flex items-center justify-center h-full text-muted-foreground", className)}
-      >
-        No score data available to display chart.
-      </div>
+      <ResponsiveContainer width="100%" height="100%" className={cn("group", className)}>
+        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
+          <defs>
+            <radialGradient id="radarGradient" cx="0.5" cy="0.5" r="0.7">
+              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
+              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.2} />
+            </radialGradient>
+          </defs>
+          <PolarGrid stroke="hsl(var(--border) / 0.5)" gridType="circle" />
+          <PolarAngleAxis
+            dataKey="subject"
+            tick={CustomAngleTick as any}
+            stroke="hsl(var(--foreground) / 0.7)"
+          />
+          <PolarRadiusAxis
+            angle={30}
+            domain={[0, 100]}
+            tickCount={6}
+            stroke="hsl(var(--border) / 0.7)"
+            axisLine={false}
+            tick={{ fill: "hsl(var(--muted-foreground) / 0.8)", fontSize: 10 }}
+          />
+          <Radar
+            name="Score"
+            dataKey="score"
+            stroke="hsl(var(--primary))"
+            fill="url(#radarGradient)"
+            fillOpacity={1}
+            strokeWidth={2.5}
+            shape={CurvedRadarShape as any}
+            dot={{
+              r: 4,
+              fill: "hsl(var(--background))",
+              stroke: "hsl(var(--primary))",
+              strokeWidth: 2,
+            }}
+            activeDot={{
+              r: 6,
+              fill: "hsl(var(--background))",
+              stroke: "hsl(var(--primary))",
+              strokeWidth: 2.5,
+            }}
+          />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "hsl(var(--popover))",
+              borderColor: "hsl(var(--border))",
+              borderRadius: "var(--radius)",
+              boxShadow: "0 4px 12px hsla(var(--shadow-color), 0.1)",
+            }}
+            labelStyle={{
+              color: "hsl(var(--popover-foreground))",
+              fontWeight: "bold",
+            }}
+            itemStyle={{ color: "hsl(var(--popover-foreground))" }}
+            cursor={{
+              stroke: "hsl(var(--primary) / 0.5)",
+              strokeWidth: 1,
+              strokeDasharray: "3 3",
+            }}
+          />
+        </RadarChart>
+      </ResponsiveContainer>
+    );
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.className === nextProps.className &&
+      prevProps.data.length === nextProps.data.length &&
+      prevProps.data.every(
+        (item, index) =>
+          item.subject === nextProps.data[index].subject &&
+          item.score === nextProps.data[index].score &&
+          item.fullMark === nextProps.data[index].fullMark
+      )
     );
   }
-  return (
-    <ResponsiveContainer width="100%" height="100%" className={cn("group", className)}>
-      <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
-        <defs>
-          <radialGradient id="radarGradient" cx="0.5" cy="0.5" r="0.7">
-            <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
-            <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.2} />
-          </radialGradient>
-        </defs>
-        <PolarGrid stroke="hsl(var(--border) / 0.5)" gridType="circle" />
-        <PolarAngleAxis
-          dataKey="subject"
-          tick={CustomAngleTick as any}
-          stroke="hsl(var(--foreground) / 0.7)"
-        />
-        <PolarRadiusAxis
-          angle={30}
-          domain={[0, 100]}
-          tickCount={6}
-          stroke="hsl(var(--border) / 0.7)"
-          axisLine={false}
-          tick={{ fill: "hsl(var(--muted-foreground) / 0.8)", fontSize: 10 }}
-        />
-        <Radar
-          name="Score"
-          dataKey="score"
-          stroke="hsl(var(--primary))"
-          fill="url(#radarGradient)"
-          fillOpacity={1}
-          strokeWidth={2.5}
-          shape={CurvedRadarShape as any}
-          dot={{
-            r: 4,
-            fill: "hsl(var(--background))",
-            stroke: "hsl(var(--primary))",
-            strokeWidth: 2,
-          }}
-          activeDot={{
-            r: 6,
-            fill: "hsl(var(--background))",
-            stroke: "hsl(var(--primary))",
-            strokeWidth: 2.5,
-          }}
-        />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: "hsl(var(--popover))",
-            borderColor: "hsl(var(--border))",
-            borderRadius: "var(--radius)",
-            boxShadow: "0 4px 12px hsla(var(--shadow-color), 0.1)",
-          }}
-          labelStyle={{
-            color: "hsl(var(--popover-foreground))",
-            fontWeight: "bold",
-          }}
-          itemStyle={{ color: "hsl(var(--popover-foreground))" }}
-          cursor={{
-            stroke: "hsl(var(--primary) / 0.5)",
-            strokeWidth: 1,
-            strokeDasharray: "3 3",
-          }}
-        />
-      </RadarChart>
-    </ResponsiveContainer>
-  );
-};
+);
