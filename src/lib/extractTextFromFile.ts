@@ -1,20 +1,16 @@
 "use server";
 
+import { validateFileSize } from "@/lib/utils/fileValidation";
 import mammoth from "mammoth";
 // @ts-expect-error TODO: fix this
 import * as pdf from "pdf-parse/lib/pdf-parse.js";
 import { logger } from "../../lib/logger";
-import { MAX_FILE_SIZE } from "./constants";
 
 export async function extractTextFromFile(file: File): Promise<string> {
-  if (!file.size || typeof file.size !== "number") {
-    throw new Error("Invalid file: missing or invalid size property");
+  const validation = validateFileSize(file);
+  if (!validation.isValid) {
+    throw new Error(validation.error || "Invalid file");
   }
-
-  if (file.size > MAX_FILE_SIZE) {
-    throw new Error(`File size exceeds ${MAX_FILE_SIZE / (1024 * 1024)} MB limit`);
-  }
-
   const buffer = await file.arrayBuffer();
   const uint8Array = new Uint8Array(buffer);
 
