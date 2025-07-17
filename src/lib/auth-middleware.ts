@@ -45,6 +45,21 @@ export type AuthenticatedHandler<TParams = Record<string, unknown>> = (
  *   { routeName: 'getReport' }
  * );
  */
+const CLERK_USER_ID_MIN_LENGTH = 10;
+const CLERK_USER_ID_PATTERN = /^(user_|usr_)[a-zA-Z0-9_-]+$/;
+
+function isValidClerkUserId(clerkUserId: unknown): clerkUserId is string {
+  if (!clerkUserId || typeof clerkUserId !== "string") {
+    return false;
+  }
+
+  if (clerkUserId.length < CLERK_USER_ID_MIN_LENGTH) {
+    return false;
+  }
+
+  return CLERK_USER_ID_PATTERN.test(clerkUserId);
+}
+
 export function withAuth<TParams = Record<string, unknown>>(
   handler: AuthenticatedHandler<TParams>,
   options?: {
@@ -57,22 +72,40 @@ export function withAuth<TParams = Record<string, unknown>>(
   return async (request: NextRequest, routeSegment?: { params: Promise<TParams> }) => {
     const routeName = options?.routeName || request.nextUrl.pathname;
 
+    // Check for rate limiting first
+    const rateLimitExceeded = request.headers.get("X-RateLimit-Remaining") === "0";
+    if (rateLimitExceeded) {
+      logger.warn(`Rate limit exceeded for ${routeName}`);
+      return NextResponse.json(formatErrorEntity("Rate limit exceeded"), {
+        status: 429,
+      });
+    }
+
     // Get Clerk user ID
     const { userId: clerkUserId } = getAuth(request);
-    if (!clerkUserId) {
-      logger.warn(`Unauthorized access attempt to ${routeName}`);
+    if (!isValidClerkUserId(clerkUserId)) {
+      logger.warn(
+        {
+          clerkUserId: typeof clerkUserId === "string" ? clerkUserId : typeof clerkUserId,
+          routeName,
+        },
+        "Invalid or missing Clerk user ID"
+      );
       return NextResponse.json(formatErrorEntity("Unauthorized"), {
         status: 401,
       });
     }
 
     try {
-      // Get user from database
-      const userData = await getUserFromClerkId(clerkUserId);
+      // Get user from database with caching
+      const userData = await getUserFromClerkId(clerkUserId, {
+        useCache: true,
+        ttl: 300,
+      });
       if (!userData.id) {
         logger.warn({ clerkUserId }, `User not found in database for ${routeName}`);
-        return NextResponse.json(formatErrorEntity("User not found"), {
-          status: 404,
+        return NextResponse.json(formatErrorEntity("Unauthorized"), {
+          status: 403,
         });
       }
 
@@ -120,22 +153,40 @@ export async function withAuthAsync<TParams = Record<string, unknown>>(
   const { auth } = await import("@clerk/nextjs/server");
   const routeName = options?.routeName || request.nextUrl.pathname;
 
+  // Check for rate limiting first
+  const rateLimitExceeded = request.headers.get("X-RateLimit-Remaining") === "0";
+  if (rateLimitExceeded) {
+    logger.warn(`Rate limit exceeded for ${routeName}`);
+    return NextResponse.json(formatErrorEntity("Rate limit exceeded"), {
+      status: 429,
+    });
+  }
+
   const authResult = await auth();
   const clerkUserId = authResult?.userId;
 
-  if (!clerkUserId) {
-    logger.warn(`Unauthorized access attempt to ${routeName}`);
+  if (!isValidClerkUserId(clerkUserId)) {
+    logger.warn(
+      {
+        clerkUserId: typeof clerkUserId === "string" ? clerkUserId : typeof clerkUserId,
+        routeName,
+      },
+      "Invalid or missing Clerk user ID"
+    );
     return NextResponse.json(formatErrorEntity("Unauthorized"), {
       status: 401,
     });
   }
 
   try {
-    const userData = await getUserFromClerkId(clerkUserId);
+    const userData = await getUserFromClerkId(clerkUserId, {
+      useCache: true,
+      ttl: 300,
+    });
     if (!userData.id) {
       logger.warn({ clerkUserId }, `User not found in database for ${routeName}`);
-      return NextResponse.json(formatErrorEntity("User not found"), {
-        status: 404,
+      return NextResponse.json(formatErrorEntity("Unauthorized"), {
+        status: 403,
       });
     }
 
