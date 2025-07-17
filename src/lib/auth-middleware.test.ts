@@ -1,11 +1,9 @@
-import { getAuth } from "@clerk/nextjs/server";
-import { NextRequest, NextResponse } from "next/server";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getUserFromClerkId, invalidateUserCache } from "./auth";
-import { withAuth, withAuthAsync } from "./auth-middleware";
+import { vi } from "vitest";
 
+// Mocks must be declared before imports
 vi.mock("@clerk/nextjs/server", () => ({
   getAuth: vi.fn(),
+  auth: vi.fn(),
 }));
 
 vi.mock("./auth", () => ({
@@ -20,6 +18,12 @@ vi.mock("~/lib/logger", () => ({
     debug: vi.fn(),
   },
 }));
+
+import { auth, getAuth } from "@clerk/nextjs/server";
+import { NextRequest, NextResponse } from "next/server";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { getUserFromClerkId, invalidateUserCache } from "./auth";
+import { withAuth, withAuthAsync } from "./auth-middleware";
 
 describe("auth-middleware", () => {
   let mockRequest: NextRequest;
@@ -197,6 +201,103 @@ describe("auth-middleware", () => {
         }
       });
     }
+  });
+
+  describe("withAuthAsync", () => {
+    it("should return 429 when rate limit is exceeded", async () => {
+      mockRequest.headers.set("X-RateLimit-Remaining", "0");
+
+      const handler = vi.fn();
+
+      const response = await withAuthAsync(handler, mockRequest);
+      const data = await response.json();
+
+      expect(response.status).toBe(429);
+      expect(data.error).toBe("Rate limit exceeded");
+      expect(handler).not.toHaveBeenCalled();
+    });
+
+    it("should return 401 when clerkUserId is missing", async () => {
+      vi.mocked(auth).mockResolvedValue({ userId: null } as any);
+
+      const handler = vi.fn();
+
+      const response = await withAuthAsync(handler, mockRequest);
+      const data = await response.json();
+
+      expect(response.status).toBe(401);
+      expect(data.error).toBe("Unauthorized");
+      expect(handler).not.toHaveBeenCalled();
+    });
+
+    it("should return 403 when user is not found in database", async () => {
+      const validClerkUserId = "user_2abc123def456ghi789";
+      vi.mocked(auth).mockResolvedValue({ userId: validClerkUserId } as any);
+      vi.mocked(getUserFromClerkId).mockResolvedValue({});
+
+      const handler = vi.fn();
+
+      const response = await withAuthAsync(handler, mockRequest);
+      const data = await response.json();
+
+      expect(response.status).toBe(403);
+      expect(data.error).toBe("Unauthorized");
+      expect(getUserFromClerkId).toHaveBeenCalledWith(validClerkUserId, {
+        useCache: true,
+        ttl: 300,
+      });
+      expect(handler).not.toHaveBeenCalled();
+    });
+
+    it("should call handler with user context when authentication is successful", async () => {
+      const validClerkUserId = "user_2abc123def456ghi789";
+      const mockUserData = {
+        id: 123,
+        email: "test@example.com",
+        firstName: "Test",
+        lastName: "User",
+        minutes: 100,
+        role: "user",
+        stripeCustomerId: "cus_123",
+      };
+
+      vi.mocked(auth).mockResolvedValue({ userId: validClerkUserId } as any);
+      vi.mocked(getUserFromClerkId).mockResolvedValue(mockUserData);
+
+      const handler = vi.fn().mockResolvedValue(NextResponse.json({ success: true }));
+
+      const response = await withAuthAsync(handler, mockRequest);
+
+      expect(handler).toHaveBeenCalledWith(mockRequest, {
+        user: mockUserData,
+        clerkUserId: validClerkUserId,
+      });
+      expect(response.status).toBe(200);
+    });
+
+    it("should handle async params correctly", async () => {
+      const validClerkUserId = "user_2abc123def456ghi789";
+      const mockUserData = {
+        id: 123,
+        email: "test@example.com",
+      };
+      const mockParams = { id: "456" };
+
+      vi.mocked(auth).mockResolvedValue({ userId: validClerkUserId } as any);
+      vi.mocked(getUserFromClerkId).mockResolvedValue(mockUserData);
+
+      const handler = vi.fn().mockResolvedValue(NextResponse.json({ success: true }));
+
+      const response = await withAuthAsync(handler, mockRequest, {
+        params: Promise.resolve(mockParams),
+      });
+
+      expect(handler).toHaveBeenCalledWith(mockRequest, {
+        user: mockUserData,
+        clerkUserId: validClerkUserId,
+        params: mockParams,
+      });
+    });
   });
 
   describe("caching behavior", () => {
