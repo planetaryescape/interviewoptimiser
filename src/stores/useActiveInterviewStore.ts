@@ -56,7 +56,9 @@ export const useActiveInterviewStore = create(
         set((state) => ({
           ...state,
           callDurationTimestamp: timestamp,
-          remainingTime: Math.max(0, state.totalTime - unformatTime(timestamp)),
+          remainingTime: timestamp
+            ? Math.max(0, state.totalTime - unformatTime(timestamp))
+            : state.totalTime,
         })),
       setTotalTime: (totalTime: number) => set({ totalTime }),
       setInterviewEnded: (interviewEnded: boolean) => set({ interviewEnded }),

@@ -51,6 +51,22 @@ describe("useActiveInterviewStore", () => {
 
     const state = useActiveInterviewStore.getState();
     expect(state.callDurationTimestamp).toBe("02:00");
+    expect(state.remainingTime).toBe(480); // 600 - 120 = 480 seconds remaining
+  });
+
+  it("should handle null timestamp without causing NaN", () => {
+    const { actions } = useActiveInterviewStore.getState();
+
+    // Set total time to 10 minutes (600 seconds)
+    actions.setTotalTime(600);
+
+    // Set timestamp to null
+    actions.setCallDurationTimestamp(null);
+
+    const state = useActiveInterviewStore.getState();
+    expect(state.callDurationTimestamp).toBeNull();
+    expect(state.remainingTime).toBe(600); // Should keep total time when timestamp is null
+    expect(Number.isNaN(state.remainingTime)).toBe(false);
   });
 
   it("should mark wrap-up sent", () => {
