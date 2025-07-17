@@ -66,7 +66,6 @@ describe("useActiveInterviewStore", () => {
     const state = useActiveInterviewStore.getState();
     expect(state.callDurationTimestamp).toBeNull();
     expect(state.remainingTime).toBe(600); // Should keep total time when timestamp is null
-    expect(Number.isNaN(state.remainingTime)).toBe(false);
   });
 
   it("should mark wrap-up sent", () => {
