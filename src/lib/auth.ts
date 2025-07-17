@@ -9,10 +9,7 @@ export interface GetUserOptions {
   ttl?: number;
 }
 
-export async function getUserFromClerkId(
-  clerkUserId: string,
-  options: GetUserOptions = { useCache: true, ttl: 300 }
-): Promise<{
+export interface UserData {
   id?: number;
   minutes?: number;
   role?: string;
@@ -20,19 +17,26 @@ export async function getUserFromClerkId(
   firstName?: string;
   lastName?: string;
   stripeCustomerId?: string;
-}> {
+}
+
+const isCacheEnabled = () => !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+
+export async function getUserFromClerkId(
+  clerkUserId: string,
+  options: GetUserOptions = { useCache: true, ttl: 300 }
+): Promise<UserData> {
   if (!clerkUserId) {
     return {};
   }
 
   const cacheKey = `user:${clerkUserId}`;
 
-  if (options.useCache && process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+  if (options.useCache && isCacheEnabled()) {
     try {
       const cachedUser = await kv.get(cacheKey);
-      if (cachedUser) {
+      if (cachedUser && typeof cachedUser === "object" && "id" in cachedUser) {
         logger.debug({ clerkUserId }, "User data retrieved from cache");
-        return cachedUser as ReturnType<typeof getUserFromClerkId>;
+        return cachedUser as UserData;
       }
     } catch (error) {
       logger.warn({ error, clerkUserId }, "Cache retrieval failed, falling back to database");
@@ -67,13 +71,10 @@ export async function getUserFromClerkId(
     stripeCustomerId: user[0].stripeCustomerId ?? undefined,
   };
 
-  if (options.useCache && process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+  if (options.useCache && isCacheEnabled()) {
     try {
-      if (options.ttl) {
-        await kv.set(cacheKey, userData, { ex: options.ttl });
-      } else {
-        await kv.set(cacheKey, userData);
-      }
+      const cacheOpts = options.ttl ? { ex: options.ttl } : undefined;
+      await kv.set(cacheKey, userData, cacheOpts);
       logger.debug({ clerkUserId, ttl: options.ttl }, "User data cached");
     } catch (error) {
       logger.warn({ error, clerkUserId }, "Failed to cache user data");
@@ -84,7 +85,7 @@ export async function getUserFromClerkId(
 }
 
 export async function invalidateUserCache(clerkUserId: string): Promise<void> {
-  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+  if (isCacheEnabled()) {
     try {
       const cacheKey = `user:${clerkUserId}`;
       await kv.del(cacheKey);

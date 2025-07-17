@@ -60,6 +60,17 @@ function isValidClerkUserId(clerkUserId: unknown): clerkUserId is string {
   return CLERK_USER_ID_PATTERN.test(clerkUserId);
 }
 
+function checkRateLimit(request: NextRequest, routeName: string): NextResponse | null {
+  const rateLimitExceeded = request.headers.get("X-RateLimit-Remaining") === "0";
+  if (rateLimitExceeded) {
+    logger.warn(`Rate limit exceeded for ${routeName}`);
+    return NextResponse.json(formatErrorEntity("Rate limit exceeded"), {
+      status: 429,
+    });
+  }
+  return null;
+}
+
 export function withAuth<TParams = Record<string, unknown>>(
   handler: AuthenticatedHandler<TParams>,
   options?: {
@@ -73,12 +84,9 @@ export function withAuth<TParams = Record<string, unknown>>(
     const routeName = options?.routeName || request.nextUrl.pathname;
 
     // Check for rate limiting first
-    const rateLimitExceeded = request.headers.get("X-RateLimit-Remaining") === "0";
-    if (rateLimitExceeded) {
-      logger.warn(`Rate limit exceeded for ${routeName}`);
-      return NextResponse.json(formatErrorEntity("Rate limit exceeded"), {
-        status: 429,
-      });
+    const rateLimitResponse = checkRateLimit(request, routeName);
+    if (rateLimitResponse) {
+      return rateLimitResponse;
     }
 
     // Get Clerk user ID
@@ -154,12 +162,9 @@ export async function withAuthAsync<TParams = Record<string, unknown>>(
   const routeName = options?.routeName || request.nextUrl.pathname;
 
   // Check for rate limiting first
-  const rateLimitExceeded = request.headers.get("X-RateLimit-Remaining") === "0";
-  if (rateLimitExceeded) {
-    logger.warn(`Rate limit exceeded for ${routeName}`);
-    return NextResponse.json(formatErrorEntity("Rate limit exceeded"), {
-      status: 429,
-    });
+  const rateLimitResponse = checkRateLimit(request, routeName);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
   }
 
   const authResult = await auth();
