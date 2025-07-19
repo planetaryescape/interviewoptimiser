@@ -43,19 +43,14 @@ export function AudioPlayer({
   useEffect(() => {
     if (!audioRef.current) return;
     if (isPlaying && !disabled) {
-      try {
-        const playPromise = audioRef.current.play();
-        // Handle browsers where play() returns a promise
-        if (playPromise !== undefined && typeof playPromise.catch === "function") {
-          playPromise.catch((error) => {
-            console.error("Error playing audio:", error);
-            setIsPlaying(false);
-          });
+      const playAudio = async () => {
+        try {
+          await audioRef.current!.play();
+        } catch {
+          setIsPlaying(false);
         }
-      } catch (error) {
-        console.error("Error playing audio:", error);
-        setIsPlaying(false);
-      }
+      };
+      playAudio();
     } else {
       audioRef.current.pause();
     }

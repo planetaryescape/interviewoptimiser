@@ -83,7 +83,6 @@ export function useToolbarState({
     },
     onError: (error) => {
       toast.error("Failed to submit review. Please try again later.");
-      console.error("Error submitting review:", error);
     },
   });
 

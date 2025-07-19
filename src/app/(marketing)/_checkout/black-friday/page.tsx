@@ -44,7 +44,6 @@ export default function BlackFridayCheckout() {
     },
     onError: (error) => {
       toast.error("Failed to create checkout session. Please try again.");
-      console.error("Checkout error:", error);
     },
   });
 

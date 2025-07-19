@@ -74,7 +74,6 @@ export function InterviewStartModal({
         }
       });
     } catch (error) {
-      console.error("Error checking microphone permission:", error);
       if (!isSecureContext()) {
         setPermissionError("not_secure");
       } else {
@@ -108,8 +107,6 @@ export function InterviewStartModal({
       setPermissionError(null);
       await checkMicrophonePermission();
     } catch (error) {
-      console.error("Error requesting microphone permission:", error);
-
       if (error instanceof DOMException) {
         if (error.name === "NotAllowedError") {
           if (error.message.includes("Permission denied by system")) {

@@ -20,14 +20,14 @@ const getGitCommitSha = () => {
 
 const release = getGitCommitSha(); // Determine release once
 
-const buildService = (functionName) => {
+const buildService = async (functionName) => {
   const functionPath = path.join(functionsDir, functionName);
   const entryFile = path.join(functionPath, "index.ts");
 
   console.log(`Building ${functionName}...`);
 
-  esbuild
-    .build({
+  try {
+    await esbuild.build({
       entryPoints: [entryFile],
       outfile: `${terraformDir}/artifacts/${functionName}/index.js`,
       bundle: true,
@@ -60,14 +60,12 @@ const buildService = (functionName) => {
           },
         }),
       ],
-    })
-    .then(() => {
-      console.log(`✅ Successfully built ${functionName} for release ${release || "unknown"}`);
-    })
-    .catch((error) => {
-      console.error(`❌ Failed to build ${functionName}:`, error);
-      process.exit(1);
     });
+    console.log(`✅ Successfully built ${functionName} for release ${release || "unknown"}`);
+  } catch (error) {
+    console.error(`❌ Failed to build ${functionName}:`, error);
+    process.exit(1);
+  }
 };
 
 const directoriesToExclude = ["utils", "lib", "bin"];
@@ -77,4 +75,9 @@ const functions = fs.readdirSync(functionsDir).filter((file) => {
   return fs.statSync(path.join(functionsDir, file)).isDirectory();
 });
 
-functions.forEach(buildService);
+// Run builds sequentially to avoid overwhelming the system
+(async () => {
+  for (const functionName of functions) {
+    await buildService(functionName);
+  }
+})();

@@ -121,7 +121,6 @@ export function useInterviewLogic({ jobId, interviewId }: UseInterviewLogicProps
       resetState();
     },
     onError: (error) => {
-      console.error("Error generating report:", error);
       toast.error("Failed to generate report. Please try again.");
       setShowTakeover(false);
       setIsGenerateReportErrorDialogOpen(true);

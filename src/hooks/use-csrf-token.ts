@@ -31,8 +31,8 @@ export function useCSRFToken() {
         const token = getCookieValue(CSRF_COOKIE_NAME);
         setCSRFToken(token);
       }
-    } catch (error) {
-      console.error("Failed to fetch CSRF token:", error);
+    } catch {
+      // Failed to fetch CSRF token - will be handled by isLoading state
     } finally {
       setIsLoading(false);
     }

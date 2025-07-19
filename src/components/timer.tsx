@@ -84,7 +84,6 @@ export function Timer({
       queryClient.invalidateQueries({ queryKey: ["user"] });
     },
     onError: (error) => {
-      console.error("Error decrementing minutes:", error);
       toast.error("Failed to update remaining minutes");
     },
   });

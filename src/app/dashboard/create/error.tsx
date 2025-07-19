@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Home, RefreshCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 interface ErrorPageProps {
   error: Error & { digest?: string };
@@ -12,11 +11,6 @@ interface ErrorPageProps {
 
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
   const router = useRouter();
-
-  useEffect(() => {
-    // Log the error to an error reporting service
-    console.error(error);
-  }, [error]);
 
   const handleGoToDashboard = () => {
     router.push("/dashboard");

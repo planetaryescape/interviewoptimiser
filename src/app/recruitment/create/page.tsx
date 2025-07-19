@@ -88,12 +88,6 @@ const RecruitmentCreatePage = () => {
 
   const handleFinish = () => {
     // TODO: Implement final submission logic
-    console.log("Submitting recruitment setup:", {
-      jobDescriptionText,
-      interviewType,
-      duration,
-      questions,
-    });
     alert("Recruitment flow setup finished! (Console for details)");
   };
 

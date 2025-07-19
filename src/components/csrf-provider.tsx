@@ -16,7 +16,7 @@ export function CSRFProvider({ children }: CSRFProviderProps) {
           credentials: "include",
         });
       } catch (error) {
-        console.error("Failed to initialize CSRF token:", error);
+        // CSRF token initialization failed silently
       }
     };
 

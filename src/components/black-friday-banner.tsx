@@ -13,7 +13,6 @@ export function BlackFridayBanner() {
     try {
       setIsUserSignedIn(isSignedIn || false);
     } catch (error) {
-      console.error("Auth check failed:", error);
       setIsUserSignedIn(false);
     }
   }, [isSignedIn]);

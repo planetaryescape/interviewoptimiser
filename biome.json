@@ -38,7 +38,13 @@
       "suspicious": {
         "recommended": true,
         "noExplicitAny": "off",
-        "noControlCharactersInRegex": "off"
+        "noControlCharactersInRegex": "off",
+        "noConsole": {
+          "level": "error",
+          "options": {
+            "allow": []
+          }
+        }
       },
       "security": {
         "recommended": true,
@@ -66,5 +72,17 @@
       "trailingCommas": "es5",
       "semicolons": "always"
     }
-  }
+  },
+  "overrides": [
+    {
+      "include": ["scripts/**/*.js", "src/lib/wavtools/**/*.js"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    }
+  ]
 }

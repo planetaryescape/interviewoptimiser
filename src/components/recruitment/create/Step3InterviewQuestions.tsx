@@ -25,11 +25,6 @@ const Step3InterviewQuestions = () => {
     setGenerationError,
   } = useRecruitmentCreateStore();
 
-  // DIAGNOSTIC: Log questions when they change
-  useEffect(() => {
-    console.log("Step3InterviewQuestions: 'questions' state from store updated:", questions);
-  }, [questions]);
-
   const [customQuestionInput, setCustomQuestionInput] = useState("");
 
   const handleGenerateQuestions = async () => {

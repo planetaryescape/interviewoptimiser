@@ -39,7 +39,6 @@ export const PricingPlanButton = ({
         Sentry.captureException(error);
       });
       toast.error("Error creating checkout session");
-      console.error("Error creating checkout session:", error);
     }
   };
   return (

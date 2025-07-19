@@ -63,7 +63,6 @@ export const FileUpload = ({
     noClick: true,
     onDrop: handleFileChange,
     onDropRejected: (error) => {
-      console.log(error);
       toast.error("Please upload a valid file.");
     },
   });

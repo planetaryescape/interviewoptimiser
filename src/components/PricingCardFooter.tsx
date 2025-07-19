@@ -41,7 +41,6 @@ export function PricingCardFooter({ priceId }: PricingCardFooterProps) {
         Sentry.captureException(error);
       });
       toast.error("Error creating checkout session");
-      console.error("Error creating checkout session:", error);
     } finally {
       setIsLoading(false);
     }
