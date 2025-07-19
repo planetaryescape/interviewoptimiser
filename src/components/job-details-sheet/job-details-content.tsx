@@ -27,7 +27,33 @@ interface JobDetailsContentProps {
   onClose: () => void;
 }
 
-function JobDetailsContentComponent({ data, isLoading, error, onClose }: JobDetailsContentProps) {
+function areEqual(prevProps: JobDetailsContentProps, nextProps: JobDetailsContentProps): boolean {
+  // Check if loading state changed
+  if (prevProps.isLoading !== nextProps.isLoading) return false;
+
+  // Check if error state changed
+  if (prevProps.error !== nextProps.error) return false;
+
+  // Check if onClose function reference changed
+  if (prevProps.onClose !== nextProps.onClose) return false;
+
+  // Deep compare data objects
+  if (!prevProps.data && !nextProps.data) return true;
+  if (!prevProps.data || !nextProps.data) return false;
+
+  // Compare the entity structure
+  if (prevProps.data.sys.id !== nextProps.data.sys.id) return false;
+  if (prevProps.data.sys.updatedAt !== nextProps.data.sys.updatedAt) return false;
+
+  return true;
+}
+
+export const JobDetailsContent = React.memo(function JobDetailsContent({
+  data,
+  isLoading,
+  error,
+  onClose,
+}: JobDetailsContentProps) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -106,57 +132,4 @@ function JobDetailsContentComponent({ data, isLoading, error, onClose }: JobDeta
       <KeywordsSection keywords={data.data.keywords} />
     </motion.div>
   );
-}
-
-const jobDetailsContentPropsAreEqual = (
-  prevProps: JobDetailsContentProps,
-  nextProps: JobDetailsContentProps
-) => {
-  // Compare loading state
-  if (prevProps.isLoading !== nextProps.isLoading) return false;
-
-  // Compare error state
-  if (prevProps.error?.message !== nextProps.error?.message) return false;
-
-  // Compare onClose function reference
-  if (prevProps.onClose !== nextProps.onClose) return false;
-
-  // Deep compare data object
-  if (!prevProps.data && !nextProps.data) return true;
-  if (!prevProps.data || !nextProps.data) return false;
-
-  // Compare Entity wrapper properties
-  if (prevProps.data.status !== nextProps.data.status) return false;
-  if (prevProps.data.sys.id !== nextProps.data.sys.id) return false;
-  if (prevProps.data.sys.updatedAt !== nextProps.data.sys.updatedAt) return false;
-
-  // Compare JobDescription data
-  const prevJobData = prevProps.data.data;
-  const nextJobData = nextProps.data.data;
-
-  return (
-    prevJobData.role === nextJobData.role &&
-    prevJobData.company === nextJobData.company &&
-    prevJobData.location === nextJobData.location &&
-    prevJobData.employmentType === nextJobData.employmentType &&
-    prevJobData.seniority === nextJobData.seniority &&
-    prevJobData.industry === nextJobData.industry &&
-    JSON.stringify(prevJobData.responsibilities) === JSON.stringify(nextJobData.responsibilities) &&
-    JSON.stringify(prevJobData.requiredSkills) === JSON.stringify(nextJobData.requiredSkills) &&
-    JSON.stringify(prevJobData.requiredQualifications) ===
-      JSON.stringify(nextJobData.requiredQualifications) &&
-    JSON.stringify(prevJobData.requiredExperience) ===
-      JSON.stringify(nextJobData.requiredExperience) &&
-    JSON.stringify(prevJobData.preferredSkills) === JSON.stringify(nextJobData.preferredSkills) &&
-    JSON.stringify(prevJobData.preferredQualifications) ===
-      JSON.stringify(nextJobData.preferredQualifications) &&
-    JSON.stringify(prevJobData.benefits) === JSON.stringify(nextJobData.benefits) &&
-    JSON.stringify(prevJobData.keyTechnologies) === JSON.stringify(nextJobData.keyTechnologies) &&
-    JSON.stringify(prevJobData.keywords) === JSON.stringify(nextJobData.keywords)
-  );
-};
-
-export const JobDetailsContent = React.memo(
-  JobDetailsContentComponent,
-  jobDetailsContentPropsAreEqual
-);
+}, areEqual);

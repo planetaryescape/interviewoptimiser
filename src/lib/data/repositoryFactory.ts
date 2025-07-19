@@ -12,7 +12,7 @@ export async function getRepository<T extends { id?: number }>(
   } else if (typeof window !== "undefined" && window.indexedDB) {
     return await createIndexedDBRepository<T>(storeName);
   } else {
-    console.warn("IndexedDB is not supported. Falling back to LocalStorage.");
+    // IndexedDB is not supported. Falling back to LocalStorage.
     return new LocalStorageRepository<T>(storeName);
   }
 }

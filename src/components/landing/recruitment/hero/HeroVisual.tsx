@@ -47,10 +47,9 @@ export default function HeroVisual() {
           const data = await response.json();
           setAnimationData(data);
         } catch (fetchError) {
-          console.error("Failed to fetch animation data", fetchError);
+          // Failed to fetch animation data, will fall back to static visual
         }
       } catch (error) {
-        console.error("Failed to load animation data", error);
         // Animation data loading failed, we'll fall back to static visual
       }
     };

@@ -1,6 +1,7 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { kv } from "@vercel/kv";
 import type { NextRequest } from "next/server";
+import { logger } from "~/lib/logger";
 
 type Duration = `${number}${"ms" | "s" | "m" | "h" | "d"}`;
 
@@ -28,7 +29,7 @@ const rateLimitConfigs: Record<string, RateLimitConfig> = {
 
 const createRatelimit = (config: RateLimitConfig) => {
   if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
-    console.warn("Rate limiting disabled: KV_REST_API_URL and KV_REST_API_TOKEN not configured");
+    logger.warn("Rate limiting disabled: KV_REST_API_URL and KV_REST_API_TOKEN not configured");
     return null;
   }
 
@@ -108,7 +109,7 @@ export async function checkRateLimit(
       reset: result.reset,
     };
   } catch (error) {
-    console.error("Rate limiting error:", error);
+    logger.error({ error }, "Rate limiting error");
     return {
       success: true,
       limit: 0,

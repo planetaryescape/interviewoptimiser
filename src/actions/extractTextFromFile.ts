@@ -5,8 +5,7 @@ import * as Sentry from "@sentry/nextjs";
 import mammoth from "mammoth";
 import { logger } from "~/lib/logger";
 
-// @ts-expect-error TODO: fix this
-import * as pdf from "pdf-parse/lib/pdf-parse.js";
+import pdf from "pdf-parse";
 
 export async function extractTextFromFile(formData: FormData): Promise<string> {
   try {

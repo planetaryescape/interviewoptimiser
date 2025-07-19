@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { logger } from "~/lib/logger";
 import { config } from "../../../config";
 
 export const runtime = "edge";
@@ -169,7 +170,7 @@ export default async function GET() {
       }
     );
   } catch (error) {
-    console.error("Error generating Twitter image:", error);
+    logger.error({ error }, "Error generating Twitter image");
     return new Response("Failed to generate recruitment Twitter image", { status: 500 });
   }
 }

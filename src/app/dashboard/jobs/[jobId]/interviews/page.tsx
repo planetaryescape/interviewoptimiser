@@ -115,7 +115,6 @@ export default function JobReportsPage(props: {
   });
 
   const interviews = interviewsData?.data || [];
-  console.log("interviews:", interviews);
 
   const {
     data: jobData,

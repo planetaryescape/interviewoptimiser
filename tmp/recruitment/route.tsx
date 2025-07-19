@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { logger } from "~/lib/logger";
 import { config } from "../../config";
 
 export const contentType = "image/png";
@@ -197,7 +198,7 @@ export async function GET() {
       }
     );
   } catch (error) {
-    console.error("Error generating OG image:", error);
+    logger.error({ error }, "Error generating OG image");
     return new Response("Failed to generate recruitment OG image", { status: 500 });
   }
 }

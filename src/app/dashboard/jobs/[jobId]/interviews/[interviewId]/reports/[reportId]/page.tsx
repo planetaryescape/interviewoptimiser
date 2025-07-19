@@ -347,7 +347,6 @@ export default function JobReportPage(props: {
       });
     },
     onError: (error) => {
-      console.error("Error regenerating report:", error);
       toast.error("Failed to regenerate report. Please try again.");
 
       queryClient.invalidateQueries({

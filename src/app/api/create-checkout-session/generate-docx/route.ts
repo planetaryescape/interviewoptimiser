@@ -6,7 +6,6 @@ import { type NextRequest, NextResponse } from "next/server";
 import { config } from "~/config";
 import { logger } from "~/lib/logger";
 
-// @ts-expect-error TODO: Fix this
 import HTMLtoDOCX from "html-to-docx";
 
 export const runtime = "nodejs";

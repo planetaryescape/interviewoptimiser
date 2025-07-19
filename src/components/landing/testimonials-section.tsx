@@ -48,7 +48,6 @@ export function TestimonialsSection() {
   });
 
   if (error) {
-    console.error("Failed to load testimonials:", error);
     return null;
   }
 

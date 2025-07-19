@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import React, { type ErrorInfo, type ReactNode } from "react";
 
 interface Props {
@@ -18,7 +19,15 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Uncaught error:", error, errorInfo);
+    Sentry.withScope((scope) => {
+      scope.setContext("errorBoundary", {
+        isErrorBoundary: true,
+      });
+      scope.setContext("componentStack", {
+        stack: errorInfo.componentStack || "",
+      });
+      Sentry.captureException(error);
+    });
   }
 
   public render() {

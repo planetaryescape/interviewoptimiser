@@ -49,13 +49,13 @@ export function StartCall({
                 <Button
                   disabled={interviewEnded}
                   className={"z-50"}
-                  onClick={() => {
-                    connect()
-                      .then(() => {
-                        setInterviewStarted(true);
-                      })
-                      .catch(() => {})
-                      .finally(() => {});
+                  onClick={async () => {
+                    try {
+                      await connect();
+                      setInterviewStarted(true);
+                    } catch {
+                      // Connection error is handled by the connect function
+                    }
                   }}
                 >
                   <MessageCircle className="mr-2 h-4 w-4" />
