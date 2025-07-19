@@ -70,7 +70,7 @@ export const InterviewContainer = React.memo(function InterviewContainer({
           type: "session_settings",
           systemPrompt,
           context: {
-            text: createSessionContext(interview as any),
+            text: createSessionContext(interview),
             type: "persistent",
           },
         }}
