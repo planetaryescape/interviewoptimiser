@@ -20,6 +20,12 @@ const getGitCommitSha = () => {
 
 const release = getGitCommitSha(); // Determine release once
 
+/**
+ * Builds the specified service by bundling its code and preparing it for deployment.
+ *
+ * @param {string} functionName - The name of the function directory to build.
+ * @returns {Promise<void>}
+ */
 const buildService = async (functionName) => {
   const functionPath = path.join(functionsDir, functionName);
   const entryFile = path.join(functionPath, "index.ts");

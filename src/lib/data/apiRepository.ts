@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import type { Entity, EntityList } from "../utils/formatEntity";
 import { secureFetch } from "../utils/secure-fetch";
 import type { GenericRepository } from "./genericRepository";
@@ -47,6 +48,15 @@ export class ApiRepository<T extends { id?: number }> implements GenericReposito
       });
       return true;
     } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setContext("repository", {
+          storeName: this.storeName,
+          method: "delete",
+          id,
+        });
+        scope.setExtra("message", error instanceof Error ? error.message : "Unknown error");
+        Sentry.captureException(error);
+      });
       return false;
     }
   }

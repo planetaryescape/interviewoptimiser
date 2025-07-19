@@ -81,7 +81,12 @@ export function useToolbarState({
         rating: 5,
       });
     },
-    onError: (error) => {
+    onError: (error: unknown) => {
+      Sentry.withScope((scope) => {
+        scope.setExtra("reviewForm", reviewForm);
+        scope.setExtra("message", error instanceof Error ? error.message : "Unknown error");
+        Sentry.captureException(error);
+      });
       toast.error("Failed to submit review. Please try again later.");
     },
   });

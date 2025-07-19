@@ -1,4 +1,5 @@
 import useCustomisedSystemPrompt from "@/hooks/useCustomisedSystemPrompt";
+import { ApiError } from "@/lib/errors";
 import { idHandler } from "@/lib/utils/idHandler";
 import {
   useActiveInterview,
@@ -10,8 +11,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-
-const MIN_INTERVIEW_DURATION = 150; // 2.5 minutes
+import { MIN_INTERVIEW_DURATION_SECONDS } from "./constants";
 
 interface UseInterviewLogicProps {
   jobId: string;
@@ -68,7 +68,7 @@ export function useInterviewLogic({ jobId, interviewId }: UseInterviewLogicProps
       });
 
       if (!response.ok) {
-        throw new Error("Failed to initiate audio reconstruction");
+        throw new ApiError("Failed to initiate audio reconstruction", response.status);
       }
 
       return response.json();
@@ -105,7 +105,7 @@ export function useInterviewLogic({ jobId, interviewId }: UseInterviewLogicProps
       });
 
       if (!response.ok) {
-        throw new Error("Failed to generate report");
+        throw new ApiError("Failed to generate report", response.status);
       }
 
       return response.json();
@@ -141,7 +141,7 @@ export function useInterviewLogic({ jobId, interviewId }: UseInterviewLogicProps
       const actualTimeInSeconds =
         (activeInterview?.actualTime || interview?.data.actualTime || 0) * 60;
 
-      if (actualTimeInSeconds < MIN_INTERVIEW_DURATION) {
+      if (actualTimeInSeconds < MIN_INTERVIEW_DURATION_SECONDS) {
         setIsInterviewTooShort(true);
       } else {
         generateReportMutation.mutate();
