@@ -1,27 +1,18 @@
+import type { Entity } from "@/lib/utils/formatEntity";
 import { formatInterviewType } from "@/utils/formatters/format-interview-type";
-import type { InterviewType } from "~/db/schema/interviews";
+import type { InferResultType } from "~/db/helpers";
+import type { CandidateDetails, InterviewType, JobDescription } from "~/db/schema";
 
-interface InterviewData {
-  duration: number;
-  actualTime?: number | null;
-  type?: InterviewType | null;
-  keyQuestions?: string[] | null;
+type InterviewWithJobDescriptionAndCandidateDetails = InferResultType<"interviews"> & {
   job: {
-    candidateDetails: {
-      name: string;
-    };
-    jobDescription: {
-      role: string;
-      company: string;
-    };
+    jobDescription: JobDescription;
+    candidateDetails: CandidateDetails;
   };
-}
+};
 
-interface Interview {
-  data: InterviewData;
-}
-
-export function createSessionContext(interview: Interview | undefined | null) {
+export function createSessionContext(
+  interview: Entity<InterviewWithJobDescriptionAndCandidateDetails> | undefined | null
+) {
   if (!interview?.data) return "";
 
   const { duration, actualTime, type, job, keyQuestions } = interview.data;

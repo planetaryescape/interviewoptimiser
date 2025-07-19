@@ -1,7 +1,7 @@
 import { useUser } from "@clerk/nextjs";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import type { PageSettings } from "~/db/schema";
 import type { ReviewFormData } from "../review-form";
@@ -98,20 +98,42 @@ export function useToolbarState({
     submitReview(reviewForm);
   }, [submitReview, reviewForm]);
 
+  // Memoize the validated page settings to avoid redundant type assertions
+  const validatedPageSettings = useMemo(() => {
+    if (!pageSettings) return null;
+
+    return {
+      paperSize: pageSettings.paperSize as keyof typeof paperSizes | undefined,
+      marginSize: pageSettings.marginSize as keyof typeof marginSizes | undefined,
+      bodyFont: pageSettings.bodyFont,
+      headingFont: pageSettings.headingFont,
+    };
+  }, [pageSettings]);
+
+  // Split into separate effects for better performance
   useEffect(() => {
-    if (pageSettings?.paperSize) {
-      setPaperSize(pageSettings.paperSize as keyof typeof paperSizes);
+    if (validatedPageSettings?.paperSize) {
+      setPaperSize(validatedPageSettings.paperSize);
     }
-    if (pageSettings?.marginSize) {
-      setMarginSize(pageSettings.marginSize as keyof typeof marginSizes);
+  }, [validatedPageSettings?.paperSize, setPaperSize]);
+
+  useEffect(() => {
+    if (validatedPageSettings?.marginSize) {
+      setMarginSize(validatedPageSettings.marginSize);
     }
-    if (pageSettings?.bodyFont) {
-      setBodyFont(pageSettings.bodyFont);
+  }, [validatedPageSettings?.marginSize, setMarginSize]);
+
+  useEffect(() => {
+    if (validatedPageSettings?.bodyFont) {
+      setBodyFont(validatedPageSettings.bodyFont);
     }
-    if (pageSettings?.headingFont) {
-      setHeadingFont(pageSettings.headingFont);
+  }, [validatedPageSettings?.bodyFont, setBodyFont]);
+
+  useEffect(() => {
+    if (validatedPageSettings?.headingFont) {
+      setHeadingFont(validatedPageSettings.headingFont);
     }
-  }, [pageSettings, setPaperSize, setMarginSize, setBodyFont, setHeadingFont]);
+  }, [validatedPageSettings?.headingFont, setHeadingFont]);
 
   useEffect(() => {
     if ((user?.firstName || user?.lastName) && isReviewDialogOpen) {
