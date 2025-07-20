@@ -1,5 +1,6 @@
 import PurchaseNotificationEmail from "@/emails/purchase-notification";
 import { createDefaultApiRouteContext } from "@/lib/createDefaultApiRouteContext";
+import { parseIdParam } from "@/lib/utils";
 import { formatEmptyEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
 import { eq, sql } from "drizzle-orm";
@@ -84,11 +85,22 @@ export async function POST(request: Request) {
       }
 
       const minutes = lineItems.data.reduce((acc, lineItem) => {
-        const minutes = Number.parseInt(
-          (lineItem.price?.product as Stripe.Product)?.metadata.minutes
-        );
-        const quantity = lineItem.quantity || 0;
+        const minutesString = (lineItem.price?.product as Stripe.Product)?.metadata.minutes;
 
+        if (!minutesString) {
+          logger.warn({ lineItem }, "No minutes metadata found for line item");
+          return acc;
+        }
+
+        let minutes: number;
+        try {
+          minutes = parseIdParam(minutesString, "minutes");
+        } catch (error) {
+          logger.error({ minutesString, error }, "Failed to parse minutes from metadata");
+          return acc;
+        }
+
+        const quantity = lineItem.quantity || 0;
         return acc + minutes * quantity;
       }, 0);
 

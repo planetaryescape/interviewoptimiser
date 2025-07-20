@@ -1,6 +1,7 @@
 import { InvitationEmail } from "@/emails/invitation";
 import { getUserFromEmail } from "@/lib/auth";
 import { withAuth } from "@/lib/auth-middleware";
+import { parseIdParam } from "@/lib/utils";
 import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
 import { addDays, format, isPast } from "date-fns";
@@ -25,7 +26,18 @@ export const GET = withAuth(
 
       const url = new URL(request.url);
 
-      const organizationId = Number.parseInt(url.searchParams.get("organizationId") ?? "");
+      let organizationId: number;
+      try {
+        organizationId = parseIdParam(url.searchParams.get("organizationId"), "organizationId");
+      } catch (error) {
+        logger.warn({ error }, "Invalid organizationId format");
+        return NextResponse.json(
+          formatErrorEntity(error instanceof Error ? error.message : "Invalid organizationId"),
+          {
+            status: 400,
+          }
+        );
+      }
 
       const userInvitations = await db
         .select()
