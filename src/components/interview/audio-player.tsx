@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Download, FastForward, Pause, Play, Rewind, Volume2, VolumeX } from "lucide-react";
+import * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 
@@ -9,7 +10,7 @@ import { Button } from "../ui/button";
  * @param audioUrl - The URL of the audio file to play.
  * @param disabled - If true, the player is visually disabled and non-interactive.
  */
-export function AudioPlayer({
+export const AudioPlayer = React.memo(function AudioPlayer({
   audioUrl,
   disabled,
 }: {
@@ -311,4 +312,4 @@ export function AudioPlayer({
       </audio>
     </section>
   );
-}
+});

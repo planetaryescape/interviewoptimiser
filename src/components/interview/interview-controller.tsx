@@ -21,11 +21,12 @@ import { useVoice } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
+import * as React from "react";
 import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import type { User } from "~/db/schema";
 
-export function InterviewController() {
+export const InterviewController = React.memo(function InterviewController() {
   const params = useParams();
   const queryClient = useQueryClient();
   const lastDecrementTimeRef = useRef<number>(0);
@@ -313,4 +314,4 @@ export function InterviewController() {
   ]);
 
   return null; // Controller component doesn't render anything
-}
+});
