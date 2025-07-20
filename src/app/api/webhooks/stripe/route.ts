@@ -1,6 +1,6 @@
 import PurchaseNotificationEmail from "@/emails/purchase-notification";
 import { createDefaultApiRouteContext } from "@/lib/createDefaultApiRouteContext";
-import { parseIdParam } from "@/lib/utils";
+import { parsePositiveInteger } from "@/lib/utils";
 import { formatEmptyEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
 import { eq, sql } from "drizzle-orm";
@@ -23,14 +23,9 @@ export async function POST(request: Request) {
     const signature = (await headers()).get("stripe-signature");
 
     if (!signature) {
-      return NextResponse.json(
-        formatErrorEntity({
-          error: "No signature provided",
-        }),
-        {
-          status: 400,
-        }
-      );
+      return NextResponse.json(formatErrorEntity("No signature provided"), {
+        status: 400,
+      });
     }
 
     const body = await request.text();
@@ -94,7 +89,7 @@ export async function POST(request: Request) {
 
         let minutes: number;
         try {
-          minutes = parseIdParam(minutesString, "minutes");
+          minutes = parsePositiveInteger(minutesString, "minutes", true);
         } catch (error) {
           logger.error({ minutesString, error }, "Failed to parse minutes from metadata");
           return acc;
