@@ -6,7 +6,7 @@ import { db } from "~/db";
 import { interviews, jobs, reports } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 /**
  * Calculates all average scores for a given set of report IDs in a single query.
