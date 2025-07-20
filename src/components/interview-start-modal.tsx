@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/compone
 import { motion } from "framer-motion";
 import { CheckCircle2, Loader2, MessageSquare, Mic, Pause, Volume2, XCircle } from "lucide-react";
 import Link from "next/link";
+import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
 
 type InterviewStartModalProps = {
@@ -25,7 +26,7 @@ type PermissionError =
   | "not_supported"
   | "unknown";
 
-export function InterviewStartModal({
+export const InterviewStartModal = React.memo(function InterviewStartModal({
   isOpen,
   onClose,
   onStart,
@@ -324,4 +325,4 @@ export function InterviewStartModal({
       </DialogContent>
     </Dialog>
   );
-}
+});
