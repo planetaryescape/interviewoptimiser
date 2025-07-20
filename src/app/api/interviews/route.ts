@@ -1,4 +1,5 @@
 import { withAuth } from "@/lib/auth-middleware";
+import { parseIdParam } from "@/lib/utils";
 import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
@@ -119,8 +120,21 @@ export const GET = withAuth(
       }
 
       // Check if the job exists and belongs to the user
+      let parsedJobId: number;
+      try {
+        parsedJobId = parseIdParam(jobId, "jobId");
+      } catch (error) {
+        logger.warn({ jobId, error }, "Invalid jobId format");
+        return NextResponse.json(
+          formatErrorEntity(error instanceof Error ? error.message : "Invalid jobId"),
+          {
+            status: 400,
+          }
+        );
+      }
+
       const job = await db.query.jobs.findFirst({
-        where: eq(jobs.id, Number.parseInt(jobId)),
+        where: eq(jobs.id, parsedJobId),
       });
 
       if (!job) {
@@ -138,7 +152,7 @@ export const GET = withAuth(
       }
 
       const returnedInterviews = await db.query.interviews.findMany({
-        where: eq(interviews.jobId, Number.parseInt(jobId)),
+        where: eq(interviews.jobId, parsedJobId),
       });
 
       if (!returnedInterviews) {
