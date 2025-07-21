@@ -89,7 +89,7 @@ export async function POST(request: Request) {
 
         let minutes: number;
         try {
-          minutes = parsePositiveInteger(minutesString, "minutes", true);
+          minutes = parsePositiveInteger(minutesString, "minutes", false);
         } catch (error) {
           logger.error({ minutesString, error }, "Failed to parse minutes from metadata");
           return acc;
