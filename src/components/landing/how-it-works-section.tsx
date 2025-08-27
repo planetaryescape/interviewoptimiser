@@ -7,51 +7,51 @@ import Image from "next/image";
 export function HowItWorksSection() {
   const steps = [
     {
-      title: "Upload Your Details",
+      title: "Tell Us About Your Dream Job (30 seconds)",
       description:
-        "Start by sharing your CV and target job description. This allows our AI to tailor the interview experience to your specific career goals and desired role.",
+        "Drop in your CV and the job you want. We'll instantly know exactly what questions they'll ask and what answers they're looking for—no more guessing.",
       gifSrc: "/images/cvjobsubmit.gif",
       alt: "Upload CV and job description process",
       features: [
-        "Upload PDF or Word documents",
-        "Paste your content directly",
-        "AI tailors experience to your goals",
+        "Works with any document format",
+        "Instantly ready—no setup required",
+        "Get the exact questions for YOUR role",
       ],
     },
     {
-      title: "Choose Your Interview Style",
+      title: "Pick What You Need to Practice (10 seconds)",
       description:
-        "Select the interview type that suits you best—whether it's behavioural, technical, or situational—and set the duration to fit your preparation needs.",
+        "Focus on what matters to you. Struggling with behavioral questions? Need to nail technical discussions? Choose what to practice and skip what you don't need.",
       gifSrc: "/images/interview-settings.gif",
       alt: "Choose interview settings",
       features: [
-        "Behavioural, technical, or situational",
-        "Adjustable interview durations",
-        "Customise to your preparation needs",
+        "Practice only what you need",
+        "Short 15-min or full 60-min sessions",
+        "Skip the stuff you already know",
       ],
     },
     {
-      title: "Get a Realistic, Adaptive Interview",
+      title: "Have a Real Conversation (Not a Quiz)",
       description:
-        "Experience a true-to-life interview simulation where our AI interacts with you in real-time, adapting to your responses and providing live voice-to-voice feedback.",
+        "Talk naturally, like you will on interview day. No typing, no scripts—just speak. The interviewer responds to YOU, not generic answers, making every practice unique.",
       gifSrc: "/images/interview-settings.gif",
       alt: "Live interview process",
       features: [
-        "Realistic voice-to-voice interaction",
-        "Adaptive questioning based on responses",
-        "Live feedback during the simulation",
+        "Speak naturally, no typing required",
+        "Get follow-ups based on YOUR answers",
+        "Feel the real interview pressure (safely)",
       ],
     },
     {
-      title: "Analyse and Refine Your Performance",
+      title: "Know Exactly How to Improve (Instantly)",
       description:
-        "After the session, receive a comprehensive feedback report, featuring insights into your strengths, areas for improvement, and actionable tips to help you refine your responses.",
+        "See exactly what impressed the interviewer and what didn't. Get specific fixes you can apply immediately—no vague feedback like 'be more confident.'",
       gifSrc: "/images/report.gif",
       alt: "Interview performance report",
       features: [
-        "Comprehensive performance metrics",
-        "Detailed feedback & improvement tips",
-        "Actionable insights to refine responses",
+        "See your exact words that worked",
+        "Fix specific issues before they matter",
+        "Track your improvement over time",
       ],
     },
   ];
@@ -75,14 +75,14 @@ export function HowItWorksSection() {
           className="mb-16 md:mb-24 text-center"
         >
           <div className="inline-block mb-4 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
-            Streamlined Process
+            Ready in Under 5 Minutes
           </div>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-4">
-            How Interview Optimiser Works
+            From Nervous to Interview-Ready in 4 Simple Steps
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-            Follow these simple steps to transform your interview preparation and gain a competitive
-            edge.
+            No complex setup. No generic questions. Just real practice that gets you hired. 
+            Most users feel confident after just one session.
           </p>
         </motion.div>
 
