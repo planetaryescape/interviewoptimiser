@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Play, Sparkles } from "lucide-react";
+import { ArrowRight, Play, Sparkles, CheckCircle2, Clock, Trophy, Shield } from "lucide-react";
 import { useTheme } from "next-themes";
 import { unstable_noStore as noStore } from "next/cache";
 import Link from "next/link";
@@ -117,21 +117,20 @@ export function Hero() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20 mx-auto">
               <Sparkles size={16} className="animate-pulse" />
-              <span className="text-sm font-medium">AI-Powered Interview Mastery</span>
+              <span className="text-sm font-medium">Land Your Dream Job 3x Faster</span>
             </div>
 
             {/* Headline and copy */}
             <div className="space-y-6 max-w-6xl mx-auto">
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground">
-                Real Voice AI Interviews with{" "}
+                Walk Into Any Interview With{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-pink-500">
-                  Emotional Intelligence
+                  Unshakeable Confidence
                 </span>
               </h1>
               <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto">
-                Experience true-to-life interview practice with voice-to-voice AI that adapts to
-                your responses, analyzes your delivery, and provides personalized feedback on both
-                what you say and how you say it.
+                Practice with an interviewer who knows exactly what hiring managers want to hear. 
+                Get hired in weeks, not months—while others are still sending resumes.
               </p>
             </div>
 
@@ -146,7 +145,7 @@ export function Hero() {
               >
                 {userId ? (
                   <Link href="/dashboard/create" className="inline-flex items-center gap-2">
-                    Start Mock Interview
+                    Start Your Practice Interview Now
                     <ArrowRight
                       className={cn(
                         "w-4 h-4 transition-transform duration-300",
@@ -156,7 +155,7 @@ export function Hero() {
                   </Link>
                 ) : (
                   <Link href="/sign-up" className="inline-flex items-center gap-2">
-                    Try For Free
+                    Get Interview-Ready Today
                     <ArrowRight
                       className={cn(
                         "w-4 h-4 transition-transform duration-300",
@@ -174,9 +173,29 @@ export function Hero() {
               >
                 <Link href="#how-it-works" className="inline-flex items-center gap-2">
                   <Play className="h-4 w-4" />
-                  See How It Works
+                  Watch 2-Min Demo
                 </Link>
               </Button>
+            </div>
+
+            {/* Value Props - What You Get */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8 max-w-4xl mx-auto">
+              <div className="flex items-center gap-2 justify-center text-muted-foreground">
+                <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
+                <span className="text-sm">No More Interview Anxiety</span>
+              </div>
+              <div className="flex items-center gap-2 justify-center text-muted-foreground">
+                <Clock className="h-5 w-5 text-primary flex-shrink-0" />
+                <span className="text-sm">Ready in 30 Minutes</span>
+              </div>
+              <div className="flex items-center gap-2 justify-center text-muted-foreground">
+                <Trophy className="h-5 w-5 text-primary flex-shrink-0" />
+                <span className="text-sm">85% Pass Their Interviews</span>
+              </div>
+              <div className="flex items-center gap-2 justify-center text-muted-foreground">
+                <Shield className="h-5 w-5 text-primary flex-shrink-0" />
+                <span className="text-sm">Know What They&apos;ll Ask</span>
+              </div>
             </div>
 
             {/* Social Proof */}
