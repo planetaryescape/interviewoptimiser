@@ -5,19 +5,19 @@ export function DifferentiatorsSection() {
   const differentiators = [
     {
       icon: Mic,
-      title: "Real Voice-to-Voice Interaction",
-      description: `Unlike other platforms, ${config.projectName} offers an authentic, real-time, voice-to-voice interview experience where you actually speak and receive spoken responses. Our platform adapts in real time, creating a true-to-life simulation of an in-person interview.`,
+      title: "No More Typing—Speak Like You Will in the Interview",
+      description: `Stop typing answers into text boxes. Practice exactly how you'll perform on interview day—with your voice. You'll walk in knowing your answers flow naturally, not stumbling over words you've only typed before.`,
     },
     {
       icon: Brain,
-      title: "Emotional and Prosody Analysis",
-      description: `We go beyond just assessing your answers—${config.projectName} analyses how you deliver them. Using AI-powered prosody analysis, we evaluate key aspects like confidence, clarity, and concentration, providing a complete picture of your communication skills.`,
+      title: "Fix Your Nervous Habits Before They Notice",
+      description: `Discover if you're speaking too fast, using too many filler words, or sounding uncertain—issues that lose you jobs but no one tells you about. Get specific coaching on your tone, pace, and confidence so you sound like the professional you are.`,
     },
     {
       icon: Target,
-      title: "Adaptive and Personalised Feedback",
+      title: "Practice for YOUR Job, Not Generic Questions",
       description:
-        "Our interviews adjust dynamically based on your responses, providing tailored questions specific to your role and industry. Post-interview, receive in-depth feedback on both your answers and delivery, helping you improve in real, practical ways.",
+        "Stop wasting time on irrelevant questions. Get interview scenarios tailored to your exact industry, experience level, and target role. Know you're prepared for what they'll actually ask, not what some generic guide suggests.",
     },
   ];
 
@@ -26,7 +26,7 @@ export function DifferentiatorsSection() {
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-16">
           <h2 className="text-style-h2 text-foreground mb-4">
-            What Sets <span className="text-primary">{config.projectName}</span> Apart?
+            Why You&apos;ll Actually <span className="text-primary">Pass Your Interview</span>
           </h2>
           <div className="w-24 h-1 bg-primary mx-auto rounded-full" />
         </div>
