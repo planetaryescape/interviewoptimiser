@@ -9,7 +9,7 @@ import { jobs, reports } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export const GET = withAuth<{ jobId: string; reportId: string }>(
-  async (request, { user, params }) => {
+  async (_request, { user, params }) => {
     try {
       const jobId = idHandler.decode(params!.jobId);
       const reportId = idHandler.decode(params!.reportId);

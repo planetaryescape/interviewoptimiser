@@ -1,5 +1,4 @@
 import { Brain, Mic, Target } from "lucide-react";
-import { config } from "~/config";
 
 export function DifferentiatorsSection() {
   const differentiators = [
@@ -32,7 +31,7 @@ export function DifferentiatorsSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-          {differentiators.map((item, index) => (
+          {differentiators.map((item, _index) => (
             <div
               key={item.title}
               className="relative group bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 transition-all duration-300 hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-1 dark:border dark:border-gray-800"

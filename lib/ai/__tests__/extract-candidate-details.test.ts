@@ -1,9 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { extractCandidateDetails } from "../extract-candidate-details";
-import { mockCV, mockOptimiseModel, mockUsage } from "./test-utils";
-
 // Import the actual modules but spy on the functions
 import { logger } from "~/lib/logger";
+import { extractCandidateDetails } from "../extract-candidate-details";
+import { mockCV, mockOptimiseModel, mockUsage } from "./test-utils";
 
 // Spy on the logger functions
 vi.spyOn(logger, "info");

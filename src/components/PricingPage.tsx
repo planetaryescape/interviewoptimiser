@@ -56,7 +56,7 @@ export async function PricingPlans() {
                 </span>
               )}
               <ul className="mt-6 space-y-4">
-                {product.marketing_features?.map((feature, featureIndex) => (
+                {product.marketing_features?.map((feature, _featureIndex) => (
                   <li key={feature.name} className="grid grid-cols-[30px_1fr] items-center">
                     <Check className="h-5 w-5 text-green-500 mr-2" />
                     <span>{feature.name}</span>

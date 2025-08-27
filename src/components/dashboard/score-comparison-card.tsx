@@ -20,7 +20,7 @@ export const ScoreComparisonCard = ({
   className,
 }: ScoreComparisonCardProps) => {
   const trend = last3Score > allTimeScore ? "up" : last3Score < allTimeScore ? "down" : "neutral";
-  const difference = Math.abs(last3Score - allTimeScore);
+  const _difference = Math.abs(last3Score - allTimeScore);
   const percentageDifference =
     allTimeScore !== 0
       ? ((last3Score - allTimeScore) / allTimeScore) * 100

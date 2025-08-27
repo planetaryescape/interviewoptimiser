@@ -49,7 +49,7 @@ const initialState: ActiveInterviewState = {
 };
 
 export const useActiveInterviewStore = create(
-  devtools<ActiveInterviewState & { actions: ActiveInterviewActions }>((set, get) => ({
+  devtools<ActiveInterviewState & { actions: ActiveInterviewActions }>((set, _get) => ({
     ...initialState,
     actions: {
       setCallDurationTimestamp: (timestamp: string | null) =>

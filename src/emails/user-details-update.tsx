@@ -15,11 +15,7 @@ import {
 import { Tailwind } from "@react-email/tailwind";
 import { config } from "~/config";
 
-export const UserDetailsUpdatedEmail = ({
-  firstName,
-}: {
-  firstName?: string;
-}) => {
+export const UserDetailsUpdatedEmail = ({ firstName }: { firstName?: string }) => {
   return (
     <Html>
       <Head />

@@ -10,7 +10,7 @@ import { interviews, jobs, reports } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export const GET = withAuth<{ jobId: string }>(
-  async (request, { user, params }) => {
+  async (_request, { user, params }) => {
     try {
       const jobId = idHandler.decode(params!.jobId);
 
@@ -124,7 +124,7 @@ export const PUT = withAuth<{ jobId: string }>(
 );
 
 export const DELETE = withAuth<{ jobId: string }>(
-  async (request, { user, params }) => {
+  async (_request, { user, params }) => {
     try {
       const jobId = idHandler.decode(params!.jobId);
 

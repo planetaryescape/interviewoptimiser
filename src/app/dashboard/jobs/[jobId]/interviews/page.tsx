@@ -65,7 +65,7 @@ const SCORE_KEYS: (keyof FetchedReportPartial)[] = [
 ] as const;
 
 // Add this function to aggregate prosody data (similar to the one in the report page)
-function aggregateProsodyData(transcript: string) {
+function _aggregateProsodyData(transcript: string) {
   const messages = JSON.parse(transcript || "[]");
 
   const prosodyTotals: { [key: string]: number } = {};
@@ -91,9 +91,7 @@ function aggregateProsodyData(transcript: string) {
   return result;
 }
 
-export default function JobReportsPage(props: {
-  params: Promise<{ jobId: string }>;
-}) {
+export default function JobReportsPage(props: { params: Promise<{ jobId: string }> }) {
   const { jobId } = use(props.params);
   const router = useRouter();
   const [isOutOfMinutesDialogOpen, setIsOutOfMinutesDialogOpen] = useState(false);
@@ -211,7 +209,7 @@ export default function JobReportsPage(props: {
       };
     }, [interviews]);
 
-  const chartData = useMemo(() => {
+  const _chartData = useMemo(() => {
     if (!interviews.length) return [];
 
     const prepared = interviews

@@ -15,7 +15,7 @@ export function CSRFProvider({ children }: CSRFProviderProps) {
           method: "GET",
           credentials: "include",
         });
-      } catch (error) {
+      } catch (_error) {
         // CSRF token initialization failed silently
       }
     };

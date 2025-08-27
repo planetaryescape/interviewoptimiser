@@ -17,7 +17,7 @@ export function DevelopmentRecommendations({ report, headingFont }: ReportDataPr
       </h2>
       <div className="px-8">
         <ol className="space-y-5 list-decimal pl-5 counter-reset text-slate-700">
-          {JSON.parse(report.data.actionableNextSteps).map((step: string, index: number) => (
+          {JSON.parse(report.data.actionableNextSteps).map((step: string, _index: number) => (
             <li key={step} className="pl-2 text-sm">
               <p className="leading-relaxed">{step}</p>
             </li>

@@ -1,14 +1,8 @@
-import {
-  generateCSRFToken,
-  getCSRFToken,
-  isCSRFExemptPath,
-  isCSRFProtectedMethod,
-  setCSRFCookie,
-} from "@/lib/csrf";
+import { getCSRFToken, isCSRFExemptPath, isCSRFProtectedMethod } from "@/lib/csrf";
 import { checkRateLimit, getRateLimitCategory } from "@/lib/rate-limit";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 const isProtectedRoute = createRouteMatcher(["/dashboard(.*)", "/account(.*)"]);
 const isApiRoute = createRouteMatcher(["/api(.*)"]);

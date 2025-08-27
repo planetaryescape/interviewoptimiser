@@ -42,7 +42,7 @@ export default function BlackFridayCheckout() {
         toast.error("Error creating checkout session");
       }
     },
-    onError: (error) => {
+    onError: (_error) => {
       toast.error("Failed to create checkout session. Please try again.");
     },
   });

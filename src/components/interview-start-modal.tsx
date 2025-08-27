@@ -74,7 +74,7 @@ export const InterviewStartModal = React.memo(function InterviewStartModal({
           setPermissionError("denied");
         }
       });
-    } catch (error) {
+    } catch (_error) {
       if (!isSecureContext()) {
         setPermissionError("not_secure");
       } else {

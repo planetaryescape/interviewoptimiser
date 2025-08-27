@@ -9,7 +9,7 @@ import { interviews } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export const GET = withAuth<{ id: string }>(
-  async (request, { user, params }) => {
+  async (_request, { user, params }) => {
     try {
       const { role } = user;
       if (!user.id) {
@@ -140,7 +140,7 @@ export const PUT = withAuth<{ id: string }>(
 );
 
 export const DELETE = withAuth<{ id: string }>(
-  async (request, { user, params }) => {
+  async (_request, { user, params }) => {
     try {
       const { role } = user;
       if (!user.id) {

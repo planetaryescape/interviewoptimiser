@@ -21,8 +21,8 @@ vi.mock("~/lib/logger", () => ({
 
 import { auth, getAuth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { getUserFromClerkId, invalidateUserCache } from "./auth";
+import { beforeEach, describe, expect, it } from "vitest";
+import { getUserFromClerkId } from "./auth";
 import { withAuth, withAuthAsync } from "./auth-middleware";
 
 describe("auth-middleware", () => {
@@ -151,7 +151,7 @@ describe("auth-middleware", () => {
       const handler = vi.fn().mockResolvedValue(NextResponse.json({ success: true }));
       const wrappedHandler = withAuth(handler);
 
-      const response = await wrappedHandler(mockRequest, {
+      const _response = await wrappedHandler(mockRequest, {
         params: Promise.resolve(mockParams),
       });
 
@@ -288,7 +288,7 @@ describe("auth-middleware", () => {
 
       const handler = vi.fn().mockResolvedValue(NextResponse.json({ success: true }));
 
-      const response = await withAuthAsync(handler, mockRequest, {
+      const _response = await withAuthAsync(handler, mockRequest, {
         params: Promise.resolve(mockParams),
       });
 

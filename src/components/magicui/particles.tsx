@@ -73,7 +73,7 @@ const Particles: React.FC<ParticlesProps> = ({
   const context = useRef<CanvasRenderingContext2D | null>(null);
   const circles = useRef<Circle[]>([]);
   const mousePosition = MousePosition();
-  const mouse = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const _mouse = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const canvasSize = useRef<{ w: number; h: number }>({ w: 0, h: 0 });
   const dpr = typeof window !== "undefined" ? window.devicePixelRatio : 1;
   const mouseMoved = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -129,7 +129,7 @@ const Particles: React.FC<ParticlesProps> = ({
     magnetism: number;
   };
 
-  const resizeCanvas = () => {
+  const _resizeCanvas = () => {
     if (canvasContainerRef.current && canvasRef.current && context.current) {
       circles.current.length = 0;
       canvasSize.current.w = canvasContainerRef.current.offsetWidth;
@@ -191,7 +191,7 @@ const Particles: React.FC<ParticlesProps> = ({
     }
   };
 
-  const drawParticles = () => {
+  const _drawParticles = () => {
     clearContext();
     const particleCount = quantity;
     for (let i = 0; i < particleCount; i++) {
@@ -211,7 +211,7 @@ const Particles: React.FC<ParticlesProps> = ({
     return remapped > 0 ? remapped : 0;
   };
 
-  const animate = () => {
+  const _animate = () => {
     clearContext();
     circles.current.forEach((circle: Circle, i: number) => {
       // Handle the alpha value
@@ -255,7 +255,7 @@ const Particles: React.FC<ParticlesProps> = ({
         // update the circle position
       }
     });
-    window.requestAnimationFrame(animate);
+    window.requestAnimationFrame(_animate);
   };
 
   return (

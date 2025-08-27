@@ -6,7 +6,7 @@ import Step3InterviewQuestions from "@/components/recruitment/create/Step3Interv
 import type { StepConfig } from "@/components/ui/stepper/step-indicator";
 import { StepperContentArea } from "@/components/ui/stepper/stepper-content-area";
 import { useRecruitmentCreateStore } from "@/stores/recruitmentCreateStore";
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const TOTAL_STEPS = 3;
 
@@ -91,7 +91,7 @@ const RecruitmentCreatePage = () => {
     alert("Recruitment flow setup finished! (Console for details)");
   };
 
-  const progressValue = (currentStep / TOTAL_STEPS) * 100;
+  const _progressValue = (currentStep / TOTAL_STEPS) * 100;
 
   // Map step content
   const stepContent = {

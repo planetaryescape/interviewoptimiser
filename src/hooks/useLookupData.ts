@@ -1,4 +1,4 @@
-import type { Entity, EntityList } from "@/lib/utils/formatEntity";
+import type { EntityList } from "@/lib/utils/formatEntity";
 import { useQuery } from "@tanstack/react-query";
 
 interface LookupItem {

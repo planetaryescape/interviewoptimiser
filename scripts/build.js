@@ -12,7 +12,7 @@ const terraformDir = path.resolve(__dirname, "../terraform");
 const getGitCommitSha = () => {
   try {
     return execSync("git rev-parse HEAD").toString().trim();
-  } catch (e) {
+  } catch (_e) {
     console.warn("Could not get git commit SHA. Sentry release might not be set correctly.");
     return undefined;
   }
@@ -57,7 +57,7 @@ const buildService = async (functionName) => {
           finalize: true, // Finalize the release after uploading artifacts
           debug: true, // Enable debug logging from the plugin
           telemetry: false,
-          errorHandler: (err, invocation) => {
+          errorHandler: (err, _invocation) => {
             // Add error handler for plugin issues
             console.error(`Sentry Esbuild Plugin Error for ${functionName}:`, err.message);
             // Optionally, you can re-throw or exit to fail the build

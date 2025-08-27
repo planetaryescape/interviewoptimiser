@@ -4,7 +4,7 @@ import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { type NextRequest, NextResponse } from "next/server";
 import { logger } from "~/lib/logger";
 
-export const GET = withAuth(async (request: NextRequest, { user }) => {
+export const GET = withAuth(async (_request: NextRequest, { user }) => {
   try {
     // Only allow admins to access this endpoint
     if (user.role !== "admin") {

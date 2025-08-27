@@ -55,14 +55,6 @@ import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMeasure } from "@uidotdev/usehooks";
 import "easymde/dist/easymde.min.css";
-import saveAs from "file-saver";
-import { FileSearch } from "lucide-react";
-import Link from "next/link";
-import { use, useState } from "react";
-import { toast } from "sonner";
-import type { InferResultType } from "~/db/helpers";
-import type { Interview, Job, PageSettings, QuestionAnalysis } from "~/db/schema";
-
 import { CommunicationAnalysis } from "@/components/report/communication-analysis";
 import { CompetencyAssessment } from "@/components/report/competency-assessment";
 import { DevelopmentRecommendations } from "@/components/report/development-recommendations";
@@ -73,6 +65,13 @@ import { ReportFooter } from "@/components/report/report-footer";
 // Import components
 import { ReportHeader } from "@/components/report/report-header";
 import { TranscriptSection } from "@/components/report/transcript-section";
+import saveAs from "file-saver";
+import { FileSearch } from "lucide-react";
+import Link from "next/link";
+import { use, useState } from "react";
+import { toast } from "sonner";
+import type { InferResultType } from "~/db/helpers";
+import type { Interview, Job, PageSettings, QuestionAnalysis } from "~/db/schema";
 
 type ReportWithPageSettings = InferResultType<
   "reports",
@@ -346,7 +345,7 @@ export default function JobReportPage(props: {
         description: "Your report will be regenerated shortly.",
       });
     },
-    onError: (error) => {
+    onError: (_error) => {
       toast.error("Failed to regenerate report. Please try again.");
 
       queryClient.invalidateQueries({

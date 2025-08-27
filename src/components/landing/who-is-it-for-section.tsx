@@ -35,7 +35,7 @@ export function WhoIsItForSection() {
           Choose the perfect practice duration to fit your schedule and preparation needs.
         </p>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {plans.map((plan, index) => (
+          {plans.map((plan, _index) => (
             <div key={plan.duration} className="bg-white p-6 rounded-lg shadow-md">
               <h3 className="text-xl font-semibold mb-2">{plan.duration}</h3>
               <p className="mb-4">{plan.description}</p>

@@ -4,13 +4,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { AutoSizer } from "react-virtualized";
 
-export function MicFFT({
-  fft,
-  className,
-}: {
-  fft: number[];
-  className?: string;
-}) {
+export function MicFFT({ fft, className }: { fft: number[]; className?: string }) {
   return (
     <div className={"relative size-full"}>
       <AutoSizer>

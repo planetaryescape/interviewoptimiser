@@ -25,13 +25,7 @@ export function DashboardMobileMenu({ onFeedbackClick }: DashboardMobileMenuProp
 
   const closeMenu = () => setIsOpen(false);
 
-  const NavLink = ({
-    href,
-    children,
-  }: {
-    href: string;
-    children: React.ReactNode;
-  }) => (
+  const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
     <Link
       href={href}
       onClick={closeMenu}

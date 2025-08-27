@@ -161,7 +161,7 @@ export async function GET() {
           }}
         >
           {["AI-Powered Conversations", "Real-time Feedback", "Industry-Specific"].map(
-            (text, i) => (
+            (text, _i) => (
               <div
                 key={text}
                 style={{

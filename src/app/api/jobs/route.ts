@@ -76,7 +76,7 @@ export const POST = withAuth(
 );
 
 export const GET = withAuth(
-  async (request, { user }) => {
+  async (_request, { user }) => {
     logger.info("GET request received at /api/jobs");
 
     try {

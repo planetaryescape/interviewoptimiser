@@ -15,11 +15,7 @@ import type { Invitation, NewInvitation, Organization } from "~/db/schema";
 
 type InvitationStatus = "pending" | "accepted" | "rejected" | "expired" | "revoked";
 
-export function OrganizationInvitations({
-  organization,
-}: {
-  organization: Organization;
-}) {
+export function OrganizationInvitations({ organization }: { organization: Organization }) {
   const [email, setEmail] = useState("");
   const queryClient = useQueryClient();
 

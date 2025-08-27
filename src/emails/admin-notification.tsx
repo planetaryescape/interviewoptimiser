@@ -29,7 +29,7 @@ interface AdminNotificationEmailProps {
 export const AdminNotificationEmail = ({ eventType, userData }: AdminNotificationEmailProps) => {
   const isSignup = eventType === "signup";
   const isReturningUser = eventType === "returning_deleted_user";
-  const isDeletion = eventType === "deletion";
+  const _isDeletion = eventType === "deletion";
 
   const getEventTitle = () => {
     if (isReturningUser) return "⚠️ Returning Deleted User";

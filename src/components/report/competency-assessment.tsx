@@ -47,7 +47,7 @@ export function CompetencyAssessment({ report, headingFont }: ReportDataProps) {
         Competency Assessment
       </h2>
       <div className="space-y-10">
-        {competencies.map((item, index) => (
+        {competencies.map((item, _index) => (
           <div key={item.title} className="border-b border-slate-200 pb-8 last:border-0 last:pb-0">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center">

@@ -4,7 +4,7 @@ import { reports } from "~/db/schema";
 import { questionAnalysis } from "~/db/schema/questionAnalysis";
 
 // Base report schema
-const ReportSchema = createInsertSchema(reports);
+const _ReportSchema = createInsertSchema(reports);
 
 // Question analysis schema
 export const QuestionAnalysisSchema = createInsertSchema(questionAnalysis)

@@ -16,7 +16,7 @@ interface ReportCardProps {
 }
 
 export function ReportCard({ report, jobId }: ReportCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
+  const [_isHovered, setIsHovered] = useState(false);
 
   if (!report?.isCompleted) {
     return (
@@ -61,7 +61,7 @@ export function ReportCard({ report, jobId }: ReportCardProps) {
     try {
       const strengths = JSON.parse(report.areasOfStrength || "[]");
       return strengths.length > 0 ? strengths[0] : "No strengths identified";
-    } catch (e) {
+    } catch (_e) {
       return "No strengths identified";
     }
   };

@@ -6,8 +6,9 @@ import { MicFFT } from "./mic-fft";
 vi.mock("react-virtualized", () => ({
   AutoSizer: ({
     children,
-  }: { children: (size: { width: number; height: number }) => React.ReactNode }) =>
-    children({ width: 100, height: 50 }),
+  }: {
+    children: (size: { width: number; height: number }) => React.ReactNode;
+  }) => children({ width: 100, height: 50 }),
 }));
 
 describe("MicFFT", () => {

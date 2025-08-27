@@ -32,14 +32,14 @@ export function CSRFProtectedForm() {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const _data = await response.json();
         toast.success("Form submitted successfully!");
         setFormData({ name: "", email: "" });
       } else {
         const error = await response.json();
         toast.error(error.message || "Submission failed");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Network error occurred");
     } finally {
       setIsSubmitting(false);

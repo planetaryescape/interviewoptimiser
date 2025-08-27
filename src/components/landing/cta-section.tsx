@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { config } from "~/config";
 
 export function CTASection() {
   return (
@@ -19,8 +18,9 @@ export function CTASection() {
           Stop Losing Jobs to Less Qualified Candidates Who Interview Better
         </h2>
         <p className="text-style-body-lead text-foreground/90 mb-8 max-w-2xl mx-auto">
-          You have the skills. You have the experience. Don&apos;t let interview nerves be the reason 
-          you don&apos;t get the job. Join thousands who are landing offers after just 3 practice sessions.
+          You have the skills. You have the experience. Don&apos;t let interview nerves be the
+          reason you don&apos;t get the job. Join thousands who are landing offers after just 3
+          practice sessions.
         </p>
         <Button
           size="lg"

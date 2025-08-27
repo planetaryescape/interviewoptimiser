@@ -3,9 +3,8 @@
 import { validateFileSize } from "@/lib/utils/fileValidation";
 import * as Sentry from "@sentry/nextjs";
 import mammoth from "mammoth";
-import { logger } from "~/lib/logger";
-
 import pdf from "pdf-parse";
+import { logger } from "~/lib/logger";
 
 export async function extractTextFromFile(formData: FormData): Promise<string> {
   try {

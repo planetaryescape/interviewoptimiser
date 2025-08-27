@@ -9,7 +9,7 @@ import { interviews } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export const GET = withAuth<{ jobId: string; interviewId: string }>(
-  async (request, { user, params }) => {
+  async (_request, { user, params }) => {
     try {
       const interviewId = idHandler.decode(params!.interviewId);
 

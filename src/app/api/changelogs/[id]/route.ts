@@ -9,7 +9,7 @@ import { changelogs } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export const PUT = withAuth<{ id: string }>(
-  async (request, { user, params }) => {
+  async (_request, { user, params }) => {
     try {
       const changelogId = idHandler.decode(params!.id);
 

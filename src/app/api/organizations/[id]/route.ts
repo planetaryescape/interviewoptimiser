@@ -20,7 +20,7 @@ async function checkOrganizationAccess(organizationId: number, userId: number) {
 }
 
 export const GET = withAuth<{ id: string }>(
-  async (request, { user, params }) => {
+  async (_request, { user, params }) => {
     try {
       if (!user || !user.id) {
         logger.error("User not found", { userId: user.id });
@@ -131,7 +131,7 @@ export const PUT = withAuth<{ id: string }>(
 );
 
 export const DELETE = withAuth<{ id: string }>(
-  async (request, { user, params }) => {
+  async (_request, { user, params }) => {
     try {
       if (!user || !user.id) {
         logger.error("User not found", { userId: user.id });

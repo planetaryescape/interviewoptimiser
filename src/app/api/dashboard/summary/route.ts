@@ -1,5 +1,4 @@
 import { withAuthAsync } from "@/lib/auth-middleware";
-import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import { and, avg, desc, eq, inArray, sql } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
@@ -56,7 +55,7 @@ async function calculateAllAverageScores(reportIds: number[]): Promise<{ [key: s
 
 export async function GET(request: NextRequest) {
   return withAuthAsync(
-    async (request, { user }) => {
+    async (_request, { user }) => {
       try {
         const dbUserId = user.id;
 

@@ -166,7 +166,7 @@ export const PUT = withAuth<{ id: string; memberId: string }>(
 );
 
 export const DELETE = withAuth<{ id: string; memberId: string }>(
-  async (request, { user, params }) => {
+  async (_request, { user, params }) => {
     try {
       if (!user || !user.id) {
         logger.error("User not found", { userId: user.id });

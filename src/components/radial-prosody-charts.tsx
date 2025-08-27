@@ -11,11 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-export function RadialProsodyChart({
-  data,
-}: {
-  data: { name: string; value: number }[];
-}) {
+export function RadialProsodyChart({ data }: { data: { name: string; value: number }[] }) {
   const chartData = data.map((item) => ({
     characteristic: item.name,
     value: item.value,

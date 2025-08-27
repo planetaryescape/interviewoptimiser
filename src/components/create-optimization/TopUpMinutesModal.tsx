@@ -49,7 +49,7 @@ export function TopUpMinutesModal({ isOpen, onClose }: TopUpMinutesModalProps) {
 
         const data = await response.json();
         setPlans(data.plans);
-      } catch (err) {
+      } catch (_err) {
         setError("Failed to load pricing plans. Please try again or visit the pricing page.");
       } finally {
         setLoading(false);

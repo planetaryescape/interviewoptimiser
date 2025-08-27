@@ -8,7 +8,7 @@ import { users } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export const GET = withAuth(
-  async (request, { user }) => {
+  async (_request, { user }) => {
     try {
       const userData = await db.query.users.findFirst({
         where: eq(users.id, user.id),

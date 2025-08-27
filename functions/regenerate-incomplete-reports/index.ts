@@ -12,7 +12,7 @@ export const handler = Sentry.wrapHandler(async () => {
   try {
     logger.info("Checking for incomplete reports");
 
-    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+    const _tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
 
     const incompleteReports = await db.query.reports.findMany({
       columns: {

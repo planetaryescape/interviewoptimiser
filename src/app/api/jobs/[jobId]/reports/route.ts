@@ -9,7 +9,7 @@ import { interviews, jobs } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export const GET = withAuth<{ jobId: string }>(
-  async (request, { user, params }) => {
+  async (_request, { user, params }) => {
     logger.info("GET request received at /api/jobs/[jobId]/reports");
 
     try {

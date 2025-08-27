@@ -7,7 +7,7 @@ import { logger } from "~/lib/logger";
 import { stripe } from "~/lib/stripe";
 
 export const POST = withAuth(
-  async (request, { user }) => {
+  async (_request, { user }) => {
     try {
       if (!user.id) {
         return new NextResponse("Unauthorized", { status: 401 });

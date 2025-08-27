@@ -48,7 +48,7 @@ export default function SubmitTestimonialPage() {
       toast.success("Thank you for your review!");
       setIsSubmitted(true);
     },
-    onError: (error) => {
+    onError: (_error) => {
       toast.error("Failed to submit review. Please try again later.");
     },
   });

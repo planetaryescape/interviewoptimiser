@@ -2,13 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function SidebarButton({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
+export function SidebarButton({ href, children }: { href: string; children: React.ReactNode }) {
   const pathname = usePathname();
   return (
     <Link
