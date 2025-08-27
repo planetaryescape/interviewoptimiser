@@ -16,11 +16,11 @@ export function CTASection() {
 
       <div className="container relative z-10 mx-auto px-4 md:px-6 text-center">
         <h2 className="text-style-h2 text-foreground mb-4">
-          Elevate Your Interview Skills with {config.projectName}
+          Stop Losing Jobs to Less Qualified Candidates Who Interview Better
         </h2>
         <p className="text-style-body-lead text-foreground/90 mb-8 max-w-2xl mx-auto">
-          Start your journey to interview success with AI-powered practice tailored just for you.
-          Your dream job is waiting &ndash; let&apos;s prepare you to seize it.
+          You have the skills. You have the experience. Don&apos;t let interview nerves be the reason 
+          you don&apos;t get the job. Join thousands who are landing offers after just 3 practice sessions.
         </p>
         <Button
           size="lg"
@@ -28,8 +28,11 @@ export function CTASection() {
           asChild
           className="text-style-body-base shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6"
         >
-          <Link href="/sign-up">Get Started Now</Link>
+          <Link href="/sign-up">Secure Your Next Job Offer →</Link>
         </Button>
+        <p className="text-sm text-foreground/70 mt-4">
+          Free to start • No credit card required • Interview-ready in 30 minutes
+        </p>
       </div>
     </section>
   );
