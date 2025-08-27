@@ -70,9 +70,7 @@ type ReportWithInterviewAndPageSettings = InferResultType<
   }
 >;
 
-export default function PublicJobReportPage(props: {
-  params: Promise<{ id: string }>;
-}) {
+export default function PublicJobReportPage(props: { params: Promise<{ id: string }> }) {
   const params = use(props.params);
   const {
     data: report,
@@ -378,7 +376,7 @@ export default function PublicJobReportPage(props: {
                 </h3>
                 <ul className="space-y-3">
                   {JSON.parse(report?.data.areasOfStrength ?? "[]").map(
-                    (strength: string, index: number) => (
+                    (strength: string, _index: number) => (
                       <li key={strength} className="flex items-start">
                         <ThumbsUp className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-1" />
                         <span className="text-gray-700">{strength}</span>
@@ -398,7 +396,7 @@ export default function PublicJobReportPage(props: {
                 </h3>
                 <ul className="space-y-3">
                   {JSON.parse(report?.data.areasForImprovement ?? "[]").map(
-                    (area: string, index: number) => (
+                    (area: string, _index: number) => (
                       <li key={area} className="flex items-start">
                         <AlertTriangle className="w-5  h-5 text-red-500 mr-3 flex-shrink-0 mt-1" />
                         <span className="text-gray-700">{area}</span>
@@ -423,7 +421,7 @@ export default function PublicJobReportPage(props: {
 
             <ol className="space-y-4 list-decimal list-inside">
               {JSON.parse(report?.data.actionableNextSteps ?? "[]").map(
-                (step: string, index: number) => (
+                (step: string, _index: number) => (
                   <li key={step} className="pl-2 py-3 bg-blue-50 rounded-lg">
                     <span className="text-gray-700 ml-2">{step}</span>
                   </li>
@@ -451,7 +449,7 @@ export default function PublicJobReportPage(props: {
                       content: string;
                       prosody: Record<string, number>;
                     },
-                    index: number
+                    _index: number
                   ) => {
                     const persona = message.role
                       .replace("assistant", "Interviewer")

@@ -12,7 +12,7 @@ export function BlackFridayBanner() {
   useEffect(() => {
     try {
       setIsUserSignedIn(isSignedIn || false);
-    } catch (error) {
+    } catch (_error) {
       setIsUserSignedIn(false);
     }
   }, [isSignedIn]);

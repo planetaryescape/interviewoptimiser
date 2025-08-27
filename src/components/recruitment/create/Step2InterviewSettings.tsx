@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { interviewTypes as allInterviewTypeDefinitions } from "@/fixtures/interview-types";
 import { useRecruitmentCreateStore } from "@/stores/recruitmentCreateStore";
-import { AlertCircle, Clock, HelpCircle } from "lucide-react";
+import { AlertCircle, Clock } from "lucide-react";
 import type React from "react";
 import type { InterviewType } from "~/db/schema/interviews";
 

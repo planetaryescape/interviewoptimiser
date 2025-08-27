@@ -125,7 +125,7 @@ export class IndexedDBRepository<T extends { id?: number }> implements GenericRe
     try {
       await this.performTransaction("readwrite", (store) => store.delete(id));
       return true;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

@@ -12,7 +12,7 @@ import { logger } from "~/lib/logger";
  * Retrieves question analyses for a specific report
  */
 export const GET = withAuth<{ id: string }>(
-  async (request, { user, params }) => {
+  async (_request, { user, params }) => {
     try {
       const { role } = user;
       if (!user.id) {

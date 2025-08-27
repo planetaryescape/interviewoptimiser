@@ -22,7 +22,7 @@ export function FeaturesSection() {
   return (
     <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="grid md:grid-cols-3 gap-8">
-        {features.map((feature, index) => (
+        {features.map((feature, _index) => (
           <BackgroundGradient
             key={feature.title}
             className="rounded-[22px] h-full p-4 sm:p-10 bg-white dark:bg-zinc-900"

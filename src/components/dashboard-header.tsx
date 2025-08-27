@@ -22,7 +22,7 @@ export function DashboardHeader({ className }: { className?: string }) {
   const { data: user } = useUser();
   const isDashboardLanding = pathname === "/dashboard";
   const isCreatePage = pathname === "/dashboard/create";
-  const isJobPage = /^\/dashboard\/jobs(?:\/[^\/]*)?$/.test(pathname);
+  const isJobPage = /^\/dashboard\/jobs(?:\/[^/]*)?$/.test(pathname);
 
   const showOptimiseButton = !isDashboardLanding && !isCreatePage && !isJobPage;
 

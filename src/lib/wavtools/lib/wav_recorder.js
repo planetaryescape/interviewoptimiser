@@ -174,9 +174,9 @@ export class WavRecorder {
       data,
     };
     _processor.port.postMessage(message);
-    const t0 = new Date().valueOf();
+    const t0 = Date.now();
     while (!this.eventReceipts[message.id]) {
-      if (new Date().valueOf() - t0 > this.eventTimeout) {
+      if (Date.now() - t0 > this.eventTimeout) {
         throw new Error(`Timeout waiting for "${name}" event`);
       }
       await new Promise((res) => setTimeout(() => res(true), 1));
@@ -242,7 +242,7 @@ export class WavRecorder {
         for (const track of tracks) {
           track.stop();
         }
-      } catch (e) {
+      } catch (_e) {
         window.alert("You must grant microphone access to use this feature.");
       }
     }
@@ -296,7 +296,7 @@ export class WavRecorder {
         config.audio = { deviceId: { exact: deviceId } };
       }
       this.stream = await navigator.mediaDevices.getUserMedia(config);
-    } catch (err) {
+    } catch (_err) {
       throw new Error("Could not start media stream");
     }
 

@@ -8,7 +8,7 @@ import { jobs } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export const GET = withAuth(
-  async (request, { user }) => {
+  async (_request, { user }) => {
     try {
       const { role } = user;
       if (!user.id) {

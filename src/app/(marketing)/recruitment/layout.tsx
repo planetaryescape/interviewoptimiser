@@ -1,11 +1,10 @@
-import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
-import { config } from "../../../../config";
-
 import Footer from "@/components/landing/recruitment/Footer";
 // Components will be created in subsequent steps
 import NavigationBar from "@/components/landing/recruitment/NavigationBar";
 import SchemaMarkup from "@/components/landing/recruitment/SchemaMarkup";
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
+import { config } from "../../../../config";
 
 // Choose primary font for the page
 const fontSans = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -56,11 +55,7 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RecruitmentLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RecruitmentLayout({ children }: { children: React.ReactNode }) {
   return (
     // This layout assumes ThemeProvider is in a higher-level root layout
     <div className={`flex flex-col min-h-screen ${fontSans.variable} font-sans antialiased`}>

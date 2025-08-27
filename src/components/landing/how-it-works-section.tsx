@@ -81,8 +81,8 @@ export function HowItWorksSection() {
             From Nervous to Interview-Ready in 4 Simple Steps
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-            No complex setup. No generic questions. Just real practice that gets you hired. 
-            Most users feel confident after just one session.
+            No complex setup. No generic questions. Just real practice that gets you hired. Most
+            users feel confident after just one session.
           </p>
         </motion.div>
 

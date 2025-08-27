@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ChevronRight } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import * as React from "react";
 import { SectionWithIcon } from "./section-with-icon";
 

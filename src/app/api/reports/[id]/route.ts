@@ -9,7 +9,7 @@ import { reports } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export const GET = withAuth<{ id: string }>(
-  async (request, { user, params }) => {
+  async (_request, { user, params }) => {
     logger.info("GET request received at /api/reports/[id]");
 
     try {

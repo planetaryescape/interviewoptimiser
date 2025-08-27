@@ -3,6 +3,7 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from "@sentry/nextjs";
+
 const isDev = process.env.NODE_ENV === "development";
 
 Sentry.init({

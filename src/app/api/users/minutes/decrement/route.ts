@@ -8,7 +8,7 @@ import { statistics, users } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export const PUT = withAuth(
-  async (request, { user }) => {
+  async (_request, { user }) => {
     try {
       const [updatedUser] = await db
         .update(users)

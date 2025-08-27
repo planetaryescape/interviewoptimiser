@@ -1,16 +1,10 @@
 import { cn } from "@/lib/utils";
 
-export const Meteors = ({
-  number,
-  className,
-}: {
-  number?: number;
-  className?: string;
-}) => {
+export const Meteors = ({ number, className }: { number?: number; className?: string }) => {
   const meteors = new Array(number || 20).fill(true);
   return (
     <>
-      {meteors.map((el, idx) => (
+      {meteors.map((el, _idx) => (
         <span
           key={`meteor-${el.top}-${el.left}-${el.size}`}
           className={cn(

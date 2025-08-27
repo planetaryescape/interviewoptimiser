@@ -86,7 +86,7 @@ export default function ScorecardModal({ isOpen, onClose }: ScorecardModalProps)
   };
 
   // Helper function to determine progress color
-  const getProgressColor = (score: number) => {
+  const _getProgressColor = (score: number) => {
     if (score >= 85) return "bg-green-600 dark:bg-green-500";
     if (score >= 70) return "bg-amber-600 dark:bg-amber-500";
     return "bg-red-600 dark:bg-red-500";

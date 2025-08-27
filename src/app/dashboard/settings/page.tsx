@@ -4,7 +4,7 @@ import { CustomisationSettings } from "@/components/customisation-settings";
 import { useFeatureFlagEnabled } from "posthog-js/react";
 
 export default function SettingsPage() {
-  const flagEnabled = useFeatureFlagEnabled("organizations");
+  const _flagEnabled = useFeatureFlagEnabled("organizations");
 
   return (
     <div className="container mx-auto py-6">

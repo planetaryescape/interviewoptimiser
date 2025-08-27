@@ -8,7 +8,7 @@ import { featureRequestLikes, featureRequests, users } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export const GET = withAuth(
-  async (request, { user }) => {
+  async (_request, { user }) => {
     try {
       const isAdmin = user.role === "admin";
       const currentUserId = user.id;

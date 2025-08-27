@@ -170,8 +170,7 @@ export async function POST(request: Request) {
         if (isReturningDeletedUser && previouslyDeleted) {
           const posthog = PostHogClient();
           const daysSinceDeletion = Math.floor(
-            (new Date().getTime() - new Date(previouslyDeleted.deletedAt).getTime()) /
-              (1000 * 60 * 60 * 24)
+            (Date.now() - new Date(previouslyDeleted.deletedAt).getTime()) / (1000 * 60 * 60 * 24)
           );
 
           await posthog.capture({
@@ -228,7 +227,7 @@ export async function POST(request: Request) {
                 previouslyDeleted && {
                   previousDeletionDate: previouslyDeleted.deletedAt.toISOString(),
                   daysSinceDeletion: Math.floor(
-                    (new Date().getTime() - new Date(previouslyDeleted.deletedAt).getTime()) /
+                    (Date.now() - new Date(previouslyDeleted.deletedAt).getTime()) /
                       (1000 * 60 * 60 * 24)
                   ),
                 }),
@@ -247,7 +246,7 @@ export async function POST(request: Request) {
               "Minutes Allocated": minutesToAllocate,
               "Days Since Deletion": previouslyDeleted
                 ? Math.floor(
-                    (new Date().getTime() - new Date(previouslyDeleted.deletedAt).getTime()) /
+                    (Date.now() - new Date(previouslyDeleted.deletedAt).getTime()) /
                       (1000 * 60 * 60 * 24)
                   )
                 : "Unknown",

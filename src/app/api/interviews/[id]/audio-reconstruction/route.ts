@@ -13,7 +13,7 @@ import { logger } from "~/lib/logger";
  * Initiates audio reconstruction for an interview
  */
 export const GET = withAuth<{ id: string }>(
-  async (request, { user, params }) => {
+  async (_request, { user, params }) => {
     try {
       const { role } = user;
       if (!user.id) {

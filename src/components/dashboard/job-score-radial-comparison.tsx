@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
-import { PolarAngleAxis, RadialBar, RadialBarChart, ResponsiveContainer, Tooltip } from "recharts";
+import { PolarAngleAxis, RadialBar, RadialBarChart, ResponsiveContainer } from "recharts";
 
 interface JobScoreRadialComparisonProps {
   metricName: string;

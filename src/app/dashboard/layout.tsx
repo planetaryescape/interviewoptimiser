@@ -13,7 +13,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { theme } = useTheme();
   const pathname = usePathname();
   const isCreateJob = pathname.includes("/dashboard/create");
-  const isInterviewPage = /^\/dashboard\/jobs\/[^\/]+\/interviews/.test(pathname);
+  const isInterviewPage = /^\/dashboard\/jobs\/[^/]+\/interviews/.test(pathname);
   const showSidebar = !isCreateJob && !isInterviewPage;
   const showHeader = !isCreateJob && !isInterviewPage;
 

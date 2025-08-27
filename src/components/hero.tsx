@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Play, Sparkles, CheckCircle2, Clock, Trophy, Shield } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock, Play, Shield, Sparkles, Trophy } from "lucide-react";
 import { useTheme } from "next-themes";
 import { unstable_noStore as noStore } from "next/cache";
 import Link from "next/link";
@@ -129,7 +129,7 @@ export function Hero() {
                 </span>
               </h1>
               <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto">
-                Practice with an interviewer who knows exactly what hiring managers want to hear. 
+                Practice with an interviewer who knows exactly what hiring managers want to hear.
                 Get hired in weeks, not months—while others are still sending resumes.
               </p>
             </div>

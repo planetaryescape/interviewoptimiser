@@ -32,7 +32,7 @@ export function TranscriptSection({
               content: string;
               prosody: Record<string, number>;
             },
-            index: number
+            _index: number
           ) => {
             const persona = message.role
               .replace("assistant", "Interviewer")

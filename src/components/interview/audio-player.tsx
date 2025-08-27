@@ -113,7 +113,7 @@ export const AudioPlayer = React.memo(function AudioPlayer({
       if (lastPart) {
         filename = lastPart;
       }
-    } catch (e) {
+    } catch (_e) {
       // If URL parsing fails, fallback to a simpler method or keep default
       const simpleMatch = audioUrl.substring(audioUrl.lastIndexOf("/") + 1).split("?")[0];
       if (simpleMatch) {
@@ -213,7 +213,7 @@ export const AudioPlayer = React.memo(function AudioPlayer({
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   if (!progressBarRef.current) return;
-                  const rect = progressBarRef.current.getBoundingClientRect();
+                  const _rect = progressBarRef.current.getBoundingClientRect();
                   const percent = 0.5; // Jump to middle on keyboard activation
                   const value = percent * duration;
                   if (audioRef.current) {

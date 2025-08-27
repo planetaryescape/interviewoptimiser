@@ -46,10 +46,10 @@ export default function HeroVisual() {
           const response = await fetch("/animations/hero-animation.lottie.json");
           const data = await response.json();
           setAnimationData(data);
-        } catch (fetchError) {
+        } catch (_fetchError) {
           // Failed to fetch animation data, will fall back to static visual
         }
-      } catch (error) {
+      } catch (_error) {
         // Animation data loading failed, we'll fall back to static visual
       }
     };

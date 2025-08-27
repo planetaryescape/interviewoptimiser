@@ -8,7 +8,7 @@ import { organizationMembers } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export const GET = withAuth(
-  async (request, { user }) => {
+  async (_request, { user }) => {
     try {
       if (!user || !user.id) {
         logger.error("User not found", { userId: user.id });

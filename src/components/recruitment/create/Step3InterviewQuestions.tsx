@@ -2,12 +2,11 @@
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useRecruitmentCreateStore } from "@/stores/recruitmentCreateStore";
 import { AlertCircle, Loader2, PlusCircle, Sparkles, Trash2, Wand2, XCircle } from "lucide-react";
 import type { ChangeEvent } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const Step3InterviewQuestions = () => {
   const {

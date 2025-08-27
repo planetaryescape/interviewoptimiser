@@ -2,9 +2,7 @@ import InterviewLobby from "@/components/interview-lobby";
 import { getHumeAccessToken } from "@/utils/get-hume-access-token";
 import { Suspense } from "react";
 
-export default async function Page(props: {
-  params: Promise<{ jobId: string }>;
-}) {
+export default async function Page(props: { params: Promise<{ jobId: string }> }) {
   const params = await props.params;
   const accessToken = await getHumeAccessToken();
 

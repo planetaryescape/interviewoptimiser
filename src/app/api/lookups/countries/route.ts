@@ -7,7 +7,7 @@ import { countries } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
 export const GET = withAuth(
-  async (request, { user }) => {
+  async (_request, { user }) => {
     try {
       const items = await db.select().from(countries);
       logger.info({ count: items.length }, "Successfully retrieved countries");

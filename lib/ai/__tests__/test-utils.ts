@@ -13,7 +13,7 @@ const baseModel: LanguageModelV1 = {
   modelId: "gpt-4",
   defaultObjectGenerationMode: "json" as const,
   doGenerate: async (
-    options: Parameters<LanguageModelV1["doGenerate"]>[0]
+    _options: Parameters<LanguageModelV1["doGenerate"]>[0]
   ): Promise<Awaited<ReturnType<LanguageModelV1["doGenerate"]>>> => ({
     text: "",
     finishReason: "stop",

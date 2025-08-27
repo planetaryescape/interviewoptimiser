@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/nextjs";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
+import { formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import type { InterviewType } from "~/db/schema/interviews";
 import { interviewTypeEnum } from "~/db/schema/interviews";
 import type { JobDescription } from "~/db/schema/jobDescriptions";
