@@ -2,7 +2,7 @@ name: Claude Code Review
 
 on:
   pull_request:
-    types: [opened]
+    types: [opened, synchronize]
     # Optional: Only run on specific file changes
     # paths:
     #   - "src/**/*.ts"
@@ -37,19 +37,44 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
-          # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4)
-          # model: "claude-opus-4-20250514"
+          # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4.1)
+          # model: "claude-opus-4-1-20250805"
 
           # Direct prompt for automated review (no @claude mention needed)
           direct_prompt: |
-            Please review this pull request and provide feedback on:
-            - Code quality and best practices
-            - Potential bugs or issues
-            - Performance considerations
-            - Security concerns
-            - Test coverage
-
-            Be constructive and helpful in your feedback.
+            You're reviewing code for a SOLO INDIE DEVELOPER shipping fast for market validation.
+            Context: Targeting 1000+ users (not millions), pragmatic > perfect.
+            
+            BE CONCISE. DO NOT: Repeat PR description, explain obvious code, or be verbose.
+            
+            IGNORE: Perfect patterns, <100ms optimizations, test coverage, enterprise abstractions, theoretical scale issues, style preferences.
+            
+            REVIEW LENS:
+            - Will it work for 1000 users? → Probably fine
+            - Security holes a script kiddie could exploit? → Must fix
+            - Makes adding features significantly harder? → Mention it
+            - 5-minute fix for 80% value? → Suggest it
+            
+            Only comment on things that ACTUALLY matter. If it works and isn't dangerous, just approve.
+            
+            FORMAT YOUR REVIEW LIKE THIS:
+            
+            ## Issues Found (if any)
+            - **[File:Line]** Specific problem + one-line fix
+            
+            ## Quick Wins (if any) 
+            - Simple improvements that take <5 min
+            
+            ## Good Patterns (if worth noting)
+            - One-liner acknowledgments only
+            
+            ## Recommendation
+            🚢 SHIP IT - Works fine
+            ⚠️ FIX FIRST - Real issues need fixing  
+            🔴 BLOCKING - Will break production
+            
+            Keep review under 15 lines unless critical bugs. Skip sections with nothing to report.
+            If code works and isn't dangerous, just say "LGTM 🚢".
 
           # Optional: Use sticky comments to make Claude reuse the same comment on subsequent pushes to the same PR
           # use_sticky_comment: true
