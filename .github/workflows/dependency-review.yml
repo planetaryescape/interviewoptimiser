@@ -42,7 +42,7 @@ jobs:
   #         disable-sudo: true
   #
   #     - name: Checkout Repository
-  #       uses: actions/checkout@v4
+  #       uses: actions/checkout@v5
   #       with:
   #         persist-credentials: false
   #
@@ -76,7 +76,7 @@ jobs:
           egress-policy: audit
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           persist-credentials: false
 
@@ -196,7 +196,7 @@ jobs:
           egress-policy: audit
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           persist-credentials: false
 
@@ -286,7 +286,7 @@ jobs:
           egress-policy: audit
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Generate SBOM
         uses: anchore/sbom-action@v0
