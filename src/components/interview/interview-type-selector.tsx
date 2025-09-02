@@ -1,5 +1,7 @@
 "use client";
 
+import { ArrowRight, Briefcase, Code, FileText, Sparkles, Users } from "lucide-react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,8 +16,6 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowRight, Briefcase, Code, FileText, Sparkles, Users } from "lucide-react";
-import { useState } from "react";
 
 const popularJobTitles = [
   "Frontend Developer",

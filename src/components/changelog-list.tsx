@@ -1,10 +1,5 @@
 "use client";
 
-import { remarkMarkdownComponents } from "@/components/remark-markdown-components";
-import { Button } from "@/components/ui/button";
-import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
-import { getRepository } from "@/lib/data/repositoryFactory";
-import { idHandler } from "@/lib/utils/idHandler";
 import { useUser } from "@clerk/nextjs";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -12,6 +7,11 @@ import { ThumbsUp } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
+import { remarkMarkdownComponents } from "@/components/remark-markdown-components";
+import { Button } from "@/components/ui/button";
+import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
+import { getRepository } from "@/lib/data/repositoryFactory";
+import { idHandler } from "@/lib/utils/idHandler";
 import type { Changelog } from "~/db/schema";
 
 export default function ChangelogList() {

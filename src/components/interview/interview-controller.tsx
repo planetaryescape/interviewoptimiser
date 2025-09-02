@@ -1,11 +1,18 @@
 "use client";
 
+import { useVoice } from "@humeai/voice-react";
+import * as Sentry from "@sentry/nextjs";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import * as React from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { toast } from "sonner";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
 import {
-  ONE_MINUTE_LEFT_MESSAGE,
   formatTranscript,
   formatTranscriptToJsonString,
+  ONE_MINUTE_LEFT_MESSAGE,
 } from "@/lib/utils/messageUtils";
 import { unformatTime } from "@/lib/utils/unformatTime";
 import {
@@ -17,13 +24,6 @@ import {
   useActiveInterviewTotalTime,
   useActiveInterviewWrapUpSent,
 } from "@/stores/useActiveInterviewStore";
-import { useVoice } from "@humeai/voice-react";
-import * as Sentry from "@sentry/nextjs";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
-import * as React from "react";
-import { useCallback, useEffect, useRef } from "react";
-import { toast } from "sonner";
 import type { User } from "~/db/schema";
 
 export const InterviewController = React.memo(function InterviewController() {

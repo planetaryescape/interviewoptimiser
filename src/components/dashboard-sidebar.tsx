@@ -1,13 +1,13 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { useUser } from "@/hooks/useUser";
-import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Briefcase, Cog, Home, MessageSquare, ScrollText, Star } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { useUser } from "@/hooks/useUser";
+import { cn } from "@/lib/utils";
 import { FeedbackModal } from "./feedback-modal";
 import { Separator } from "./ui/separator";
 

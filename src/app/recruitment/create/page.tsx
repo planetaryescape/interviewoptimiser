@@ -1,12 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Step1JobDescription from "@/components/recruitment/create/Step1JobDescription";
 import Step2InterviewSettings from "@/components/recruitment/create/Step2InterviewSettings";
 import Step3InterviewQuestions from "@/components/recruitment/create/Step3InterviewQuestions";
 import type { StepConfig } from "@/components/ui/stepper/step-indicator";
 import { StepperContentArea } from "@/components/ui/stepper/stepper-content-area";
 import { useRecruitmentCreateStore } from "@/stores/recruitmentCreateStore";
-import { useEffect, useState } from "react";
 
 const TOTAL_STEPS = 3;
 

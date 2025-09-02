@@ -1,5 +1,7 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { PricingPlanButton } from "@/components/pricing-plan-button";
 import {
   Dialog,
@@ -9,8 +11,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { isFomoDiscountActive } from "@/lib/utils/isFomoDiscountActive";
-import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
 import { config } from "~/config";
 
 type PricingPlan = {

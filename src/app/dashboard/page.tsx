@@ -1,5 +1,8 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+import { AlertTriangle, Briefcase, Plus } from "lucide-react";
+import Link from "next/link";
 import type {
   RecentInterviewItem,
   RecentJobItem,
@@ -10,9 +13,6 @@ import { PerformanceMetricsSection } from "@/components/dashboard/performance-me
 import { RecentActivitySection } from "@/components/dashboard/recent-activity-section";
 import { Button } from "@/components/ui/button";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
-import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, Briefcase, Plus } from "lucide-react";
-import Link from "next/link";
 
 interface AverageScoreSet {
   overallScore: number;

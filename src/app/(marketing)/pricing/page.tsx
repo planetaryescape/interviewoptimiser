@@ -1,3 +1,5 @@
+import { Check, CreditCard } from "lucide-react";
+import type Stripe from "stripe";
 import { EarlyBirdPromoDiscountBanner } from "@/components/early-bird-promo-discount-banner";
 import { SocialProofSection } from "@/components/landing/social-proof-section";
 import PricingPageFaq from "@/components/pricing-page-faq";
@@ -5,8 +7,6 @@ import { PricingPlanButton } from "@/components/pricing-plan-button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { isFomoDiscountActive } from "@/lib/utils/isFomoDiscountActive";
-import { Check, CreditCard } from "lucide-react";
-import type Stripe from "stripe";
 import { config } from "~/config";
 import { stripe } from "~/lib/stripe";
 

@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { CTA_PRACTICE_FOR_FREE } from "@/lib/landing/recruitment/constants";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { CTA_PRACTICE_FOR_FREE } from "@/lib/landing/recruitment/constants";
 import SectionWrapper from "../ui/SectionWrapper";
 
 export default function CandidatePracticeZone() {

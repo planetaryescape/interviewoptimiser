@@ -1,3 +1,8 @@
+import * as Sentry from "@sentry/nextjs";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import useCustomisedSystemPrompt from "@/hooks/useCustomisedSystemPrompt";
 import { ApiError } from "@/lib/errors";
 import { idHandler } from "@/lib/utils/idHandler";
@@ -6,11 +11,6 @@ import {
   useActiveInterviewActions,
   useActiveInterviewEnded,
 } from "@/stores/useActiveInterviewStore";
-import * as Sentry from "@sentry/nextjs";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 import { MIN_INTERVIEW_DURATION_SECONDS } from "./constants";
 
 interface UseInterviewLogicProps {

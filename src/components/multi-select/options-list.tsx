@@ -1,5 +1,7 @@
 "use client";
 
+import { CheckIcon } from "lucide-react";
+import * as React from "react";
 import {
   Command,
   CommandEmpty,
@@ -11,8 +13,6 @@ import {
 } from "@/components/ui/command";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { CheckIcon } from "lucide-react";
-import * as React from "react";
 import type { MultiSelectOption } from "./types";
 
 interface OptionsListProps {

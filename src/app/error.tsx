@@ -1,12 +1,12 @@
 "use client";
 
-import { Header } from "@/components/header";
-import { Button } from "@/components/ui/button";
 import { ClerkProvider } from "@clerk/nextjs";
 import * as Sentry from "@sentry/nextjs";
 import { AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
+import { Header } from "@/components/header";
+import { Button } from "@/components/ui/button";
 
 export default function GlobalError({
   error,

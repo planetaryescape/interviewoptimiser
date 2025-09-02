@@ -1,10 +1,10 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
-import { useQuery } from "@tanstack/react-query";
 import type { Organization, OrganizationMember } from "~/db/schema";
 import { OrganizationDialog } from "./organization-dialog";
 import { OrganizationInvitations } from "./organization-invitations";

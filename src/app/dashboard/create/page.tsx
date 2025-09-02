@@ -1,5 +1,7 @@
 "use client";
 
+import { AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
 import { CreateJobErrorModal } from "@/components/create-optimization/CreateJobErrorModal";
 import { ProcessingTakeover } from "@/components/create-optimization/ProcessingTakeover";
 import { useUser } from "@/hooks/useUser";
@@ -12,8 +14,6 @@ import {
   useCreateJobShowTakeover,
   useCreateJobStep,
 } from "@/stores/createJobStore";
-import { AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
 import { ContentArea } from "./components/ContentArea";
 import { useJobSubmission } from "./hooks/useJobSubmission";
 

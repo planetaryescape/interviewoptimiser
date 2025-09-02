@@ -1,6 +1,6 @@
-import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 import { motion } from "framer-motion";
 import { FileText, Sparkles, Target } from "lucide-react";
+import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 
 export function GeneratingReportTakeover() {
   const steps = [

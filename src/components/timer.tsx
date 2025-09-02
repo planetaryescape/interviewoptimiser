@@ -1,9 +1,9 @@
 "use client";
 
-import { getRepository } from "@/lib/data/repositoryFactory";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { getRepository } from "@/lib/data/repositoryFactory";
 import type { User } from "~/db/schema";
 
 export function Timer({

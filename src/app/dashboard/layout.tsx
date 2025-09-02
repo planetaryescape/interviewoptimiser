@@ -1,13 +1,13 @@
 "use client";
 
+import { ClerkProvider } from "@clerk/nextjs";
+import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
+import type { ReactNode } from "react";
+import { Toaster } from "sonner";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { cn } from "@/lib/utils";
-import { ClerkProvider } from "@clerk/nextjs";
-import { useTheme } from "next-themes";
-import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
-import { Toaster } from "sonner";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { theme } = useTheme();

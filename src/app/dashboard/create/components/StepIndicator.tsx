@@ -1,8 +1,8 @@
 "use client";
 
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCreateJobActions, useCreateJobStep } from "@/stores/createJobStore";
-import { Check } from "lucide-react";
 
 interface StepIndicatorProps {
   canProceedToNextStep: boolean;

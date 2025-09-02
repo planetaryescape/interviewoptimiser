@@ -1,11 +1,11 @@
 "use client";
 
+import { ChevronDown, WandSparkles, XIcon } from "lucide-react";
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { ChevronDown, WandSparkles, XIcon } from "lucide-react";
-import * as React from "react";
 import { OptionsList } from "./options-list";
 import { SelectedBadges } from "./selected-badges";
 import type { MultiSelectProps } from "./types";

@@ -1,9 +1,9 @@
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import Footer from "@/components/landing/recruitment/Footer";
 // Components will be created in subsequent steps
 import NavigationBar from "@/components/landing/recruitment/NavigationBar";
 import SchemaMarkup from "@/components/landing/recruitment/SchemaMarkup";
-import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
 import { config } from "../../../../config";
 
 // Choose primary font for the page

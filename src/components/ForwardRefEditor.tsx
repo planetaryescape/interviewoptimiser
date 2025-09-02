@@ -1,7 +1,7 @@
 "use client";
 
 import type { MDXEditorMethods, MDXEditorProps } from "@mdxeditor/editor";
-import { Suspense, forwardRef } from "react";
+import { forwardRef, Suspense } from "react";
 import Editor from "./InitialiseMDXEditor";
 
 export const ForwardRefEditor = forwardRef<MDXEditorMethods, MDXEditorProps>((props, ref) => (

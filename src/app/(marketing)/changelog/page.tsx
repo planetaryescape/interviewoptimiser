@@ -1,13 +1,5 @@
 "use client";
 
-import { BackgroundGradient } from "@/components/background-gradient";
-import { remarkMarkdownComponents } from "@/components/remark-markdown-components";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
-import { getRepository } from "@/lib/data/repositoryFactory";
-import { idHandler } from "@/lib/utils/idHandler";
 import { useUser } from "@clerk/nextjs";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -17,6 +9,14 @@ import { Suspense } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
+import { BackgroundGradient } from "@/components/background-gradient";
+import { remarkMarkdownComponents } from "@/components/remark-markdown-components";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
+import { getRepository } from "@/lib/data/repositoryFactory";
+import { idHandler } from "@/lib/utils/idHandler";
 import type { Changelog } from "~/db/schema";
 
 export default function ChangelogPage() {

@@ -1,11 +1,11 @@
 "use client";
 
-import { BackgroundGradient } from "@/components/background-gradient";
-import NumberTicker from "@/components/ui/number-ticker";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { unstable_noStore as noStore } from "next/cache";
+import { BackgroundGradient } from "@/components/background-gradient";
+import NumberTicker from "@/components/ui/number-ticker";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const StatisticItem = ({
   value,

@@ -1,5 +1,10 @@
 "use client";
 
+import { ClerkProvider, SignedIn, UserButton } from "@clerk/nextjs";
+import { MenuIcon } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -9,11 +14,6 @@ import {
   NAVIGATION_LINKS,
 } from "@/lib/landing/recruitment/constants";
 import { cn } from "@/lib/utils";
-import { ClerkProvider, SignedIn, UserButton } from "@clerk/nextjs";
-import { MenuIcon } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useState } from "react";
 
 const LOGO_PATH = "/logo.png";
 const LOGO_ALT = "Interview Optimiser Logo";

@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import * as React from "react";
+import { Button } from "@/components/ui/button";
 
 interface JobDetailsHeaderProps {
   onClose: () => void;

@@ -1,7 +1,7 @@
-import { cn } from "@/lib/utils";
-import type { EntityList } from "@/lib/utils/formatEntity";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { cn } from "@/lib/utils";
+import type { EntityList } from "@/lib/utils/formatEntity";
 import type { QuestionAnalysis } from "~/db/schema";
 import { remarkMarkdownComponents } from "../remark-markdown-components";
 import type { ReportComponentBaseProps } from "./types";
