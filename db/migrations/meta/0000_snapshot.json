@@ -111,12 +111,8 @@
           "name": "candidate_details_job_id_jobs_id_fk",
           "tableFrom": "candidate_details",
           "tableTo": "jobs",
-          "columnsFrom": [
-            "job_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["job_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -291,12 +287,8 @@
           "name": "chats_job_id_jobs_id_fk",
           "tableFrom": "chats",
           "tableTo": "jobs",
-          "columnsFrom": [
-            "job_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["job_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -306,16 +298,12 @@
         "chats_humeChatId_unique": {
           "name": "chats_humeChatId_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "hume_chat_id"
-          ]
+          "columns": ["hume_chat_id"]
         },
         "chats_requestId_unique": {
           "name": "chats_requestId_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "request_id"
-          ]
+          "columns": ["request_id"]
         }
       },
       "policies": {},
@@ -388,9 +376,7 @@
         "countries_isoCode_unique": {
           "name": "countries_isoCode_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "iso_code"
-          ]
+          "columns": ["iso_code"]
         }
       },
       "policies": {},
@@ -480,12 +466,8 @@
           "name": "customisations_user_id_users_id_fk",
           "tableFrom": "customisations",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -584,12 +566,8 @@
           "name": "feature_request_likes_user_id_users_id_fk",
           "tableFrom": "feature_request_likes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -597,12 +575,8 @@
           "name": "feature_request_likes_feature_request_id_feature_requests_id_fk",
           "tableFrom": "feature_request_likes",
           "tableTo": "feature_requests",
-          "columnsFrom": [
-            "feature_request_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["feature_request_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -686,12 +660,8 @@
           "name": "feature_requests_user_id_users_id_fk",
           "tableFrom": "feature_requests",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -792,12 +762,8 @@
           "name": "images_prompt_id_users_id_fk",
           "tableFrom": "images",
           "tableTo": "users",
-          "columnsFrom": [
-            "prompt_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["prompt_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -807,16 +773,12 @@
         "images_cloudinaryPublicId_unique": {
           "name": "images_cloudinaryPublicId_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "cloudinary_public_id"
-          ]
+          "columns": ["cloudinary_public_id"]
         },
         "images_url_unique": {
           "name": "images_url_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "url"
-          ]
+          "columns": ["url"]
         }
       },
       "policies": {},
@@ -933,12 +895,8 @@
           "name": "invitations_organization_id_organizations_id_fk",
           "tableFrom": "invitations",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1098,12 +1056,8 @@
           "name": "job_descriptions_job_id_jobs_id_fk",
           "tableFrom": "job_descriptions",
           "tableTo": "jobs",
-          "columnsFrom": [
-            "job_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["job_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1231,12 +1185,8 @@
           "name": "jobs_user_id_users_id_fk",
           "tableFrom": "jobs",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "cascade"
         }
@@ -1361,12 +1311,8 @@
           "name": "organization_members_organization_id_organizations_id_fk",
           "tableFrom": "organization_members",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1374,12 +1320,8 @@
           "name": "organization_members_user_id_users_id_fk",
           "tableFrom": "organization_members",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1576,12 +1518,8 @@
           "name": "page_settings_report_id_reports_id_fk",
           "tableFrom": "page_settings",
           "tableTo": "reports",
-          "columnsFrom": [
-            "report_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["report_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1671,12 +1609,8 @@
           "name": "question_analysis_report_id_reports_id_fk",
           "tableFrom": "question_analysis",
           "tableTo": "reports",
-          "columnsFrom": [
-            "report_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["report_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1876,12 +1810,8 @@
           "name": "reports_chat_id_chats_id_fk",
           "tableFrom": "reports",
           "tableTo": "chats",
-          "columnsFrom": [
-            "chat_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chat_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -2031,12 +1961,8 @@
           "name": "reviews_user_id_users_id_fk",
           "tableFrom": "reviews",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2278,16 +2204,12 @@
         "users_username_unique": {
           "name": "users_username_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "username"
-          ]
+          "columns": ["username"]
         },
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -2299,24 +2221,12 @@
     "public.feature_request_status": {
       "name": "feature_request_status",
       "schema": "public",
-      "values": [
-        "submitted",
-        "triaged",
-        "in_progress",
-        "completed",
-        "declined"
-      ]
+      "values": ["submitted", "triaged", "in_progress", "completed", "declined"]
     },
     "public.invitation_status": {
       "name": "invitation_status",
       "schema": "public",
-      "values": [
-        "pending",
-        "accepted",
-        "rejected",
-        "expired",
-        "revoked"
-      ]
+      "values": ["pending", "accepted", "rejected", "expired", "revoked"]
     },
     "public.interview_type": {
       "name": "interview_type",
@@ -2334,29 +2244,17 @@
     "public.margin_size": {
       "name": "margin_size",
       "schema": "public",
-      "values": [
-        "Normal",
-        "Narrow",
-        "Wide"
-      ]
+      "values": ["Normal", "Narrow", "Wide"]
     },
     "public.paper_size": {
       "name": "paper_size",
       "schema": "public",
-      "values": [
-        "A4",
-        "Letter",
-        "Legal"
-      ]
+      "values": ["A4", "Letter", "Legal"]
     },
     "public.role": {
       "name": "role",
       "schema": "public",
-      "values": [
-        "user",
-        "admin",
-        "recruiter"
-      ]
+      "values": ["user", "admin", "recruiter"]
     }
   },
   "schemas": {},
