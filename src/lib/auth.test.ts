@@ -33,7 +33,7 @@ import { kv } from "@vercel/kv";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { db } from "~/db";
 import { logger } from "~/lib/logger";
-import { type UserData, getUserFromClerkId, invalidateUserCache } from "./auth";
+import { getUserFromClerkId, invalidateUserCache, type UserData } from "./auth";
 
 describe("auth functions", () => {
   beforeEach(() => {
