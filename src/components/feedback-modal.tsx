@@ -1,10 +1,5 @@
 "use client";
 
-import { useAuth } from "@clerk/nextjs";
-import * as Sentry from "@sentry/nextjs";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,6 +13,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
+import { useAuth } from "@clerk/nextjs";
+import * as Sentry from "@sentry/nextjs";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { toast } from "sonner";
 import type { NewFeatureRequest } from "~/db/schema";
 
 interface FeedbackModalProps {

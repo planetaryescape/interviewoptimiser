@@ -1,14 +1,14 @@
 "use client";
 
-import { AnimatePresence } from "framer-motion";
-import type { ComponentRef } from "react";
-import * as React from "react";
 import { Controls } from "@/components/controls";
 import { GeneratingReportTakeover } from "@/components/generating-report-takeover";
 import { InterviewController } from "@/components/interview/interview-controller";
 import { Messages } from "@/components/messages";
 import { ShortInterviewTakeover } from "@/components/short-interview-takeover";
 import { useActiveInterviewShowTakeover } from "@/stores/useActiveInterviewStore";
+import { AnimatePresence } from "framer-motion";
+import type { ComponentRef } from "react";
+import * as React from "react";
 
 interface InterviewContentProps {
   messagesRef: React.RefObject<ComponentRef<typeof Messages> | null>;

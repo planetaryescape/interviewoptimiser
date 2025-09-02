@@ -1,8 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { BarChart3, GitBranch, MessageSquare } from "lucide-react";
-import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Carousel,
@@ -12,6 +9,9 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { BarChart3, GitBranch, MessageSquare } from "lucide-react";
+import { useEffect, useState } from "react";
 import SectionTitle from "../ui/SectionTitle";
 import SectionWrapper from "../ui/SectionWrapper";
 

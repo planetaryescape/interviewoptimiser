@@ -1,5 +1,5 @@
+import crypto from "node:crypto";
 import { kv } from "@vercel/kv";
-import crypto from "crypto";
 import { logger } from "~/lib/logger";
 
 export interface CacheConfig {
@@ -181,11 +181,11 @@ class CacheManager {
 
     try {
       const [hits, misses, writes, deletes] = await Promise.all([
-        kv.get<number>(`${STATS_PREFIX}:hits`) ?? 0,
-        kv.get<number>(`${STATS_PREFIX}:misses`) ?? 0,
-        kv.get<number>(`${STATS_PREFIX}:writes`) ?? 0,
-        kv.get<number>(`${STATS_PREFIX}:deletes`) ?? 0,
-      ]);
+        kv.get<number>(`${STATS_PREFIX}:hits`),
+        kv.get<number>(`${STATS_PREFIX}:misses`),
+        kv.get<number>(`${STATS_PREFIX}:writes`),
+        kv.get<number>(`${STATS_PREFIX}:deletes`),
+      ]).then(([h, m, w, d]) => [h ?? 0, m ?? 0, w ?? 0, d ?? 0]);
 
       return { hits, misses, writes, deletes };
     } catch (error) {

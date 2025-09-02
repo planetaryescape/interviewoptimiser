@@ -1,15 +1,15 @@
 "use client";
 
-import { useAuth } from "@clerk/nextjs";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, CheckCircle2, Clock, Play, Shield, Sparkles, Trophy } from "lucide-react";
-import { unstable_noStore as noStore } from "next/cache";
-import Link from "next/link";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@clerk/nextjs";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowRight, CheckCircle2, Clock, Play, Shield, Sparkles, Trophy } from "lucide-react";
+import { useTheme } from "next-themes";
+import { unstable_noStore as noStore } from "next/cache";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { BorderBeam } from "./magicui/border-beam";
 import HeroVideoDialog from "./magicui/hero-video-dialog";
 import Particles from "./magicui/particles";

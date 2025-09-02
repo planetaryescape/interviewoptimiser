@@ -1,8 +1,8 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { AutoSizer } from "react-virtualized";
-import { cn } from "@/lib/utils";
 
 export function MicFFT({ fft, className }: { fft: number[]; className?: string }) {
   return (

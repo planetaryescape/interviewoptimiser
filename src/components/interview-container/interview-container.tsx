@@ -1,9 +1,9 @@
 "use client";
 
+import type { Messages } from "@/components/messages";
 import { VoiceProvider } from "@humeai/voice-react";
 import type { ComponentRef } from "react";
 import * as React from "react";
-import type { Messages } from "@/components/messages";
 import { ErrorDialog } from "./error-dialog";
 import { InterviewContent } from "./interview-content";
 import { InterviewHeader } from "./interview-header";

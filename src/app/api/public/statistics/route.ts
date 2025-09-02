@@ -1,6 +1,6 @@
+import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
 import { NextResponse } from "next/server";
-import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { db } from "~/db";
 import { statistics } from "~/db/schema";
 import { logger } from "~/lib/logger";

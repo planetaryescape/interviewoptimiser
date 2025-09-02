@@ -1,14 +1,5 @@
 "use client";
 
-import { useVoice } from "@humeai/voice-react";
-import * as Sentry from "@sentry/nextjs";
-import { useMutation } from "@tanstack/react-query";
-import { motion } from "framer-motion";
-import { Home, Layout, MessageCircle, X } from "lucide-react";
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import {
   InterviewSettings,
   type NewInterviewWithPublicJobId,
@@ -19,6 +10,15 @@ import { useJob } from "@/hooks/useJob";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
+import { useVoice } from "@humeai/voice-react";
+import * as Sentry from "@sentry/nextjs";
+import { useMutation } from "@tanstack/react-query";
+import { motion } from "framer-motion";
+import { Home, Layout, MessageCircle, X } from "lucide-react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { InterviewStartModal } from "./interview-start-modal";
 
 export function InterviewPlaceholder() {

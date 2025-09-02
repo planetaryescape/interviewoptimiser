@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
 import type { WavRecorder, WavStreamPlayer } from "@/lib/wavtools";
 import { drawBars } from "@/utils/wav_renderer";
+import { useCallback, useEffect, useRef } from "react";
 
 export function AudioVisualizer({
   startVisualization,

@@ -1,8 +1,3 @@
-import * as Sentry from "@sentry/nextjs";
-import { useDebounce } from "@uidotdev/usehooks";
-import { AlertCircle, FileText, HelpCircle, LinkIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { extractTextFromFile } from "@/actions/extractTextFromFile";
 import { extractTextFromUrl } from "@/actions/extractTextFromUrl";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -11,6 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useCreateJobActions, useCreateJobJobDescriptionText } from "@/stores/createJobStore";
+import * as Sentry from "@sentry/nextjs";
+import { useDebounce } from "@uidotdev/usehooks";
+import { AlertCircle, FileText, HelpCircle, LinkIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { config } from "~/config";
 
 export function Step1JobDescription() {

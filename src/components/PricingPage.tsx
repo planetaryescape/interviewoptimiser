@@ -1,9 +1,9 @@
+import { PricingCardFooter } from "@/components/PricingCardFooter";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Check } from "lucide-react";
 import { Suspense } from "react";
 import type Stripe from "stripe";
-import { PricingCardFooter } from "@/components/PricingCardFooter";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { stripe } from "~/lib/stripe";
 
 export async function PricingPlans() {

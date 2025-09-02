@@ -1,10 +1,10 @@
+import { cn } from "@/lib/utils";
 import { IconUpload } from "@tabler/icons-react";
 import { motion } from "framer-motion";
 import { Loader2, X } from "lucide-react"; // Add X icon import
 import { useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 
 const mainVariant = {
   initial: {

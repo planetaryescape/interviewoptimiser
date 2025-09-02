@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatFileSize, MB_IN_BYTES, validateFileSize } from "./fileValidation";
+import { MB_IN_BYTES, formatFileSize, validateFileSize } from "./fileValidation";
 
 describe("validateFileSize", () => {
   it("should reject null file", () => {

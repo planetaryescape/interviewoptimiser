@@ -1,6 +1,5 @@
 "use client";
 
-import { ClipboardList, Download, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CustomProgress } from "@/components/ui/custom-progress";
 import {
@@ -12,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ClipboardList, Download, X } from "lucide-react";
 
 interface ScorecardModalProps {
   isOpen: boolean;

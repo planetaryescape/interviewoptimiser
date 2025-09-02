@@ -1,8 +1,8 @@
 "use client";
 
-import * as React from "react";
 import { ConnectionStatus } from "@/components/interview/connection-status";
 import { TimerDisplay } from "@/components/interview/timer-display";
+import * as React from "react";
 
 export const InterviewHeader = React.memo(function InterviewHeader() {
   return (

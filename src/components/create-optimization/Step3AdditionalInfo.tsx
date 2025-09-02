@@ -1,6 +1,6 @@
-import { MessageSquare } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateJobActions, useCreateJobAdditionalInfo } from "@/stores/createJobStore";
+import { MessageSquare } from "lucide-react";
 import { config } from "~/config";
 
 export function Step3AdditionalInfo() {

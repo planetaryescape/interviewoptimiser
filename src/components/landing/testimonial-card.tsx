@@ -1,9 +1,9 @@
-import { StarIcon, TwitterIcon } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
 import { BackgroundGradient } from "@/components/background-gradient";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { StarIcon, TwitterIcon } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import type { Review } from "~/db/schema";
 
 interface TestimonialCardProps {

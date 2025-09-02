@@ -1,9 +1,9 @@
-import * as Sentry from "@sentry/nextjs";
-import { eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth-middleware";
 import { CacheDurations, CachePrefixes, CacheTags, cache } from "@/lib/cache";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
+import * as Sentry from "@sentry/nextjs";
+import { eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
 import { db } from "~/db";
 import { users } from "~/db/schema";
 import { logger } from "~/lib/logger";

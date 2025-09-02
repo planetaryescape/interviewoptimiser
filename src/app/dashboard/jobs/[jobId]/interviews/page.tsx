@@ -1,5 +1,17 @@
 "use client";
 
+import { OutOfMinutesModal } from "@/components/create-optimization/OutOfMinutesModal";
+import { AnimatedStatCard } from "@/components/dashboard/animated-stat-card";
+import { InterviewsTable } from "@/components/dashboard/interviews-table";
+import { PerformanceMetricsSection } from "@/components/dashboard/performance-metrics-section";
+import { ScoreComparisonCard } from "@/components/dashboard/score-comparison-card";
+import { JobDetailsSheet } from "@/components/job-details-sheet";
+import { Button } from "@/components/ui/button";
+import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { getRepository } from "@/lib/data/repositoryFactory";
+import type { EntityList } from "@/lib/utils/formatEntity";
+import { formatInterviewType } from "@/utils/formatters/format-interview-type";
 import * as Tabs from "@radix-ui/react-tabs";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -14,18 +26,6 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useMemo, useState } from "react";
-import { OutOfMinutesModal } from "@/components/create-optimization/OutOfMinutesModal";
-import { AnimatedStatCard } from "@/components/dashboard/animated-stat-card";
-import { InterviewsTable } from "@/components/dashboard/interviews-table";
-import { PerformanceMetricsSection } from "@/components/dashboard/performance-metrics-section";
-import { ScoreComparisonCard } from "@/components/dashboard/score-comparison-card";
-import { JobDetailsSheet } from "@/components/job-details-sheet";
-import { Button } from "@/components/ui/button";
-import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { getRepository } from "@/lib/data/repositoryFactory";
-import type { EntityList } from "@/lib/utils/formatEntity";
-import { formatInterviewType } from "@/utils/formatters/format-interview-type";
 import type { InferResultType } from "~/db/helpers";
 import type { Job } from "~/db/schema";
 

@@ -1,8 +1,8 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ArrowDownRight, ArrowUpRight, type LucideIcon, Minus } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface ScoreComparisonCardProps {
   title: string;

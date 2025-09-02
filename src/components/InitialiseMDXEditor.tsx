@@ -1,19 +1,19 @@
 "use client";
 
 import {
+  KitchenSinkToolbar,
+  MDXEditor,
+  type MDXEditorMethods,
+  type MDXEditorProps,
   codeBlockPlugin,
   codeMirrorPlugin,
   diffSourcePlugin,
   frontmatterPlugin,
   headingsPlugin,
   imagePlugin,
-  KitchenSinkToolbar,
   linkDialogPlugin,
   linkPlugin,
   listsPlugin,
-  MDXEditor,
-  type MDXEditorMethods,
-  type MDXEditorProps,
   markdownShortcutPlugin,
   quotePlugin,
   tablePlugin,

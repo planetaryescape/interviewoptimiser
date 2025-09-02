@@ -1,13 +1,5 @@
 "use client";
 
-import { useAuth } from "@clerk/nextjs";
-import * as Sentry from "@sentry/nextjs";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { motion } from "framer-motion";
-import { Calendar, ThumbsUp, User } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { toast } from "sonner";
 import { Card, CardTitle } from "@/components/acertenity-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,6 +14,14 @@ import {
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
 import { idHandler } from "@/lib/utils/idHandler";
+import { useAuth } from "@clerk/nextjs";
+import * as Sentry from "@sentry/nextjs";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { motion } from "framer-motion";
+import { Calendar, ThumbsUp, User } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { toast } from "sonner";
 import type { FeatureRequest } from "~/db/schema";
 import { featureRequestStatusEnum } from "~/db/schema/featureRequests";
 import { remarkMarkdownComponents } from "./remark-markdown-components";

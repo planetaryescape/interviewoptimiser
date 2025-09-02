@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCSRFToken } from "@/hooks/use-csrf-token";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export function CSRFProtectedForm() {
   const { secureFetch, isLoading } = useCSRFToken();

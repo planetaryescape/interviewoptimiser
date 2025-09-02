@@ -1,8 +1,8 @@
-import * as Sentry from "@sentry/nextjs";
-import { NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth-middleware";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import { isFomoDiscountActive } from "@/lib/utils/isFomoDiscountActive";
+import * as Sentry from "@sentry/nextjs";
+import { NextResponse } from "next/server";
 import { config } from "~/config";
 import { logger } from "~/lib/logger";
 import { stripe } from "~/lib/stripe";

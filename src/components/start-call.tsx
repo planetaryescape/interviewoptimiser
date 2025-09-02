@@ -1,7 +1,7 @@
+import { cn } from "@/lib/utils";
 import { useVoice } from "@humeai/voice-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 
 export function StartCall({

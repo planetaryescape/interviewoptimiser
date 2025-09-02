@@ -1,9 +1,9 @@
 "use client";
 
-import { XCircle } from "lucide-react";
-import * as React from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { XCircle } from "lucide-react";
+import * as React from "react";
 import type { MultiSelectOption } from "./types";
 import { multiSelectVariants } from "./variants";
 

@@ -1,6 +1,6 @@
+import { withAuthAsync } from "@/lib/auth-middleware";
 import { and, avg, desc, eq, inArray, sql } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
-import { withAuthAsync } from "@/lib/auth-middleware";
 import { db } from "~/db";
 import { interviews, jobs, reports } from "~/db/schema";
 import { logger } from "~/lib/logger";

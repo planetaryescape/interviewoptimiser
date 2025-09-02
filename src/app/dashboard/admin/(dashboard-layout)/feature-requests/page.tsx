@@ -1,10 +1,5 @@
 "use client";
 
-import { ClerkProvider } from "@clerk/nextjs";
-import { useQuery } from "@tanstack/react-query";
-import { FileText, Grid, List } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
 import { FeatureRequestCard } from "@/components/feature-request-card";
 import { MultiSelect } from "@/components/multi-select";
 import { Button } from "@/components/ui/button";
@@ -12,6 +7,11 @@ import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 import { Toggle } from "@/components/ui/toggle";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
+import { ClerkProvider } from "@clerk/nextjs";
+import { useQuery } from "@tanstack/react-query";
+import { FileText, Grid, List } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import type { FeatureRequest } from "~/db/schema";
 import { featureRequestStatusEnum } from "~/db/schema/featureRequests";
 

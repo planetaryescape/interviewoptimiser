@@ -1,11 +1,11 @@
 "use client";
 
-import { AlertCircle, HelpCircle } from "lucide-react";
-import type React from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useRecruitmentCreateStore } from "@/stores/recruitmentCreateStore";
+import { AlertCircle, HelpCircle } from "lucide-react";
+import type React from "react";
 
 const Step1JobDescription = () => {
   const { jobDescriptionText, setJobDescriptionText } = useRecruitmentCreateStore();

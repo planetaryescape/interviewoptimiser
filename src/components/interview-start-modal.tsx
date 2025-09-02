@@ -1,12 +1,12 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 import { CheckCircle2, Loader2, MessageSquare, Mic, Pause, Volume2, XCircle } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
 type InterviewStartModalProps = {
   isOpen: boolean;

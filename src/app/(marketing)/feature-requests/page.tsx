@@ -1,8 +1,5 @@
 "use client";
 
-import { ClerkProvider, useAuth } from "@clerk/nextjs";
-import * as Sentry from "@sentry/nextjs";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BackgroundGradient } from "@/components/background-gradient";
 import { FeatureRequestCard } from "@/components/feature-request-card";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +13,9 @@ import { useSimpleMDEOptions } from "@/config/simplemde-options";
 import useMarkdownEditor from "@/hooks/useMarkdownEditor";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
+import { ClerkProvider, useAuth } from "@clerk/nextjs";
+import * as Sentry from "@sentry/nextjs";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import "easymde/dist/easymde.min.css";
 import { motion } from "framer-motion";
 import { ArrowUpCircle, CheckCircle, Filter, Lightbulb, MessageSquare } from "lucide-react";

@@ -1,8 +1,5 @@
 "use client";
 
-import { Loader2, RefreshCw, Share, StarIcon } from "lucide-react";
-import { useFeatureFlagEnabled } from "posthog-js/react";
-import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,6 +9,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Loader2, RefreshCw, Share, StarIcon } from "lucide-react";
+import { useFeatureFlagEnabled } from "posthog-js/react";
+import * as React from "react";
 import { ToolbarItem } from "./toolbar-item";
 
 interface ToolbarActionsProps {

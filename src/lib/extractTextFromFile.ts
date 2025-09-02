@@ -1,9 +1,9 @@
 "use server";
 
+import { validateFileSize } from "@/lib/utils/fileValidation";
 import mammoth from "mammoth";
 // @ts-expect-error TODO: fix this
 import * as pdf from "pdf-parse/lib/pdf-parse.js";
-import { validateFileSize } from "@/lib/utils/fileValidation";
 import { logger } from "../../lib/logger";
 
 export async function extractTextFromFile(file: File): Promise<string> {

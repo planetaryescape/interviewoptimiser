@@ -1,7 +1,7 @@
+import { idHandler } from "@/lib/utils/idHandler";
 import { BriefcaseIcon, BuildingOfficeIcon, ClockIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 import Link from "next/link";
-import { idHandler } from "@/lib/utils/idHandler";
 
 export interface RecentJobItem {
   id: number;
