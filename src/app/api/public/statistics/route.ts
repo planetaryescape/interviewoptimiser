@@ -1,6 +1,6 @@
-import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
 import { NextResponse } from "next/server";
+import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { db } from "~/db";
 import { statistics } from "~/db/schema";
 import { logger } from "~/lib/logger";
@@ -37,10 +37,7 @@ export async function GET() {
     const response = NextResponse.json(formatEntity(stats, "statistics"));
 
     // Set cache control headers
-    response.headers.set(
-      "Cache-Control",
-      "public, s-maxage=3600, stale-while-revalidate=86400"
-    );
+    response.headers.set("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");
 
     return response;
   } catch (error) {

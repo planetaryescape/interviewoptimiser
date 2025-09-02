@@ -1,7 +1,7 @@
-import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
 import { count } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import { db } from "~/db";
 import { users } from "~/db/schema";
 import { logger } from "~/lib/logger";

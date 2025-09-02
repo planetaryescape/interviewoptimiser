@@ -1,9 +1,9 @@
 "use server";
 
-import { validateFileSize } from "@/lib/utils/fileValidation";
 import * as Sentry from "@sentry/nextjs";
 import mammoth from "mammoth";
 import pdf from "pdf-parse";
+import { validateFileSize } from "@/lib/utils/fileValidation";
 import { logger } from "~/lib/logger";
 
 export async function extractTextFromFile(formData: FormData): Promise<string> {

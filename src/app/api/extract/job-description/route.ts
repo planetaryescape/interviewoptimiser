@@ -1,9 +1,9 @@
-import { withAuth } from "@/lib/auth-middleware";
-import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
-import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { withAuth } from "@/lib/auth-middleware";
+import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
+import { idHandler } from "@/lib/utils/idHandler";
 import { db } from "~/db";
 import { jobDescriptions } from "~/db/schema";
 import { extractJobDescription } from "~/lib/ai/extract-job-description";

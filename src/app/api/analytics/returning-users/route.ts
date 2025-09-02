@@ -1,7 +1,7 @@
+import { type NextRequest, NextResponse } from "next/server";
 import { getReturningUserStats } from "@/lib/analytics/returning-users";
 import { withAuth } from "@/lib/auth-middleware";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
-import { type NextRequest, NextResponse } from "next/server";
 import { logger } from "~/lib/logger";
 
 export const GET = withAuth(async (_request: NextRequest, { user }) => {
