@@ -1,3 +1,5 @@
+"use client";
+
 export function TrustedCompaniesSection() {
   const companies = [
     { name: "Google", logo: "/logos/google.svg" },
@@ -21,7 +23,7 @@ export function TrustedCompaniesSection() {
           Trusted by professionals from leading companies
         </p>
         <div className="relative overflow-hidden">
-          <div className="flex animate-scroll">
+          <div className="flex animate-[scroll_30s_linear_infinite] hover:[animation-play-state:paused]">
             <div className="flex gap-12 pr-12">
               {companies.map((company) => (
                 <div
@@ -63,12 +65,6 @@ export function TrustedCompaniesSection() {
           100% {
             transform: translateX(-50%);
           }
-        }
-        .animate-scroll {
-          animation: scroll 30s linear infinite;
-        }
-        .animate-scroll:hover {
-          animation-play-state: paused;
         }
       `}</style>
     </section>
