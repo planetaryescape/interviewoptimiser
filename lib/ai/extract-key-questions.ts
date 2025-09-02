@@ -1,9 +1,9 @@
-import type { InterviewTypeDefinition } from "@/fixtures/interview-types";
-import { interviewTypes } from "@/fixtures/interview-types";
 import type { LanguageModelV1 } from "@ai-sdk/provider";
 import { generateObject } from "ai";
 import type { CompletionUsage } from "openai/resources/completions.mjs";
 import { z } from "zod";
+import type { InterviewTypeDefinition } from "@/fixtures/interview-types";
+import { interviewTypes } from "@/fixtures/interview-types";
 import type { JobDescription } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
