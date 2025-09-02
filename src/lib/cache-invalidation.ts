@@ -1,5 +1,5 @@
+import { logger } from "~/lib/logger";
 import { CachePrefixes, CacheTags, cache } from "./cache";
-import { logger } from "./logger";
 
 export const cacheInvalidation = {
   async invalidateUser(userId: string) {

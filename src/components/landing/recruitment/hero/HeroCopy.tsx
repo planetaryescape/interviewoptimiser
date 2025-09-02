@@ -1,12 +1,12 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { CTA_BOOK_A_DEMO } from "@/lib/landing/recruitment/constants";
+import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ArrowRight, Play } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { CTA_BOOK_A_DEMO } from "@/lib/landing/recruitment/constants";
-import { cn } from "@/lib/utils";
 
 interface HeroCopyProps {
   onOpenDemoModal: () => void;

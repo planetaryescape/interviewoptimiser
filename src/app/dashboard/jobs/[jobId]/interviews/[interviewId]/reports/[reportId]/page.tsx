@@ -1,8 +1,5 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMeasure } from "@uidotdev/usehooks";
 import {
   bebasNeue,
   comfortaa,
@@ -32,7 +29,7 @@ import {
 } from "@/app/fonts";
 import { AudioPlayer } from "@/components/interview/audio-player";
 import PagePreview from "@/components/page-preview";
-import { marginSizes, PagePreviewToolbar, paperSizes } from "@/components/page-preview-toolbar";
+import { PagePreviewToolbar, marginSizes, paperSizes } from "@/components/page-preview-toolbar";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -54,12 +51,10 @@ import { mmToPx, remToPx } from "@/lib/unit-conversions";
 import { cn } from "@/lib/utils";
 import type { EntityList } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
+import * as Sentry from "@sentry/nextjs";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMeasure } from "@uidotdev/usehooks";
 import "easymde/dist/easymde.min.css";
-import saveAs from "file-saver";
-import { FileSearch } from "lucide-react";
-import Link from "next/link";
-import { use, useState } from "react";
-import { toast } from "sonner";
 import { CommunicationAnalysis } from "@/components/report/communication-analysis";
 import { CompetencyAssessment } from "@/components/report/competency-assessment";
 import { DevelopmentRecommendations } from "@/components/report/development-recommendations";
@@ -70,6 +65,11 @@ import { ReportFooter } from "@/components/report/report-footer";
 // Import components
 import { ReportHeader } from "@/components/report/report-header";
 import { TranscriptSection } from "@/components/report/transcript-section";
+import saveAs from "file-saver";
+import { FileSearch } from "lucide-react";
+import Link from "next/link";
+import { use, useState } from "react";
+import { toast } from "sonner";
 import type { InferResultType } from "~/db/helpers";
 import type { Interview, Job, PageSettings, QuestionAnalysis } from "~/db/schema";
 

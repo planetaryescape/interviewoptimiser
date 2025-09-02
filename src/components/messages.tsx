@@ -1,11 +1,11 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+import { INTERVIEW_START_MESSAGE } from "@/lib/utils/messageUtils";
 import { useVoice } from "@humeai/voice-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { MessageCircle, User } from "lucide-react";
 import { type ComponentRef, forwardRef } from "react";
-import { cn } from "@/lib/utils";
-import { INTERVIEW_START_MESSAGE } from "@/lib/utils/messageUtils";
 
 export const Messages = forwardRef<ComponentRef<typeof motion.div>, Record<never, never>>(
   function Messages(_, ref) {

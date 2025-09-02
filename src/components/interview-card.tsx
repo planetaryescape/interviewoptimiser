@@ -1,8 +1,5 @@
 "use client";
 
-import { Award, Briefcase, Building2, Calendar, Loader2, MoreVertical } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
 import { Card, CardTitle } from "@/components/acertenity-card";
 import {
   AlertDialog,
@@ -25,6 +22,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { idHandler } from "@/lib/utils/idHandler";
+import { Award, Briefcase, Building2, Calendar, Loader2, MoreVertical } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 import type { InferResultType } from "~/db/helpers";
 
 // Type inferred from the database schema for a job and its relations

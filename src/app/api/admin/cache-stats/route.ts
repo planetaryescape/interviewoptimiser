@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth-middleware";
 import { cache } from "@/lib/cache";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
+import { NextResponse } from "next/server";
 import { logger } from "~/lib/logger";
 
 export const GET = withAuth(
@@ -16,7 +16,7 @@ export const GET = withAuth(
       const stats = await cache.getStats();
 
       if (!stats) {
-        return NextResponse.json(formatEntity({ message: "Cache not enabled" }, "cache-stats"));
+        return NextResponse.json(formatEntity({ message: "Cache not enabled" }, "generic"));
       }
 
       const hitRate =
@@ -31,7 +31,7 @@ export const GET = withAuth(
       };
 
       logger.info({ stats: enhancedStats }, "Retrieved cache statistics");
-      return NextResponse.json(formatEntity(enhancedStats, "cache-stats"));
+      return NextResponse.json(formatEntity(enhancedStats, "generic"));
     } catch (error) {
       logger.error({ error }, "Error retrieving cache stats");
       return NextResponse.json(formatErrorEntity("Internal server error"), {

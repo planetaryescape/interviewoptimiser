@@ -1,8 +1,3 @@
-import * as Sentry from "@sentry/nextjs";
-import { countDistinct, eq, sql } from "drizzle-orm";
-import { createInsertSchema } from "drizzle-zod";
-import { NextResponse } from "next/server";
-import { Webhook } from "svix";
 import AccountDeletedEmail from "@/emails/account-deleted";
 import AdminNotificationEmail from "@/emails/admin-notification";
 import WelcomeEmail from "@/emails/welcome";
@@ -11,6 +6,11 @@ import { createDefaultApiRouteContext } from "@/lib/createDefaultApiRouteContext
 import { hashEmail } from "@/lib/utils/emailHash";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import type { ClerkWebhookPayload } from "@/types/clerk-webhooks";
+import * as Sentry from "@sentry/nextjs";
+import { countDistinct, eq, sql } from "drizzle-orm";
+import { createInsertSchema } from "drizzle-zod";
+import { NextResponse } from "next/server";
+import { Webhook } from "svix";
 import { config } from "~/config";
 import { db } from "~/db";
 import {

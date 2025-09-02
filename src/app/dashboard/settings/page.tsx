@@ -1,7 +1,7 @@
 "use client";
 
-import { useFeatureFlagEnabled } from "posthog-js/react";
 import { CustomisationSettings } from "@/components/customisation-settings";
+import { useFeatureFlagEnabled } from "posthog-js/react";
 
 export default function SettingsPage() {
   const _flagEnabled = useFeatureFlagEnabled("organizations");

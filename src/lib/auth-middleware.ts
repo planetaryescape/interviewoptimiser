@@ -1,7 +1,7 @@
-import { getAuth } from "@clerk/nextjs/server";
-import { type NextRequest, NextResponse } from "next/server";
 import { getUserFromClerkId } from "@/lib/auth";
 import { formatErrorEntity } from "@/lib/utils/formatEntity";
+import { getAuth } from "@clerk/nextjs/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { logger } from "~/lib/logger";
 
 export type AuthContext = {

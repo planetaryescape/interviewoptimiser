@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
 import { getRepository } from "@/lib/data/repositoryFactory";
+import { useQuery } from "@tanstack/react-query";
 import type { InferResultType } from "~/db/helpers";
 
 type JobWithJobDescriptionAndCandidateDetails = InferResultType<

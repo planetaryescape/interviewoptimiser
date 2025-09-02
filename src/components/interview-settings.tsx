@@ -1,10 +1,5 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Clock, PlusCircle, Settings } from "lucide-react";
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import {
@@ -18,6 +13,11 @@ import { interviewTypes } from "@/fixtures/interview-types";
 import { useJob } from "@/hooks/useJob";
 import { useUser } from "@/hooks/useUser";
 import { cn } from "@/lib/utils";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, Clock, PlusCircle, Settings } from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useState } from "react";
 import type { InterviewType, NewInterview } from "~/db/schema";
 
 export type NewInterviewWithPublicJobId = Omit<NewInterview, "jobId"> & {

@@ -1,14 +1,14 @@
-import { ClerkProvider } from "@clerk/nextjs";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import type { Metadata, Viewport } from "next";
-import NextTopLoader from "nextjs-toploader";
-import { Suspense } from "react";
 import { CSRFProvider } from "@/components/csrf-provider";
 import PostHogPageView from "@/components/posthog-pageview";
 import { CSPostHogProvider } from "@/components/providers/posthog";
 import { ReactQueryProvider } from "@/components/react-query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
+import { ClerkProvider } from "@clerk/nextjs";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import type { Metadata, Viewport } from "next";
+import NextTopLoader from "nextjs-toploader";
+import { Suspense } from "react";
 import { geistMono, geistSans, montserrat, oswald, raleway } from "./fonts";
 import "./globals.css";
 import "./markdown-editor.css"; // Add this line

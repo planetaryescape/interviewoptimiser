@@ -1,5 +1,15 @@
 "use client";
 
+import { getRepository } from "@/lib/data/repositoryFactory";
+import { cn } from "@/lib/utils";
+import { idHandler } from "@/lib/utils/idHandler";
+import { INTERVIEW_START_MESSAGE, formatTranscriptToJsonString } from "@/lib/utils/messageUtils";
+import { unformatTime } from "@/lib/utils/unformatTime";
+import {
+  type InterviewWithPublicJobId,
+  useActiveInterview,
+  useActiveInterviewActions,
+} from "@/stores/useActiveInterviewStore";
 import { useVoice } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -8,16 +18,6 @@ import { Mic, MicOff } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { getRepository } from "@/lib/data/repositoryFactory";
-import { cn } from "@/lib/utils";
-import { idHandler } from "@/lib/utils/idHandler";
-import { formatTranscriptToJsonString, INTERVIEW_START_MESSAGE } from "@/lib/utils/messageUtils";
-import { unformatTime } from "@/lib/utils/unformatTime";
-import {
-  type InterviewWithPublicJobId,
-  useActiveInterview,
-  useActiveInterviewActions,
-} from "@/stores/useActiveInterviewStore";
 import { MotionDiv } from "./common/motion";
 import { MicFFT } from "./mic-fft";
 import { Button } from "./ui/button";

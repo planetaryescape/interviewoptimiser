@@ -1,13 +1,13 @@
 "use client";
 
-import { useVoice } from "@humeai/voice-react";
-import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { formatTime } from "@/lib/utils/formatTime";
 import {
   useActiveInterviewRemainingTime,
   useActiveInterviewTotalTime,
 } from "@/stores/useActiveInterviewStore";
+import { useVoice } from "@humeai/voice-react";
+import { useEffect, useRef } from "react";
 
 export function TimerDisplay() {
   const timerCanvasRef = useRef<HTMLCanvasElement>(null);

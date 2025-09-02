@@ -1,7 +1,7 @@
-import { ArrowRight, Briefcase, CalendarDays, Users } from "lucide-react";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { idHandler } from "@/lib/utils/idHandler";
+import { ArrowRight, Briefcase, CalendarDays, Users } from "lucide-react";
+import Link from "next/link";
 import type { Interview, Job } from "~/db/schema"; // Assuming these types are available
 
 // Combining simplified types for the timeline item

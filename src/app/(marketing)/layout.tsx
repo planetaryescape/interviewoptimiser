@@ -1,14 +1,14 @@
 "use client";
 
-import { ClerkProvider } from "@clerk/nextjs";
-import { usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
-import { useFeatureFlagEnabled } from "posthog-js/react";
-import type { ReactNode } from "react";
-import { Toaster } from "sonner";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { RecruitmentBanner } from "@/components/landing/recruitment-banner";
+import { ClerkProvider } from "@clerk/nextjs";
+import { useTheme } from "next-themes";
+import { usePathname } from "next/navigation";
+import { useFeatureFlagEnabled } from "posthog-js/react";
+import type { ReactNode } from "react";
+import { Toaster } from "sonner";
 
 export default function LandingPage({ children }: { children: ReactNode }) {
   const { theme } = useTheme();

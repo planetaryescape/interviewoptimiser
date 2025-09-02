@@ -1,6 +1,6 @@
+import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { cn } from "@/lib/utils";
 import { remarkMarkdownComponents } from "../remark-markdown-components";
 import type { ReportDataProps } from "./types";
 

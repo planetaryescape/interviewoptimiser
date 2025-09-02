@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
 import type { Entity } from "@/lib/utils/formatEntity";
+import { useQuery } from "@tanstack/react-query";
 import type { JobDescription } from "~/db/schema";
 
 export function useJobDetails(jobId: string, isOpen: boolean) {

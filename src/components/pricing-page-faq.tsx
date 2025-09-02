@@ -1,5 +1,6 @@
 "use client";
 
+import { BackgroundGradient } from "@/components/background-gradient";
 import { motion } from "framer-motion";
 import {
   BarChart,
@@ -11,7 +12,6 @@ import {
   Tag,
 } from "lucide-react";
 import { useState } from "react";
-import { BackgroundGradient } from "@/components/background-gradient";
 import { config } from "~/config";
 
 type FAQ = {

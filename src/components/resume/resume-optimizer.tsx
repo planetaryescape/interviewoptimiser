@@ -1,5 +1,11 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import {
   AlertCircle,
   CheckCircle,
@@ -13,12 +19,6 @@ import {
   XCircle,
 } from "lucide-react";
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
 
 interface ATSScore {
   overall: number;
@@ -50,7 +50,7 @@ export function ResumeOptimizer() {
     }
   };
 
-  const analyzeResume = async (resumeFile: File) => {
+  const analyzeResume = async (_resumeFile: File) => {
     setIsAnalyzing(true);
 
     // Simulate API call

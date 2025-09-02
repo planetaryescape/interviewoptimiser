@@ -1,5 +1,5 @@
-import type { ReactElement } from "react";
 import { cn } from "@/lib/utils";
+import type { ReactElement } from "react";
 
 export type SectionTitleProps = {
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";

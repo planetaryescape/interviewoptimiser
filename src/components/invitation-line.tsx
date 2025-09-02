@@ -1,10 +1,10 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
+import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
 import type { Invitation, Organization } from "~/db/schema";
 
 type InvitationModalProps = {

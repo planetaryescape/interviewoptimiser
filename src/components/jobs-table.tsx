@@ -1,5 +1,3 @@
-import { ArrowUpDown, Loader2, MoreVertical } from "lucide-react";
-import Link from "next/link";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +26,8 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { idHandler } from "@/lib/utils/idHandler";
+import { ArrowUpDown, Loader2, MoreVertical } from "lucide-react";
+import Link from "next/link";
 import type { InferResultType } from "~/db/helpers";
 
 // Type inferred from the database schema for a job and its relations

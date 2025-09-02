@@ -1,9 +1,9 @@
-import * as Sentry from "@sentry/nextjs";
-import { NextResponse } from "next/server";
-import { z } from "zod";
 import { withAuth } from "@/lib/auth-middleware";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
+import * as Sentry from "@sentry/nextjs";
+import { NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "~/db";
 import { candidateDetails } from "~/db/schema";
 import { extractCandidateDetails } from "~/lib/ai/extract-candidate-details";

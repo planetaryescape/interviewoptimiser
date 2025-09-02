@@ -1,6 +1,3 @@
-import { LinkedinIcon, TwitterIcon } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
 import {
   COPYRIGHT_TEXT,
   FOOTER_LINKS,
@@ -8,6 +5,9 @@ import {
   SOCIAL_LINKS,
 } from "@/lib/landing/recruitment/constants";
 import { cn } from "@/lib/utils";
+import { LinkedinIcon, TwitterIcon } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { config } from "~/config";
 
 // Define type for navigation links if not already globally available

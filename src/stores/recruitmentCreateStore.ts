@@ -1,5 +1,5 @@
-import { create } from "zustand";
 import { interviewTypes as allInterviewTypeDefinitions } from "@/fixtures/interview-types";
+import { create } from "zustand";
 import type { InterviewType } from "~/db/schema/interviews";
 
 // Helper to generate simple unique IDs for questions

@@ -1,10 +1,10 @@
 "use client";
 
+import { expressionColors, isExpressionColor } from "@/utils/expression-colors";
+import { expressionLabels } from "@/utils/expression-labels";
 import { motion } from "framer-motion";
 import type { CSSProperties } from "react";
 import * as R from "remeda";
-import { expressionColors, isExpressionColor } from "@/utils/expression-colors";
-import { expressionLabels } from "@/utils/expression-labels";
 
 export function Expressions({
   values,

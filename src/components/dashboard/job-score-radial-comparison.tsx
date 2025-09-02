@@ -1,8 +1,8 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
 import { PolarAngleAxis, RadialBar, RadialBarChart, ResponsiveContainer } from "recharts";
-import { cn } from "@/lib/utils";
 
 interface JobScoreRadialComparisonProps {
   metricName: string;

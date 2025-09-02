@@ -1,6 +1,6 @@
+import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 import { motion } from "framer-motion";
 import { Brain, FileText, Sparkles } from "lucide-react";
-import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 
 const BLOBS = [
   { id: "blob-1", position: { top: "0%", left: "0%" } },

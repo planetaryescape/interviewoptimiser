@@ -1,21 +1,18 @@
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   BarChart3,
   Briefcase,
   Building2,
   CheckCircle,
-  Clock,
   GraduationCap,
   Palette,
   Plug,
   Shield,
-  TrendingUp,
-  Users,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function RecruitersPage() {
   return (

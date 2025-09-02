@@ -1,13 +1,13 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import type { EntityList } from "@/lib/utils/formatEntity";
 import { useQuery } from "@tanstack/react-query";
 import Autoplay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight, StarIcon } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import type { EntityList } from "@/lib/utils/formatEntity";
 import { config } from "~/config";
 import type { Review } from "~/db/schema";
 import { TestimonialCard } from "./testimonial-card";

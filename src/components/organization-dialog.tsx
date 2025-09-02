@@ -1,9 +1,5 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,6 +21,10 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { idHandler } from "@/lib/utils/idHandler";
+import * as Sentry from "@sentry/nextjs";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { toast } from "sonner";
 import type { Organization } from "~/db/schema";
 
 const INDUSTRY_OPTIONS = [

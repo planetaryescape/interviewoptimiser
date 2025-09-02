@@ -61,7 +61,7 @@
   },
   "overrides": [
     {
-      "includes": ["**/scripts/**/*.js", "**/src/lib/wavtools/**/*.js"],
+      "include": ["**/scripts/**/*.js", "**/src/lib/wavtools/**/*.js"],
       "linter": {
         "rules": {
           "suspicious": {

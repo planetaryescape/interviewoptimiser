@@ -1,7 +1,7 @@
 "use client";
 
-import { PolarAngleAxis, RadialBar, RadialBarChart } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PolarAngleAxis, RadialBar, RadialBarChart } from "recharts";
 
 interface CVAnalysisScoreProps {
   score: number;
