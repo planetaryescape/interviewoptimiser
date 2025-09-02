@@ -69,6 +69,22 @@
           }
         }
       }
+    },
+    {
+      "include": ["**/public/workbox-*.js"],
+      "linter": {
+        "enabled": false
+      }
+    },
+    {
+      "include": ["**/src/lib/wavtools/dist/**/*.d.ts"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noBannedTypes": "off"
+          }
+        }
+      }
     }
   ]
 }
