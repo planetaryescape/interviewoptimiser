@@ -1,8 +1,8 @@
 import {
   ChangeMessageVisibilityCommand,
   type MessageAttributeValue,
-  type SQSClient,
   SendMessageCommand,
+  type SQSClient,
 } from "@aws-sdk/client-sqs";
 import * as Sentry from "@sentry/aws-serverless";
 import type { SQSRecord } from "aws-lambda";
