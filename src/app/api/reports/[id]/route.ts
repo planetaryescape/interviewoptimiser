@@ -1,9 +1,11 @@
-import { withAuth } from "@/lib/auth-middleware";
-import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
-import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { withAuth } from "@/lib/auth-middleware";
+import { CacheDurations, CachePrefixes, CacheTags, cache } from "@/lib/cache";
+import { CacheProfiles, setCacheHeaders } from "@/lib/cache-headers";
+import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
+import { idHandler } from "@/lib/utils/idHandler";
 import { db } from "~/db";
 import { reports } from "~/db/schema";
 import { logger } from "~/lib/logger";
@@ -14,22 +16,33 @@ export const GET = withAuth<{ id: string }>(
 
     try {
       const reportId = idHandler.decode(params!.id);
+      const cacheKey = `report:${reportId}`;
 
-      const userReport = await db.query.reports.findFirst({
-        where: eq(reports.id, reportId),
-        with: {
-          pageSettings: true,
-          interview: {
+      const userReport = await cache.wrap(
+        cacheKey,
+        async () => {
+          return await db.query.reports.findFirst({
+            where: eq(reports.id, reportId),
             with: {
-              job: {
-                columns: {
-                  userId: true,
+              pageSettings: true,
+              interview: {
+                with: {
+                  job: {
+                    columns: {
+                      userId: true,
+                    },
+                  },
                 },
               },
             },
-          },
+          });
         },
-      });
+        {
+          ttl: CacheDurations.LONG,
+          prefix: CachePrefixes.REPORT,
+          tags: [CacheTags.REPORT_DATA, `report:${reportId}`, `user-reports:${user.id}`],
+        }
+      );
 
       if (!userReport) {
         // Return 403 instead of 404 to avoid leaking information about report existence
@@ -51,7 +64,9 @@ export const GET = withAuth<{ id: string }>(
       }
 
       logger.info({ id: userReport.id }, "Successfully retrieved report");
-      return NextResponse.json(formatEntity(userReport, "report"));
+
+      const response = NextResponse.json(formatEntity(userReport, "report"));
+      return setCacheHeaders(response, CacheProfiles.REPORT_DATA);
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "GET /api/reports/[id]");

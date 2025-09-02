@@ -1,9 +1,10 @@
-import { withAuth } from "@/lib/auth-middleware";
-import { sanitiseUserInputText } from "@/lib/sanitiseUserInputText";
-import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
 import { desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { withAuth } from "@/lib/auth-middleware";
+import { CacheDurations, CachePrefixes, CacheTags, cache } from "@/lib/cache";
+import { sanitiseUserInputText } from "@/lib/sanitiseUserInputText";
+import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { config } from "~/config";
 import { db } from "~/db";
 import { jobs } from "~/db/schema";
@@ -51,6 +52,9 @@ export const POST = withAuth(
 
       logger.info({ jobId: newJob.id }, "Successfully created new job");
 
+      await cache.invalidatePattern(`jobs:${user.id}`, CachePrefixes.JOB);
+      await cache.invalidateByTag(`user-jobs:${user.id}`);
+
       return NextResponse.json(formatEntity(newJob, "job"), {
         status: 201,
       });
@@ -80,19 +84,31 @@ export const GET = withAuth(
     logger.info("GET request received at /api/jobs");
 
     try {
-      const userJobs = await db.query.jobs.findMany({
-        where: eq(jobs.userId, user.id),
-        orderBy: desc(jobs.createdAt),
-        with: {
-          interviews: {
+      const cacheKey = `jobs:${user.id}`;
+
+      const userJobs = await cache.wrap(
+        cacheKey,
+        async () => {
+          return await db.query.jobs.findMany({
+            where: eq(jobs.userId, user.id),
+            orderBy: desc(jobs.createdAt),
             with: {
-              report: true,
+              interviews: {
+                with: {
+                  report: true,
+                },
+              },
+              candidateDetails: true,
+              jobDescription: true,
             },
-          },
-          candidateDetails: true,
-          jobDescription: true,
+          });
         },
-      });
+        {
+          ttl: CacheDurations.SHORT,
+          prefix: CachePrefixes.JOB,
+          tags: [CacheTags.JOB_DATA, `user-jobs:${user.id}`],
+        }
+      );
 
       logger.info({ count: userJobs.length }, "Successfully retrieved jobs");
       return NextResponse.json(formatEntityList(userJobs, "job"));
