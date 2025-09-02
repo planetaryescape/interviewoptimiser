@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -9,8 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { motion } from "framer-motion";
-import Link from "next/link";
 import SectionTitle from "../ui/SectionTitle";
 import SectionWrapper from "../ui/SectionWrapper";
 

@@ -1,7 +1,7 @@
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { Entity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
-import Image from "next/image";
 import { config } from "~/config";
 import type { Interview } from "~/db/schema";
 import { ReportSection } from "./report-section";

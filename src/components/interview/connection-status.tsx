@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { useVoice } from "@humeai/voice-react";
+import { cn } from "@/lib/utils";
 
 export function ConnectionStatus() {
   const { status } = useVoice();

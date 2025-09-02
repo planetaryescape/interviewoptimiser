@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { AnimatePresence, MotionConfig } from "framer-motion";
 import { FileText } from "lucide-react";
 import * as React from "react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { JobDetailsContent } from "./job-details-content";
 import { JobDetailsHeader } from "./job-details-header";
 import { useJobDetails } from "./use-job-details";

@@ -1,5 +1,8 @@
 "use client";
 
+import { ArrowUpDown, Eye, MoreVertical } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -17,9 +20,6 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { idHandler } from "@/lib/utils/idHandler";
-import { ArrowUpDown, Eye, MoreVertical } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 /**
  * Defines the structure for a partial report, typically fetched for display in summaries or tables.

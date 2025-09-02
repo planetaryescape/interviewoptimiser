@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import * as React from "react";
 import { useMemo } from "react";
 import {
@@ -13,6 +12,7 @@ import {
   Text,
   Tooltip,
 } from "recharts";
+import { cn } from "@/lib/utils";
 
 export interface RadarChartDataPoint {
   subject: string;

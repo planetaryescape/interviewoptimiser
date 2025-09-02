@@ -1,8 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
-import type { Entity } from "@/lib/utils/formatEntity";
 import { motion } from "framer-motion";
 import {
   Briefcase,
@@ -15,6 +12,9 @@ import {
   Star,
 } from "lucide-react";
 import * as React from "react";
+import { Button } from "@/components/ui/button";
+import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
+import type { Entity } from "@/lib/utils/formatEntity";
 import type { JobDescription } from "~/db/schema";
 import { CompanyRoleHeader } from "./company-role-header";
 import { KeywordsSection } from "./keywords-section";

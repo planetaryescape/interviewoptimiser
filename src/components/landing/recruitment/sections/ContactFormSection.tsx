@@ -1,5 +1,7 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,8 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
 import SectionTitle from "../ui/SectionTitle";
 import SectionWrapper from "../ui/SectionWrapper";
 

@@ -1,16 +1,16 @@
 "use client";
 
+import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
+import { ChevronLeft, ChevronRight, Home, Layout } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
+import useMeasure from "react-use-measure";
 import { Step1JobDescription } from "@/components/create-optimization/Step1JobDescription";
 import { Step2CV } from "@/components/create-optimization/Step2CV";
 import { Step3AdditionalInfo } from "@/components/create-optimization/Step3AdditionalInfo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useCreateJobStep } from "@/stores/createJobStore";
-import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
-import { ChevronLeft, ChevronRight, Home, Layout } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
-import useMeasure from "react-use-measure";
 import { StepIndicator } from "./StepIndicator";
 
 interface ContentAreaProps {

@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
 import React from "react";
+import { cn } from "@/lib/utils";
 
 interface SectionTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
   children: React.ReactNode;

@@ -1,5 +1,5 @@
-import { interviewTypes } from "@/fixtures/interview-types";
 import { z } from "zod";
+import { interviewTypes } from "@/fixtures/interview-types";
 import type { CandidateDetails, JobDescription } from "~/db/schema";
 import type { InterviewType } from "~/db/schema/interviews";
 import { StructuredJobDescriptionSchema } from "~/lib/ai/extract-job-description";

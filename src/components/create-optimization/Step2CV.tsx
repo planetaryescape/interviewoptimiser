@@ -1,13 +1,13 @@
+import * as Sentry from "@sentry/nextjs";
+import { AlertCircle, FileText, HelpCircle } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { extractTextFromFile } from "@/actions/extractTextFromFile";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useCreateJobActions, useCreateJobCVText } from "@/stores/createJobStore";
-import * as Sentry from "@sentry/nextjs";
-import { AlertCircle, FileText, HelpCircle } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 import { config } from "~/config";
 
 export function Step2CV() {

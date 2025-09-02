@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Hero } from "@/components/hero";
 import { CTASection } from "@/components/landing/cta-section";
 import { DifferentiatorsSection } from "@/components/landing/differentiators-section";
@@ -8,7 +9,6 @@ import { SocialProofSection } from "@/components/landing/social-proof-section";
 import { TestimonialsSection } from "@/components/landing/testimonials-section";
 import { TrustedCompaniesSection } from "@/components/landing/trusted-companies-section";
 import { VideoTestimonialsSection } from "@/components/landing/video-testimonials-section";
-import { Suspense } from "react";
 
 export default async function LandingPage() {
   return (

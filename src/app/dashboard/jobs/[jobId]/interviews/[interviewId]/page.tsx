@@ -1,6 +1,6 @@
+import { Suspense } from "react";
 import { InterviewContainer } from "@/components/interview-container";
 import { getHumeAccessToken } from "@/utils/get-hume-access-token";
-import { Suspense } from "react";
 
 export default async function Page(props: {
   params: Promise<{ jobId: string; interviewId: string }>;

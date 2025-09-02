@@ -1,5 +1,8 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { Quote } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -10,9 +13,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import type { TestimonialType } from "@/lib/landing/recruitment/types";
-import { motion } from "framer-motion";
-import { Quote } from "lucide-react";
-import { useEffect, useState } from "react";
 import SectionTitle from "../ui/SectionTitle";
 import SectionWrapper from "../ui/SectionWrapper";
 

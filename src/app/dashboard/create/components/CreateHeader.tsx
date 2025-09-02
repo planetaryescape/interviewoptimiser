@@ -1,9 +1,9 @@
 "use client";
 
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useCreateJobStep } from "@/stores/createJobStore";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { StepIndicator } from "./StepIndicator";
 
 interface CreateHeaderProps {

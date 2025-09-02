@@ -1,5 +1,3 @@
-import { idHandler } from "@/lib/utils/idHandler";
-import { formatInterviewType } from "@/utils/formatters/format-interview-type";
 import {
   Body,
   Button,
@@ -14,6 +12,8 @@ import {
   Text,
 } from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
+import { idHandler } from "@/lib/utils/idHandler";
+import { formatInterviewType } from "@/utils/formatters/format-interview-type";
 import { config } from "~/config";
 import type { InterviewType } from "~/db/schema";
 
