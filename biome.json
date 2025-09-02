@@ -6,18 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "ignoreUnknown": true,
-    "ignore": [
-      "**/node_modules/**",
-      "**/.next/**",
-      "**/dist/**",
-      "**/build/**",
-      "**/.terraform/**",
-      "**/coverage/**",
-      "**/public/**",
-      "**/static/**",
-      "**/db/migrations/meta/**"
-    ]
+    "ignoreUnknown": true
   },
   "formatter": {
     "enabled": true,
@@ -72,7 +61,7 @@
   },
   "overrides": [
     {
-      "include": ["**/scripts/**/*.js", "**/src/lib/wavtools/**/*.js"],
+      "includes": ["**/scripts/**/*.js", "**/src/lib/wavtools/**/*.js"],
       "linter": {
         "rules": {
           "suspicious": {
