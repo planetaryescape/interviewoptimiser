@@ -1,8 +1,8 @@
-import { withAuth } from "@/lib/auth-middleware";
-import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
 import Case from "case";
 import { NextResponse } from "next/server";
+import { withAuth } from "@/lib/auth-middleware";
+import { formatErrorEntity } from "@/lib/utils/formatEntity";
 import { config } from "~/config";
 import { logger } from "~/lib/logger";
 

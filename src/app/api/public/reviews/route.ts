@@ -1,7 +1,7 @@
-import { formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
 import { and, desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { db } from "~/db";
 import { reviews } from "~/db/schema";
 import { logger } from "~/lib/logger";
@@ -11,17 +11,11 @@ export async function GET() {
 
   try {
     const publicReviews = await db.query.reviews.findMany({
-      where: and(
-        eq(reviews.showOnLanding, true),
-        eq(reviews.isPublished, true)
-      ),
+      where: and(eq(reviews.showOnLanding, true), eq(reviews.isPublished, true)),
       orderBy: [desc(reviews.createdAt)],
     });
 
-    logger.info(
-      { count: publicReviews.length },
-      "Successfully retrieved public reviews"
-    );
+    logger.info({ count: publicReviews.length }, "Successfully retrieved public reviews");
     return NextResponse.json(formatEntityList(publicReviews, "review"));
   } catch (error) {
     Sentry.withScope((scope) => {

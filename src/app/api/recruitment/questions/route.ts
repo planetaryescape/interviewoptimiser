@@ -1,8 +1,8 @@
 import crypto from "node:crypto";
-import { withAuth } from "@/lib/auth-middleware";
 import * as Sentry from "@sentry/nextjs";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { withAuth } from "@/lib/auth-middleware";
 
 import { formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import type { InterviewType } from "~/db/schema/interviews";

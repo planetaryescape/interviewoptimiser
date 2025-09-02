@@ -1,15 +1,13 @@
-import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
-import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
+import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
+import { idHandler } from "@/lib/utils/idHandler";
 import { db } from "~/db";
 import { reports } from "~/db/schema";
 import { logger } from "~/lib/logger";
 
-export async function GET(
-_: NextRequest,
-props: { params: Promise<{ id: string }> }) {
+export async function GET(_: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   logger.info("GET request received at /api/public/reports/[id]");
 
@@ -35,21 +33,21 @@ props: { params: Promise<{ id: string }> }) {
 
     logger.info({ id: report.id }, "Successfully retrieved report");
     return NextResponse.json(formatEntity(report, "report"));
-} catch (error) {
-  Sentry.withScope((scope) => {
-    scope.setExtra("context", "GET /api/public/reports/[id]");
-    scope.setExtra("error", error);
-    Sentry.captureException(error);
-  });
-  logger.error(
-  {
-    message: error instanceof Error ? error.message : "Unknown error",
-    error,
-  },
-  "Error in GET /api/public/reports/[id]"
-  );
-  return NextResponse.json(formatErrorEntity("Internal server error"), {
-    status: 500,
-  });
-}
+  } catch (error) {
+    Sentry.withScope((scope) => {
+      scope.setExtra("context", "GET /api/public/reports/[id]");
+      scope.setExtra("error", error);
+      Sentry.captureException(error);
+    });
+    logger.error(
+      {
+        message: error instanceof Error ? error.message : "Unknown error",
+        error,
+      },
+      "Error in GET /api/public/reports/[id]"
+    );
+    return NextResponse.json(formatErrorEntity("Internal server error"), {
+      status: 500,
+    });
+  }
 }

@@ -1,9 +1,9 @@
-import { withAuth } from "@/lib/auth-middleware";
-import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
-import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { withAuth } from "@/lib/auth-middleware";
+import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
+import { idHandler } from "@/lib/utils/idHandler";
 import { db } from "~/db";
 import { organizationMembers } from "~/db/schema";
 import { logger } from "~/lib/logger";

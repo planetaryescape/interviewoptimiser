@@ -1,8 +1,8 @@
+import * as Sentry from "@sentry/nextjs";
+import { NextResponse } from "next/server";
 import ReviewNotificationEmail from "@/emails/review-notification";
 import { withAuth } from "@/lib/auth-middleware";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
-import * as Sentry from "@sentry/nextjs";
-import { NextResponse } from "next/server";
 import { config } from "~/config";
 import { db } from "~/db";
 import { reviews } from "~/db/schema";
