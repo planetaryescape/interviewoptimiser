@@ -1,5 +1,5 @@
 import { Ratelimit } from "@upstash/ratelimit";
-import { kv } from "@vercel/kv";
+import { Redis } from "@upstash/redis";
 import type { NextRequest } from "next/server";
 import { logger } from "~/lib/logger";
 
@@ -33,8 +33,10 @@ const createRatelimit = (config: RateLimitConfig) => {
     return null;
   }
 
+  const redis = Redis.fromEnv();
+
   return new Ratelimit({
-    redis: kv,
+    redis,
     limiter: Ratelimit.slidingWindow(config.requests, config.window),
     prefix: "interview-optimiser",
   });
