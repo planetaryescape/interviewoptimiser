@@ -1,10 +1,11 @@
-import { withAuth } from "@/lib/auth-middleware";
-import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
-import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { NextResponse } from "next/server";
+import { withAuth } from "@/lib/auth-middleware";
+import { CacheDurations, CachePrefixes, CacheTags, cache } from "@/lib/cache";
+import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
+import { idHandler } from "@/lib/utils/idHandler";
 import { db } from "~/db";
 import { interviews, jobs, reports } from "~/db/schema";
 import { logger } from "~/lib/logger";
@@ -13,14 +14,25 @@ export const GET = withAuth<{ jobId: string }>(
   async (_request, { user, params }) => {
     try {
       const jobId = idHandler.decode(params!.jobId);
+      const cacheKey = `job:${jobId}`;
 
-      const userJob = await db.query.jobs.findFirst({
-        where: eq(jobs.id, jobId),
-        with: {
-          candidateDetails: true,
-          jobDescription: true,
+      const userJob = await cache.wrap(
+        cacheKey,
+        async () => {
+          return await db.query.jobs.findFirst({
+            where: eq(jobs.id, jobId),
+            with: {
+              candidateDetails: true,
+              jobDescription: true,
+            },
+          });
         },
-      });
+        {
+          ttl: CacheDurations.MEDIUM,
+          prefix: CachePrefixes.JOB,
+          tags: [CacheTags.JOB_DATA, `job:${jobId}`, `user-jobs:${user.id}`],
+        }
+      );
 
       if (!userJob) {
         return NextResponse.json(formatErrorEntity("Job not found"), {
@@ -99,6 +111,11 @@ export const PUT = withAuth<{ jobId: string }>(
       });
 
       logger.info({ id: updatedResult.id }, "Successfully updated job");
+
+      await cache.delete(`job:${jobId}`, CachePrefixes.JOB);
+      await cache.invalidatePattern(`jobs:${user.id}`, CachePrefixes.JOB);
+      await cache.invalidateByTag(`user-jobs:${user.id}`);
+
       return NextResponse.json(formatEntity(updatedResult, "job"));
     } catch (error) {
       Sentry.withScope((scope) => {
@@ -147,6 +164,11 @@ export const DELETE = withAuth<{ jobId: string }>(
       });
 
       logger.info({ jobId }, "Successfully deleted job and related data");
+
+      await cache.delete(`job:${jobId}`, CachePrefixes.JOB);
+      await cache.invalidatePattern(`jobs:${user.id}`, CachePrefixes.JOB);
+      await cache.invalidateByTag(`user-jobs:${user.id}`);
+
       return NextResponse.json({ message: "Job deleted successfully" });
     } catch (error) {
       Sentry.withScope((scope) => {
