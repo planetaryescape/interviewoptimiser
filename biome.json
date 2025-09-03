@@ -74,6 +74,9 @@
       "include": ["**/public/workbox-*.js"],
       "linter": {
         "enabled": false
+      },
+      "formatter": {
+        "enabled": false
       }
     },
     {
