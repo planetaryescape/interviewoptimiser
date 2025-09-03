@@ -1,5 +1,35 @@
 # CSRF Protection Implementation
 
+## Quick Start
+
+### For Developers
+
+Use `secureFetch` instead of regular `fetch`:
+
+```typescript
+// ❌ Old way
+fetch("/api/jobs", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(data),
+});
+
+// ✅ New way
+import { secureFetch } from "@/lib/utils/secure-fetch";
+
+secureFetch("/api/jobs", {
+  method: "POST",
+  body: JSON.stringify(data),
+});
+```
+
+### What&apos;s Protected
+
+- ✅ All POST, PUT, PATCH, DELETE requests to `/api/*`
+- ❌ GET, HEAD, OPTIONS requests (safe methods)
+- ❌ Webhook endpoints (`/api/webhooks/*`)
+- ❌ Public APIs (`/api/public/*`)
+
 ## Overview
 
 This application implements Cross-Site Request Forgery (CSRF) protection to prevent unauthorized actions on behalf of authenticated users. The implementation uses a double-submit cookie pattern with signed tokens.
