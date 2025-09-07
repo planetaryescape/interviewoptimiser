@@ -1,15 +1,14 @@
 import { getUserFromClerkId } from "@/lib/auth";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { auth } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { config } from "~/config";
 import { db } from "~/db";
 import { users } from "~/db/schema";
 import { logger } from "~/lib/logger";
 import { stripe } from "~/lib/stripe";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Get the authenticated user from Clerk
     const { userId: clerkUserId } = await auth();
@@ -22,7 +21,7 @@ export async function GET(request: NextRequest) {
     const existingUser = await getUserFromClerkId(clerkUserId);
     if (existingUser.id) {
       return NextResponse.json(
-        formatEntity({ message: "User already synced", userId: existingUser.id })
+        formatEntity({ message: "User already synced", userId: existingUser.id }, "user")
       );
     }
 
@@ -77,11 +76,14 @@ export async function GET(request: NextRequest) {
     logger.info({ clerkUserId, email, userId: newUser.id }, "User successfully synced from Clerk");
 
     return NextResponse.json(
-      formatEntity({
-        message: "User successfully synced",
-        userId: newUser.id,
-        email: email,
-      })
+      formatEntity(
+        {
+          message: "User successfully synced",
+          userId: newUser.id,
+          email: email,
+        },
+        "user"
+      )
     );
   } catch (error) {
     logger.error({ error }, "Failed to sync user");
