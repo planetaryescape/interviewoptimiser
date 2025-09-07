@@ -58,11 +58,25 @@ interface DashboardData {
 }
 
 async function fetchDashboardSummary(): Promise<DashboardData> {
-  const response = await fetch("/api/dashboard/summary");
+  let response = await fetch("/api/dashboard/summary");
+
+  // If we get a 403, try to sync the user first
+  if (response.status === 403) {
+    const syncResponse = await fetch("/api/auth/sync");
+    if (syncResponse.ok) {
+      await syncResponse.json();
+      // Try fetching dashboard data again after sync
+      response = await fetch("/api/dashboard/summary");
+    } else {
+      await syncResponse.text();
+    }
+  }
+
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.message || "Failed to fetch dashboard summary");
   }
+
   const result = await response.json();
   interface ActivityItem {
     createdAt?: string | Date;
