@@ -41,7 +41,28 @@ export const GET = withAuth<{ jobId: string }>(
       }
 
       logger.info({ id: userJob.id }, "Successfully retrieved job");
-      return NextResponse.json(formatEntity(userJob, "job"));
+
+      // Encode IDs before sending to client
+      const encodedJob = {
+        ...userJob,
+        id: idHandler.encode(userJob.id),
+        candidateDetails: userJob.candidateDetails
+          ? {
+              ...userJob.candidateDetails,
+              id: idHandler.encode(userJob.candidateDetails.id),
+              jobId: idHandler.encode(userJob.candidateDetails.jobId),
+            }
+          : null,
+        jobDescription: userJob.jobDescription
+          ? {
+              ...userJob.jobDescription,
+              id: idHandler.encode(userJob.jobDescription.id),
+              jobId: idHandler.encode(userJob.jobDescription.jobId),
+            }
+          : null,
+      };
+
+      return NextResponse.json(formatEntity(encodedJob, "job"));
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "GET /api/jobs/[id]");
@@ -116,7 +137,13 @@ export const PUT = withAuth<{ jobId: string }>(
       await cache.invalidatePattern(`jobs:${user.id}`, CachePrefixes.JOB);
       await cache.invalidateByTag(`user-jobs:${user.id}`);
 
-      return NextResponse.json(formatEntity(updatedResult, "job"));
+      // Encode ID before sending to client
+      const encodedJob = {
+        ...updatedResult,
+        id: idHandler.encode(updatedResult.id),
+      };
+
+      return NextResponse.json(formatEntity(encodedJob, "job"));
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "PUT /api/jobs/[jobId]");
