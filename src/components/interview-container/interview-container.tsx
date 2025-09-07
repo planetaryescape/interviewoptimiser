@@ -2,13 +2,13 @@
 
 import type { Messages } from "@/components/messages";
 import { VoiceProvider } from "@humeai/voice-react";
-import type { ComponentRef } from "react";
 import * as React from "react";
+import type { ComponentRef } from "react";
 import { ErrorDialog } from "./error-dialog";
 import { InterviewContent } from "./interview-content";
 import { InterviewHeader } from "./interview-header";
 import { useInterviewLogic } from "./use-interview-logic";
-import { createSessionContext } from "./voice-provider-config";
+import { VoiceConfigProvider } from "./voice-config-context";
 
 interface InterviewContainerProps {
   jobId: string;
@@ -63,33 +63,27 @@ export const InterviewContainer = React.memo(function InterviewContainer({
 
   return (
     <div className="relative grid grid-rows-[1fr_auto] mx-auto w-full overflow-auto h-full">
-      <VoiceProvider
-        auth={{ type: "accessToken", value: accessToken }}
+      <VoiceConfigProvider
+        accessToken={accessToken}
         configId={configId}
-        sessionSettings={{
-          type: "session_settings",
-          systemPrompt,
-          context: {
-            text: createSessionContext(interview),
-            type: "persistent",
-          },
-        }}
-        onMessage={handleMessage}
-        resumedChatGroupId={interview?.data.chatGroupId}
+        systemPrompt={systemPrompt}
+        interview={interview}
       >
-        <InterviewHeader />
-        <InterviewContent
-          messagesRef={messagesRef}
-          isInterviewTooShort={isInterviewTooShort}
-          jobId={jobId}
-        />
-        <ErrorDialog
-          isOpen={isGenerateReportErrorDialogOpen}
-          onOpenChange={setIsGenerateReportErrorDialogOpen}
-          onRetry={handleRetryGenerateReport}
-          onCancel={handleCancelGenerateReport}
-        />
-      </VoiceProvider>
+        <VoiceProvider onMessage={handleMessage}>
+          <InterviewHeader />
+          <InterviewContent
+            messagesRef={messagesRef}
+            isInterviewTooShort={isInterviewTooShort}
+            jobId={jobId}
+          />
+          <ErrorDialog
+            isOpen={isGenerateReportErrorDialogOpen}
+            onOpenChange={setIsGenerateReportErrorDialogOpen}
+            onRetry={handleRetryGenerateReport}
+            onCancel={handleCancelGenerateReport}
+          />
+        </VoiceProvider>
+      </VoiceConfigProvider>
     </div>
   );
 });

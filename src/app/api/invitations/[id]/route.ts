@@ -12,7 +12,7 @@ export const PUT = withAuth<{ id: string }>(
   async (request, { user, params }) => {
     try {
       if (!user || !user.id || !user.email) {
-        logger.error("User not found", { userId: user.id });
+        logger.error({ userId: user?.id }, "User not found");
         return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
       }
 
@@ -32,7 +32,7 @@ export const PUT = withAuth<{ id: string }>(
       });
 
       if (!invitation) {
-        logger.error("Invitation not found", { invitationId });
+        logger.error({ invitationId }, "Invitation not found");
         return NextResponse.json(formatErrorEntity({ message: "Invitation not found" }), {
           status: 404,
         });
@@ -75,7 +75,7 @@ export const PUT = withAuth<{ id: string }>(
 
       return NextResponse.json(formatEntity(updatedInvitation, "invitation"));
     } catch (error) {
-      logger.error("Error updating invitation", { error });
+      logger.error({ error }, "Error updating invitation");
       Sentry.captureException(error);
       return NextResponse.json(formatErrorEntity({ message: "Internal server error" }), {
         status: 500,

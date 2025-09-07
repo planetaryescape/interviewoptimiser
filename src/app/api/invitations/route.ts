@@ -20,7 +20,7 @@ export const GET = withAuth(
   async (request, { user }) => {
     try {
       if (!user || !user.id || !user.email) {
-        logger.error("User not found", { userId: user.id });
+        logger.error({ userId: user?.id }, "User not found");
         return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
       }
 
@@ -72,7 +72,7 @@ export const POST = withAuth(
   async (request, { user }) => {
     try {
       if (!user || !user.id || !user.email) {
-        logger.error("User not found", { userId: user.id });
+        logger.error({ userId: user?.id }, "User not found");
         return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
       }
 
@@ -177,7 +177,7 @@ export const PUT = withAuth(
   async (request, { user }) => {
     try {
       if (!user || !user.id || !user.email) {
-        logger.error("User not found", { userId: user.id });
+        logger.error({ userId: user?.id }, "User not found");
         return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
       }
 
