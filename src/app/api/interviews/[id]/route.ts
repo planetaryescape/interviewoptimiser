@@ -40,7 +40,35 @@ export const GET = withAuth<{ id: string }>(
       }
 
       logger.info({ id: interview.id }, "Successfully retrieved interview");
-      return NextResponse.json(formatEntity(interview, "interview"));
+
+      // Encode IDs before sending to client
+      const encodedInterview = {
+        ...interview,
+        id: idHandler.encode(interview.id),
+        jobId: idHandler.encode(interview.jobId),
+        job: interview.job
+          ? {
+              ...interview.job,
+              id: idHandler.encode(interview.job.id),
+              jobDescription: interview.job.jobDescription
+                ? {
+                    ...interview.job.jobDescription,
+                    id: idHandler.encode(interview.job.jobDescription.id),
+                    jobId: idHandler.encode(interview.job.jobDescription.jobId),
+                  }
+                : null,
+              candidateDetails: interview.job.candidateDetails
+                ? {
+                    ...interview.job.candidateDetails,
+                    id: idHandler.encode(interview.job.candidateDetails.id),
+                    jobId: idHandler.encode(interview.job.candidateDetails.jobId),
+                  }
+                : null,
+            }
+          : null,
+      };
+
+      return NextResponse.json(formatEntity(encodedInterview, "interview"));
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "GET /api/interviews/[id]");
@@ -117,7 +145,15 @@ export const PUT = withAuth<{ id: string }>(
         .returning();
 
       logger.info({ id: updatedInterview.id }, "Successfully updated interview");
-      return NextResponse.json(formatEntity(updatedInterview, "interview"));
+
+      // Encode IDs before sending to client
+      const encodedInterview = {
+        ...updatedInterview,
+        id: idHandler.encode(updatedInterview.id),
+        jobId: idHandler.encode(updatedInterview.jobId),
+      };
+
+      return NextResponse.json(formatEntity(encodedInterview, "interview"));
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "PUT /api/interviews/[id]");

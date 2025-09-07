@@ -53,7 +53,15 @@ export const POST = withAuth(
 
       if (existingInterview) {
         logger.info({ jobId }, "Interview already exists");
-        return NextResponse.json(formatEntity(existingInterview, "interview"), {
+
+        // Encode IDs before sending to client
+        const encodedInterview = {
+          ...existingInterview,
+          id: idHandler.encode(existingInterview.id),
+          jobId: idHandler.encode(existingInterview.jobId),
+        };
+
+        return NextResponse.json(formatEntity(encodedInterview, "interview"), {
           status: 200,
         });
       }
@@ -74,7 +82,14 @@ export const POST = withAuth(
 
       logger.info({ id: newInterview.id }, "Successfully created interview");
 
-      return NextResponse.json(formatEntity(newInterview, "interview"), {
+      // Encode IDs before sending to client
+      const encodedInterview = {
+        ...newInterview,
+        id: idHandler.encode(newInterview.id),
+        jobId: idHandler.encode(newInterview.jobId),
+      };
+
+      return NextResponse.json(formatEntity(encodedInterview, "interview"), {
         status: 201,
       });
     } catch (error) {
@@ -162,7 +177,14 @@ export const GET = withAuth(
 
       logger.info({ jobId }, "Successfully retrieved interviews for job");
 
-      return NextResponse.json(formatEntityList(returnedInterviews, "interview"));
+      // Encode IDs before sending to client
+      const encodedInterviews = returnedInterviews.map((interview) => ({
+        ...interview,
+        id: idHandler.encode(interview.id),
+        jobId: idHandler.encode(interview.jobId),
+      }));
+
+      return NextResponse.json(formatEntityList(encodedInterviews, "interview"));
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "GET /api/interviews");
