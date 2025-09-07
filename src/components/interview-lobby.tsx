@@ -14,8 +14,8 @@ export default function InterviewLobby({
 
   return (
     <div className={"relative grid grid-rows-[1fr_auto] mx-auto w-full overflow-auto h-full"}>
-      <VoiceProvider auth={{ type: "accessToken", value: accessToken }} configId={configId}>
-        <InterviewPlaceholder />
+      <VoiceProvider>
+        <InterviewPlaceholder accessToken={accessToken} configId={configId} />
       </VoiceProvider>
     </div>
   );

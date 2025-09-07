@@ -21,7 +21,12 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { InterviewStartModal } from "./interview-start-modal";
 
-export function InterviewPlaceholder() {
+interface InterviewPlaceholderProps {
+  accessToken?: string;
+  configId?: string;
+}
+
+export function InterviewPlaceholder({ accessToken, configId }: InterviewPlaceholderProps = {}) {
   const [showModal, setShowModal] = useState(false);
   const params = useParams();
   const jobId = params.jobId as string;
@@ -111,7 +116,10 @@ export function InterviewPlaceholder() {
   const handleStartInterview = async () => {
     if (status.value !== "connected") {
       try {
-        await connect();
+        await connect({
+          auth: { type: "accessToken", value: accessToken || "" },
+          configId,
+        });
       } catch (error) {
         Sentry.withScope((scope) => {
           scope.setContext("params", params);

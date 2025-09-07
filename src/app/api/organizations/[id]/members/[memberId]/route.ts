@@ -23,7 +23,7 @@ export const PUT = withAuth<{ id: string; memberId: string }>(
   async (request, { user, params }) => {
     try {
       if (!user || !user.id) {
-        logger.error("User not found", { userId: user.id });
+        logger.error({ userId: user.id }, "User not found");
         return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
       }
 
@@ -32,11 +32,14 @@ export const PUT = withAuth<{ id: string; memberId: string }>(
 
       const member = await checkOrganizationAccess(organizationId, user.id);
       if (!member || !["owner", "admin"].includes(member.role)) {
-        logger.error("User not authorized to update organization members", {
-          userId: user.id,
-          organizationId,
-          role: member?.role,
-        });
+        logger.error(
+          {
+            userId: user.id,
+            organizationId,
+            role: member?.role,
+          },
+          "User not authorized to update organization members"
+        );
         return NextResponse.json(
           formatErrorEntity({
             message: "Not authorized to update members in this organization",
@@ -53,7 +56,7 @@ export const PUT = withAuth<{ id: string; memberId: string }>(
       });
 
       if (!targetMember) {
-        logger.error("Member not found", { memberId, organizationId });
+        logger.error({ memberId, organizationId }, "Member not found");
         return NextResponse.json(formatErrorEntity({ message: "Member not found" }), {
           status: 404,
         });
@@ -64,11 +67,14 @@ export const PUT = withAuth<{ id: string; memberId: string }>(
 
       // Owner role can only be changed by the current owner
       if ((targetMember.role === "owner" || json.role === "owner") && member.role !== "owner") {
-        logger.error("Only owners can modify owner role", {
-          userId: user.id,
-          organizationId,
-          memberId,
-        });
+        logger.error(
+          {
+            userId: user.id,
+            organizationId,
+            memberId,
+          },
+          "Only owners can modify owner role"
+        );
         return NextResponse.json(
           formatErrorEntity({
             message: "Only owners can modify the owner role",
@@ -78,14 +84,14 @@ export const PUT = withAuth<{ id: string; memberId: string }>(
       }
 
       if (!role) {
-        logger.error("Missing required fields", { json });
+        logger.error({ json }, "Missing required fields");
         return NextResponse.json(formatErrorEntity({ message: "Role is required" }), {
           status: 400,
         });
       }
 
       if (!["owner", "admin", "member"].includes(role)) {
-        logger.error("Invalid role", { role });
+        logger.error({ role }, "Invalid role");
         return NextResponse.json(
           formatErrorEntity({
             message: "Invalid role. Must be 'owner', 'admin', or 'member'",
@@ -126,13 +132,16 @@ export const PUT = withAuth<{ id: string; memberId: string }>(
           return [member];
         });
 
-        logger.info("Successfully updated organization member role", {
-          userId: user.id,
-          organizationId,
-          memberId,
-          oldRole: targetMember.role,
-          newRole: role,
-        });
+        logger.info(
+          {
+            userId: user.id,
+            organizationId,
+            memberId,
+            oldRole: targetMember.role,
+            newRole: role,
+          },
+          "Successfully updated organization member role"
+        );
 
         return NextResponse.json(formatEntity(updatedMember, "organization-member"));
       }
@@ -147,17 +156,20 @@ export const PUT = withAuth<{ id: string; memberId: string }>(
         .where(eq(organizationMembers.id, memberId))
         .returning();
 
-      logger.info("Successfully updated organization member role", {
-        userId: user.id,
-        organizationId,
-        memberId,
-        oldRole: targetMember.role,
-        newRole: role,
-      });
+      logger.info(
+        {
+          userId: user.id,
+          organizationId,
+          memberId,
+          oldRole: targetMember.role,
+          newRole: role,
+        },
+        "Successfully updated organization member role"
+      );
 
       return NextResponse.json(formatEntity(updatedMember, "organization-member"));
     } catch (error) {
-      logger.error("Error updating organization member", { error });
+      logger.error({ error }, "Error updating organization member");
       Sentry.captureException(error);
       return NextResponse.json(formatErrorEntity(error), { status: 500 });
     }
@@ -169,7 +181,7 @@ export const DELETE = withAuth<{ id: string; memberId: string }>(
   async (_request, { user, params }) => {
     try {
       if (!user || !user.id) {
-        logger.error("User not found", { userId: user.id });
+        logger.error({ userId: user.id }, "User not found");
         return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
       }
 
@@ -178,11 +190,14 @@ export const DELETE = withAuth<{ id: string; memberId: string }>(
 
       const member = await checkOrganizationAccess(organizationId, user.id);
       if (!member || !["owner", "admin"].includes(member.role)) {
-        logger.error("User not authorized to remove organization members", {
-          userId: user.id,
-          organizationId,
-          role: member?.role,
-        });
+        logger.error(
+          {
+            userId: user.id,
+            organizationId,
+            role: member?.role,
+          },
+          "User not authorized to remove organization members"
+        );
         return NextResponse.json(
           formatErrorEntity({
             message: "Not authorized to remove members from this organization",
@@ -199,7 +214,7 @@ export const DELETE = withAuth<{ id: string; memberId: string }>(
       });
 
       if (!targetMember) {
-        logger.error("Member not found", { memberId, organizationId });
+        logger.error({ memberId, organizationId }, "Member not found");
         return NextResponse.json(formatErrorEntity({ message: "Member not found" }), {
           status: 404,
         });
@@ -207,11 +222,14 @@ export const DELETE = withAuth<{ id: string; memberId: string }>(
 
       // Cannot remove the owner
       if (targetMember.role === "owner") {
-        logger.error("Cannot remove organization owner", {
-          userId: user.id,
-          organizationId,
-          memberId,
-        });
+        logger.error(
+          {
+            userId: user.id,
+            organizationId,
+            memberId,
+          },
+          "Cannot remove organization owner"
+        );
         return NextResponse.json(
           formatErrorEntity({ message: "Cannot remove the organization owner" }),
           { status: 403 }
@@ -228,15 +246,18 @@ export const DELETE = withAuth<{ id: string; memberId: string }>(
         .where(eq(organizationMembers.id, memberId))
         .returning();
 
-      logger.info("Successfully removed organization member", {
-        userId: user.id,
-        organizationId,
-        memberId,
-      });
+      logger.info(
+        {
+          userId: user.id,
+          organizationId,
+          memberId,
+        },
+        "Successfully removed organization member"
+      );
 
       return NextResponse.json(formatEntity(updatedMember, "organization-member"));
     } catch (error) {
-      logger.error("Error removing organization member", { error });
+      logger.error({ error }, "Error removing organization member");
       Sentry.captureException(error);
       return NextResponse.json(formatErrorEntity(error), { status: 500 });
     }

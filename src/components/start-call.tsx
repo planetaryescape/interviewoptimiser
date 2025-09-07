@@ -51,6 +51,7 @@ export function StartCall({
                   className={"z-50"}
                   onClick={async () => {
                     try {
+                      // @ts-expect-error - Component not currently used, needs auth config
                       await connect();
                       setInterviewStarted(true);
                     } catch {

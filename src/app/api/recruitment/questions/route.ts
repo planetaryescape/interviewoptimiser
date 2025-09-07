@@ -50,10 +50,13 @@ export const POST = withAuth(
       const validationResult = RequestBodySchema.safeParse(parsedBody);
 
       if (!validationResult.success) {
-        logger.warn("Invalid request body for /api/recruitment/questions", {
-          errors: validationResult.error.flatten(),
-          user: userEmail,
-        });
+        logger.warn(
+          {
+            errors: validationResult.error.flatten(),
+            user: userEmail,
+          },
+          "Invalid request body for /api/recruitment/questions"
+        );
         return NextResponse.json(
           formatErrorEntity({
             message: "Invalid request body",
@@ -89,11 +92,14 @@ export const POST = withAuth(
         updatedAt: new Date(),
       };
 
-      logger.info("Generating interview questions via AI", {
-        interviewType,
-        duration,
-        user: userEmail,
-      });
+      logger.info(
+        {
+          interviewType,
+          duration,
+          user: userEmail,
+        },
+        "Generating interview questions via AI"
+      );
 
       const { data: keyQuestionsResult, usage } = await extractKeyQuestions({
         model,
@@ -110,11 +116,14 @@ export const POST = withAuth(
         isGenerated: true,
       }));
 
-      logger.info("Successfully generated interview questions", {
-        usage,
-        questionCount: mappedQuestions.length,
-        user: userEmail,
-      });
+      logger.info(
+        {
+          usage,
+          questionCount: mappedQuestions.length,
+          user: userEmail,
+        },
+        "Successfully generated interview questions"
+      );
 
       return NextResponse.json(formatEntityList(mappedQuestions, "questions"), {
         status: 200,

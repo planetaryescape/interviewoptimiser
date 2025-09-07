@@ -23,7 +23,7 @@ export const GET = withAuth<{ id: string }>(
   async (_request, { user, params }) => {
     try {
       if (!user || !user.id) {
-        logger.error("User not found", { userId: user.id });
+        logger.error({ userId: user.id }, "User not found");
         return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
       }
 
@@ -31,10 +31,13 @@ export const GET = withAuth<{ id: string }>(
       const member = await checkOrganizationAccess(organizationId, user.id);
 
       if (!member) {
-        logger.error("User not authorized to view organization members", {
-          userId: user.id,
-          organizationId,
-        });
+        logger.error(
+          {
+            userId: user.id,
+            organizationId,
+          },
+          "User not authorized to view organization members"
+        );
         return NextResponse.json(
           formatErrorEntity({
             message: "Not authorized to view this organization's members",
@@ -60,15 +63,18 @@ export const GET = withAuth<{ id: string }>(
         .innerJoin(users, eq(organizationMembers.userId, users.id))
         .where(eq(organizationMembers.organizationId, organizationId));
 
-      logger.info("Successfully fetched organization members", {
-        userId: user.id,
-        organizationId,
-        count: members.length,
-      });
+      logger.info(
+        {
+          userId: user.id,
+          organizationId,
+          count: members.length,
+        },
+        "Successfully fetched organization members"
+      );
 
       return NextResponse.json(formatEntityList(members, "organization-member"));
     } catch (error) {
-      logger.error("Error fetching organization members", { error });
+      logger.error({ error }, "Error fetching organization members");
       Sentry.captureException(error);
       return NextResponse.json(formatErrorEntity(error), { status: 500 });
     }
@@ -80,18 +86,21 @@ export const POST = withAuth<{ id: string }>(
   async (request, { user, params }) => {
     try {
       if (!user || !user.id) {
-        logger.error("User not found", { userId: user.id });
+        logger.error({ userId: user.id }, "User not found");
         return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
       }
 
       const organizationId = idHandler.decode(params!.id);
       const member = await checkOrganizationAccess(organizationId, user.id);
       if (!member || !["owner", "admin"].includes(member.role)) {
-        logger.error("User not authorized to add organization members", {
-          userId: user.id,
-          organizationId,
-          role: member?.role,
-        });
+        logger.error(
+          {
+            userId: user.id,
+            organizationId,
+            role: member?.role,
+          },
+          "User not authorized to add organization members"
+        );
         return NextResponse.json(
           formatErrorEntity({
             message: "Not authorized to add members to this organization",
@@ -104,14 +113,14 @@ export const POST = withAuth<{ id: string }>(
       const { email, role } = json;
 
       if (!email || !role) {
-        logger.error("Missing required fields", { json });
+        logger.error({ json }, "Missing required fields");
         return NextResponse.json(formatErrorEntity({ message: "Email and role are required" }), {
           status: 400,
         });
       }
 
       if (!["admin", "member"].includes(role)) {
-        logger.error("Invalid role", { role });
+        logger.error({ role }, "Invalid role");
         return NextResponse.json(
           formatErrorEntity({
             message: "Invalid role. Must be 'admin' or 'member'",
@@ -125,7 +134,7 @@ export const POST = withAuth<{ id: string }>(
       });
 
       if (!newUser) {
-        logger.error("User not found", { email });
+        logger.error({ email }, "User not found");
         return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
       }
 
@@ -138,7 +147,7 @@ export const POST = withAuth<{ id: string }>(
 
       if (existingMember) {
         if (existingMember.isActive) {
-          logger.error("User is already a member", { email });
+          logger.error({ email }, "User is already a member");
           return NextResponse.json(formatErrorEntity({ message: "User is already a member" }), {
             status: 400,
           });
@@ -155,11 +164,14 @@ export const POST = withAuth<{ id: string }>(
           .where(eq(organizationMembers.id, existingMember.id))
           .returning();
 
-        logger.info("Successfully reactivated organization member", {
-          userId: user.id,
-          organizationId,
-          memberId: updatedMember.id,
-        });
+        logger.info(
+          {
+            userId: user.id,
+            organizationId,
+            memberId: updatedMember.id,
+          },
+          "Successfully reactivated organization member"
+        );
 
         return NextResponse.json(formatEntity(updatedMember, "organization-member"));
       }
@@ -173,15 +185,18 @@ export const POST = withAuth<{ id: string }>(
         })
         .returning();
 
-      logger.info("Successfully added organization member", {
-        userId: user.id,
-        organizationId,
-        memberId: newMember.id,
-      });
+      logger.info(
+        {
+          userId: user.id,
+          organizationId,
+          memberId: newMember.id,
+        },
+        "Successfully added organization member"
+      );
 
       return NextResponse.json(formatEntity(newMember, "organization-member"));
     } catch (error) {
-      logger.error("Error adding organization member", { error });
+      logger.error({ error }, "Error adding organization member");
       Sentry.captureException(error);
       return NextResponse.json(formatErrorEntity(error), { status: 500 });
     }

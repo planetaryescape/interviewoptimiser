@@ -25,10 +25,13 @@ import * as React from "react";
 import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import type { User } from "~/db/schema";
+import { useVoiceConfig } from "../interview-container/voice-config-context";
+import { createSessionContext } from "../interview-container/voice-provider-config";
 
 export const InterviewController = React.memo(function InterviewController() {
   const params = useParams();
   const queryClient = useQueryClient();
+  const { accessToken, configId, systemPrompt, interview } = useVoiceConfig();
   const lastDecrementTimeRef = useRef<number>(0);
   const endingInterviewRef = useRef(false);
   const unmountedRef = useRef(false);
@@ -71,7 +74,18 @@ export const InterviewController = React.memo(function InterviewController() {
 
   useEffect(() => {
     if (!interviewStartedRef.current) {
-      connect();
+      connect({
+        auth: { type: "accessToken", value: accessToken },
+        configId,
+        sessionSettings: {
+          type: "session_settings",
+          systemPrompt,
+          context: {
+            text: createSessionContext(interview),
+            type: "persistent",
+          },
+        },
+      });
       interviewStartedRef.current = true;
     }
 
@@ -80,7 +94,7 @@ export const InterviewController = React.memo(function InterviewController() {
         disconnect();
       }
     };
-  }, [connect, disconnect, status.value]);
+  }, [connect, disconnect, status.value, accessToken, configId, systemPrompt, interview]);
 
   // Update store with voice state
   useEffect(() => {
@@ -227,7 +241,7 @@ export const InterviewController = React.memo(function InterviewController() {
       sendSessionSettings({
         context: {
           text: ONE_MINUTE_LEFT_MESSAGE,
-          type: "editable",
+          type: "persistent",
         },
       });
       markWrapUpSent();

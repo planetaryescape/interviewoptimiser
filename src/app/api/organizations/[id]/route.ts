@@ -23,17 +23,20 @@ export const GET = withAuth<{ id: string }>(
   async (_request, { user, params }) => {
     try {
       if (!user || !user.id) {
-        logger.error("User not found", { userId: user.id });
+        logger.error({ userId: user.id }, "User not found");
         return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
       }
 
       const organizationId = idHandler.decode(params!.id);
       const member = await checkOrganizationAccess(organizationId, user.id);
       if (!member) {
-        logger.error("User not authorized to access organization", {
-          userId: user.id,
-          organizationId,
-        });
+        logger.error(
+          {
+            userId: user.id,
+            organizationId,
+          },
+          "User not authorized to access organization"
+        );
         return NextResponse.json(
           formatErrorEntity({
             message: "Not authorized to access this organization",
@@ -47,20 +50,23 @@ export const GET = withAuth<{ id: string }>(
       });
 
       if (!organization) {
-        logger.error("Organization not found", { organizationId });
+        logger.error({ organizationId }, "Organization not found");
         return NextResponse.json(formatErrorEntity({ message: "Organization not found" }), {
           status: 404,
         });
       }
 
-      logger.info("Successfully fetched organization", {
-        userId: user.id,
-        organizationId,
-      });
+      logger.info(
+        {
+          userId: user.id,
+          organizationId,
+        },
+        "Successfully fetched organization"
+      );
 
       return NextResponse.json(formatEntity(organization, "organization"));
     } catch (error) {
-      logger.error("Error fetching organization", { error });
+      logger.error({ error }, "Error fetching organization");
       Sentry.captureException(error);
       return NextResponse.json(formatErrorEntity(error), { status: 500 });
     }
@@ -72,18 +78,21 @@ export const PUT = withAuth<{ id: string }>(
   async (request, { user, params }) => {
     try {
       if (!user || !user.id) {
-        logger.error("User not found", { userId: user.id });
+        logger.error({ userId: user.id }, "User not found");
         return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
       }
 
       const organizationId = idHandler.decode(params!.id);
       const member = await checkOrganizationAccess(organizationId, user.id);
       if (!member || !["owner", "admin"].includes(member.role)) {
-        logger.error("User not authorized to update organization", {
-          userId: user.id,
-          organizationId,
-          role: member?.role,
-        });
+        logger.error(
+          {
+            userId: user.id,
+            organizationId,
+            role: member?.role,
+          },
+          "User not authorized to update organization"
+        );
         return NextResponse.json(
           formatErrorEntity({
             message: "Not authorized to update this organization",
@@ -96,7 +105,7 @@ export const PUT = withAuth<{ id: string }>(
       const { name, description, website, industry, size } = json;
 
       if (!name) {
-        logger.error("Missing required fields", { json });
+        logger.error({ json }, "Missing required fields");
         return NextResponse.json(formatErrorEntity({ message: "Name is required" }), {
           status: 400,
         });
@@ -115,14 +124,17 @@ export const PUT = withAuth<{ id: string }>(
         .where(eq(organizations.id, organizationId))
         .returning();
 
-      logger.info("Successfully updated organization", {
-        userId: user.id,
-        organizationId,
-      });
+      logger.info(
+        {
+          userId: user.id,
+          organizationId,
+        },
+        "Successfully updated organization"
+      );
 
       return NextResponse.json(formatEntity(organization, "organization"));
     } catch (error) {
-      logger.error("Error updating organization", { error });
+      logger.error({ error }, "Error updating organization");
       Sentry.captureException(error);
       return NextResponse.json(formatErrorEntity(error), { status: 500 });
     }
@@ -134,18 +146,21 @@ export const DELETE = withAuth<{ id: string }>(
   async (_request, { user, params }) => {
     try {
       if (!user || !user.id) {
-        logger.error("User not found", { userId: user.id });
+        logger.error({ userId: user.id }, "User not found");
         return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
       }
 
       const organizationId = idHandler.decode(params!.id);
       const member = await checkOrganizationAccess(organizationId, user.id);
       if (!member || member.role !== "owner") {
-        logger.error("User not authorized to delete organization", {
-          userId: user.id,
-          organizationId,
-          role: member?.role,
-        });
+        logger.error(
+          {
+            userId: user.id,
+            organizationId,
+            role: member?.role,
+          },
+          "User not authorized to delete organization"
+        );
         return NextResponse.json(
           formatErrorEntity({
             message: "Not authorized to delete this organization",
@@ -163,14 +178,17 @@ export const DELETE = withAuth<{ id: string }>(
         .where(eq(organizations.id, organizationId))
         .returning();
 
-      logger.info("Successfully deleted organization", {
-        userId: user.id,
-        organizationId,
-      });
+      logger.info(
+        {
+          userId: user.id,
+          organizationId,
+        },
+        "Successfully deleted organization"
+      );
 
       return NextResponse.json(formatEntity(organization, "organization"));
     } catch (error) {
-      logger.error("Error deleting organization", { error });
+      logger.error({ error }, "Error deleting organization");
       Sentry.captureException(error);
       return NextResponse.json(formatErrorEntity(error), { status: 500 });
     }

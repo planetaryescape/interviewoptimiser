@@ -19,6 +19,8 @@ import { useParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { MotionDiv } from "./common/motion";
+import { useVoiceConfig } from "./interview-container/voice-config-context";
+import { createSessionContext } from "./interview-container/voice-provider-config";
 import { MicFFT } from "./mic-fft";
 import { Button } from "./ui/button";
 import { Toggle } from "./ui/toggle";
@@ -38,6 +40,7 @@ export function Controls() {
     connect,
     sendAssistantInput,
   } = useVoice();
+  const { accessToken, configId, systemPrompt, interview } = useVoiceConfig();
   const params = useParams();
   const queryClient = useQueryClient();
   const { setInterviewEnded } = useActiveInterviewActions();
@@ -135,7 +138,18 @@ export function Controls() {
                 status.value !== "connected" ? "" : "hidden"
               )}
               onClick={async () => {
-                connect();
+                await connect({
+                  auth: { type: "accessToken", value: accessToken },
+                  configId,
+                  sessionSettings: {
+                    type: "session_settings",
+                    systemPrompt,
+                    context: {
+                      text: createSessionContext(interview),
+                      type: "persistent",
+                    },
+                  },
+                });
               }}
               variant={"default"}
             >

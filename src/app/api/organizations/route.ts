@@ -11,7 +11,7 @@ export const GET = withAuth(
   async (_request, { user }) => {
     try {
       if (!user || !user.id) {
-        logger.error("User not found", { userId: user.id });
+        logger.error({ userId: user?.id }, "User not found");
         return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
       }
 
@@ -39,7 +39,7 @@ export const GET = withAuth(
 
       return NextResponse.json(formatEntityList(userOrganizations, "organization"));
     } catch (error) {
-      logger.error("Error fetching organizations", { error });
+      logger.error({ error }, "Error fetching organizations");
       Sentry.withScope((scope) => {
         scope.setExtra("context", "getOrganizations");
         scope.setExtra("error", error);
@@ -57,7 +57,7 @@ export const POST = withAuth(
   async (request, { user }) => {
     try {
       if (!user || !user.id) {
-        logger.error("User not found", { userId: user.id });
+        logger.error({ userId: user?.id }, "User not found");
         return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
       }
 
@@ -99,7 +99,7 @@ export const POST = withAuth(
         )
       );
     } catch (error) {
-      logger.error("Error creating organization", { error });
+      logger.error({ error }, "Error creating organization");
       Sentry.withScope((scope) => {
         scope.setExtra("context", "createOrganization");
         scope.setExtra("error", error);
