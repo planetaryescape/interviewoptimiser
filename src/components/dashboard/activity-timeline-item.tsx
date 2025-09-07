@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import { ArrowRight, Briefcase, CalendarDays, Users } from "lucide-react";
 import Link from "next/link";
 import type { Interview, Job } from "~/db/schema"; // Assuming these types are available
@@ -28,13 +28,15 @@ export const ActivityTimelineItem = ({ item }: ActivityTimelineItemProps) => {
   const title = isJob ? item.role : item.jobRole;
   const subtitle = isJob ? item.company : item.interviewType;
   const date = isJob ? item.createdAt : item.interviewCreatedAt;
-  const encodedId = isJob ? idHandler.encode(item.id) : idHandler.encode(item.interviewId);
+  const encodedId = isJob
+    ? clientIdHandler.formatId(item.id)
+    : clientIdHandler.formatId(item.interviewId);
 
   let href = "#";
   if (isJob) {
     href = `/dashboard/jobs/${encodedId}`;
   } else if (item.reportId) {
-    href = `/dashboard/interviews/${encodedId}/reports/${idHandler.encode(item.reportId)}`;
+    href = `/dashboard/interviews/${encodedId}/reports/${clientIdHandler.formatId(item.reportId)}`;
   }
   const hasLink = href !== "#";
 

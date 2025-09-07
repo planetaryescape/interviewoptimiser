@@ -21,7 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import { Award, Briefcase, Building2, Calendar, Loader2, MoreVertical } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -72,7 +72,10 @@ export const JobCard = ({ job, onDelete, deletingId }: JobCardProps) => {
   const [open, setOpen] = useState(false);
 
   return (
-    <Link href={`/dashboard/jobs/${idHandler.encode(job.id ?? 0)}`} className="block group h-full">
+    <Link
+      href={`/dashboard/jobs/${clientIdHandler.formatId(job.id)}`}
+      className="block group h-full"
+    >
       <Card
         className={cn(
           "transition-all duration-300 flex flex-col relative overflow-hidden h-full",
@@ -143,7 +146,7 @@ export const JobCard = ({ job, onDelete, deletingId }: JobCardProps) => {
               >
                 <DropdownMenuItem asChild>
                   <Link
-                    href={`/dashboard/jobs/${idHandler.encode(job.id ?? 0)}/interviews`}
+                    href={`/dashboard/jobs/${clientIdHandler.formatId(job.id)}/interviews`}
                     className="w-full cursor-pointer"
                   >
                     View Job

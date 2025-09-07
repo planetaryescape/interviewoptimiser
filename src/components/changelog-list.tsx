@@ -4,7 +4,7 @@ import { remarkMarkdownComponents } from "@/components/remark-markdown-component
 import { Button } from "@/components/ui/button";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 import { getRepository } from "@/lib/data/repositoryFactory";
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import { useUser } from "@clerk/nextjs";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -29,7 +29,7 @@ export default function ChangelogList() {
   const likeMutation = useMutation({
     mutationFn: async (changelogId: number) => {
       const repository = await getRepository<Changelog>("changelogs");
-      return repository.update(idHandler.encode(changelogId), { likes: 1 });
+      return repository.update(clientIdHandler.formatId(changelogId), { likes: 1 });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["changelogs"] });

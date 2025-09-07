@@ -1,4 +1,4 @@
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import { config } from "~/config";
 import type { ReportDataProps } from "./types";
 
@@ -18,7 +18,7 @@ export function ReportFooter({ report }: Omit<ReportDataProps, "headingFont">) {
               month: "long",
               day: "numeric",
             })}{" "}
-            • Ref: IO-{idHandler.encode(typeof report?.sys.id === "number" ? report.sys.id : 0)}
+            • Ref: IO-{clientIdHandler.formatId(report?.sys.id)}
           </p>
         </div>
         <div className="text-right text-xs uppercase tracking-wider">Page 1</div>

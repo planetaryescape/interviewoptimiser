@@ -1,7 +1,7 @@
 "use client";
 
 import { getRepository } from "@/lib/data/repositoryFactory";
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import {
   ONE_MINUTE_LEFT_MESSAGE,
   formatTranscript,
@@ -106,7 +106,7 @@ export const InterviewController = React.memo(function InterviewController() {
   const { mutate: endInterview } = useMutation({
     mutationFn: async (interview: Partial<InterviewWithPublicJobId>) => {
       const interviewRepo = await getRepository<InterviewWithPublicJobId>("interviews");
-      return await interviewRepo.update(idHandler.encode(activeInterview?.id ?? 0), interview);
+      return await interviewRepo.update(clientIdHandler.formatId(activeInterview?.id), interview);
     },
     onSuccess: () => {
       if (!unmountedRef.current) {
@@ -140,7 +140,7 @@ export const InterviewController = React.memo(function InterviewController() {
   const partialInterviewMutation = useMutation({
     mutationFn: async (interview: Partial<InterviewWithPublicJobId>) => {
       const interviewRepo = await getRepository<InterviewWithPublicJobId>("interviews");
-      return await interviewRepo.update(idHandler.encode(activeInterview?.id ?? 0), interview);
+      return await interviewRepo.update(clientIdHandler.formatId(activeInterview?.id), interview);
     },
     onSuccess: (interview) => {
       if (!unmountedRef.current && interview) {

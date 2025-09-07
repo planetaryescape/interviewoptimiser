@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import { useAuth } from "@clerk/nextjs";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -43,7 +43,7 @@ export function FeatureRequestCard({
   const voteMutation = useMutation({
     mutationFn: async (featureRequestId: number) => {
       const repository = await getRepository<FeatureRequest>("feature-requests");
-      return repository.update(idHandler.encode(featureRequestId), {});
+      return repository.update(clientIdHandler.formatId(featureRequestId), {});
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["feature-requests"] });
@@ -64,7 +64,7 @@ export function FeatureRequestCard({
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: number; status: string }) => {
       const repository = await getRepository<FeatureRequest>("feature-requests");
-      return repository.update(idHandler.encode(id), {
+      return repository.update(clientIdHandler.formatId(id), {
         status: status as FeatureRequest["status"],
       });
     },

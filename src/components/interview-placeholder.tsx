@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useJob } from "@/hooks/useJob";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import { useVoice } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation } from "@tanstack/react-query";
@@ -82,7 +82,7 @@ export function InterviewPlaceholder() {
     },
     onSuccess: (interview) => {
       router.push(
-        `/dashboard/jobs/${jobId}/interviews/${idHandler.encode(interview?.data.id || 0)}`
+        `/dashboard/jobs/${jobId}/interviews/${clientIdHandler.formatId(interview?.data.id)}`
       );
     },
     onError: (error) => {

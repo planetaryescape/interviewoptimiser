@@ -1,5 +1,27 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
+import { useQuery } from "@tanstack/react-query";
+import {
+  AlertTriangle,
+  ArrowRight,
+  Award,
+  Brain,
+  Briefcase,
+  ClipboardList,
+  MessageSquare,
+  Plus,
+  Star,
+  ThumbsUp,
+  TrendingUp,
+  Users,
+  Users2,
+  Zap,
+} from "lucide-react";
+import Link from "next/link";
+import type { Interview, Job, Report } from "~/db/schema";
+
 import type {
   RecentInterviewItem,
   RecentJobItem,
@@ -8,11 +30,6 @@ import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { KeyMetricsSection } from "@/components/dashboard/key-metrics-section";
 import { PerformanceMetricsSection } from "@/components/dashboard/performance-metrics-section";
 import { RecentActivitySection } from "@/components/dashboard/recent-activity-section";
-import { Button } from "@/components/ui/button";
-import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
-import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, Briefcase, Plus } from "lucide-react";
-import Link from "next/link";
 
 interface AverageScoreSet {
   overallScore: number;

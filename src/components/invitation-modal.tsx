@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { getRepository } from "@/lib/data/repositoryFactory";
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -35,7 +35,7 @@ export function InvitationModal({ invitations, onClose }: InvitationModalProps) 
       status: "accepted" | "rejected";
     }) => {
       const invitationRepo = await getRepository<Invitation>("invitations");
-      return invitationRepo.update(idHandler.encode(invitationId), { status });
+      return invitationRepo.update(clientIdHandler.formatId(invitationId), { status });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["invitations"] });
