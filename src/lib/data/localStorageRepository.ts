@@ -4,7 +4,6 @@ import {
   formatEntity,
   formatEntityList,
 } from "../utils/formatEntity";
-import { idHandler } from "../utils/idHandler";
 import type { GenericRepository } from "./genericRepository";
 
 export class LocalStorageRepository<T extends { id?: number }> implements GenericRepository<T> {
@@ -26,7 +25,12 @@ export class LocalStorageRepository<T extends { id?: number }> implements Generi
 
   async getById(id: string): Promise<Entity<T> | null> {
     const items = this.getItems();
-    const item = items.find((item) => item.id === idHandler.decode(id));
+    // For localStorage, we use simple string IDs without encoding
+    const numericId = Number.parseInt(id, 10);
+    if (Number.isNaN(numericId)) {
+      return null;
+    }
+    const item = items.find((item) => item.id === numericId);
     return item ? formatEntity(item, this.storageKey as any) : null;
   }
 
@@ -43,7 +47,12 @@ export class LocalStorageRepository<T extends { id?: number }> implements Generi
 
   async update(id: string, updatedItem: Partial<T>): Promise<Entity<T> | null> {
     const items = this.getItems();
-    const index = items.findIndex((item) => item.id === idHandler.decode(id));
+    // For localStorage, we use simple string IDs without encoding
+    const numericId = Number.parseInt(id, 10);
+    if (Number.isNaN(numericId)) {
+      return null;
+    }
+    const index = items.findIndex((item) => item.id === numericId);
     if (index === -1) return null;
 
     items[index] = { ...items[index], ...updatedItem };
@@ -53,7 +62,12 @@ export class LocalStorageRepository<T extends { id?: number }> implements Generi
 
   async delete(id: string): Promise<boolean> {
     const items = this.getItems();
-    const filteredItems = items.filter((item) => item.id !== idHandler.decode(id));
+    // For localStorage, we use simple string IDs without encoding
+    const numericId = Number.parseInt(id, 10);
+    if (Number.isNaN(numericId)) {
+      return false;
+    }
+    const filteredItems = items.filter((item) => item.id !== numericId);
     if (filteredItems.length === items.length) return false;
 
     this.setItems(filteredItems);
