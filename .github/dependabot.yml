@@ -17,8 +17,6 @@ updates:
       - "dependencies"
       - "github-actions"
       - "ci"
-    reviewers:
-      - "bhekanik"
     pull-request-branch-name:
       separator: "-"
     rebase-strategy: "auto"
@@ -47,8 +45,6 @@ updates:
       - "dependencies"
       - "npm"
       - "javascript"
-    reviewers:
-      - "bhekanik"
     pull-request-branch-name:
       separator: "-"
     rebase-strategy: "auto"
@@ -157,8 +153,6 @@ updates:
       - "dependencies"
       - "docker"
       - "infrastructure"
-    reviewers:
-      - "bhekanik"
     pull-request-branch-name:
       separator: "-"
     rebase-strategy: "auto"
