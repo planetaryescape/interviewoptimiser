@@ -3,7 +3,6 @@
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { RecruitmentBanner } from "@/components/landing/recruitment-banner";
-import { ClerkProvider } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 import { useFeatureFlagEnabled } from "posthog-js/react";
@@ -24,7 +23,7 @@ export default function LandingPage({ children }: { children: ReactNode }) {
   return (
     <div className="flex flex-col relative min-h-screen">
       {showRecruitmentBanner && <RecruitmentBanner />}
-      <ClerkProvider dynamic>{!isRecruitmentPage && <Header />}</ClerkProvider>
+      {!isRecruitmentPage && <Header />}
 
       <main className="flex-grow">{children}</main>
 
