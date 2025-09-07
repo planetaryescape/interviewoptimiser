@@ -52,8 +52,15 @@ export const POST = withAuth(
 
       logger.info({ jobId }, "Successfully extracted and saved candidate details");
 
+      // Encode IDs before sending to client
+      const encodedCandidateDetails = {
+        ...candidateDetailsRecord,
+        id: idHandler.encode(candidateDetailsRecord.id),
+        jobId: idHandler.encode(candidateDetailsRecord.jobId),
+      };
+
       return NextResponse.json({
-        candidateDetails: formatEntity(candidateDetailsRecord, "candidateDetails"),
+        candidateDetails: formatEntity(encodedCandidateDetails, "candidateDetails"),
       });
     } catch (error) {
       Sentry.withScope((scope) => {
