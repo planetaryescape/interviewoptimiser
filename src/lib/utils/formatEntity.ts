@@ -75,10 +75,23 @@ export const formatEntity = <
   entity: EntityType,
   status: StatusType = "success"
 ): Entity<T> => {
+  // Encode numeric IDs on the server side
+  let encodedId: number | string | undefined = data?.id;
+  if (typeof window === "undefined" && data?.id && typeof data.id === "number") {
+    // We're on the server and have a numeric ID - encode it
+    try {
+      const { idHandler } = require("./idHandler");
+      encodedId = idHandler.encode(data.id);
+    } catch {
+      // If encoding fails, keep the original ID
+      encodedId = data.id;
+    }
+  }
+
   return {
     status,
     sys: {
-      id: data?.id,
+      id: encodedId,
       entity,
     },
     data,
