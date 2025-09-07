@@ -1,4 +1,5 @@
 import { withAuthAsync } from "@/lib/auth-middleware";
+import { idHandler } from "@/lib/utils/idHandler";
 import { and, avg, desc, eq, inArray, sql } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/db";
@@ -145,16 +146,29 @@ export async function GET(request: NextRequest) {
           calculateAllAverageScores(allCompletedReportIds),
         ]);
 
+        // Encode IDs before sending to client
+        const encodedRecentJobs = recentJobsData.map((job) => ({
+          ...job,
+          id: idHandler.encode(job.id),
+        }));
+
+        const encodedRecentInterviews = recentInterviewsData.map((interview) => ({
+          ...interview,
+          interviewId: idHandler.encode(interview.interviewId),
+          reportId: interview.reportId ? idHandler.encode(interview.reportId) : null,
+          jobId: interview.jobId ? idHandler.encode(interview.jobId) : null,
+        }));
+
         return NextResponse.json({
           success: true,
           data: {
             jobStats: { totalJobs },
-            recentJobs: recentJobsData,
+            recentJobs: encodedRecentJobs,
             interviewStats: {
               totalInterviews,
               minutesSpentPracticing,
             },
-            recentInterviews: recentInterviewsData,
+            recentInterviews: encodedRecentInterviews,
             averageScores: {
               last3Interviews: last3InterviewsScores,
               allTime: allTimeScores,
