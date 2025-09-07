@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { sanitiseUserInputText } from "@/lib/sanitiseUserInputText";
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -51,7 +51,7 @@ export function CustomisationSettings() {
     mutationFn: async (updatedCustomisation: Partial<Customisation>) => {
       const customisationRepo = await getRepository<Customisation>("customisations");
       return customisationRepo.update(
-        idHandler.encode(customisation.id ?? 0),
+        clientIdHandler.formatId(customisation.id),
         updatedCustomisation
       );
     },

@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { getRepository } from "@/lib/data/repositoryFactory";
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -67,7 +67,7 @@ export function OrganizationDialog({ organization, mode, onSuccess }: Organizati
           isDeleted: false,
         });
       } else {
-        return organizationRepo.update(idHandler.encode(organization!.id), data);
+        return organizationRepo.update(clientIdHandler.formatId(organization!.id), data);
       }
     },
     onSuccess: () => {

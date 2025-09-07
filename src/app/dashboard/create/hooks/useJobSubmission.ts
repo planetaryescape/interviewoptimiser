@@ -2,7 +2,7 @@
 
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { sanitiseUserInputText } from "@/lib/sanitiseUserInputText";
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import { secureFetch } from "@/lib/utils/secure-fetch";
 import { useCreateJobActions } from "@/stores/createJobStore";
 import * as Sentry from "@sentry/nextjs";
@@ -38,7 +38,7 @@ export function useJobSubmission({
       const jobDescriptionExtractionPromise = secureFetch("/api/extract/job-description", {
         method: "POST",
         body: JSON.stringify({
-          jobId: idHandler.encode(typeof createdJob.sys.id === "number" ? createdJob.sys.id : 0),
+          jobId: clientIdHandler.formatId(createdJob.sys.id),
           jobDescriptionText,
         }),
       });
@@ -46,7 +46,7 @@ export function useJobSubmission({
       const candidateDetailsExtractionPromise = secureFetch("/api/extract/candidate-details", {
         method: "POST",
         body: JSON.stringify({
-          jobId: idHandler.encode(typeof createdJob.sys.id === "number" ? createdJob.sys.id : 0),
+          jobId: clientIdHandler.formatId(createdJob.sys.id),
           cvText,
         }),
       });
@@ -62,9 +62,7 @@ export function useJobSubmission({
       setShowTakeover(true);
       setTimeout(() => {
         resetStore();
-        router.push(
-          `/dashboard/jobs/${idHandler.encode(typeof data.sys.id === "number" ? data.sys.id : 0)}/interviews/new`
-        );
+        router.push(`/dashboard/jobs/${clientIdHandler.formatId(data.sys.id)}/interviews/new`);
       }, 9000);
     },
     onError: (error) => {

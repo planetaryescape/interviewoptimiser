@@ -1,4 +1,4 @@
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import { BriefcaseIcon, BuildingOfficeIcon, ClockIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 import Link from "next/link";
@@ -41,7 +41,7 @@ export const RecentJobsList = ({ jobs }: RecentJobsListProps) => {
                 <div>
                   <div className="text-sm">
                     <Link
-                      href={`/dashboard/jobs/${idHandler.encode(job.id)}/interviews`}
+                      href={`/dashboard/jobs/${clientIdHandler.formatId(job.id)}/interviews`}
                       className="font-medium text-foreground hover:text-primary"
                     >
                       {job.role || "N/A"}

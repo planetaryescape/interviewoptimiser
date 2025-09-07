@@ -5,7 +5,7 @@ import { JobsTable } from "@/components/jobs-table";
 import { Button } from "@/components/ui/button";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 import { getRepository } from "@/lib/data/repositoryFactory";
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FileText, Grid, List } from "lucide-react";
@@ -64,7 +64,7 @@ export default function JobsSection() {
     mutationFn: async (id: number) => {
       setDeletingId(id);
       const repository = await getRepository<Job>("admin/jobs", true);
-      await repository.delete(idHandler.encode(id));
+      await repository.delete(clientIdHandler.formatId(id));
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["jobs"] });

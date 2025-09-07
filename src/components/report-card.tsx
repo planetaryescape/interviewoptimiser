@@ -1,7 +1,7 @@
 import { Badge } from "@/components/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import { Calendar, ChevronRight, Loader2 } from "lucide-react";
@@ -144,7 +144,7 @@ export function ReportCard({ report, jobId }: ReportCardProps) {
 
             <div className="bg-gray-50 dark:bg-gray-800/30 px-4 py-3 border-t border-gray-200 dark:border-gray-800">
               <Link
-                href={`/dashboard/jobs/${jobId}/interviews/${idHandler.encode(report.interviewId)}/reports/${idHandler.encode(report.id)}`}
+                href={`/dashboard/jobs/${jobId}/interviews/${clientIdHandler.formatId(report.interviewId)}/reports/${clientIdHandler.formatId(report.id)}`}
               >
                 <Button
                   variant="outline"

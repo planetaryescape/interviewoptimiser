@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import { ArrowUpDown, Eye, MoreVertical } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -121,9 +121,9 @@ export const InterviewsTable = React.memo(
             {interviews.map((interview) => {
               const reportId = interview.report?.id;
               const reportPath = reportId
-                ? `/dashboard/jobs/${jobId}/interviews/${idHandler.encode(
+                ? `/dashboard/jobs/${jobId}/interviews/${clientIdHandler.formatId(
                     interview.id
-                  )}/reports/${idHandler.encode(reportId)}`
+                  )}/reports/${clientIdHandler.formatId(reportId)}`
                 : "#"; // Fallback path if no report ID
 
               return (

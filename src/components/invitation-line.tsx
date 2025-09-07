@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { getRepository } from "@/lib/data/repositoryFactory";
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import type { Invitation, Organization } from "~/db/schema";
@@ -18,7 +18,7 @@ export function InvitationLine({ invitation, handleResponse, isPending }: Invita
     queryKey: ["organization", invitation.organizationId],
     queryFn: async () => {
       const organizationRepo = await getRepository<Organization>("organizations");
-      return organizationRepo.getById(idHandler.encode(invitation.organizationId));
+      return organizationRepo.getById(clientIdHandler.formatId(invitation.organizationId));
     },
     enabled: !!invitation.organizationId,
   });

@@ -25,7 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import { ArrowUpDown, Loader2, MoreVertical } from "lucide-react";
 import Link from "next/link";
 import type { InferResultType } from "~/db/helpers";
@@ -138,7 +138,7 @@ export const JobsTable = React.memo(
               >
                 <TableCell>
                   <Link
-                    href={`/dashboard/jobs/${idHandler.encode(job.id ?? 0)}/interviews`}
+                    href={`/dashboard/jobs/${clientIdHandler.formatId(job.id)}/interviews`}
                     className="block hover:underline"
                   >
                     {job.jobDescription?.role || job.role || "N/A"}
@@ -146,7 +146,7 @@ export const JobsTable = React.memo(
                 </TableCell>
                 <TableCell>
                   <Link
-                    href={`/dashboard/jobs/${idHandler.encode(job.id ?? 0)}/interviews`}
+                    href={`/dashboard/jobs/${clientIdHandler.formatId(job.id)}/interviews`}
                     className="block hover:underline"
                   >
                     {job.jobDescription?.company || job.company || "N/A"}
@@ -154,7 +154,7 @@ export const JobsTable = React.memo(
                 </TableCell>
                 <TableCell className="text-right">
                   <Link
-                    href={`/dashboard/jobs/${idHandler.encode(job.id ?? 0)}/interviews`}
+                    href={`/dashboard/jobs/${clientIdHandler.formatId(job.id)}/interviews`}
                     className="block"
                   >
                     {job.interviews?.length || 0}
@@ -162,7 +162,7 @@ export const JobsTable = React.memo(
                 </TableCell>
                 <TableCell className="text-right">
                   <Link
-                    href={`/dashboard/jobs/${idHandler.encode(job.id ?? 0)}/interviews`}
+                    href={`/dashboard/jobs/${clientIdHandler.formatId(job.id)}/interviews`}
                     className="block"
                   >
                     {calculateAverageScore(job.interviews)}
@@ -170,7 +170,7 @@ export const JobsTable = React.memo(
                 </TableCell>
                 <TableCell className="text-right whitespace-nowrap">
                   <Link
-                    href={`/dashboard/jobs/${idHandler.encode(job.id ?? 0)}/interviews`}
+                    href={`/dashboard/jobs/${clientIdHandler.formatId(job.id)}/interviews`}
                     className="block"
                   >
                     {calculateTotalInterviewMinutes(job.interviews)}
@@ -178,7 +178,7 @@ export const JobsTable = React.memo(
                 </TableCell>
                 <TableCell className="whitespace-nowrap">
                   <Link
-                    href={`/dashboard/jobs/${idHandler.encode(job.id ?? 0)}/interviews`}
+                    href={`/dashboard/jobs/${clientIdHandler.formatId(job.id)}/interviews`}
                     className="block"
                   >
                     {new Date(job.createdAt).toLocaleDateString()}
@@ -186,7 +186,7 @@ export const JobsTable = React.memo(
                 </TableCell>
                 <TableCell>
                   <Link
-                    href={`/dashboard/jobs/${idHandler.encode(job.id ?? 0)}/interviews`}
+                    href={`/dashboard/jobs/${clientIdHandler.formatId(job.id)}/interviews`}
                     className="block"
                   >
                     {/* We can use a Badge component here in the future if available */}
@@ -215,7 +215,7 @@ export const JobsTable = React.memo(
                       <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                         <DropdownMenuItem asChild>
                           <Link
-                            href={`/dashboard/jobs/${idHandler.encode(job.id ?? 0)}/interviews`}
+                            href={`/dashboard/jobs/${clientIdHandler.formatId(job.id)}/interviews`}
                             className="w-full"
                           >
                             View Job

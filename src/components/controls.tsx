@@ -2,7 +2,7 @@
 
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { cn } from "@/lib/utils";
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import { INTERVIEW_START_MESSAGE, formatTranscriptToJsonString } from "@/lib/utils/messageUtils";
 import { unformatTime } from "@/lib/utils/unformatTime";
 import {
@@ -46,7 +46,7 @@ export function Controls() {
   const { mutate: endInterview } = useMutation({
     mutationFn: async (interview: Partial<InterviewWithPublicJobId>) => {
       const interviewRepo = await getRepository<InterviewWithPublicJobId>("interviews");
-      return await interviewRepo.update(idHandler.encode(activeInterview?.id ?? 0), interview);
+      return await interviewRepo.update(clientIdHandler.formatId(activeInterview?.id), interview);
     },
     onSuccess: () => {
       sendAssistantInput("hang_up");

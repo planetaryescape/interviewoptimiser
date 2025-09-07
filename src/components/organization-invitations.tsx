@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { ParticleSwarmLoader } from "@/components/ui/particle-swarm-loader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getRepository } from "@/lib/data/repositoryFactory";
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { add, format } from "date-fns";
 import { useState } from "react";
@@ -51,7 +51,7 @@ export function OrganizationInvitations({ organization }: { organization: Organi
   const { mutate: revokeInvitation } = useMutation({
     mutationFn: async (invitationId: number) => {
       const invitationRepo = await getRepository<Invitation>("invitations");
-      return invitationRepo.update(idHandler.encode(invitationId), {
+      return invitationRepo.update(clientIdHandler.formatId(invitationId), {
         status: "revoked",
       });
     },
