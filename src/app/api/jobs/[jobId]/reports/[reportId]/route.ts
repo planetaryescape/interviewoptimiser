@@ -62,7 +62,29 @@ export const GET = withAuth<{ jobId: string; reportId: string }>(
       }
 
       logger.info({ id: userReport.id }, "Successfully retrieved report with page settings");
-      return NextResponse.json(formatEntity(userReport, "report"));
+
+      // Encode IDs before sending to client
+      const encodedReport = {
+        ...userReport,
+        id: idHandler.encode(userReport.id),
+        interviewId: idHandler.encode(userReport.interviewId),
+        pageSettings: userReport.pageSettings
+          ? {
+              ...userReport.pageSettings,
+              id: idHandler.encode(userReport.pageSettings.id),
+              reportId: userReport.pageSettings.reportId
+                ? idHandler.encode(userReport.pageSettings.reportId)
+                : null,
+            }
+          : null,
+        interview: {
+          ...userReport.interview,
+          id: idHandler.encode(userReport.interview.id),
+          jobId: idHandler.encode(userReport.interview.jobId),
+        },
+      };
+
+      return NextResponse.json(formatEntity(encodedReport, "report"));
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "GET /api/jobs/[jobId]/reports/[reportId]");

@@ -52,7 +52,26 @@ export const GET = withAuth<{ jobId: string }>(
       const jobReports = jobInterviews.map((interview) => interview.report);
 
       logger.info({ jobId, count: jobReports.length }, "Successfully retrieved job reports");
-      return NextResponse.json(formatEntityList(jobReports, "report"));
+
+      // Encode IDs before sending to client
+      const encodedReports = jobReports
+        .filter((report): report is NonNullable<typeof report> => report !== null)
+        .map((report) => ({
+          ...report,
+          id: idHandler.encode(report.id),
+          interviewId: idHandler.encode(report.interviewId),
+          pageSettings: report.pageSettings
+            ? {
+                ...report.pageSettings,
+                id: idHandler.encode(report.pageSettings.id),
+                reportId: report.pageSettings.reportId
+                  ? idHandler.encode(report.pageSettings.reportId)
+                  : null,
+              }
+            : null,
+        }));
+
+      return NextResponse.json(formatEntityList(encodedReports, "report"));
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "GET /api/jobs/[jobId]/reports");

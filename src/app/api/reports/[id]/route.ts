@@ -65,7 +65,32 @@ export const GET = withAuth<{ id: string }>(
 
       logger.info({ id: userReport.id }, "Successfully retrieved report");
 
-      const response = NextResponse.json(formatEntity(userReport, "report"));
+      // Encode IDs before sending to client
+      const encodedReport = {
+        ...userReport,
+        id: idHandler.encode(userReport.id),
+        interviewId: idHandler.encode(userReport.interviewId),
+        pageSettings: userReport.pageSettings
+          ? {
+              ...userReport.pageSettings,
+              id: idHandler.encode(userReport.pageSettings.id),
+              reportId: userReport.pageSettings.reportId
+                ? idHandler.encode(userReport.pageSettings.reportId)
+                : null,
+            }
+          : null,
+        interview: {
+          ...userReport.interview,
+          id: idHandler.encode(userReport.interview.id),
+          jobId: idHandler.encode(userReport.interview.jobId),
+          job: {
+            ...userReport.interview.job,
+            // Note: Only userId is included in the query columns
+          },
+        },
+      };
+
+      const response = NextResponse.json(formatEntity(encodedReport, "report"));
       return setCacheHeaders(response, CacheProfiles.REPORT_DATA);
     } catch (error) {
       Sentry.withScope((scope) => {
