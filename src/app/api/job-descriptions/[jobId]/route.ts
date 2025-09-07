@@ -24,7 +24,15 @@ export const GET = withAuth<{ jobId: string }>(
       }
 
       logger.info({ id: jobDescription.id }, "Successfully retrieved job description");
-      return NextResponse.json(formatEntity(jobDescription, "jobDescription"));
+
+      // Encode IDs before sending to client
+      const encodedJobDescription = {
+        ...jobDescription,
+        id: idHandler.encode(jobDescription.id),
+        jobId: idHandler.encode(jobDescription.jobId),
+      };
+
+      return NextResponse.json(formatEntity(encodedJobDescription, "jobDescription"));
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "GET /api/job-descriptions/[jobId]");
