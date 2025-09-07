@@ -34,7 +34,31 @@ export const GET = withAuth<{ jobId: string; interviewId: string }>(
         { id: jobInterview.id },
         "Successfully retrieved interview with report and page settings"
       );
-      return NextResponse.json(formatEntity(jobInterview, "interview"));
+
+      // Encode IDs before sending to client
+      const encodedInterview = {
+        ...jobInterview,
+        id: idHandler.encode(jobInterview.id),
+        jobId: idHandler.encode(jobInterview.jobId),
+        report: jobInterview.report
+          ? {
+              ...jobInterview.report,
+              id: idHandler.encode(jobInterview.report.id),
+              interviewId: idHandler.encode(jobInterview.report.interviewId),
+              pageSettings: jobInterview.report.pageSettings
+                ? {
+                    ...jobInterview.report.pageSettings,
+                    id: idHandler.encode(jobInterview.report.pageSettings.id),
+                    reportId: jobInterview.report.pageSettings.reportId
+                      ? idHandler.encode(jobInterview.report.pageSettings.reportId)
+                      : null,
+                  }
+                : null,
+            }
+          : null,
+      };
+
+      return NextResponse.json(formatEntity(encodedInterview, "interview"));
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "GET /api/jobs/[jobId]/interviews/[interviewId]");
