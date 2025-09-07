@@ -2,7 +2,6 @@
 
 import { cn } from "@/lib/utils";
 import * as React from "react";
-import { useMemo } from "react";
 import {
   PolarAngleAxis,
   PolarGrid,
@@ -42,7 +41,8 @@ interface RadarShapeProps {
 const CurvedRadarShape = (props: RadarShapeProps) => {
   const { points, fill, stroke, fillOpacity, strokeWidth } = props;
 
-  const pathData = useMemo(() => {
+  // Calculate path data directly without useMemo (shape functions can't use hooks)
+  const calculatePathData = () => {
     if (!points || points.length < 3) return "";
 
     const pathPoints = [...points];
@@ -65,7 +65,9 @@ const CurvedRadarShape = (props: RadarShapeProps) => {
     }
     path += " Z";
     return path;
-  }, [points]);
+  };
+
+  const pathData = calculatePathData();
 
   return (
     <path
