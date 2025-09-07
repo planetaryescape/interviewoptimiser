@@ -26,7 +26,31 @@ export const GET = withAuth<{ jobId: string }>(
       });
 
       logger.info({ jobId, count: jobInterviews.length }, "Successfully retrieved job interviews");
-      return NextResponse.json(formatEntityList(jobInterviews, "interview"));
+
+      // Encode IDs before sending to client
+      const encodedInterviews = jobInterviews.map((interview) => ({
+        ...interview,
+        id: idHandler.encode(interview.id),
+        jobId: idHandler.encode(interview.jobId),
+        report: interview.report
+          ? {
+              ...interview.report,
+              id: idHandler.encode(interview.report.id),
+              interviewId: idHandler.encode(interview.report.interviewId),
+              pageSettings: interview.report.pageSettings
+                ? {
+                    ...interview.report.pageSettings,
+                    id: idHandler.encode(interview.report.pageSettings.id),
+                    reportId: interview.report.pageSettings.reportId
+                      ? idHandler.encode(interview.report.pageSettings.reportId)
+                      : null,
+                  }
+                : null,
+            }
+          : null,
+      }));
+
+      return NextResponse.json(formatEntityList(encodedInterviews, "interview"));
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "GET /api/jobs/[jobId]/interviews");
