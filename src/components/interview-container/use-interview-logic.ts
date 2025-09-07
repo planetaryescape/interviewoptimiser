@@ -1,6 +1,6 @@
 import useCustomisedSystemPrompt from "@/hooks/useCustomisedSystemPrompt";
 import { ApiError } from "@/lib/errors";
-import { idHandler } from "@/lib/utils/idHandler";
+import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import {
   useActiveInterview,
   useActiveInterviewActions,
@@ -93,7 +93,7 @@ export function useInterviewLogic({ jobId, interviewId }: UseInterviewLogicProps
     mutationFn: async () => {
       const body = {
         jobId,
-        interviewId: idHandler.encode(interview?.data.id ?? 0),
+        interviewId: clientIdHandler.formatId(interview?.data.id),
       };
 
       const response = await fetch("/api/report", {
