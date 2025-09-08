@@ -147,7 +147,7 @@ jobs:
           steps.typecheck.outputs.typecheck_failed == 'true' ||
           steps.audit.outputs.audit_failed == 'true' ||
           steps.license.outputs.license_failed == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const failures = [];
@@ -328,7 +328,7 @@ jobs:
           egress-policy: audit
 
       - name: Add comment for manual review
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const updateType = '${{ needs.metadata.outputs.update-type }}';
