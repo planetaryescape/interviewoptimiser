@@ -163,7 +163,7 @@
     "@types/lodash": "^4.17.13",
     "@types/next-pwa": "^5.6.9",
     "@types/node": "^22",
-    "@types/pdf-parse": "^1.1.4",
+    "@types/pdf-parse": "^1.1.5",
     "@types/react": "npm:types-react@19.0.0-rc.1",
     "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
     "@types/react-virtualized": "^9.21.30",
