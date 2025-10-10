@@ -16,10 +16,9 @@ export default async function LandingPage() {
       <Suspense fallback={null}>
         <Hero />
       </Suspense>
-      <TrustedCompaniesSection />
       <DifferentiatorsSection />
       <HowItWorksSection />
-      <VideoTestimonialsSection />
+      {/* <VideoTestimonialsSection /> */}
       <SocialProofSection />
       <TestimonialsSection />
       <PricingSection />
