@@ -1,9 +1,33 @@
-CREATE TYPE "public"."feature_request_status" AS ENUM('submitted', 'triaged', 'in_progress', 'completed', 'declined');--> statement-breakpoint
-CREATE TYPE "public"."invitation_status" AS ENUM('pending', 'accepted', 'rejected', 'expired', 'revoked');--> statement-breakpoint
-CREATE TYPE "public"."interview_type" AS ENUM('behavioral', 'situational', 'technical', 'case_study', 'competency_based', 'stress', 'cultural_fit');--> statement-breakpoint
-CREATE TYPE "public"."margin_size" AS ENUM('Normal', 'Narrow', 'Wide');--> statement-breakpoint
-CREATE TYPE "public"."paper_size" AS ENUM('A4', 'Letter', 'Legal');--> statement-breakpoint
-CREATE TYPE "public"."role" AS ENUM('user', 'admin', 'recruiter');--> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "public"."feature_request_status" AS ENUM('submitted', 'triaged', 'in_progress', 'completed', 'declined');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "public"."invitation_status" AS ENUM('pending', 'accepted', 'rejected', 'expired', 'revoked');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "public"."interview_type" AS ENUM('behavioral', 'situational', 'technical', 'case_study', 'competency_based', 'stress', 'cultural_fit');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "public"."margin_size" AS ENUM('Normal', 'Narrow', 'Wide');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "public"."paper_size" AS ENUM('A4', 'Letter', 'Legal');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "public"."role" AS ENUM('user', 'admin', 'recruiter');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;--> statement-breakpoint
 CREATE TABLE "candidate_details" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"job_id" integer NOT NULL,
