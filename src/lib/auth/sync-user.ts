@@ -25,8 +25,8 @@ export async function syncUserFromClerk(clerkUserId: string): Promise<boolean> {
     }
 
     // Get user data from Clerk using the clerkClient
-    const { users: clerkUsers } = await clerkClient();
-    const clerkUser = await clerkUsers.getUser(clerkUserId);
+    const client = await clerkClient();
+    const clerkUser = await client.users.getUser(clerkUserId);
 
     if (!clerkUser) {
       logger.error({ clerkUserId }, "Could not fetch user from Clerk");
