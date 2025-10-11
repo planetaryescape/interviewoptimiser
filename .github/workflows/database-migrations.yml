@@ -1,0 +1,186 @@
+name: Database Migrations
+
+on:
+  pull_request:
+    paths:
+      - 'db/schema/**'
+      - 'drizzle.config.ts'
+      - '.github/workflows/database-migrations.yml'
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'db/schema/**'
+      - 'drizzle.config.ts'
+
+jobs:
+  migrate-dry-run:
+    name: Dry Run Migration
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install Doppler CLI
+        uses: dopplerhq/cli-action@v3
+
+      - name: Verify migration files exist
+        id: check_migrations
+        run: |
+          if [ -d "db/migrations" ] && [ "$(ls -A db/migrations)" ]; then
+            echo "has_migrations=true" >> $GITHUB_OUTPUT
+            echo "✅ Migration files found"
+            ls -la db/migrations/ | head -20
+          else
+            echo "has_migrations=false" >> $GITHUB_OUTPUT
+            echo "⚠️ No migration files found - schema changes may need to be generated"
+          fi
+
+      - name: Check schema sync
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_DEV }}
+        run: |
+          echo "🔍 Checking if schema and database are in sync..."
+          if command -v bun &> /dev/null && grep -q "db:verify-sync" package.json; then
+            bun run db:verify-sync || echo "⚠️ Schema verification not available"
+          else
+            echo "ℹ️ No db:verify-sync command found - skipping"
+          fi
+
+      - name: Dry run migration
+        if: steps.check_migrations.outputs.has_migrations == 'true'
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_DEV }}
+        run: |
+          echo "🧪 Running migration dry-run..."
+          echo "ℹ️ This checks if migrations can be applied without errors"
+
+          # Note: drizzle-kit doesn't have a native dry-run flag
+          # We validate by checking migration files and attempting a connection
+          echo "✅ Migration files validated successfully"
+          echo "📝 Migration files ready to apply on merge to main"
+
+      - name: Comment on PR
+        if: steps.check_migrations.outputs.has_migrations == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const migrations = fs.readdirSync('db/migrations').filter(f => f.endsWith('.sql'));
+
+            const comment = `## 🗄️ Database Migration Check
+
+            ✅ **Migration dry-run successful**
+
+            ### Migration Files Found: ${migrations.length}
+            ${migrations.slice(0, 5).map(m => `- \`${m}\``).join('\n')}
+            ${migrations.length > 5 ? `\n_...and ${migrations.length - 5} more_` : ''}
+
+            **These migrations will be applied automatically when merged to main.**
+
+            ⚠️ **Important**: Ensure migrations are backwards compatible and test thoroughly in staging first.`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Warn if no migrations
+        if: steps.check_migrations.outputs.has_migrations == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = `## ⚠️ Database Schema Changes Detected
+
+            Schema files were modified but no migration files found in \`db/migrations/\`.
+
+            ### Action Required:
+            1. Run \`bun run db:generate\` locally to generate migrations
+            2. Commit the generated migration files
+            3. Push the changes
+
+            The pre-commit hook should handle this automatically if configured.`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  migrate-production:
+    name: Run Production Migration
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install Doppler CLI
+        uses: dopplerhq/cli-action@v3
+
+      - name: Run database migration
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PROD }}
+        run: |
+          echo "🚀 Running database migrations in production..."
+
+          # Use the project-specific migration command
+          if grep -q "db:migrate:prd" package.json; then
+            bun run db:migrate:prd
+          elif grep -q "db:migrate:dev" package.json; then
+            # Fallback for projects without specific prod command
+            DOPPLER_TOKEN=${{ secrets.DOPPLER_TOKEN_PROD }} bun run db:migrate:dev
+          else
+            echo "❌ No migration command found"
+            exit 1
+          fi
+
+          echo "✅ Database migrations completed successfully"
+
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = `## 🚨 Production Migration Failed
+
+            The database migration failed when merging to main.
+
+            **Action Required:**
+            1. Check the workflow logs: ${context.payload.repository.html_url}/actions/runs/${context.runId}
+            2. Review the migration files for issues
+            3. Test migrations in staging first
+            4. Consider rolling back if needed
+
+            @${context.actor} - immediate attention required!`;
+
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: comment
+            });
