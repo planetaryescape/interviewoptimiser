@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useCreateJobActions, useCreateJobCVText } from "@/stores/createJobStore";
 import * as Sentry from "@sentry/nextjs";
 import { AlertCircle, FileText, HelpCircle } from "lucide-react";
+import { usePostHog } from "posthog-js/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { config } from "~/config";
@@ -16,6 +17,7 @@ export function Step2CV() {
   const [cvFile, setCVFile] = useState<File | null>(null);
   const [showStep2Error, setShowStep2Error] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const posthog = usePostHog();
 
   const handleFileChange = async (files: File[]) => {
     if (files.length === 0) {
@@ -28,6 +30,8 @@ export function Step2CV() {
       setIsLoading(true);
       const file = files[0];
       const fileType = file.type;
+      const startTime = Date.now();
+
       if (
         fileType === "application/pdf" ||
         fileType === "application/msword" ||
@@ -42,11 +46,27 @@ export function Step2CV() {
             setCVText(extractedText);
             setCVFile(file);
             setShowStep2Error(false);
+
+            // Track successful CV upload
+            posthog.capture("cv_uploaded", {
+              fileSize: file.size,
+              fileType: file.type,
+              uploadMethod: "drag_drop",
+              timeToUpload: Date.now() - startTime,
+            });
           } else {
             toast.error("Failed to parse the CV. Please try again or paste the content manually.", {
               position: "top-center",
               richColors: true,
               duration: 10000,
+            });
+
+            // Track failed CV parsing
+            posthog.capture("error_encountered", {
+              errorType: "cv_parsing_failed",
+              errorMessage: "Failed to extract text from file",
+              userAction: "cv_upload",
+              resolved: false,
             });
           }
         } catch (error) {
@@ -56,12 +76,28 @@ export function Step2CV() {
             Sentry.captureException(error);
           });
           toast.error("An error occurred while processing the file. Please try again.");
+
+          // Track CV upload error
+          posthog.capture("error_encountered", {
+            errorType: "cv_upload_error",
+            errorMessage: error instanceof Error ? error.message : "Unknown error",
+            userAction: "cv_upload",
+            resolved: false,
+          });
         } finally {
           setIsLoading(false);
         }
       } else {
         toast.error("Please upload only PDF or Word documents.");
         setIsLoading(false);
+
+        // Track invalid file type
+        posthog.capture("error_encountered", {
+          errorType: "invalid_file_type",
+          errorMessage: `Unsupported file type: ${fileType}`,
+          userAction: "cv_upload",
+          resolved: false,
+        });
       }
     }
   };

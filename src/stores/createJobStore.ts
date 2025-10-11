@@ -20,6 +20,7 @@ interface CreateJobState {
   isAlertDialogOpen: boolean;
   isOutOfMinutesDialogOpen: boolean;
   isScheduleErrorDialogOpen: boolean;
+  errorMessage?: string;
 }
 
 interface CreateJobActions {
@@ -33,6 +34,7 @@ interface CreateJobActions {
   setIsAlertDialogOpen: (isOpen: boolean) => void;
   setIsOutOfMinutesDialogOpen: (isOpen: boolean) => void;
   setIsScheduleErrorDialogOpen: (isOpen: boolean) => void;
+  setErrorMessage: (message?: string) => void;
   resetStore: () => void;
 }
 
@@ -47,6 +49,7 @@ const initialState: CreateJobState = {
   isAlertDialogOpen: false,
   isOutOfMinutesDialogOpen: false,
   isScheduleErrorDialogOpen: false,
+  errorMessage: undefined,
 };
 
 export const useCreateJobStore = create(
@@ -65,6 +68,7 @@ export const useCreateJobStore = create(
         set({ isOutOfMinutesDialogOpen }),
       setIsScheduleErrorDialogOpen: (isScheduleErrorDialogOpen: boolean) =>
         set({ isScheduleErrorDialogOpen }),
+      setErrorMessage: (errorMessage?: string) => set({ errorMessage }),
       resetStore: () => set(initialState),
     },
   }))
@@ -84,4 +88,5 @@ export const useCreateJobIsOutOfMinutesDialogOpen = () =>
   useCreateJobStore((state) => state.isOutOfMinutesDialogOpen);
 export const useCreateJobIsScheduleErrorDialogOpen = () =>
   useCreateJobStore((state) => state.isScheduleErrorDialogOpen);
+export const useCreateJobErrorMessage = () => useCreateJobStore((state) => state.errorMessage);
 export const useCreateJobActions = () => useCreateJobStore((state) => state.actions);

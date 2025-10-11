@@ -9,32 +9,34 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-interface CreateJobErrorModalProps {
+interface ConfirmationModalProps {
   isOpen: boolean;
-  errorMessage?: string;
-  onTryAgain: () => void;
   onClose: () => void;
+  onConfirm: () => void;
+  userMinutes: number;
+  estimatedMinutes?: number;
 }
 
-export function CreateJobErrorModal({
+export function ConfirmationModal({
   isOpen,
-  errorMessage,
-  onTryAgain,
   onClose,
-}: CreateJobErrorModalProps) {
+  onConfirm,
+  userMinutes,
+  estimatedMinutes = 15,
+}: ConfirmationModalProps) {
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Error Creating Job</AlertDialogTitle>
+          <AlertDialogTitle>Confirm Interview Creation</AlertDialogTitle>
           <AlertDialogDescription>
-            {errorMessage || "There was an error creating your job. Please try again later."}
+            Creating this interview will use approximately {estimatedMinutes} minutes from your
+            account. You currently have {userMinutes} minute(s) available. Do you want to proceed?
           </AlertDialogDescription>
         </AlertDialogHeader>
-
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onTryAgain}>Try Again</AlertDialogAction>
+          <AlertDialogAction onClick={onConfirm}>Proceed</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
