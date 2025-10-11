@@ -1,18 +1,24 @@
 "use client";
 
+import { ConfirmationModal } from "@/components/create-optimization/ConfirmationModal";
 import { CreateJobErrorModal } from "@/components/create-optimization/CreateJobErrorModal";
+import { OutOfMinutesModal } from "@/components/create-optimization/OutOfMinutesModal";
 import { ProcessingTakeover } from "@/components/create-optimization/ProcessingTakeover";
 import { useUser } from "@/hooks/useUser";
 import {
   useCreateJobActions,
   useCreateJobAdditionalInfo,
   useCreateJobCVText,
+  useCreateJobErrorMessage,
+  useCreateJobIsAlertDialogOpen,
+  useCreateJobIsOutOfMinutesDialogOpen,
   useCreateJobIsScheduleErrorDialogOpen,
   useCreateJobJobDescriptionText,
   useCreateJobShowTakeover,
   useCreateJobStep,
 } from "@/stores/createJobStore";
 import { AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ContentArea } from "./components/ContentArea";
 import { useJobSubmission } from "./hooks/useJobSubmission";
@@ -23,9 +29,20 @@ export default function CreateJob() {
   const jobDescriptionText = useCreateJobJobDescriptionText();
   const additionalInfo = useCreateJobAdditionalInfo();
   const showTakeover = useCreateJobShowTakeover();
+  const isAlertDialogOpen = useCreateJobIsAlertDialogOpen();
+  const isOutOfMinutesDialogOpen = useCreateJobIsOutOfMinutesDialogOpen();
   const isScheduleErrorDialogOpen = useCreateJobIsScheduleErrorDialogOpen();
+  const errorMessage = useCreateJobErrorMessage();
 
-  const { setStep, setIsScheduleErrorDialogOpen } = useCreateJobActions();
+  const {
+    setStep,
+    setIsAlertDialogOpen,
+    setIsOutOfMinutesDialogOpen,
+    setIsScheduleErrorDialogOpen,
+    setErrorMessage,
+  } = useCreateJobActions();
+
+  const router = useRouter();
 
   const [animateStep, setAnimateStep] = useState<number | null>(null);
   const [animationDir, setAnimationDir] = useState(0);
@@ -72,8 +89,17 @@ export default function CreateJob() {
   };
 
   const handleSubmit = () => {
+    // Check if user has enough minutes
+    if (!user || user.minutes <= 0) {
+      setIsOutOfMinutesDialogOpen(true);
+    } else {
+      setIsAlertDialogOpen(true);
+    }
+  };
+
+  const handleConfirmSubmit = () => {
+    setIsAlertDialogOpen(false);
     submitJob();
-    setIsScheduleErrorDialogOpen(false);
   };
 
   return (
@@ -89,11 +115,30 @@ export default function CreateJob() {
         animateStep={animateStep}
       />
 
+      <ConfirmationModal
+        isOpen={isAlertDialogOpen}
+        onClose={() => setIsAlertDialogOpen(false)}
+        onConfirm={handleConfirmSubmit}
+        userMinutes={user?.minutes ?? 0}
+      />
+
+      <OutOfMinutesModal
+        isOpen={isOutOfMinutesDialogOpen}
+        onClose={() => setIsOutOfMinutesDialogOpen(false)}
+        onBuyMinutes={() => router.push("/pricing")}
+      />
+
       <CreateJobErrorModal
         isOpen={isScheduleErrorDialogOpen}
-        onTryAgain={handleSubmit}
+        errorMessage={errorMessage}
+        onTryAgain={() => {
+          setIsScheduleErrorDialogOpen(false);
+          setErrorMessage(undefined);
+          handleConfirmSubmit();
+        }}
         onClose={() => {
           setIsScheduleErrorDialogOpen(false);
+          setErrorMessage(undefined);
         }}
       />
 

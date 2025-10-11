@@ -1,3 +1,5 @@
+import { logger } from "~/lib/logger";
+
 export function sanitiseUserInputText(
   text: string,
   options: {
@@ -5,6 +7,8 @@ export function sanitiseUserInputText(
     maxLength?: number;
   } = { truncate: true, maxLength: 15000 }
 ): string {
+  logger.info({ text: text.slice(0, 60) }, "Sanitising user input text");
+
   // Remove leading/trailing whitespace
   text = text?.trim();
 
@@ -36,8 +40,11 @@ export function sanitiseUserInputText(
   const filteredLines = lines.filter((line: string) => line?.trim() !== "");
   const deduplicatedLines = Array.from(new Set(filteredLines));
 
-  // Join lines, replace multiple spaces with a single space, and trim
-  const cleanedContent = deduplicatedLines.join(" ").replace(/\s\s+/g, " ")?.trim();
+  // Replace multiple spaces with a single space, then join lines with a space and trim
+  const cleanedContent = deduplicatedLines
+    .map((line) => line.replace(/\s\s+/g, " "))
+    .join(" ")
+    ?.trim();
 
   if (options.truncate) {
     // Limit the length of the text

@@ -28,7 +28,8 @@ export function useJobSubmission({
 }: UseJobSubmissionProps) {
   const router = useRouter();
   const posthog = usePostHog();
-  const { setShowTakeover, setIsScheduleErrorDialogOpen, resetStore } = useCreateJobActions();
+  const { setShowTakeover, setIsScheduleErrorDialogOpen, setErrorMessage, resetStore } =
+    useCreateJobActions();
 
   const createJobMutation = useMutation({
     mutationFn: async (job: NewJob) => {
@@ -41,6 +42,13 @@ export function useJobSubmission({
           jobId: clientIdHandler.formatId(createdJob.sys.id),
           jobDescriptionText,
         }),
+      }).catch((err) => {
+        // Extract meaningful error message
+        let errorMessage = "Failed to extract job description";
+        if (err instanceof Error) {
+          errorMessage = err.message;
+        }
+        throw new Error(errorMessage);
       });
 
       const candidateDetailsExtractionPromise = secureFetch("/api/extract/candidate-details", {
@@ -49,12 +57,29 @@ export function useJobSubmission({
           jobId: clientIdHandler.formatId(createdJob.sys.id),
           cvText,
         }),
+      }).catch((err) => {
+        // Extract meaningful error message
+        let errorMessage = "Failed to extract candidate details";
+        if (err instanceof Error) {
+          errorMessage = err.message;
+        }
+        throw new Error(errorMessage);
       });
 
-      await Promise.allSettled([
+      const results = await Promise.allSettled([
         jobDescriptionExtractionPromise,
         candidateDetailsExtractionPromise,
       ]);
+
+      // Check if any extractions failed
+      const failures = results.filter((r) => r.status === "rejected");
+      if (failures.length > 0) {
+        const failureReasons = failures
+          .map((f) => (f.status === "rejected" ? f.reason?.message || "Unknown error" : ""))
+          .filter(Boolean)
+          .join("; ");
+        throw new Error(`Extraction failed: ${failureReasons}`);
+      }
 
       return createdJob;
     },
@@ -66,6 +91,9 @@ export function useJobSubmission({
       }, 9000);
     },
     onError: (error) => {
+      // Hide takeover on error
+      setShowTakeover(false);
+
       Sentry.withScope((scope) => {
         scope.setExtra("context", "createJobMutation");
         scope.setExtra("error", error);
@@ -73,6 +101,10 @@ export function useJobSubmission({
 
         Sentry.captureException(error);
       });
+
+      // Set the specific error message
+      const errMsg = error instanceof Error ? error.message : "Failed to create job";
+      setErrorMessage(errMsg);
       setIsScheduleErrorDialogOpen(true);
     },
   });
