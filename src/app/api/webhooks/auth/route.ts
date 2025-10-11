@@ -154,7 +154,10 @@ export async function POST(request: Request) {
           })
           .onConflictDoUpdate({
             target: users.email,
-            set: userWithoutEmail,
+            set: {
+              ...userWithoutEmail,
+              clerkUserId: data.data.id, // CRITICAL: Must update clerkUserId on conflict!
+            },
           });
 
         await db
