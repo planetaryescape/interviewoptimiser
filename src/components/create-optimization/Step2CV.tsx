@@ -1,7 +1,9 @@
-import { extractTextFromFile } from "@/actions/extractTextFromFile";
+"use client";
+
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Textarea } from "@/components/ui/textarea";
+import { useExtractFile } from "@/hooks/useExtractText";
 import { cn } from "@/lib/utils";
 import { useCreateJobActions, useCreateJobCVText } from "@/stores/createJobStore";
 import * as Sentry from "@sentry/nextjs";
@@ -16,8 +18,10 @@ export function Step2CV() {
   const { setCVText } = useCreateJobActions();
   const [cvFile, setCVFile] = useState<File | null>(null);
   const [showStep2Error, setShowStep2Error] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const posthog = usePostHog();
+
+  const extractFileMutation = useExtractFile();
+  const isLoading = extractFileMutation.isPending;
 
   const handleFileChange = async (files: File[]) => {
     if (files.length === 0) {
@@ -27,7 +31,6 @@ export function Step2CV() {
     }
 
     if (files?.[0]) {
-      setIsLoading(true);
       const file = files[0];
       const fileType = file.type;
       const startTime = Date.now();
@@ -39,57 +42,60 @@ export function Step2CV() {
       ) {
         const formData = new FormData();
         formData.append("file", file);
-        try {
-          const extractedText = await extractTextFromFile(formData);
 
-          if (extractedText?.trim()) {
-            setCVText(extractedText);
-            setCVFile(file);
-            setShowStep2Error(false);
+        extractFileMutation.mutate(formData, {
+          onSuccess: (data) => {
+            const extractedText = data.data.extractedText;
+            if (extractedText?.trim()) {
+              setCVText(extractedText);
+              setCVFile(file);
+              setShowStep2Error(false);
 
-            // Track successful CV upload
-            posthog.capture("cv_uploaded", {
-              fileSize: file.size,
-              fileType: file.type,
-              uploadMethod: "drag_drop",
-              timeToUpload: Date.now() - startTime,
+              // Track successful CV upload
+              posthog.capture("cv_uploaded", {
+                fileSize: file.size,
+                fileType: file.type,
+                uploadMethod: "drag_drop",
+                timeToUpload: Date.now() - startTime,
+              });
+            } else {
+              toast.error(
+                "Failed to parse the CV. Please try again or paste the content manually.",
+                {
+                  position: "top-center",
+                  richColors: true,
+                  duration: 10000,
+                }
+              );
+
+              // Track failed CV parsing
+              posthog.capture("error_encountered", {
+                errorType: "cv_parsing_failed",
+                errorMessage: "Failed to extract text from file",
+                userAction: "cv_upload",
+                resolved: false,
+              });
+            }
+          },
+          onError: (error) => {
+            Sentry.withScope((scope) => {
+              scope.setExtra("context", "handleFileChange");
+              scope.setExtra("error", error);
+              Sentry.captureException(error);
             });
-          } else {
-            toast.error("Failed to parse the CV. Please try again or paste the content manually.", {
-              position: "top-center",
-              richColors: true,
-              duration: 10000,
-            });
+            toast.error("An error occurred while processing the file. Please try again.");
 
-            // Track failed CV parsing
+            // Track CV upload error
             posthog.capture("error_encountered", {
-              errorType: "cv_parsing_failed",
-              errorMessage: "Failed to extract text from file",
+              errorType: "cv_upload_error",
+              errorMessage: error instanceof Error ? error.message : "Unknown error",
               userAction: "cv_upload",
               resolved: false,
             });
-          }
-        } catch (error) {
-          Sentry.withScope((scope) => {
-            scope.setExtra("context", "handleFileChange");
-            scope.setExtra("error", error);
-            Sentry.captureException(error);
-          });
-          toast.error("An error occurred while processing the file. Please try again.");
-
-          // Track CV upload error
-          posthog.capture("error_encountered", {
-            errorType: "cv_upload_error",
-            errorMessage: error instanceof Error ? error.message : "Unknown error",
-            userAction: "cv_upload",
-            resolved: false,
-          });
-        } finally {
-          setIsLoading(false);
-        }
+          },
+        });
       } else {
         toast.error("Please upload only PDF or Word documents.");
-        setIsLoading(false);
 
         // Track invalid file type
         posthog.capture("error_encountered", {
