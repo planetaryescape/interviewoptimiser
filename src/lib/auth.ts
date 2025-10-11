@@ -1,3 +1,4 @@
+import { syncUserFromClerk } from "@/lib/auth/sync-user";
 import { kv } from "@vercel/kv";
 import { eq } from "drizzle-orm";
 import { db } from "~/db";
@@ -58,6 +59,29 @@ export async function getUserFromClerkId(
     .limit(1);
 
   if (!user.length) {
+    // User not found in database - attempt to sync from Clerk
+    logger.info({ clerkUserId }, "User not found in database, attempting sync from Clerk");
+
+    const syncedUser = await syncUserFromClerk(clerkUserId);
+
+    if (syncedUser) {
+      logger.info({ clerkUserId, userId: syncedUser.id }, "User successfully synced from Clerk");
+
+      // Cache the synced user data
+      if (options.useCache && isCacheEnabled()) {
+        try {
+          const cacheOpts = options.ttl ? { ex: options.ttl } : undefined;
+          await kv.set(cacheKey, syncedUser, cacheOpts);
+          logger.debug({ clerkUserId, ttl: options.ttl }, "Synced user data cached");
+        } catch (error) {
+          logger.warn({ error, clerkUserId }, "Failed to cache synced user data");
+        }
+      }
+
+      return syncedUser;
+    }
+
+    logger.warn({ clerkUserId }, "Failed to sync user from Clerk");
     return {};
   }
 
