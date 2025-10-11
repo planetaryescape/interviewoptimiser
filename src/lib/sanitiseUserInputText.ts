@@ -1,5 +1,3 @@
-import { logger } from "~/lib/logger";
-
 export function sanitiseUserInputText(
   text: string,
   options: {
@@ -7,8 +5,6 @@ export function sanitiseUserInputText(
     maxLength?: number;
   } = { truncate: true, maxLength: 15000 }
 ): string {
-  logger.info({ text: text.slice(0, 60) }, "Sanitising user input text");
-
   // Remove leading/trailing whitespace
   text = text?.trim();
 
