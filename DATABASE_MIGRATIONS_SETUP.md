@@ -154,15 +154,26 @@ Located in each project at `.github/workflows/database-migrations.yml`
    - Verify migrations applied in production database
    - Check for failure notifications if issues occur
 
-## Required Secrets
+## Required Configuration
+
+### GitHub Secrets
 
 Each repository needs these GitHub secrets configured:
 
-### Development Environment:
-- `DOPPLER_TOKEN_DEV` - Doppler token for development environment
+**Production Environment:**
+- `DATABASE_URL` - PostgreSQL connection string for production database
 
-### Production Environment:
-- `DOPPLER_TOKEN_PROD` - Doppler token for production environment
+### GitHub Actions Permissions (IMPORTANT!)
+
+To enable PR comments and full workflow functionality:
+
+1. Go to **Settings** → **Actions** → **General**
+2. Scroll down to **Workflow permissions**
+3. Select **"Read and write permissions"**
+4. Check **"Allow GitHub Actions to create and approve pull requests"**
+5. Click **Save**
+
+**Note:** Without these settings, workflows will still run successfully but won't be able to comment on PRs. You'll see the results in the workflow logs instead.
 
 ## Common Issues & Solutions
 
