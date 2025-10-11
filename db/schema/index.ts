@@ -5,6 +5,7 @@ export * from "./customisations";
 export * from "./deletedUsers";
 export * from "./featureRequestLikes";
 export * from "./featureRequests";
+export * from "./fileExtractionCache";
 export * from "./images";
 export * from "./interviews";
 export * from "./invitations";
