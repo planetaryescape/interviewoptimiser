@@ -24,8 +24,10 @@ vi.mock("~/db", () => ({
 
 vi.mock("~/lib/logger", () => ({
   logger: {
+    info: vi.fn(),
     warn: vi.fn(),
     debug: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
