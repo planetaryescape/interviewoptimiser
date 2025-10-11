@@ -52,14 +52,28 @@ export async function syncUserFromClerk(clerkUserId: string): Promise<SyncedUser
     }
 
     // Create Stripe customer
-    logger.info({ clerkUserId }, "Creating Stripe customer for synced user");
-    const customer = await stripe.customers.create({
-      email: clerkUser.emailAddresses[0].emailAddress,
-      metadata: {
-        clerkUserId: clerkUserId,
-        syncedFromClerk: "true",
-      },
-    });
+    let stripeCustomerId: string | undefined;
+    try {
+      logger.info({ clerkUserId }, "Creating Stripe customer for synced user");
+      const customer = await stripe.customers.create({
+        email: clerkUser.emailAddresses[0].emailAddress,
+        metadata: {
+          clerkUserId: clerkUserId,
+          syncedFromClerk: "true",
+        },
+      });
+      stripeCustomerId = customer.id;
+      logger.info({ clerkUserId, stripeCustomerId }, "Stripe customer created successfully");
+    } catch (stripeError) {
+      logger.warn(
+        {
+          clerkUserId,
+          error: stripeError instanceof Error ? stripeError.message : "Unknown error",
+        },
+        "Failed to create Stripe customer during sync - continuing without Stripe ID"
+      );
+      // Continue without Stripe customer - user can still authenticate
+    }
 
     // Determine initial minutes
     const [numOfUsers] = await db.select({ count: sql`count(distinct ${users.id})` }).from(users);
@@ -82,7 +96,7 @@ export async function syncUserFromClerk(clerkUserId: string): Promise<SyncedUser
         email: clerkUser.emailAddresses[0].emailAddress,
         role: "user",
         minutes: minutesToAssign,
-        stripeCustomerId: customer.id,
+        stripeCustomerId: stripeCustomerId,
       })
       .returning({
         id: users.id,
