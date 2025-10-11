@@ -5,6 +5,8 @@
   "scripts": {
     "env": "doppler setup -c dev -p interview-optimiser",
     "dev": "SENTRY_SUPPRESS_TURBOPACK_WARNING=1 NODE_OPTIONS='--trace-deprecation' doppler run -- next dev --turbopack | pino-pretty",
+    "dev:webhooks": "./scripts/dev-with-webhooks.sh",
+    "ngrok": "./scripts/start-ngrok.sh",
     "email:build": "email build -d ./src/emails -p bun",
     "email:dev": "email dev",
     "email:export": "email export -d ./src/emails -p bun",
@@ -194,6 +196,9 @@
       "react-dom": "^19.0.0-rc-69d4b800-20241021",
       "react-is": "^19.0.0-rc-69d4b800-20241021"
     }
+  },
+  "resolutions": {
+    "import-in-the-middle": "1.13.1"
   },
   "optionalDependencies": {
     "encoding": "^0.1.13"
