@@ -1,9 +1,10 @@
-import { extractTextFromFile } from "@/actions/extractTextFromFile";
-import { extractTextFromUrl } from "@/actions/extractTextFromUrl";
+"use client";
+
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useExtractFile, useExtractUrl } from "@/hooks/useExtractText";
 import { cn } from "@/lib/utils";
 import { useCreateJobActions, useCreateJobJobDescriptionText } from "@/stores/createJobStore";
 import * as Sentry from "@sentry/nextjs";
@@ -19,16 +20,19 @@ export function Step1JobDescription() {
   const [jobFile, setJobFile] = useState<File | null>(null);
   const [jobDescriptionLink, setJobDescriptionLink] = useState("");
   const [showStep1Error, setShowStep1Error] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const debouncedJobDescriptionLink = useDebounce(jobDescriptionLink, 300);
 
-  useEffect(() => {
-    const getJobDescriptionText = async () => {
-      if (!debouncedJobDescriptionLink) return;
+  const extractFileMutation = useExtractFile();
+  const extractUrlMutation = useExtractUrl();
 
-      setIsLoading(true);
-      try {
-        const extractedText = await extractTextFromUrl(debouncedJobDescriptionLink);
+  const isLoading = extractFileMutation.isPending || extractUrlMutation.isPending;
+
+  useEffect(() => {
+    if (!debouncedJobDescriptionLink) return;
+
+    extractUrlMutation.mutate(debouncedJobDescriptionLink, {
+      onSuccess: (data) => {
+        const extractedText = data.data.extractedText;
         if (extractedText?.trim()) {
           setJobDescriptionText(extractedText);
           setShowStep1Error(false);
@@ -37,7 +41,8 @@ export function Step1JobDescription() {
             "Failed to extract text from the provided URL. Please try again or paste the content manually."
           );
         }
-      } catch (error) {
+      },
+      onError: (error) => {
         Sentry.withScope((scope) => {
           scope.setExtra("context", "getJobDescriptionText");
           scope.setExtra("url", debouncedJobDescriptionLink);
@@ -47,13 +52,9 @@ export function Step1JobDescription() {
         toast.error(
           "Failed to extract text from the provided URL. Please try again or paste the content manually."
         );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    getJobDescriptionText();
-  }, [debouncedJobDescriptionLink, setJobDescriptionText]);
+      },
+    });
+  }, [debouncedJobDescriptionLink, setJobDescriptionText, extractUrlMutation.mutate]);
 
   const handleFileChange = async (files: File[]) => {
     if (files.length === 0) {
@@ -63,7 +64,6 @@ export function Step1JobDescription() {
     }
 
     if (files?.[0]) {
-      setIsLoading(true);
       const file = files[0];
       const fileType = file.type;
       if (
@@ -73,31 +73,31 @@ export function Step1JobDescription() {
       ) {
         const formData = new FormData();
         formData.append("file", file);
-        try {
-          const extractedText = await extractTextFromFile(formData);
 
-          if (extractedText?.trim()) {
-            setJobDescriptionText(extractedText);
-            setJobFile(file);
-            setShowStep1Error(false);
-          } else {
-            toast.error(
-              "Failed to parse the job description. Please try again or paste the content manually."
-            );
-          }
-        } catch (error) {
-          Sentry.withScope((scope) => {
-            scope.setExtra("context", "handleFileChange");
-            scope.setExtra("error", error);
-            Sentry.captureException(error);
-          });
-          toast.error("An error occurred while processing the file. Please try again.");
-        } finally {
-          setIsLoading(false);
-        }
+        extractFileMutation.mutate(formData, {
+          onSuccess: (data) => {
+            const extractedText = data.data.extractedText;
+            if (extractedText?.trim()) {
+              setJobDescriptionText(extractedText);
+              setJobFile(file);
+              setShowStep1Error(false);
+            } else {
+              toast.error(
+                "Failed to parse the job description. Please try again or paste the content manually."
+              );
+            }
+          },
+          onError: (error) => {
+            Sentry.withScope((scope) => {
+              scope.setExtra("context", "handleFileChange");
+              scope.setExtra("error", error);
+              Sentry.captureException(error);
+            });
+            toast.error("An error occurred while processing the file. Please try again.");
+          },
+        });
       } else {
         toast.error("Please upload only PDF or Word documents.");
-        setIsLoading(false);
       }
     }
   };
