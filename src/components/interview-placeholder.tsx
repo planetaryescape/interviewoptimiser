@@ -83,11 +83,7 @@ export function InterviewPlaceholder({ accessToken, configId }: InterviewPlaceho
         keyQuestions: keyQuestions.data,
         type: interviewToBeCreated.type,
         duration: interviewToBeCreated.duration,
-        // Initialize with empty metadata - will be populated when connecting on interview page
-        chatGroupId: "",
-        customSessionId: "",
-        requestId: "",
-        humeChatId: "",
+        // Hume metadata will be populated later when connection is established
       });
     },
     onSuccess: (interview) => {
@@ -122,10 +118,7 @@ export function InterviewPlaceholder({ accessToken, configId }: InterviewPlaceho
         jobId: params.jobId as string,
         type: interviewToBeCreated.type,
         duration: interviewToBeCreated.duration,
-        chatGroupId: "",
-        humeChatId: "",
-        customSessionId: "",
-        requestId: "",
+        // Hume metadata will be populated later when connection is established
       });
     } catch (error) {
       Sentry.withScope((scope) => {

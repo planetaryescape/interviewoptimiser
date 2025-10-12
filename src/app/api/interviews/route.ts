@@ -35,19 +35,8 @@ export const POST = withAuth(
         });
       }
 
-      if (!chatGroupId) {
-        logger.warn("Missing required field: chatGroupId");
-        return NextResponse.json(formatErrorEntity("Missing required field: chatGroupId"), {
-          status: 400,
-        });
-      }
-
-      if (!humeChatId) {
-        logger.warn("Missing required field: humeChatId");
-        return NextResponse.json(formatErrorEntity("Missing required field: humeChatId"), {
-          status: 400,
-        });
-      }
+      // Note: chatGroupId and humeChatId are now optional on creation
+      // They get populated when the Hume connection is established on the interview page
 
       // Decode hash ID to numeric
       const jobId = idHandler.safeDecode(jobIdString);
@@ -57,19 +46,22 @@ export const POST = withAuth(
         });
       }
 
-      const existingInterview = await db.query.interviews.findFirst({
-        where: and(eq(interviews.humeChatId, humeChatId)),
-      });
-
-      if (existingInterview) {
-        logger.info({ jobId }, "Interview already exists");
-
-        // Encode all IDs before sending to client
-        const encodedInterview = encodeInterview(existingInterview);
-
-        return NextResponse.json(formatEntity(encodedInterview, "interview"), {
-          status: 200,
+      // Only check for existing interview if humeChatId is provided
+      if (humeChatId) {
+        const existingInterview = await db.query.interviews.findFirst({
+          where: and(eq(interviews.humeChatId, humeChatId)),
         });
+
+        if (existingInterview) {
+          logger.info({ jobId }, "Interview already exists");
+
+          // Encode all IDs before sending to client
+          const encodedInterview = encodeInterview(existingInterview);
+
+          return NextResponse.json(formatEntity(encodedInterview, "interview"), {
+            status: 200,
+          });
+        }
       }
 
       const [newInterview] = await db

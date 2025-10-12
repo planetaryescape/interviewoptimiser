@@ -64,6 +64,13 @@
       "when": 1752614927837,
       "tag": "0008_daffy_susan_delgado",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1760290327482,
+      "tag": "0009_first_hellfire_club",
+      "breakpoints": true
     }
   ]
 }
