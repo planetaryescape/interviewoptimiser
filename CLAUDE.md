@@ -390,3 +390,16 @@ KV_REST_API_TOKEN=your_vercel_kv_token
 - Uses sliding window algorithm
 - Returns 429 status when limit exceeded
 - Includes rate limit headers in responses
+
+---
+
+## 🚨 GIT COMMIT PROTOCOL - CRITICAL
+
+### ABSOLUTE RULES FOR ALL COMMITS:
+
+1. **NO Claude Code attribution** - NEVER add footer
+2. **NO Co-Authored-By lines** - NEVER add co-author
+3. **ONLY user as author** - Clean commits only
+4. **Format**: `<type>: <description>\n\n[optional body]`
+
+**No footers, no attribution, no co-authors. Period.**
