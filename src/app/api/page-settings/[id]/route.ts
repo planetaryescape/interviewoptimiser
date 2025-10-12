@@ -1,4 +1,5 @@
 import { withAuth } from "@/lib/auth-middleware";
+import { encodePageSettings } from "@/lib/utils/encodeHelpers";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
@@ -11,7 +12,14 @@ import { logger } from "~/lib/logger";
 export const PUT = withAuth<{ id: string }>(
   async (request, { user, params }) => {
     try {
-      const pageSettingsId = idHandler.decode(params!.id);
+      // Decode hash ID to numeric
+      const pageSettingsId = idHandler.safeDecode(params!.id);
+      if (pageSettingsId === null) {
+        return NextResponse.json(formatErrorEntity("Invalid page settings ID"), {
+          status: 404,
+        });
+      }
+
       const updatedPageSettings = await request.json();
 
       const result = await db.transaction(async (tx) => {
@@ -31,7 +39,10 @@ export const PUT = withAuth<{ id: string }>(
       });
 
       logger.info({ pageSettingsId }, "Successfully updated page settings");
-      return NextResponse.json(formatEntity(result, "page-settings"), {
+
+      // Encode IDs before sending to client
+      const encodedPageSettings = encodePageSettings(result);
+      return NextResponse.json(formatEntity(encodedPageSettings, "page-settings"), {
         status: 200,
       });
     } catch (error) {

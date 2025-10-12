@@ -1,5 +1,7 @@
 import { withAuth } from "@/lib/auth-middleware";
+import { encodeFeatureRequest } from "@/lib/utils/encodeHelpers";
 import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
+import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
 import { desc, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
@@ -41,7 +43,15 @@ export const GET = withAuth(
         .orderBy(desc(sql`likes_count`));
 
       logger.info("Successfully retrieved feature requests");
-      return NextResponse.json(formatEntityList(featureRequestsWithLikes, "feature-request"));
+
+      // Encode all IDs before sending to client
+      const encodedFeatureRequests = featureRequestsWithLikes.map((fr) => ({
+        ...fr,
+        id: idHandler.encode(fr.id),
+        userId: fr.userId ? idHandler.encode(fr.userId) : null,
+      }));
+
+      return NextResponse.json(formatEntityList(encodedFeatureRequests, "feature-request"));
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "GET /api/feature-requests");
@@ -83,7 +93,10 @@ export const POST = withAuth(
         { featureRequestId: newFeatureRequest.id },
         "Successfully created new feature request"
       );
-      return NextResponse.json(formatEntity(newFeatureRequest, "feature-request"));
+
+      // Encode IDs before sending to client
+      const encodedFeatureRequest = encodeFeatureRequest(newFeatureRequest);
+      return NextResponse.json(formatEntity(encodedFeatureRequest, "feature-request"));
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "POST /api/feature-requests");

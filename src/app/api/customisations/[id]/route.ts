@@ -1,5 +1,6 @@
 import { withAuth } from "@/lib/auth-middleware";
 import { sanitiseUserInputText } from "@/lib/sanitiseUserInputText";
+import { encodeCustomisation } from "@/lib/utils/encodeHelpers";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
@@ -19,6 +20,14 @@ const updateCustomisationSchema = createInsertSchema(customisations).omit({
 export const PUT = withAuth<{ id: string }>(
   async (request, { user, params }) => {
     try {
+      // Decode hash ID to numeric
+      const customisationId = idHandler.safeDecode(params!.id);
+      if (customisationId === null) {
+        return NextResponse.json(formatErrorEntity("Invalid customisation ID"), {
+          status: 404,
+        });
+      }
+
       const body = await request.json();
       const validatedData = updateCustomisationSchema.parse(body);
 
@@ -26,8 +35,6 @@ export const PUT = withAuth<{ id: string }>(
         ...validatedData,
         customInstructions: sanitiseUserInputText(validatedData.customInstructions),
       };
-
-      const customisationId = idHandler.decode(params!.id);
 
       const [updatedCustomization] = await db
         .insert(customisations)
@@ -50,7 +57,10 @@ export const PUT = withAuth<{ id: string }>(
       }
 
       logger.info({ updatedCustomization }, "Successfully updated customisation");
-      return NextResponse.json(formatEntity(updatedCustomization, "customisation"));
+
+      // Encode IDs before sending to client
+      const encodedCustomisation = encodeCustomisation(updatedCustomization);
+      return NextResponse.json(formatEntity(encodedCustomisation, "customisation"));
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "PUT /api/customisations/[id]");

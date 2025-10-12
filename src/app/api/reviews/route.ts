@@ -1,5 +1,6 @@
 import ReviewNotificationEmail from "@/emails/review-notification";
 import { withAuth } from "@/lib/auth-middleware";
+import { encodeReview } from "@/lib/utils/encodeHelpers";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
 import { NextResponse } from "next/server";
@@ -78,7 +79,10 @@ export const POST = withAuth(
       }
 
       logger.info({ reviewId: newReview.id }, "Successfully created new review");
-      return NextResponse.json(formatEntity(newReview, "review"), {
+
+      // Encode all IDs before sending to client
+      const encodedReview = encodeReview(newReview);
+      return NextResponse.json(formatEntity(encodedReview, "review"), {
         status: 201,
       });
     } catch (error) {

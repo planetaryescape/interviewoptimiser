@@ -1,4 +1,5 @@
 import { withAuth } from "@/lib/auth-middleware";
+import { encodeChangelog } from "@/lib/utils/encodeHelpers";
 import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import * as Sentry from "@sentry/nextjs";
 import { desc } from "drizzle-orm";
@@ -16,7 +17,10 @@ export async function GET() {
     });
 
     logger.info({ count: changelogEntries.length }, "Successfully retrieved changelogs");
-    return NextResponse.json(formatEntityList(changelogEntries, "changelog"));
+
+    // Encode all IDs before sending to client
+    const encodedChangelogs = changelogEntries.map(encodeChangelog);
+    return NextResponse.json(formatEntityList(encodedChangelogs, "changelog"));
   } catch (error) {
     Sentry.withScope((scope) => {
       scope.setExtra("context", "GET /api/changelogs");
@@ -68,7 +72,10 @@ export const POST = withAuth(
         .returning();
 
       logger.info({ changelogId: newChangelog.id }, "Successfully created new changelog");
-      return NextResponse.json(formatEntity(newChangelog, "changelog"));
+
+      // Encode all IDs before sending to client
+      const encodedChangelog = encodeChangelog(newChangelog);
+      return NextResponse.json(formatEntity(encodedChangelog, "changelog"));
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "POST /api/changelogs");
