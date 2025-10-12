@@ -16,8 +16,8 @@ export default function useCustomisedSystemPrompt({
   const { data: interview, isLoading: interviewIsLoading } = useInterview(interviewId);
 
   const systemPrompt = useMemo(() => {
-    if (!job) return "";
-    if (!interview) return "";
+    if (!job?.data) return "";
+    if (!interview?.data) return "";
 
     return createInterviewInstructions({
       cvText: job.data.submittedCVText,
