@@ -19,7 +19,9 @@ export function useInterview(interviewId: string) {
       return await interviewRepo.getById(interviewId);
     },
     enabled: !!interviewId,
-    // Dynamic staleTime: prevents long-term caching of incomplete data
+    // Dynamic staleTime: marks incomplete data as immediately stale
+    // Stale data refetches on mount/remount, but NOT while component stays mounted
+    // That's why refetchInterval is also needed (see below)
     staleTime: (query) => {
       const interview = query.state.data;
       if (!interview?.data?.job) return 0;
@@ -28,8 +30,9 @@ export function useInterview(interviewId: string) {
         interview.data.job.candidateDetails && interview.data.job.jobDescription;
       return isDataComplete ? 30000 : 0;
     },
-    // Polling: actively checks for extraction completion while component is mounted
-    // Combined with staleTime, this ensures we detect when server-side extraction finishes
+    // Polling: actively checks for extraction completion WHILE component is mounted
+    // Without this, button stays disabled until user manually reloads or refocuses window
+    // staleTime alone only triggers refetch on mount/remount events
     refetchInterval: (query) => {
       const interview = query.state.data;
 
