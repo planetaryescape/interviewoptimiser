@@ -1,5 +1,7 @@
 import { withAuth } from "@/lib/auth-middleware";
+import { encodeOrganization } from "@/lib/utils/encodeHelpers";
 import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
+import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
@@ -37,7 +39,13 @@ export const GET = withAuth(
         )
         .where(eq(organizations.isDeleted, false));
 
-      return NextResponse.json(formatEntityList(userOrganizations, "organization"));
+      // Encode all IDs before sending to client
+      const encodedOrganizations = userOrganizations.map((org) => ({
+        ...org,
+        id: idHandler.encode(org.id),
+      }));
+
+      return NextResponse.json(formatEntityList(encodedOrganizations, "organization"));
     } catch (error) {
       logger.error({ error }, "Error fetching organizations");
       Sentry.withScope((scope) => {
@@ -89,15 +97,14 @@ export const POST = withAuth(
         return { organization, member };
       });
 
-      return NextResponse.json(
-        formatEntity(
-          {
-            ...result.organization,
-            role: result.member.role,
-          },
-          "organization"
-        )
-      );
+      // Encode IDs before sending to client
+      const encodedOrganization = {
+        ...result.organization,
+        id: idHandler.encode(result.organization.id),
+        role: result.member.role,
+      };
+
+      return NextResponse.json(formatEntity(encodedOrganization, "organization"));
     } catch (error) {
       logger.error({ error }, "Error creating organization");
       Sentry.withScope((scope) => {

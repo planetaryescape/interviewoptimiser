@@ -1,4 +1,5 @@
 import { withAuth } from "@/lib/auth-middleware";
+import { encodeOrganizationMember } from "@/lib/utils/encodeHelpers";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
@@ -27,8 +28,20 @@ export const PUT = withAuth<{ id: string; memberId: string }>(
         return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
       }
 
-      const organizationId = idHandler.decode(params!.id);
-      const memberId = idHandler.decode(params!.memberId);
+      // Decode hash IDs to numeric
+      const organizationId = idHandler.safeDecode(params!.id);
+      if (organizationId === null) {
+        return NextResponse.json(formatErrorEntity({ message: "Invalid organization ID" }), {
+          status: 404,
+        });
+      }
+
+      const memberId = idHandler.safeDecode(params!.memberId);
+      if (memberId === null) {
+        return NextResponse.json(formatErrorEntity({ message: "Invalid member ID" }), {
+          status: 404,
+        });
+      }
 
       const member = await checkOrganizationAccess(organizationId, user.id);
       if (!member || !["owner", "admin"].includes(member.role)) {
@@ -143,7 +156,9 @@ export const PUT = withAuth<{ id: string; memberId: string }>(
           "Successfully updated organization member role"
         );
 
-        return NextResponse.json(formatEntity(updatedMember, "organization-member"));
+        // Encode IDs before sending to client
+        const encodedUpdatedMember = encodeOrganizationMember(updatedMember);
+        return NextResponse.json(formatEntity(encodedUpdatedMember, "organization-member"));
       }
 
       // For non-owner role changes
@@ -167,7 +182,9 @@ export const PUT = withAuth<{ id: string; memberId: string }>(
         "Successfully updated organization member role"
       );
 
-      return NextResponse.json(formatEntity(updatedMember, "organization-member"));
+      // Encode IDs before sending to client
+      const encodedUpdatedMember = encodeOrganizationMember(updatedMember);
+      return NextResponse.json(formatEntity(encodedUpdatedMember, "organization-member"));
     } catch (error) {
       logger.error({ error }, "Error updating organization member");
       Sentry.captureException(error);
@@ -185,8 +202,20 @@ export const DELETE = withAuth<{ id: string; memberId: string }>(
         return NextResponse.json(formatErrorEntity({ message: "User not found" }), { status: 404 });
       }
 
-      const organizationId = idHandler.decode(params!.id);
-      const memberId = idHandler.decode(params!.memberId);
+      // Decode hash IDs to numeric
+      const organizationId = idHandler.safeDecode(params!.id);
+      if (organizationId === null) {
+        return NextResponse.json(formatErrorEntity({ message: "Invalid organization ID" }), {
+          status: 404,
+        });
+      }
+
+      const memberId = idHandler.safeDecode(params!.memberId);
+      if (memberId === null) {
+        return NextResponse.json(formatErrorEntity({ message: "Invalid member ID" }), {
+          status: 404,
+        });
+      }
 
       const member = await checkOrganizationAccess(organizationId, user.id);
       if (!member || !["owner", "admin"].includes(member.role)) {
@@ -255,7 +284,9 @@ export const DELETE = withAuth<{ id: string; memberId: string }>(
         "Successfully removed organization member"
       );
 
-      return NextResponse.json(formatEntity(updatedMember, "organization-member"));
+      // Encode IDs before sending to client
+      const encodedUpdatedMember = encodeOrganizationMember(updatedMember);
+      return NextResponse.json(formatEntity(encodedUpdatedMember, "organization-member"));
     } catch (error) {
       logger.error({ error }, "Error removing organization member");
       Sentry.captureException(error);
