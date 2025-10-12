@@ -6,7 +6,7 @@ import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
 import { ChevronLeft, ChevronRight, Home, Layout } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import useMeasure from "react-use-measure";
 import type { StepConfig } from "./step-indicator";
 import { StepIndicator } from "./step-indicator";
@@ -26,6 +26,13 @@ interface StepperContentAreaProps {
   showBottomNavigation?: boolean;
 }
 
+const BLOBS = [
+  { id: "blob-1", position: { top: "10%", left: "10%" } },
+  { id: "blob-2", position: { top: "30%", left: "80%" } },
+  { id: "blob-3", position: { top: "70%", left: "20%" } },
+  { id: "blob-4", position: { top: "85%", left: "70%" } },
+];
+
 /**
  * A reusable stepper content area component that handles step transitions with animations
  */
@@ -44,34 +51,11 @@ export function StepperContentArea({
   showBottomNavigation = true,
 }: StepperContentAreaProps) {
   const router = useRouter();
-  const contentWrapperRef = useRef<HTMLDivElement>(null);
   const controls = useAnimationControls();
   const [measureRef, { height: measuredHeight }] = useMeasure();
+  const [_isAnimating, setIsAnimating] = useState(false);
 
-  // Define animation variants
-  const slideVariants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? "100%" : "-100%",
-      zIndex: 1,
-    }),
-    visible: {
-      x: 0,
-      zIndex: 2,
-    },
-    exit: (direction: number) => ({
-      x: direction > 0 ? "-100%" : "100%",
-      zIndex: 1,
-    }),
-  };
-
-  const transition = {
-    type: "spring" as const,
-    stiffness: 150,
-    damping: 18,
-    mass: 1.1,
-  };
-
-  // Effect to animate contentWrapperRef's height when measuredHeight of the current step's content changes
+  // Animate height changes - using Interview's superior physics
   useEffect(() => {
     if (measuredHeight > 0) {
       controls.start({
@@ -83,6 +67,7 @@ export function StepperContentArea({
         },
       });
     } else {
+      // Fallback to 'auto' if height is 0, useful for initial render or empty steps
       controls.start({
         height: "auto",
         transition: { duration: 0 },
@@ -90,12 +75,63 @@ export function StepperContentArea({
     }
   }, [measuredHeight, controls]);
 
+  // Define animation variants for slide - using Interview's superior zIndex approach
+  const slideVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? "100%" : "-100%",
+      zIndex: 1,
+    }),
+    center: {
+      x: 0,
+      zIndex: 2,
+    },
+    exit: (direction: number) => ({
+      x: direction > 0 ? "-100%" : "100%",
+      zIndex: 1,
+    }),
+  };
+
+  // Interview's superior spring physics - smoother, more natural movement
+  const transition = {
+    type: "spring" as const,
+    stiffness: 150,
+    damping: 18,
+    mass: 1.1,
+  };
+
   const isLastStep = currentStep === steps.length;
 
   return (
-    <div className="flex-1 flex flex-col items-center w-full px-4 md:px-6 lg:px-8 py-8 md:py-16 justify-start md:justify-start">
+    <div className="relative flex-1 flex flex-col items-center justify-start w-full px-4 md:px-6 lg:px-8 py-8 overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
+        {BLOBS.map((blob) => (
+          <motion.div
+            key={blob.id}
+            className="absolute rounded-full bg-primary/5 blur-3xl"
+            style={{
+              ...blob.position,
+              width: "40%",
+              height: "40%",
+              transform: "translate(-50%, -50%)",
+            }}
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Number.POSITIVE_INFINITY,
+              repeatType: "reverse",
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+      </div>
+
       {/* Main content box */}
-      <div className="bg-card/95 backdrop-blur-md rounded-xl shadow-xl border border-border/40 overflow-hidden w-full max-w-7xl animate-in fade-in slide-in-from-bottom-8 duration-500">
+      <div className="relative bg-card/95 backdrop-blur-md rounded-xl shadow-xl border border-border/40 overflow-hidden w-full max-w-7xl animate-in fade-in slide-in-from-bottom-8 duration-500 z-10">
         {/* Step navigation header */}
         <div className="w-full px-2 xs:px-3 md:px-6 py-3 xs:py-4 md:py-5 border-b border-border/40">
           <div className="flex items-center justify-between">
@@ -156,24 +192,24 @@ export function StepperContentArea({
 
         {/* Content area */}
         <motion.div
-          ref={contentWrapperRef}
-          className="relative overflow-hidden"
-          initial={{ height: "auto" }}
+          className="relative overflow-hidden w-full"
           animate={controls}
+          initial={{ height: "auto" }}
         >
-          <AnimatePresence initial={false} custom={animationDir} mode="sync">
+          <AnimatePresence initial={false} mode="sync" custom={animationDir}>
             <motion.div
               key={currentStep}
               custom={animationDir}
               variants={slideVariants}
               initial="enter"
-              animate="visible"
+              animate="center"
               exit="exit"
               transition={transition}
-              className="w-full absolute top-0 left-0 right-0"
-              ref={measureRef}
+              className="absolute w-full"
+              onAnimationStart={() => setIsAnimating(true)}
+              onAnimationComplete={() => setIsAnimating(false)}
             >
-              {stepContent[currentStep]}
+              <div ref={measureRef}>{stepContent[currentStep]}</div>
             </motion.div>
           </AnimatePresence>
         </motion.div>
@@ -181,7 +217,7 @@ export function StepperContentArea({
 
       {/* Navigation Buttons */}
       {showBottomNavigation && (
-        <div className="mt-6 pt-6 border-t border-border/40 flex flex-wrap gap-4 justify-center w-full max-w-6xl animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+        <div className="relative mt-6 pt-6 border-t border-border/40 flex flex-wrap gap-4 justify-center w-full max-w-6xl animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150 z-10">
           <Button
             variant="outline"
             size="sm"

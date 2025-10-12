@@ -1,11 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Check } from "lucide-react";
+import { Check, type LucideIcon } from "lucide-react";
 
 export interface StepConfig {
   number: number;
   label: string;
+  icon?: LucideIcon;
 }
 
 interface StepIndicatorProps {
@@ -27,66 +28,87 @@ export function StepIndicator({
   onStepClick,
 }: StepIndicatorProps) {
   return (
-    <div className="flex items-center justify-center">
-      <div className="relative flex items-center justify-center gap-3 xs:gap-5 sm:gap-6 md:gap-10 lg:gap-16 px-2">
-        {/* Connector Lines - Positioned behind the circles */}
-        <div className="absolute top-4 xs:top-5 left-[18px] right-[18px] xs:left-[22px] xs:right-[22px] h-1 bg-border z-0">
-          {/* Dynamic connector lines based on steps */}
-          {steps.slice(0, -1).map((_, index) => {
-            const lineIndex = index + 1;
-            const isActive = currentStep > lineIndex;
-            return (
-              <div
-                key={`line-${lineIndex}`}
-                className={cn(
-                  "absolute h-full transition-all duration-500 ease-in-out",
-                  isActive ? "bg-primary" : "bg-transparent",
-                  index === 0 ? "left-0 w-1/2" : "right-0 w-1/2"
-                )}
-              />
-            );
-          })}
+    <div className="flex items-center justify-center py-2">
+      <div className="relative flex items-center gap-3 xs:gap-5 sm:gap-6 md:gap-10 lg:gap-16 px-2">
+        {/* Connector Lines - Positioned to go through the center of circles */}
+        <div
+          className="absolute left-[20px] right-[20px] xs:left-[24px] xs:right-[24px] h-0.5 bg-gradient-to-r from-border via-border to-border z-0"
+          style={{ top: "calc(20px + 1px)" }}
+        >
+          {/* Progress bar - dynamically calculated based on current step */}
+          <div
+            className="absolute h-full left-0 bg-gradient-to-r from-primary to-primary/80 transition-all duration-700 ease-out rounded-full"
+            style={{
+              width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`,
+              boxShadow: currentStep > 1 ? "0 0 12px rgba(var(--primary), 0.3)" : "none",
+            }}
+          />
         </div>
 
         {/* Step Circles */}
-        {steps.map((stepItem) => (
-          <div
-            key={stepItem.number}
-            className={cn(
-              "flex flex-col items-center relative z-10 transition-all duration-300",
-              stepItem.number <= currentStep ? "text-primary" : "text-muted-foreground"
-            )}
-          >
-            {/* Circle */}
-            <button
-              type="button"
-              onClick={() => onStepClick?.(stepItem.number)}
-              disabled={!onStepClick}
-              className={cn(
-                "w-8 h-8 xs:w-10 xs:h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300",
-                stepItem.number < currentStep
-                  ? "bg-primary border-primary text-primary-foreground"
-                  : stepItem.number === currentStep
-                    ? "bg-background border-primary text-primary"
-                    : "bg-background border-muted-foreground text-muted-foreground",
-                stepItem.number === animateStep && "animate-pulse",
-                onStepClick && "cursor-pointer"
-              )}
-              aria-label={`Go to step ${stepItem.number}: ${stepItem.label}`}
-            >
-              {stepItem.number < currentStep ? (
-                <Check className="h-4 w-4 xs:h-5 xs:w-5" />
-              ) : (
-                <span className="text-sm xs:text-base font-medium">{stepItem.number}</span>
-              )}
-            </button>
+        {steps.map((stepItem) => {
+          const Icon = stepItem.icon;
+          const isActive = currentStep === stepItem.number;
+          const isCompleted = stepItem.number < currentStep;
+          const isClickable = stepItem.number < currentStep && onStepClick;
 
-            {/* Label */}
-            <span className="mt-2 text-xs xs:text-sm font-medium whitespace-nowrap">
-              {stepItem.label}
-            </span>
-          </div>
-        ))}
+          return (
+            <div
+              key={stepItem.number}
+              className={cn(
+                "flex flex-col items-center relative z-10 transition-all duration-300",
+                isActive || isCompleted ? "text-primary" : "text-muted-foreground"
+              )}
+            >
+              <button
+                type="button"
+                onClick={() => isClickable && onStepClick(stepItem.number)}
+                disabled={!isClickable}
+                aria-current={isActive ? "step" : undefined}
+                aria-label={`Go to step ${stepItem.number}: ${stepItem.label}`}
+                className={cn(
+                  "w-10 h-10 xs:w-11 xs:h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 relative group",
+                  stepItem.number === animateStep && "animate-pulse",
+                  isActive
+                    ? "bg-gradient-to-br from-primary to-primary/90 text-primary-foreground ring-4 ring-primary/20 shadow-lg hover:shadow-xl"
+                    : isCompleted
+                      ? "bg-primary text-primary-foreground shadow-md hover:shadow-lg cursor-pointer hover:scale-105 active:scale-95"
+                      : "bg-background border-2 border-border text-muted-foreground cursor-default hover:border-primary/30"
+                )}
+              >
+                {/* Pulse animation for active step */}
+                {isActive && (
+                  <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-30" />
+                )}
+
+                {/* Step content */}
+                <span className="relative flex items-center justify-center">
+                  {isCompleted ? (
+                    <Check className="h-5 w-5 xs:h-6 xs:w-6" strokeWidth={2.5} />
+                  ) : isActive && Icon ? (
+                    <Icon className="h-5 w-5 xs:h-6 xs:w-6" strokeWidth={2} />
+                  ) : (
+                    <span className="text-sm font-semibold">{stepItem.number}</span>
+                  )}
+                </span>
+              </button>
+
+              {/* Step label */}
+              <span
+                className={cn(
+                  "text-[10px] xs:text-xs mt-2 xs:mt-2.5 font-medium text-center max-w-[60px] xs:max-w-none transition-all duration-300",
+                  isActive
+                    ? "text-foreground font-semibold"
+                    : isCompleted
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                )}
+              >
+                {stepItem.label}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
