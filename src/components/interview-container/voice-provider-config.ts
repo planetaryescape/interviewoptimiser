@@ -20,6 +20,7 @@ export interface InterviewWithJob {
 
 export function createSessionContext(interview: Entity<InterviewWithJob> | undefined | null) {
   if (!interview?.data) return "";
+  if (!interview.data.job) return "";
   if (!interview.data.job.candidateDetails) return "";
   if (!interview.data.job.jobDescription) return "";
 
