@@ -1,4 +1,5 @@
 import { withAuth } from "@/lib/auth-middleware";
+import { encodeFeatureRequest } from "@/lib/utils/encodeHelpers";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
@@ -11,7 +12,13 @@ import { logger } from "~/lib/logger";
 export const PUT = withAuth<{ id: string }>(
   async (request, { user, params }) => {
     try {
-      const featureRequestId = idHandler.decode(params!.id);
+      // Decode hash ID to numeric
+      const featureRequestId = idHandler.safeDecode(params!.id);
+      if (featureRequestId === null) {
+        return NextResponse.json(formatErrorEntity("Invalid feature request ID"), {
+          status: 404,
+        });
+      }
 
       const updatedFeatureRequest = await db.transaction(async (tx) => {
         const existingLike = await tx
@@ -79,7 +86,10 @@ export const PUT = withAuth<{ id: string }>(
         { featureRequestId: updatedFeatureRequest.id },
         "Successfully updated feature request likes"
       );
-      return NextResponse.json(formatEntity(updatedFeatureRequest, "feature-request"));
+
+      // Encode all IDs before sending to client
+      const encodedFeatureRequest = encodeFeatureRequest(updatedFeatureRequest);
+      return NextResponse.json(formatEntity(encodedFeatureRequest, "feature-request"));
     } catch (error) {
       Sentry.withScope((scope) => {
         scope.setExtra("context", "PUT /api/feature-requests/[id]");
