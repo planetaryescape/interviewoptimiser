@@ -18,20 +18,27 @@ export function useJob(jobId: string) {
       const job = await jobsRepo.getById(jobId);
       return job;
     },
-    // Dynamic staleTime: if data is incomplete, mark as stale immediately
-    // This forces refetch on every useJob call until extraction completes
+    // Dynamic staleTime: prevents long-term caching of incomplete data
     staleTime: (query) => {
       const job = query.state.data;
-
-      // If no data yet, consider immediately stale
       if (!job?.data) return 0;
 
-      // Check if candidate details and job description are extracted
+      const isDataComplete = job.data.candidateDetails && job.data.jobDescription;
+      return isDataComplete ? 30000 : 0;
+    },
+    // Polling: actively checks for extraction completion while component is mounted
+    // Combined with staleTime, this ensures we detect when server-side extraction finishes
+    refetchInterval: (query) => {
+      const job = query.state.data;
+
+      // No data yet, keep checking
+      if (!job?.data) return 3000;
+
+      // Check if extraction is complete
       const isDataComplete = job.data.candidateDetails && job.data.jobDescription;
 
-      // If incomplete: staleTime = 0 (refetch on every mount)
-      // If complete: staleTime = 30s (normal caching)
-      return isDataComplete ? 30000 : 0;
+      // If complete, stop polling. If incomplete, check every 3s
+      return isDataComplete ? false : 3000;
     },
   });
 }
