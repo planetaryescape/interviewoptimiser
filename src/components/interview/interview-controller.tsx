@@ -64,6 +64,7 @@ export const InterviewController = React.memo(function InterviewController() {
   } = useVoice();
 
   const interviewStartedRef = useRef(false);
+  const chatMetadataSavedRef = useRef(false);
 
   // Set unmounted flag on component unmount
   useEffect(() => {
@@ -183,6 +184,28 @@ export const InterviewController = React.memo(function InterviewController() {
       }
     },
   });
+
+  // Save chat metadata once when first connected
+  useEffect(() => {
+    if (
+      chatMetadata?.chatGroupId &&
+      chatMetadata.chatId &&
+      !chatMetadataSavedRef.current &&
+      activeInterview
+    ) {
+      chatMetadataSavedRef.current = true;
+
+      // Update the interview with chat metadata
+      partialInterviewMutation.mutate({
+        ...activeInterview,
+        jobId: params.jobId as string,
+        chatGroupId: chatMetadata.chatGroupId,
+        customSessionId: chatMetadata.customSessionId || null,
+        requestId: chatMetadata.requestId || null,
+        humeChatId: chatMetadata.chatId,
+      });
+    }
+  }, [chatMetadata, activeInterview, params.jobId, partialInterviewMutation]);
 
   // Usage tracking mutation
   const decrementMutation = useMutation({
