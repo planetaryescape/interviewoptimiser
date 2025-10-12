@@ -34,6 +34,15 @@ class IDHandler {
     return numbers[0] as number;
   }
 
+  // Safe decode that returns null instead of throwing
+  safeDecode(hash: string): number | null {
+    try {
+      return this.decode(hash);
+    } catch {
+      return null;
+    }
+  }
+
   // Client-safe methods that don't require the salt
   isValidHash(hash: string): boolean {
     // Basic validation that doesn't require decoding
