@@ -31,6 +31,8 @@ export function InterviewPlaceholder({ accessToken, configId }: InterviewPlaceho
   const params = useParams();
   const jobId = params.jobId as string;
   const queryClient = useQueryClient();
+  // useJob will automatically refetch if candidateDetails or jobDescription are missing
+  // staleTime = 0 when incomplete, so cache is never used for partial data
   const { data: job, isLoading, error } = useJob(jobId);
   const { data: user, isLoading: isUserLoading } = useUser();
   const router = useRouter();
@@ -146,6 +148,8 @@ export function InterviewPlaceholder({ accessToken, configId }: InterviewPlaceho
   }
 
   const hasEnoughMinutes = user?.minutes && user.minutes >= (interviewToBeCreated?.duration || 0);
+  const isDataBeingExtracted = !job?.data?.candidateDetails || !job?.data?.jobDescription;
+  const canStartInterview = hasEnoughMinutes && !isDataBeingExtracted;
 
   return (
     <div className="h-full flex flex-col">
@@ -248,21 +252,25 @@ export function InterviewPlaceholder({ accessToken, configId }: InterviewPlaceho
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.8 }}
+            className="flex flex-col items-center gap-2"
           >
             <Button
               size="lg"
               onClick={() => setShowModal(true)}
-              disabled={!hasEnoughMinutes}
+              disabled={!canStartInterview}
               className="relative group px-8 py-6 text-lg hover:scale-105 transition-transform"
             >
               <MessageCircle className="mr-2 h-5 w-5 group-hover:animate-wiggle" />
-              Start Interview
-              {!hasEnoughMinutes && (
-                <span className="absolute -bottom-8 whitespace-nowrap text-xs text-destructive font-medium">
-                  Not enough minutes available
-                </span>
-              )}
+              {isDataBeingExtracted ? "Preparing Interview..." : "Start Interview"}
             </Button>
+            {isDataBeingExtracted && (
+              <p className="text-xs text-muted-foreground text-center max-w-xs">
+                Extracting candidate details and job information...
+              </p>
+            )}
+            {!hasEnoughMinutes && !isDataBeingExtracted && (
+              <p className="text-xs text-destructive font-medium">Not enough minutes available</p>
+            )}
           </motion.div>
 
           {/* Navigation Buttons */}
