@@ -10,23 +10,26 @@ export interface InterviewWithJob {
   job: {
     candidateDetails: {
       name: string;
-    };
+    } | null;
     jobDescription: {
       role: string | null;
       company: string | null;
-    };
+    } | null;
   };
 }
 
 export function createSessionContext(interview: Entity<InterviewWithJob> | undefined | null) {
   if (!interview?.data) return "";
+  if (!interview.data.job.candidateDetails) return "";
+  if (!interview.data.job.jobDescription) return "";
 
   const { duration, actualTime, type, job, keyQuestions } = interview.data;
   const interviewDuration = actualTime ? duration - actualTime : duration;
   const interviewType = formatInterviewType(type || "behavioral");
-  const candidateName = job.candidateDetails.name;
-  const role = job.jobDescription.role || "the specified";
-  const company = job.jobDescription.company || "the company";
+  // Non-null assertions safe here due to checks above
+  const candidateName = job.candidateDetails!.name;
+  const role = job.jobDescription!.role || "the specified";
+  const company = job.jobDescription!.company || "the company";
 
   const baseContext = `You are an AI interviewer called Cora, the lead interviewer at Interview Optimiser. You are conducting a ${interviewDuration} minute ${interviewType} mock interview with ${candidateName} to help them prepare for a ${role} job at ${company}. Your goal is to ask relevant, insightful questions based on the candidate data and job role information, focusing on ${interviewType} questions.
 

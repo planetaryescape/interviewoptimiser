@@ -46,6 +46,46 @@ export const POST = withAuth(
         });
       }
 
+      // Verify that the job has required data before creating interview
+      const job = await db.query.jobs.findFirst({
+        where: eq(jobs.id, jobId),
+        with: {
+          candidateDetails: true,
+          jobDescription: true,
+        },
+      });
+
+      if (!job) {
+        logger.warn({ jobId }, "Job not found");
+        return NextResponse.json(formatErrorEntity("Job not found"), {
+          status: 404,
+        });
+      }
+
+      if (!job.candidateDetails) {
+        logger.warn({ jobId }, "Cannot create interview: candidate details not extracted yet");
+        return NextResponse.json(
+          formatErrorEntity(
+            "Candidate details are still being extracted. Please wait a moment and try again."
+          ),
+          {
+            status: 400,
+          }
+        );
+      }
+
+      if (!job.jobDescription) {
+        logger.warn({ jobId }, "Cannot create interview: job description not extracted yet");
+        return NextResponse.json(
+          formatErrorEntity(
+            "Job description is still being extracted. Please wait a moment and try again."
+          ),
+          {
+            status: 400,
+          }
+        );
+      }
+
       // Only check for existing interview if humeChatId is provided
       if (humeChatId) {
         const existingInterview = await db.query.interviews.findFirst({
