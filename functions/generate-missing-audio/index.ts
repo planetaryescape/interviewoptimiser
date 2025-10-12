@@ -51,10 +51,7 @@ export const handler = Sentry.wrapHandler(async () => {
     for (const report of reportsToProcess) {
       // Skip if interview doesn't have Hume chat ID (shouldn't happen for completed interviews)
       if (!report.interview.humeChatId) {
-        logger.warn(
-          { reportId: report.id },
-          "Skipping audio reconstruction - missing humeChatId"
-        );
+        logger.warn({ reportId: report.id }, "Skipping audio reconstruction - missing humeChatId");
         continue;
       }
 
