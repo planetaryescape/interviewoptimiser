@@ -12,7 +12,7 @@ import { getRepository } from "@/lib/data/repositoryFactory";
 import { clientIdHandler } from "@/lib/utils/clientIdHandler";
 import { useVoice } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Home, Layout, MessageCircle, X } from "lucide-react";
 import Link from "next/link";
@@ -30,7 +30,7 @@ export function InterviewPlaceholder({ accessToken, configId }: InterviewPlaceho
   const [showModal, setShowModal] = useState(false);
   const params = useParams();
   const jobId = params.jobId as string;
-  const { connect, status, chatMetadata } = useVoice();
+  const queryClient = useQueryClient();
   const { data: job, isLoading, error } = useJob(jobId);
   const { data: user, isLoading: isUserLoading } = useUser();
   const router = useRouter();
@@ -83,12 +83,27 @@ export function InterviewPlaceholder({ accessToken, configId }: InterviewPlaceho
         keyQuestions: keyQuestions.data,
         type: interviewToBeCreated.type,
         duration: interviewToBeCreated.duration,
+        // Initialize with empty metadata - will be populated when connecting on interview page
+        chatGroupId: "",
+        customSessionId: "",
+        requestId: "",
+        humeChatId: "",
       });
     },
     onSuccess: (interview) => {
-      router.push(
-        `/dashboard/jobs/${jobId}/interviews/${clientIdHandler.formatId(interview?.data.id)}`
-      );
+      // Pre-populate React Query cache to avoid redundant fetches on redirect
+      const interviewId = clientIdHandler.formatId(interview?.data.id);
+
+      // Cache the newly created interview
+      queryClient.setQueryData(["interview", interviewId], interview);
+
+      // Cache the job data we already have
+      if (job) {
+        queryClient.setQueryData(["job", jobId], job);
+      }
+
+      // Redirect - interview page will use cached data instantly
+      router.push(`/dashboard/jobs/${jobId}/interviews/${interviewId}`);
     },
     onError: (error) => {
       toast.error("Error creating interview. Please try again.");
@@ -99,34 +114,25 @@ export function InterviewPlaceholder({ accessToken, configId }: InterviewPlaceho
     },
   });
 
-  useEffect(() => {
-    if (chatMetadata?.chatGroupId && chatMetadata.chatId) {
-      createInterview({
+  const handleStartInterview = async () => {
+    // Don't connect here - just create the interview and redirect
+    // The interview page will handle the connection with proper context
+    try {
+      await createInterview({
         jobId: params.jobId as string,
-        chatGroupId: chatMetadata?.chatGroupId || "",
-        customSessionId: chatMetadata?.customSessionId || "",
-        requestId: chatMetadata?.requestId || "",
-        humeChatId: chatMetadata?.chatId || "",
         type: interviewToBeCreated.type,
         duration: interviewToBeCreated.duration,
+        chatGroupId: "",
+        humeChatId: "",
+        customSessionId: "",
+        requestId: "",
       });
-    }
-  }, [chatMetadata, createInterview, params.jobId, interviewToBeCreated]);
-
-  const handleStartInterview = async () => {
-    if (status.value !== "connected") {
-      try {
-        await connect({
-          auth: { type: "accessToken", value: accessToken || "" },
-          configId,
-        });
-      } catch (error) {
-        Sentry.withScope((scope) => {
-          scope.setContext("params", params);
-          Sentry.captureException(error);
-        });
-        toast.error("Error connecting to voice. Please try again.");
-      }
+    } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setContext("params", params);
+        Sentry.captureException(error);
+      });
+      toast.error("Error starting interview. Please try again.");
     }
   };
 
@@ -294,7 +300,7 @@ export function InterviewPlaceholder({ accessToken, configId }: InterviewPlaceho
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         onStart={handleStartInterview}
-        isLoading={status.value === "connecting" || isCreatingInterview}
+        isLoading={isCreatingInterview}
         duration={interviewToBeCreated?.duration}
         availableMinutes={user?.minutes}
       />
