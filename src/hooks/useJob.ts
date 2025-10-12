@@ -18,5 +18,6 @@ export function useJob(jobId: string) {
       const job = await jobsRepo.getById(jobId);
       return job;
     },
+    staleTime: 30000, // Cache valid for 30s, allows instant load from cache while background refetch happens
   });
 }
