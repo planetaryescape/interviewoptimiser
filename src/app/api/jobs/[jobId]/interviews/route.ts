@@ -1,4 +1,5 @@
 import { withAuth } from "@/lib/auth-middleware";
+import { encodeInterview } from "@/lib/utils/encodeHelpers";
 import { formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
@@ -11,7 +12,13 @@ import { logger } from "~/lib/logger";
 export const GET = withAuth<{ jobId: string }>(
   async (_request, { user, params }) => {
     try {
-      const jobId = idHandler.decode(params!.jobId);
+      // Decode hash ID to numeric
+      const jobId = idHandler.safeDecode(params!.jobId);
+      if (jobId === null) {
+        return NextResponse.json(formatErrorEntity("Invalid job ID"), {
+          status: 404,
+        });
+      }
 
       const jobInterviews = await db.query.interviews.findMany({
         where: eq(interviews.jobId, jobId),
@@ -27,28 +34,8 @@ export const GET = withAuth<{ jobId: string }>(
 
       logger.info({ jobId, count: jobInterviews.length }, "Successfully retrieved job interviews");
 
-      // Encode IDs before sending to client
-      const encodedInterviews = jobInterviews.map((interview) => ({
-        ...interview,
-        id: idHandler.encode(interview.id),
-        jobId: idHandler.encode(interview.jobId),
-        report: interview.report
-          ? {
-              ...interview.report,
-              id: idHandler.encode(interview.report.id),
-              interviewId: idHandler.encode(interview.report.interviewId),
-              pageSettings: interview.report.pageSettings
-                ? {
-                    ...interview.report.pageSettings,
-                    id: idHandler.encode(interview.report.pageSettings.id),
-                    reportId: interview.report.pageSettings.reportId
-                      ? idHandler.encode(interview.report.pageSettings.reportId)
-                      : null,
-                  }
-                : null,
-            }
-          : null,
-      }));
+      // Encode all IDs before sending to client
+      const encodedInterviews = jobInterviews.map(encodeInterview);
 
       return NextResponse.json(formatEntityList(encodedInterviews, "interview"));
     } catch (error) {

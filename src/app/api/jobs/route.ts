@@ -1,8 +1,8 @@
 import { withAuth } from "@/lib/auth-middleware";
 import { CacheDurations, CachePrefixes, CacheTags, cache } from "@/lib/cache";
 import { sanitiseUserInputText } from "@/lib/sanitiseUserInputText";
+import { encodeJob } from "@/lib/utils/encodeHelpers";
 import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
-import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
 import { desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
@@ -56,11 +56,8 @@ export const POST = withAuth(
       await cache.invalidatePattern(`jobs:${user.id}`, CachePrefixes.JOB);
       await cache.invalidateByTag(`user-jobs:${user.id}`);
 
-      // Encode ID before sending to client
-      const encodedJob = {
-        ...newJob,
-        id: idHandler.encode(newJob.id),
-      };
+      // Encode IDs before sending to client
+      const encodedJob = encodeJob(newJob);
 
       return NextResponse.json(formatEntity(encodedJob, "job"), {
         status: 201,
@@ -119,37 +116,8 @@ export const GET = withAuth(
 
       logger.info({ count: userJobs.length }, "Successfully retrieved jobs");
 
-      // Encode IDs before sending to client
-      const encodedJobs = userJobs.map((job) => ({
-        ...job,
-        id: idHandler.encode(job.id),
-        interviews: job.interviews?.map((interview) => ({
-          ...interview,
-          id: idHandler.encode(interview.id),
-          jobId: idHandler.encode(interview.jobId),
-          report: interview.report
-            ? {
-                ...interview.report,
-                id: idHandler.encode(interview.report.id),
-                interviewId: idHandler.encode(interview.report.interviewId),
-              }
-            : null,
-        })),
-        candidateDetails: job.candidateDetails
-          ? {
-              ...job.candidateDetails,
-              id: idHandler.encode(job.candidateDetails.id),
-              jobId: idHandler.encode(job.candidateDetails.jobId),
-            }
-          : null,
-        jobDescription: job.jobDescription
-          ? {
-              ...job.jobDescription,
-              id: idHandler.encode(job.jobDescription.id),
-              jobId: idHandler.encode(job.jobDescription.jobId),
-            }
-          : null,
-      }));
+      // Encode all IDs before sending to client
+      const encodedJobs = userJobs.map(encodeJob);
 
       return NextResponse.json(formatEntityList(encodedJobs, "job"));
     } catch (error) {
