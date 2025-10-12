@@ -1,6 +1,7 @@
 import { withAuth } from "@/lib/auth-middleware";
 import { CacheDurations, CachePrefixes, CacheTags, cache } from "@/lib/cache";
 import { CacheProfiles, setCacheHeaders } from "@/lib/cache-headers";
+import { encodeReport } from "@/lib/utils/encodeHelpers";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
@@ -15,7 +16,14 @@ export const GET = withAuth<{ id: string }>(
     logger.info("GET request received at /api/reports/[id]");
 
     try {
-      const reportId = idHandler.decode(params!.id);
+      // Decode hash ID to numeric
+      const reportId = idHandler.safeDecode(params!.id);
+      if (reportId === null) {
+        return NextResponse.json(formatErrorEntity("Invalid report ID"), {
+          status: 404,
+        });
+      }
+
       const cacheKey = `report:${reportId}`;
 
       const userReport = await cache.wrap(
@@ -65,30 +73,8 @@ export const GET = withAuth<{ id: string }>(
 
       logger.info({ id: userReport.id }, "Successfully retrieved report");
 
-      // Encode IDs before sending to client
-      const encodedReport = {
-        ...userReport,
-        id: idHandler.encode(userReport.id),
-        interviewId: idHandler.encode(userReport.interviewId),
-        pageSettings: userReport.pageSettings
-          ? {
-              ...userReport.pageSettings,
-              id: idHandler.encode(userReport.pageSettings.id),
-              reportId: userReport.pageSettings.reportId
-                ? idHandler.encode(userReport.pageSettings.reportId)
-                : null,
-            }
-          : null,
-        interview: {
-          ...userReport.interview,
-          id: idHandler.encode(userReport.interview.id),
-          jobId: idHandler.encode(userReport.interview.jobId),
-          job: {
-            ...userReport.interview.job,
-            // Note: Only userId is included in the query columns
-          },
-        },
-      };
+      // Encode all IDs before sending to client
+      const encodedReport = encodeReport(userReport);
 
       const response = NextResponse.json(formatEntity(encodedReport, "report"));
       return setCacheHeaders(response, CacheProfiles.REPORT_DATA);

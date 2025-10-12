@@ -1,4 +1,5 @@
 import { withAuth } from "@/lib/auth-middleware";
+import { encodeJobDescription } from "@/lib/utils/encodeHelpers";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
@@ -11,7 +12,13 @@ import { logger } from "~/lib/logger";
 export const GET = withAuth<{ jobId: string }>(
   async (_request, { user, params }) => {
     try {
-      const jobId = idHandler.decode(params!.jobId);
+      // Decode hash ID to numeric
+      const jobId = idHandler.safeDecode(params!.jobId);
+      if (jobId === null) {
+        return NextResponse.json(formatErrorEntity("Invalid job ID"), {
+          status: 404,
+        });
+      }
 
       const jobDescription = await db.query.jobDescriptions.findFirst({
         where: eq(jobDescriptions.jobId, jobId),
@@ -25,12 +32,8 @@ export const GET = withAuth<{ jobId: string }>(
 
       logger.info({ id: jobDescription.id }, "Successfully retrieved job description");
 
-      // Encode IDs before sending to client
-      const encodedJobDescription = {
-        ...jobDescription,
-        id: idHandler.encode(jobDescription.id),
-        jobId: idHandler.encode(jobDescription.jobId),
-      };
+      // Encode all IDs before sending to client
+      const encodedJobDescription = encodeJobDescription(jobDescription);
 
       return NextResponse.json(formatEntity(encodedJobDescription, "jobDescription"));
     } catch (error) {

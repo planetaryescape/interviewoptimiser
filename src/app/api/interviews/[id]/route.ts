@@ -1,4 +1,5 @@
 import { withAuth } from "@/lib/auth-middleware";
+import { encodeInterview } from "@/lib/utils/encodeHelpers";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
@@ -19,7 +20,13 @@ export const GET = withAuth<{ id: string }>(
         });
       }
 
-      const interviewId = idHandler.decode(params!.id);
+      // Decode hash ID to numeric
+      const interviewId = idHandler.safeDecode(params!.id);
+      if (interviewId === null) {
+        return NextResponse.json(formatErrorEntity("Invalid interview ID"), {
+          status: 404,
+        });
+      }
 
       const interview = await db.query.interviews.findFirst({
         where: eq(interviews.id, interviewId),
@@ -41,32 +48,8 @@ export const GET = withAuth<{ id: string }>(
 
       logger.info({ id: interview.id }, "Successfully retrieved interview");
 
-      // Encode IDs before sending to client
-      const encodedInterview = {
-        ...interview,
-        id: idHandler.encode(interview.id),
-        jobId: idHandler.encode(interview.jobId),
-        job: interview.job
-          ? {
-              ...interview.job,
-              id: idHandler.encode(interview.job.id),
-              jobDescription: interview.job.jobDescription
-                ? {
-                    ...interview.job.jobDescription,
-                    id: idHandler.encode(interview.job.jobDescription.id),
-                    jobId: idHandler.encode(interview.job.jobDescription.jobId),
-                  }
-                : null,
-              candidateDetails: interview.job.candidateDetails
-                ? {
-                    ...interview.job.candidateDetails,
-                    id: idHandler.encode(interview.job.candidateDetails.id),
-                    jobId: idHandler.encode(interview.job.candidateDetails.jobId),
-                  }
-                : null,
-            }
-          : null,
-      };
+      // Encode all IDs before sending to client
+      const encodedInterview = encodeInterview(interview);
 
       return NextResponse.json(formatEntity(encodedInterview, "interview"));
     } catch (error) {
@@ -101,7 +84,14 @@ export const PUT = withAuth<{ id: string }>(
         });
       }
 
-      const interviewId = idHandler.decode(params!.id);
+      // Decode hash ID to numeric
+      const interviewId = idHandler.safeDecode(params!.id);
+      if (interviewId === null) {
+        return NextResponse.json(formatErrorEntity("Invalid interview ID"), {
+          status: 404,
+        });
+      }
+
       const interview = await db.query.interviews.findFirst({
         where: eq(interviews.id, interviewId),
       });
@@ -146,12 +136,8 @@ export const PUT = withAuth<{ id: string }>(
 
       logger.info({ id: updatedInterview.id }, "Successfully updated interview");
 
-      // Encode IDs before sending to client
-      const encodedInterview = {
-        ...updatedInterview,
-        id: idHandler.encode(updatedInterview.id),
-        jobId: idHandler.encode(updatedInterview.jobId),
-      };
+      // Encode all IDs before sending to client
+      const encodedInterview = encodeInterview(updatedInterview);
 
       return NextResponse.json(formatEntity(encodedInterview, "interview"));
     } catch (error) {
@@ -186,7 +172,14 @@ export const DELETE = withAuth<{ id: string }>(
         });
       }
 
-      const interviewId = idHandler.decode(params!.id);
+      // Decode hash ID to numeric
+      const interviewId = idHandler.safeDecode(params!.id);
+      if (interviewId === null) {
+        return NextResponse.json(formatErrorEntity("Invalid interview ID"), {
+          status: 404,
+        });
+      }
+
       const interview = await db.query.interviews.findFirst({
         where: eq(interviews.id, interviewId),
       });

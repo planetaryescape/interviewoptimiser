@@ -1,5 +1,6 @@
 import { withAuth } from "@/lib/auth-middleware";
 import { CacheDurations, CachePrefixes, CacheTags, cache } from "@/lib/cache";
+import { encodeJob } from "@/lib/utils/encodeHelpers";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
@@ -13,7 +14,14 @@ import { logger } from "~/lib/logger";
 export const GET = withAuth<{ jobId: string }>(
   async (_request, { user, params }) => {
     try {
-      const jobId = idHandler.decode(params!.jobId);
+      // Decode hash ID to numeric
+      const jobId = idHandler.safeDecode(params!.jobId);
+      if (jobId === null) {
+        return NextResponse.json(formatErrorEntity("Invalid job ID"), {
+          status: 404,
+        });
+      }
+
       const cacheKey = `job:${jobId}`;
 
       const userJob = await cache.wrap(
@@ -42,25 +50,8 @@ export const GET = withAuth<{ jobId: string }>(
 
       logger.info({ id: userJob.id }, "Successfully retrieved job");
 
-      // Encode IDs before sending to client
-      const encodedJob = {
-        ...userJob,
-        id: idHandler.encode(userJob.id),
-        candidateDetails: userJob.candidateDetails
-          ? {
-              ...userJob.candidateDetails,
-              id: idHandler.encode(userJob.candidateDetails.id),
-              jobId: idHandler.encode(userJob.candidateDetails.jobId),
-            }
-          : null,
-        jobDescription: userJob.jobDescription
-          ? {
-              ...userJob.jobDescription,
-              id: idHandler.encode(userJob.jobDescription.id),
-              jobId: idHandler.encode(userJob.jobDescription.jobId),
-            }
-          : null,
-      };
+      // Encode all IDs before sending to client
+      const encodedJob = encodeJob(userJob);
 
       return NextResponse.json(formatEntity(encodedJob, "job"));
     } catch (error) {
@@ -94,7 +85,14 @@ const jobSchema = createInsertSchema(jobs).omit({
 export const PUT = withAuth<{ jobId: string }>(
   async (request, { user, params }) => {
     try {
-      const jobId = idHandler.decode(params!.jobId);
+      // Decode hash ID to numeric
+      const jobId = idHandler.safeDecode(params!.jobId);
+      if (jobId === null) {
+        return NextResponse.json(formatErrorEntity("Invalid job ID"), {
+          status: 404,
+        });
+      }
+
       const body = await request.json();
       const inputJob = jobSchema.partial().parse(body);
       logger.info({ jobId }, "Parsed job input");
@@ -137,11 +135,8 @@ export const PUT = withAuth<{ jobId: string }>(
       await cache.invalidatePattern(`jobs:${user.id}`, CachePrefixes.JOB);
       await cache.invalidateByTag(`user-jobs:${user.id}`);
 
-      // Encode ID before sending to client
-      const encodedJob = {
-        ...updatedResult,
-        id: idHandler.encode(updatedResult.id),
-      };
+      // Encode all IDs before sending to client
+      const encodedJob = encodeJob(updatedResult);
 
       return NextResponse.json(formatEntity(encodedJob, "job"));
     } catch (error) {
@@ -170,7 +165,13 @@ export const PUT = withAuth<{ jobId: string }>(
 export const DELETE = withAuth<{ jobId: string }>(
   async (_request, { user, params }) => {
     try {
-      const jobId = idHandler.decode(params!.jobId);
+      // Decode hash ID to numeric
+      const jobId = idHandler.safeDecode(params!.jobId);
+      if (jobId === null) {
+        return NextResponse.json(formatErrorEntity("Invalid job ID"), {
+          status: 404,
+        });
+      }
 
       await db.transaction(async (tx) => {
         const interviewsToDelete = await tx.query.interviews.findMany({

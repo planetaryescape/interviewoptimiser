@@ -1,5 +1,5 @@
 import { withAuth } from "@/lib/auth-middleware";
-import { parseIdParam } from "@/lib/utils";
+import { encodeInterview } from "@/lib/utils/encodeHelpers";
 import { formatEntity, formatEntityList, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
@@ -45,21 +45,23 @@ export const POST = withAuth(
         });
       }
 
+      // Decode hash ID to numeric
+      const jobId = idHandler.safeDecode(jobIdString);
+      if (jobId === null) {
+        return NextResponse.json(formatErrorEntity("Invalid job ID"), {
+          status: 400,
+        });
+      }
+
       const existingInterview = await db.query.interviews.findFirst({
         where: and(eq(interviews.humeChatId, humeChatId)),
       });
 
-      const jobId = idHandler.decode(jobIdString);
-
       if (existingInterview) {
         logger.info({ jobId }, "Interview already exists");
 
-        // Encode IDs before sending to client
-        const encodedInterview = {
-          ...existingInterview,
-          id: idHandler.encode(existingInterview.id),
-          jobId: idHandler.encode(existingInterview.jobId),
-        };
+        // Encode all IDs before sending to client
+        const encodedInterview = encodeInterview(existingInterview);
 
         return NextResponse.json(formatEntity(encodedInterview, "interview"), {
           status: 200,
@@ -82,12 +84,8 @@ export const POST = withAuth(
 
       logger.info({ id: newInterview.id }, "Successfully created interview");
 
-      // Encode IDs before sending to client
-      const encodedInterview = {
-        ...newInterview,
-        id: idHandler.encode(newInterview.id),
-        jobId: idHandler.encode(newInterview.jobId),
-      };
+      // Encode all IDs before sending to client
+      const encodedInterview = encodeInterview(newInterview);
 
       return NextResponse.json(formatEntity(encodedInterview, "interview"), {
         status: 201,
@@ -125,31 +123,27 @@ export const GET = withAuth(
       }
 
       const url = new URL(request.url);
-      const jobId = url.searchParams.get("jobId");
+      const jobIdString = url.searchParams.get("jobId");
 
-      if (!jobId) {
+      if (!jobIdString) {
         logger.info("No jobId provided, getting all interviews");
         return NextResponse.json(formatErrorEntity("Missing jobId"), {
           status: 400,
         });
       }
 
-      // Check if the job exists and belongs to the user
-      let parsedJobId: number;
-      try {
-        parsedJobId = parseIdParam(jobId, "jobId");
-      } catch (error) {
-        logger.warn({ jobId, error }, "Invalid jobId format");
-        return NextResponse.json(
-          formatErrorEntity(error instanceof Error ? error.message : "Invalid jobId"),
-          {
-            status: 400,
-          }
-        );
+      // Decode hash ID to numeric
+      const jobId = idHandler.safeDecode(jobIdString);
+      if (jobId === null) {
+        logger.warn({ jobId: jobIdString }, "Invalid jobId format");
+        return NextResponse.json(formatErrorEntity("Invalid job ID"), {
+          status: 400,
+        });
       }
 
+      // Check if the job exists and belongs to the user
       const job = await db.query.jobs.findFirst({
-        where: eq(jobs.id, parsedJobId),
+        where: eq(jobs.id, jobId),
       });
 
       if (!job) {
@@ -167,7 +161,7 @@ export const GET = withAuth(
       }
 
       const returnedInterviews = await db.query.interviews.findMany({
-        where: eq(interviews.jobId, parsedJobId),
+        where: eq(interviews.jobId, jobId),
       });
 
       if (!returnedInterviews) {
@@ -177,12 +171,8 @@ export const GET = withAuth(
 
       logger.info({ jobId }, "Successfully retrieved interviews for job");
 
-      // Encode IDs before sending to client
-      const encodedInterviews = returnedInterviews.map((interview) => ({
-        ...interview,
-        id: idHandler.encode(interview.id),
-        jobId: idHandler.encode(interview.jobId),
-      }));
+      // Encode all IDs before sending to client
+      const encodedInterviews = returnedInterviews.map(encodeInterview);
 
       return NextResponse.json(formatEntityList(encodedInterviews, "interview"));
     } catch (error) {
