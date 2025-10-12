@@ -1,3 +1,4 @@
+import { encodeInterview } from "@/lib/utils/encodeHelpers";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
@@ -12,7 +13,13 @@ export async function GET(_: NextRequest, props: { params: Promise<{ id: string 
   logger.info("GET request received at /api/public/interviews/[id]");
 
   try {
-    const interviewId = idHandler.decode(params.id);
+    // Decode hash ID to numeric
+    const interviewId = idHandler.safeDecode(params.id);
+    if (interviewId === null) {
+      return NextResponse.json(formatErrorEntity("Invalid interview ID"), {
+        status: 404,
+      });
+    }
 
     const interview = await db.query.interviews.findFirst({
       where: eq(interviews.id, interviewId),
@@ -34,7 +41,10 @@ export async function GET(_: NextRequest, props: { params: Promise<{ id: string 
     }
 
     logger.info({ id: interview.id }, "Successfully retrieved interview");
-    return NextResponse.json(formatEntity(interview, "interview"));
+
+    // Encode all IDs before sending to client
+    const encodedInterview = encodeInterview(interview);
+    return NextResponse.json(formatEntity(encodedInterview, "interview"));
   } catch (error) {
     Sentry.withScope((scope) => {
       scope.setExtra("context", "GET /api/public/interviews/[id]");

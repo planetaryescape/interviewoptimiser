@@ -1,3 +1,4 @@
+import { encodeReport } from "@/lib/utils/encodeHelpers";
 import { formatEntity, formatErrorEntity } from "@/lib/utils/formatEntity";
 import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
@@ -12,7 +13,14 @@ export async function GET(_: NextRequest, props: { params: Promise<{ id: string 
   logger.info("GET request received at /api/public/reports/[id]");
 
   try {
-    const reportId = idHandler.decode(params.id);
+    // Decode hash ID to numeric
+    const reportId = idHandler.safeDecode(params.id);
+    if (reportId === null) {
+      return NextResponse.json(formatErrorEntity("Invalid report ID"), {
+        status: 404,
+      });
+    }
+
     const report = await db.query.reports.findFirst({
       where: eq(reports.id, reportId),
       with: {
@@ -32,7 +40,10 @@ export async function GET(_: NextRequest, props: { params: Promise<{ id: string 
     }
 
     logger.info({ id: report.id }, "Successfully retrieved report");
-    return NextResponse.json(formatEntity(report, "report"));
+
+    // Encode all IDs before sending to client
+    const encodedReport = encodeReport(report);
+    return NextResponse.json(formatEntity(encodedReport, "report"));
   } catch (error) {
     Sentry.withScope((scope) => {
       scope.setExtra("context", "GET /api/public/reports/[id]");
