@@ -6,15 +6,16 @@ import Step3InterviewQuestions from "@/components/recruitment/create/Step3Interv
 import type { StepConfig } from "@/components/ui/stepper/step-indicator";
 import { StepperContentArea } from "@/components/ui/stepper/stepper-content-area";
 import { useRecruitmentCreateStore } from "@/stores/recruitmentCreateStore";
+import { Briefcase, MessageSquare, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const TOTAL_STEPS = 3;
 
-// Define steps configuration
+// Define steps configuration with icons
 const steps: StepConfig[] = [
-  { number: 1, label: "Job Description" },
-  { number: 2, label: "Interview Settings" },
-  { number: 3, label: "Questions" },
+  { number: 1, label: "Job Description", icon: Briefcase },
+  { number: 2, label: "Interview Settings", icon: Settings },
+  { number: 3, label: "Questions", icon: MessageSquare },
 ];
 
 const RecruitmentCreatePage = () => {
