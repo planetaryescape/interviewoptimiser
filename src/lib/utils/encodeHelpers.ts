@@ -36,7 +36,7 @@ export function encodeIds<T>(data: T): T {
 /**
  * Encode Job entity with all its relations
  */
-export function encodeJob(job: unknown) {
+export function encodeJob(job: unknown): unknown {
   if (!job || typeof job !== "object") return null;
   const j = job as Record<string, unknown>;
 
@@ -53,7 +53,7 @@ export function encodeJob(job: unknown) {
 /**
  * Encode Interview entity with all its relations
  */
-export function encodeInterview(interview: unknown) {
+export function encodeInterview(interview: unknown): unknown {
   if (!interview || typeof interview !== "object") return null;
   const i = interview as Record<string, unknown>;
 
@@ -69,7 +69,7 @@ export function encodeInterview(interview: unknown) {
 /**
  * Encode Report entity with all its relations
  */
-export function encodeReport(report: unknown) {
+export function encodeReport(report: unknown): unknown {
   if (!report || typeof report !== "object") return null;
   const r = report as Record<string, unknown>;
 
@@ -91,7 +91,7 @@ export function encodeReport(report: unknown) {
 /**
  * Encode QuestionAnalysis entity
  */
-export function encodeQuestionAnalysis(analysis: unknown) {
+export function encodeQuestionAnalysis(analysis: unknown): unknown {
   if (!analysis || typeof analysis !== "object") return null;
   const a = analysis as Record<string, unknown>;
 
@@ -106,7 +106,7 @@ export function encodeQuestionAnalysis(analysis: unknown) {
 /**
  * Encode Organization entity
  */
-export function encodeOrganization(organization: unknown) {
+export function encodeOrganization(organization: unknown): unknown {
   if (!organization || typeof organization !== "object") return null;
   const o = organization as Record<string, unknown>;
 
@@ -122,7 +122,7 @@ export function encodeOrganization(organization: unknown) {
 /**
  * Encode OrganizationMember entity
  */
-export function encodeOrganizationMember(member: unknown) {
+export function encodeOrganizationMember(member: unknown): unknown {
   if (!member || typeof member !== "object") return null;
   const m = member as Record<string, unknown>;
 
@@ -142,7 +142,7 @@ export function encodeOrganizationMember(member: unknown) {
 /**
  * Encode Invitation entity
  */
-export function encodeInvitation(invitation: unknown) {
+export function encodeInvitation(invitation: unknown): unknown {
   if (!invitation || typeof invitation !== "object") return null;
   const i = invitation as Record<string, unknown>;
 
@@ -162,7 +162,7 @@ export function encodeInvitation(invitation: unknown) {
 /**
  * Encode User entity
  */
-export function encodeUser(user: unknown) {
+export function encodeUser(user: unknown): unknown {
   if (!user || typeof user !== "object") return null;
   const u = user as Record<string, unknown>;
 
@@ -176,7 +176,7 @@ export function encodeUser(user: unknown) {
 /**
  * Encode Customisation entity
  */
-export function encodeCustomisation(customisation: unknown) {
+export function encodeCustomisation(customisation: unknown): unknown {
   if (!customisation || typeof customisation !== "object") return null;
   const c = customisation as Record<string, unknown>;
 
@@ -190,7 +190,7 @@ export function encodeCustomisation(customisation: unknown) {
 /**
  * Encode PageSettings entity
  */
-export function encodePageSettings(pageSettings: unknown) {
+export function encodePageSettings(pageSettings: unknown): unknown {
   if (!pageSettings || typeof pageSettings !== "object") return null;
   const p = pageSettings as Record<string, unknown>;
 
@@ -203,7 +203,7 @@ export function encodePageSettings(pageSettings: unknown) {
 /**
  * Encode CandidateDetails entity
  */
-export function encodeCandidateDetails(candidateDetails: unknown) {
+export function encodeCandidateDetails(candidateDetails: unknown): unknown {
   if (!candidateDetails || typeof candidateDetails !== "object") return null;
   const c = candidateDetails as Record<string, unknown>;
 
@@ -217,7 +217,7 @@ export function encodeCandidateDetails(candidateDetails: unknown) {
 /**
  * Encode JobDescription entity
  */
-export function encodeJobDescription(jobDescription: unknown) {
+export function encodeJobDescription(jobDescription: unknown): unknown {
   if (!jobDescription || typeof jobDescription !== "object") return null;
   const j = jobDescription as Record<string, unknown>;
 
@@ -231,7 +231,7 @@ export function encodeJobDescription(jobDescription: unknown) {
 /**
  * Encode FeatureRequest entity
  */
-export function encodeFeatureRequest(request: unknown) {
+export function encodeFeatureRequest(request: unknown): unknown {
   if (!request || typeof request !== "object") return null;
   const r = request as Record<string, unknown>;
 
@@ -245,7 +245,7 @@ export function encodeFeatureRequest(request: unknown) {
 /**
  * Encode Review entity
  */
-export function encodeReview(review: unknown) {
+export function encodeReview(review: unknown): unknown {
   if (!review || typeof review !== "object") return null;
   const r = review as Record<string, unknown>;
 
@@ -259,7 +259,7 @@ export function encodeReview(review: unknown) {
 /**
  * Encode Changelog entity
  */
-export function encodeChangelog(changelog: unknown) {
+export function encodeChangelog(changelog: unknown): unknown {
   if (!changelog || typeof changelog !== "object") return null;
   const c = changelog as Record<string, unknown>;
 
@@ -272,7 +272,7 @@ export function encodeChangelog(changelog: unknown) {
 /**
  * Generic encoder for any entity with common ID fields
  */
-export function encodeEntity(entity: unknown) {
+export function encodeEntity(entity: unknown): unknown {
   if (!entity || typeof entity !== "object") return null;
   const e = entity as Record<string, unknown>;
 

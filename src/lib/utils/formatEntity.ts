@@ -68,23 +68,22 @@ export type EntityList<T = unknown> = {
   data: Omit<Entity<T>, "success">[];
 };
 
-export const formatEntity = <
-  T extends { id?: number | string; [key: string]: unknown } | undefined,
->(
+export const formatEntity = <T = unknown>(
   data: T,
   entity: EntityType,
   status: StatusType = "success"
 ): Entity<T> => {
+  const dataObj = data as Record<string, unknown>;
   // Encode numeric IDs on the server side
-  let encodedId: number | string | undefined = data?.id;
-  if (typeof window === "undefined" && data?.id && typeof data.id === "number") {
+  let encodedId: number | string | undefined = dataObj?.id as number | string | undefined;
+  if (typeof window === "undefined" && dataObj?.id && typeof dataObj.id === "number") {
     // We're on the server and have a numeric ID - encode it
     try {
       const { idHandler } = require("./idHandler");
-      encodedId = idHandler.encode(data.id);
+      encodedId = idHandler.encode(dataObj.id as number);
     } catch {
       // If encoding fails, keep the original ID
-      encodedId = data.id;
+      encodedId = dataObj.id as number;
     }
   }
 
@@ -98,7 +97,7 @@ export const formatEntity = <
   };
 };
 
-export const formatEntityList = <T extends { id?: number | string; [key: string]: unknown }>(
+export const formatEntityList = <T = unknown>(
   data: T[],
   entity: EntityType,
   status: StatusType = "success"
