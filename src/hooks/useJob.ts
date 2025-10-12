@@ -18,6 +18,20 @@ export function useJob(jobId: string) {
       const job = await jobsRepo.getById(jobId);
       return job;
     },
-    staleTime: 30000, // Cache valid for 30s, allows instant load from cache while background refetch happens
+    // Dynamic staleTime: if data is incomplete, mark as stale immediately
+    // This forces refetch on every useJob call until extraction completes
+    staleTime: (query) => {
+      const job = query.state.data;
+
+      // If no data yet, consider immediately stale
+      if (!job?.data) return 0;
+
+      // Check if candidate details and job description are extracted
+      const isDataComplete = job.data.candidateDetails && job.data.jobDescription;
+
+      // If incomplete: staleTime = 0 (refetch on every mount)
+      // If complete: staleTime = 30s (normal caching)
+      return isDataComplete ? 30000 : 0;
+    },
   });
 }
