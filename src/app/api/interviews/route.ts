@@ -24,6 +24,10 @@ export const POST = withAuth(
         keyQuestions,
       } = body;
 
+      // Transform keyQuestions from object format to array if needed
+      // Database expects string[], but payload might send { questions: [...] }
+      const keyQuestionsArray = keyQuestions?.questions || keyQuestions || null;
+
       if (!jobIdString) {
         logger.warn("Missing required field: jobId");
         return NextResponse.json(formatErrorEntity("Missing required field: jobId"), {
@@ -77,7 +81,7 @@ export const POST = withAuth(
           humeChatId,
           requestId,
           type,
-          keyQuestions,
+          keyQuestions: keyQuestionsArray,
           duration,
         })
         .returning();
