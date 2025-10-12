@@ -3,19 +3,19 @@ import { BackgroundGradient } from "@/components/ui/background-gradient";
 export function FeaturesSection() {
   const features = [
     {
-      title: "AI-Powered Interview Simulation",
+      title: "Practice Until You're Ready",
       description:
-        "Experience realistic interviews with our advanced AI that adapts to your responses and industry-specific scenarios.",
+        "Run through as many mock interviews as you need. No session limits, no scheduling, no extra charges. The AI interviewer is available whenever you are.",
     },
     {
-      title: "Personalized Question Bank",
+      title: "Questions That Match Your Role",
       description:
-        "Get asked questions tailored to your experience level, industry, and specific job role, ensuring relevant practice every time.",
+        "Get asked about your actual experience and the job you're applying for. The questions adapt to your background, not a one-size-fits-all script.",
     },
     {
-      title: "Real-time Feedback and Coaching",
+      title: "Know What to Improve Right Away",
       description:
-        "Receive instant feedback on your answers, body language, and tone, with suggestions for improvement as you practice.",
+        "See exactly where your answer was strong and where it fell short—immediately after you finish. No waiting days to find out what to work on.",
     },
   ];
 
