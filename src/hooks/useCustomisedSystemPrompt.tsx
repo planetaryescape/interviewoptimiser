@@ -32,6 +32,7 @@ export default function useCustomisedSystemPrompt({
       return await interviewRepo.getById(interviewId);
     },
     enabled: !!interviewId,
+    staleTime: 30000, // Cache valid for 30s, allows instant load from cache while background refetch happens
   });
 
   const systemPrompt = useMemo(() => {
