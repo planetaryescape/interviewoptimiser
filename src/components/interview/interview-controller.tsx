@@ -383,5 +383,44 @@ export const InterviewController = React.memo(function InterviewController({
     setActiveInterview,
   ]);
 
+  // Handle AI-initiated hang_up (complete interview when AI disconnects)
+  useEffect(() => {
+    let mounted = true;
+
+    // Only process when state machine transitions to ai_completing
+    if (
+      mounted &&
+      interviewStateMachine?.state === "ai_completing" &&
+      !interviewEnded &&
+      !endingInterviewRef.current
+    ) {
+      endingInterviewRef.current = true;
+
+      const elapsedTime = callDurationTimestamp ? unformatTime(callDurationTimestamp) : 0;
+
+      // Complete the interview (transcript already force-saved in handleVoiceMessage)
+      endInterview({
+        ...activeInterview,
+        jobId: params.jobId as string,
+        humeChatId: chatMetadata?.chatId || activeInterview?.humeChatId,
+        actualTime: Math.floor(elapsedTime / 60),
+        transcript: formatTranscriptToJsonString(messages),
+      });
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [
+    interviewStateMachine?.state,
+    interviewEnded,
+    callDurationTimestamp,
+    activeInterview,
+    params.jobId,
+    chatMetadata?.chatId,
+    messages,
+    endInterview,
+  ]);
+
   return null; // Controller component doesn't render anything
 });

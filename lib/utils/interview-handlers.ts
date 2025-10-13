@@ -7,6 +7,10 @@ interface InterviewStateMachine {
   state: string;
 }
 
+// Rate limiting for credit exhaustion alerts (5 minutes between alerts)
+let lastCreditExhaustionAlert = 0;
+const CREDIT_ALERT_COOLDOWN = 5 * 60 * 1000; // 5 minutes
+
 export const handleVoiceMessage = (
   message: any,
   interviewStateMachine: InterviewStateMachine,
@@ -73,18 +77,26 @@ export const handleVoiceError = (
       "CRITICAL: Hume AI credits exhausted"
     );
 
-    // Send alert to API endpoint (fire and forget)
-    fetch("/api/alerts/credit-exhaustion", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        errorMessage: error.message,
-        interviewId,
-        userId,
-      }),
-    }).catch((alertError) => {
-      logger.error({ error: alertError }, "Failed to send credit exhaustion alert");
-    });
+    // Rate-limited alert: only send once per cooldown period
+    const now = Date.now();
+    if (now - lastCreditExhaustionAlert > CREDIT_ALERT_COOLDOWN) {
+      lastCreditExhaustionAlert = now;
+
+      // Send alert to API endpoint (fire and forget)
+      fetch("/api/alerts/credit-exhaustion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          errorMessage: error.message,
+          interviewId,
+          userId,
+        }),
+      }).catch((alertError) => {
+        logger.error({ error: alertError }, "Failed to send credit exhaustion alert");
+      });
+    } else {
+      logger.warn("Credit exhaustion alert suppressed due to rate limiting");
+    }
 
     toast.error(
       "The interview service is temporarily unavailable. Our team has been notified and is working to resolve this."
