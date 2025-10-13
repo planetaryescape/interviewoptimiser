@@ -1,9 +1,12 @@
 "use client";
 
+import { InterviewVoiceProvider } from "@/components/interview-voice-provider";
+import { InterviewOverlays } from "@/components/interview/interview-overlays";
 import type { Messages } from "@/components/messages";
-import { VoiceProvider } from "@humeai/voice-react";
 import * as React from "react";
 import type { ComponentRef } from "react";
+import { useInterviewState } from "~/lib/hooks/use-interview-state";
+import { useVoiceConfiguration } from "~/lib/hooks/use-voice-configuration";
 import { ErrorDialog } from "./error-dialog";
 import { InterviewContent } from "./interview-content";
 import { InterviewHeader } from "./interview-header";
@@ -24,6 +27,7 @@ export const InterviewContainer = React.memo(function InterviewContainer({
   const timeout = React.useRef<number | null>(null);
   const messagesRef = React.useRef<ComponentRef<typeof Messages> | null>(null);
   const configId = process.env.NEXT_PUBLIC_HUME_CONFIG_ID;
+  const [forceSave, setForceSave] = React.useState<(() => Promise<void>) | undefined>(undefined);
 
   const {
     systemPrompt,
@@ -34,7 +38,24 @@ export const InterviewContainer = React.memo(function InterviewContainer({
     setIsGenerateReportErrorDialogOpen,
     handleRetryGenerateReport,
     handleCancelGenerateReport,
+    job,
   } = useInterviewLogic({ jobId, interviewId });
+
+  // Interview state machine - pass userId for better error logging
+  const userId = job?.data?.userId?.toString();
+  const interviewStateMachine = useInterviewState(interviewId, userId);
+
+  // Voice configuration
+  const voiceConfig = useVoiceConfiguration({
+    accessToken,
+    systemPrompt,
+    interview,
+  });
+
+  // Callback to receive forceSave from InterviewController
+  const handleForceSaveReady = React.useCallback((fn: () => Promise<void>) => {
+    setForceSave(() => fn);
+  }, []);
 
   const handleMessage = React.useCallback(() => {
     if (timeout.current) {
@@ -53,7 +74,7 @@ export const InterviewContainer = React.memo(function InterviewContainer({
     }, 200);
   }, []);
 
-  if (isLoading) {
+  if (isLoading || !voiceConfig.isConfigured) {
     return (
       <div className="h-full flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">Loading interview...</div>
@@ -69,12 +90,23 @@ export const InterviewContainer = React.memo(function InterviewContainer({
         systemPrompt={systemPrompt}
         interview={interview}
       >
-        <VoiceProvider onMessage={handleMessage}>
+        <InterviewVoiceProvider
+          authConfig={voiceConfig.authConfig}
+          configId={voiceConfig.configId}
+          sessionSettings={voiceConfig.sessionSettings}
+          interviewStateMachine={interviewStateMachine}
+          interviewId={interviewId}
+          userId={userId}
+          forceSave={forceSave}
+        >
           <InterviewHeader />
           <InterviewContent
             messagesRef={messagesRef}
             isInterviewTooShort={isInterviewTooShort}
             jobId={jobId}
+            interviewId={interviewId}
+            interviewStateMachine={interviewStateMachine}
+            onForceSaveReady={handleForceSaveReady}
           />
           <ErrorDialog
             isOpen={isGenerateReportErrorDialogOpen}
@@ -82,7 +114,18 @@ export const InterviewContainer = React.memo(function InterviewContainer({
             onRetry={handleRetryGenerateReport}
             onCancel={handleCancelGenerateReport}
           />
-        </VoiceProvider>
+          <InterviewOverlays
+            state={interviewStateMachine.state}
+            isComplete={interviewStateMachine.state === "completed"}
+            error={interviewStateMachine.error}
+            canRetry={interviewStateMachine.canRetry}
+            onRetry={() => {
+              interviewStateMachine.send({ type: "RESET" });
+              window.location.reload();
+            }}
+            disconnectInitiator={interviewStateMachine.disconnectInitiator}
+          />
+        </InterviewVoiceProvider>
       </VoiceConfigProvider>
     </div>
   );

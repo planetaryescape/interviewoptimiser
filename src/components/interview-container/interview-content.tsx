@@ -14,20 +14,31 @@ interface InterviewContentProps {
   messagesRef: React.RefObject<ComponentRef<typeof Messages> | null>;
   isInterviewTooShort: boolean;
   jobId: string;
+  interviewId: string;
+  interviewStateMachine: any; // Type from use-interview-state
+  onForceSaveReady?: (forceSave: () => Promise<void>) => void;
 }
 
 export const InterviewContent = React.memo(function InterviewContent({
   messagesRef,
   isInterviewTooShort,
   jobId,
+  interviewId,
+  interviewStateMachine,
+  onForceSaveReady,
 }: InterviewContentProps) {
   const showTakeover = useActiveInterviewShowTakeover();
 
   return (
     <>
       <Messages ref={messagesRef} />
-      <InterviewController />
-      <Controls />
+      <InterviewController
+        interviewId={interviewId}
+        jobId={jobId}
+        interviewStateMachine={interviewStateMachine}
+        onForceSaveReady={onForceSaveReady}
+      />
+      <Controls interviewStateMachine={interviewStateMachine} />
 
       <AnimatePresence>
         {showTakeover &&
