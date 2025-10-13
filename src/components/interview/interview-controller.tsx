@@ -25,16 +25,27 @@ import * as React from "react";
 import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import type { User } from "~/db/schema";
-import { useVoiceConfig } from "../interview-container/voice-config-context";
-import { createSessionContext } from "../interview-container/voice-provider-config";
+import { useTranscriptSave } from "~/lib/hooks/use-transcript-save";
 
-export const InterviewController = React.memo(function InterviewController() {
+interface InterviewControllerProps {
+  interviewId: string;
+  jobId: string;
+  interviewStateMachine?: any;
+  onForceSaveReady?: (forceSave: () => Promise<void>) => void;
+}
+
+export const InterviewController = React.memo(function InterviewController({
+  interviewId,
+  jobId,
+  interviewStateMachine,
+  onForceSaveReady,
+}: InterviewControllerProps) {
   const params = useParams();
   const queryClient = useQueryClient();
-  const { accessToken, configId, systemPrompt, interview } = useVoiceConfig();
   const lastDecrementTimeRef = useRef<number>(0);
   const endingInterviewRef = useRef(false);
   const unmountedRef = useRef(false);
+  const chatMetadataSavedRef = useRef(false);
 
   const callDurationTimestamp = useActiveInterviewCallDuration();
   const totalTime = useActiveInterviewTotalTime();
@@ -52,19 +63,15 @@ export const InterviewController = React.memo(function InterviewController() {
   const activeInterview = useActiveInterview();
 
   const {
-    disconnect,
     status,
     callDurationTimestamp: voiceTimestamp,
     sendUserInput,
     sendAssistantInput,
     messages,
     sendSessionSettings,
-    connect,
+    disconnect,
     chatMetadata,
   } = useVoice();
-
-  const interviewStartedRef = useRef(false);
-  const chatMetadataSavedRef = useRef(false);
 
   // Set unmounted flag on component unmount
   useEffect(() => {
@@ -73,31 +80,7 @@ export const InterviewController = React.memo(function InterviewController() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!interviewStartedRef.current) {
-      connect({
-        auth: { type: "accessToken", value: accessToken },
-        configId,
-        sessionSettings: {
-          type: "session_settings",
-          systemPrompt,
-          context: {
-            text: createSessionContext(interview),
-            type: "persistent",
-          },
-        },
-      });
-      interviewStartedRef.current = true;
-    }
-
-    return () => {
-      if (status.value === "connected") {
-        disconnect();
-      }
-    };
-  }, [connect, disconnect, status.value, accessToken, configId, systemPrompt, interview]);
-
-  // Update store with voice state
+  // Update store with voice state (backward compatibility)
   useEffect(() => {
     let mounted = true;
 
@@ -106,9 +89,7 @@ export const InterviewController = React.memo(function InterviewController() {
     }
 
     if (mounted && messages && messages.length > 0) {
-      // Convert the voice messages to the format expected by our store
       const storeCompatibleMessages = formatTranscript(messages);
-
       setMessages(storeCompatibleMessages);
     }
 
@@ -116,6 +97,45 @@ export const InterviewController = React.memo(function InterviewController() {
       mounted = false;
     };
   }, [voiceTimestamp, messages, setCallDurationTimestamp, setMessages]);
+
+  // Partial interview update function for use-transcript-save
+  const updateInterviewFn = useCallback(
+    async (interview: Partial<InterviewWithPublicJobId>) => {
+      const interviewRepo = await getRepository<InterviewWithPublicJobId>("interviews");
+      return await interviewRepo.update(clientIdHandler.formatId(activeInterview?.id), interview);
+    },
+    [activeInterview?.id]
+  );
+
+  // Use new transcript save hook (replaces partial mutation for transcripts)
+  const { forceSave, isSaving, lastSaveTime, hasError } = useTranscriptSave(messages, {
+    interviewId,
+    jobId,
+    updateInterviewFn,
+    onSaveSuccess: (interview) => {
+      if (!unmountedRef.current && interview) {
+        setActiveInterview({
+          ...interview.data,
+          id: interview.data.id || 0,
+          customSessionId: interview.data.customSessionId || null,
+          requestId: interview.data.requestId || null,
+          actualTime: interview.data.actualTime || null,
+          transcript: interview.data.transcript || null,
+          jobId: params.jobId as string,
+          createdAt: interview.data.createdAt || new Date(),
+          updatedAt: interview.data.updatedAt || new Date(),
+          humeChatId: chatMetadata?.chatId || interview.data.humeChatId,
+        });
+      }
+    },
+  });
+
+  // Expose forceSave to parent for AI disconnect handling
+  React.useEffect(() => {
+    if (onForceSaveReady && forceSave) {
+      onForceSaveReady(forceSave);
+    }
+  }, [onForceSaveReady, forceSave]);
 
   // End of interview mutation
   const { mutate: endInterview } = useMutation({
@@ -125,6 +145,11 @@ export const InterviewController = React.memo(function InterviewController() {
     },
     onSuccess: () => {
       if (!unmountedRef.current) {
+        // Notify state machine of successful completion
+        if (interviewStateMachine) {
+          interviewStateMachine.send({ type: "COMPLETION_SUCCESS" });
+        }
+
         sendAssistantInput("hang_up");
         disconnect();
         queryClient.invalidateQueries({
@@ -137,6 +162,14 @@ export const InterviewController = React.memo(function InterviewController() {
     },
     onError: (error) => {
       if (!unmountedRef.current) {
+        // Notify state machine of completion error
+        if (interviewStateMachine) {
+          interviewStateMachine.send({
+            type: "COMPLETION_ERROR",
+            error: error instanceof Error ? error.message : "Failed to end interview",
+          });
+        }
+
         sendAssistantInput("hang_up");
         disconnect();
         Sentry.withScope((scope) => {
@@ -151,8 +184,8 @@ export const InterviewController = React.memo(function InterviewController() {
     },
   });
 
-  // Partial transcript mutation
-  const partialInterviewMutation = useMutation({
+  // Chat metadata mutation (separate from transcript saves)
+  const chatMetadataMutation = useMutation({
     mutationFn: async (interview: Partial<InterviewWithPublicJobId>) => {
       const interviewRepo = await getRepository<InterviewWithPublicJobId>("interviews");
       return await interviewRepo.update(clientIdHandler.formatId(activeInterview?.id), interview);
@@ -180,7 +213,7 @@ export const InterviewController = React.memo(function InterviewController() {
           scope.setExtra("error", error);
           Sentry.captureException(error);
         });
-        toast.error("Error updating interview. Please try again.");
+        toast.error("Error updating interview metadata.");
       }
     },
   });
@@ -195,8 +228,7 @@ export const InterviewController = React.memo(function InterviewController() {
     ) {
       chatMetadataSavedRef.current = true;
 
-      // Update the interview with chat metadata
-      partialInterviewMutation.mutate({
+      chatMetadataMutation.mutate({
         ...activeInterview,
         jobId: params.jobId as string,
         chatGroupId: chatMetadata.chatGroupId,
@@ -205,9 +237,9 @@ export const InterviewController = React.memo(function InterviewController() {
         humeChatId: chatMetadata.chatId,
       });
     }
-  }, [chatMetadata, activeInterview, params.jobId, partialInterviewMutation]);
+  }, [chatMetadata, activeInterview, params.jobId, chatMetadataMutation]);
 
-  // Usage tracking mutation
+  // Usage tracking mutation (CRITICAL - billing logic)
   const decrementMutation = useMutation({
     mutationFn: async () => {
       const repository = await getRepository<User>("users");
@@ -248,7 +280,7 @@ export const InterviewController = React.memo(function InterviewController() {
     [sendUserInput, status.value]
   );
 
-  // Time-based actions
+  // Time-based actions (one minute warning, end interview)
   useEffect(() => {
     let mounted = true;
 
@@ -270,9 +302,18 @@ export const InterviewController = React.memo(function InterviewController() {
       markWrapUpSent();
     }
 
-    // End interview
+    // End interview at time limit
     if (mounted && elapsedTime === totalTime && !interviewEnded && !endingInterviewRef.current) {
       endingInterviewRef.current = true;
+
+      // Transition state machine to completing state (timeout = user-initiated)
+      if (interviewStateMachine) {
+        interviewStateMachine.send({ type: "USER_DISCONNECT" });
+      }
+
+      // Force save transcript before ending
+      forceSave();
+
       endInterview({
         ...activeInterview,
         jobId: params.jobId as string,
@@ -299,9 +340,11 @@ export const InterviewController = React.memo(function InterviewController() {
     params.jobId,
     sendSessionSettings,
     endInterview,
+    forceSave,
+    interviewStateMachine,
   ]);
 
-  // Usage tracking
+  // Usage tracking (billing - runs every minute)
   useEffect(() => {
     let mounted = true;
 
@@ -313,9 +356,10 @@ export const InterviewController = React.memo(function InterviewController() {
         lastDecrementTimeRef.current = currentTime;
 
         if (mounted) {
-          // Decrement minutes used
+          // Decrement minutes used (billing)
           decrementMutation.mutate();
 
+          // Update store with current time
           if (activeInterview) {
             setActiveInterview({
               ...activeInterview,
@@ -323,14 +367,6 @@ export const InterviewController = React.memo(function InterviewController() {
               transcript: formatTranscriptToJsonString(messages),
             });
           }
-
-          partialInterviewMutation.mutate({
-            ...activeInterview,
-            jobId: params.jobId as string,
-            humeChatId: chatMetadata?.chatId || activeInterview?.humeChatId,
-            actualTime: Math.floor(currentTime / 60),
-            transcript: formatTranscriptToJsonString(messages),
-          });
         }
       }
     }
@@ -342,11 +378,8 @@ export const InterviewController = React.memo(function InterviewController() {
     status.value,
     callDurationTimestamp,
     messages,
-    partialInterviewMutation,
     decrementMutation,
     activeInterview,
-    params.jobId,
-    chatMetadata?.chatId,
     setActiveInterview,
   ]);
 
