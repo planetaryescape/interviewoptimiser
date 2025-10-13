@@ -14,7 +14,9 @@ import type { InterviewStateMachine } from "../../lib/hooks/use-interview-state"
 const logger = clientLogger.child({ component: "interview-voice-provider" });
 
 // Global flag to prevent multiple connection attempts across strict mode remounts
+// Tracks which interview has attempted connection to allow new connections on navigation
 let hasGlobalConnectionAttempt = false;
+let lastConnectionInterviewId: string | null | undefined = null;
 
 interface InterviewVoiceProviderProps {
   children: ReactNode;
@@ -39,6 +41,7 @@ function InterviewVoiceConnector({
   configId,
   sessionSettings,
   interviewStateMachine,
+  interviewId,
   children,
 }: {
   authConfig: { type: "accessToken"; value: string };
@@ -51,13 +54,25 @@ function InterviewVoiceConnector({
     };
   };
   interviewStateMachine: InterviewStateMachine;
+  interviewId?: string | null;
   children: ReactNode;
 }) {
   const { connect, status } = useVoice();
 
   useEffect(() => {
-    // Only attempt connection once globally (survives strict mode remounts)
+    // Reset flag if navigating to a different interview
+    if (lastConnectionInterviewId !== interviewId) {
+      logger.info(
+        { previousId: lastConnectionInterviewId, currentId: interviewId },
+        "Interview ID changed, resetting connection flag"
+      );
+      hasGlobalConnectionAttempt = false;
+      lastConnectionInterviewId = interviewId;
+    }
+
+    // Only attempt connection once globally (survives strict mode remounts for same interview)
     if (hasGlobalConnectionAttempt) {
+      logger.debug("Connection already attempted for this interview, skipping");
       return;
     }
 
@@ -97,7 +112,7 @@ function InterviewVoiceConnector({
       // Reset so we can retry on error
       hasGlobalConnectionAttempt = false;
     });
-  }, [connect, authConfig, configId, sessionSettings, status, interviewStateMachine]);
+  }, [connect, authConfig, configId, sessionSettings, status, interviewStateMachine, interviewId]);
 
   return <>{children}</>;
 }
@@ -136,6 +151,7 @@ export function InterviewVoiceProvider({
         configId={configId}
         sessionSettings={sessionSettings}
         interviewStateMachine={interviewStateMachine}
+        interviewId={interviewId}
       >
         {children}
       </InterviewVoiceConnector>
