@@ -25,7 +25,11 @@ import { MicFFT } from "./mic-fft";
 import { Button } from "./ui/button";
 import { Toggle } from "./ui/toggle";
 
-export function Controls() {
+interface ControlsProps {
+  interviewStateMachine?: any;
+}
+
+export function Controls({ interviewStateMachine }: ControlsProps = {}) {
   const {
     disconnect,
     status,
@@ -52,6 +56,11 @@ export function Controls() {
       return await interviewRepo.update(clientIdHandler.formatId(activeInterview?.id), interview);
     },
     onSuccess: () => {
+      // Notify state machine of successful completion
+      if (interviewStateMachine) {
+        interviewStateMachine.send({ type: "COMPLETION_SUCCESS" });
+      }
+
       sendAssistantInput("hang_up");
       disconnect();
       queryClient.invalidateQueries({
@@ -60,6 +69,14 @@ export function Controls() {
       setInterviewEnded(true);
     },
     onError: (error) => {
+      // Notify state machine of completion error
+      if (interviewStateMachine) {
+        interviewStateMachine.send({
+          type: "COMPLETION_ERROR",
+          error: error instanceof Error ? error.message : "Failed to end interview",
+        });
+      }
+
       sendAssistantInput("hang_up");
       disconnect();
       Sentry.withScope((scope) => {
@@ -172,6 +189,11 @@ export function Controls() {
                 status.value !== "connected" ? "hidden" : ""
               )}
               onClick={async () => {
+                // Transition state machine to completing state
+                if (interviewStateMachine) {
+                  interviewStateMachine.send({ type: "USER_DISCONNECT" });
+                }
+
                 await endInterview({
                   ...activeInterview,
                   actualTime: Math.floor(unformatTime(callDurationTimestamp) / 60),
@@ -180,8 +202,11 @@ export function Controls() {
                 });
               }}
               variant={"destructive"}
+              disabled={
+                interviewStateMachine?.isProcessing || !interviewStateMachine?.canDisconnect
+              }
             >
-              End Interview
+              {interviewStateMachine?.isProcessing ? "Ending..." : "End Interview"}
             </Button>
           </MotionDiv>
         ) : null}
