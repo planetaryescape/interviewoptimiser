@@ -30,7 +30,7 @@ export function useInterviewLogic({ jobId, interviewId }: UseInterviewLogicProps
   const [isInterviewTooShort, setIsInterviewTooShort] = useState(false);
   const [isGenerateReportErrorDialogOpen, setIsGenerateReportErrorDialogOpen] = useState(false);
 
-  const { systemPrompt, interview, isLoading } = useCustomisedSystemPrompt({
+  const { systemPrompt, interview, job, isLoading } = useCustomisedSystemPrompt({
     jobId,
     interviewId,
   });
@@ -175,6 +175,7 @@ export function useInterviewLogic({ jobId, interviewId }: UseInterviewLogicProps
   return {
     systemPrompt,
     interview,
+    job, // Export job for userId access
     isLoading,
     isInterviewTooShort,
     isGenerateReportErrorDialogOpen,
