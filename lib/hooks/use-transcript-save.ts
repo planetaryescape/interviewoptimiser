@@ -1,8 +1,8 @@
 import { formatTranscriptToJsonString } from "@/lib/utils/messageUtils";
 import type { InterviewWithPublicJobId } from "@/stores/useActiveInterviewStore";
+import * as Sentry from "@sentry/nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 import { useDebouncedCallback } from "use-debounce";
 import { transcriptPersistence } from "../utils/transcript-persistence";
 
@@ -51,22 +51,27 @@ export function useTranscriptSave(
 
       onSaveSuccess?.(response);
     },
-    onError: () => {
+    onError: (error) => {
       // Increment failure count
       consecutiveFailuresRef.current += 1;
       setHasPendingRetry(true);
 
-      // Only show error after threshold reached
+      // Silently log to Sentry - don't distract user during interview
       if (consecutiveFailuresRef.current >= FAILURE_THRESHOLD) {
-        toast.error(
-          "Having connection issues. Your progress is saved locally - refresh to continue or try again later.",
-          {
-            duration: 10000,
-            id: "save-failure", // Prevent duplicate toasts
-          }
-        );
+        Sentry.captureException(error, {
+          contexts: {
+            interview: {
+              interviewId,
+              userId,
+              failureCount: consecutiveFailuresRef.current,
+            },
+          },
+          tags: {
+            feature: "auto-save",
+          },
+        });
       }
-      // Otherwise, fail silently - we'll retry on next message
+      // Fail silently - progress is backed up to localStorage, we'll retry on next message
     },
   });
 
@@ -90,8 +95,8 @@ export function useTranscriptSave(
     [interviewId, userId, saveMutation]
   );
 
-  // Debounce saves to avoid API spam (8s to reduce overlapping calls)
-  const debouncedSave = useDebouncedCallback(saveTranscript, 8000);
+  // Debounce saves to avoid API spam (60s = good balance for indie SaaS)
+  const debouncedSave = useDebouncedCallback(saveTranscript, 60000);
 
   // Auto-save when messages change
   useEffect(() => {
