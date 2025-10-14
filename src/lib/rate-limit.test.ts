@@ -30,9 +30,13 @@ describe("Rate Limiting", () => {
       expect(getRateLimitCategory("/api/analyze/data")).toBe("report");
     });
 
-    it("should return 'ai' for AI and interview endpoints", () => {
+    it("should return 'interviewUpdate' for interview update endpoints", () => {
+      expect(getRateLimitCategory("/api/interviews/123")).toBe("interviewUpdate");
+      expect(getRateLimitCategory("/api/interviews/abc-def")).toBe("interviewUpdate");
+    });
+
+    it("should return 'ai' for AI endpoints", () => {
       expect(getRateLimitCategory("/api/ai/completion")).toBe("ai");
-      expect(getRateLimitCategory("/api/interviews/123")).toBe("ai");
     });
 
     it("should return 'api' for general API endpoints", () => {

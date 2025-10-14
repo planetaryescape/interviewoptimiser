@@ -25,6 +25,7 @@ const rateLimitConfigs: Record<string, RateLimitConfig> = {
   fileUpload: { requests: 10, window: "10m" as Duration },
   report: { requests: 20, window: "10m" as Duration },
   ai: { requests: 20, window: "10m" as Duration },
+  interviewUpdate: { requests: 300, window: "30m" as Duration }, // High limit for auto-saves during 30min interviews
 };
 
 const createRatelimit = (config: RateLimitConfig) => {
@@ -127,6 +128,9 @@ export function getRateLimitCategory(pathname: string): keyof typeof rateLimitCo
   if (pathname.startsWith("/api/public")) return "publicApi";
   if (pathname.includes("/upload") || pathname.includes("/extract")) return "fileUpload";
   if (pathname.includes("/report") || pathname.includes("/analyze")) return "report";
+  // Match PUT/PATCH requests to /api/interviews/[id] for auto-save (high limit)
+  if (pathname.match(/^\/api\/interviews\/[^/]+$/) && pathname.includes("/interviews/"))
+    return "interviewUpdate";
   if (pathname.includes("/ai") || pathname.includes("/interview")) return "ai";
 
   return "api";
