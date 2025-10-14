@@ -208,12 +208,13 @@ export const InterviewController = React.memo(function InterviewController({
     },
     onError: (error) => {
       if (!unmountedRef.current) {
+        // Silently log - don't distract user during interview
         Sentry.withScope((scope) => {
           scope.setContext("params", params);
           scope.setExtra("error", error);
+          scope.setTag("feature", "interview-metadata");
           Sentry.captureException(error);
         });
-        toast.error("Error updating interview metadata.");
       }
     },
   });
