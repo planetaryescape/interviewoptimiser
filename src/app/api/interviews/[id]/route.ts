@@ -105,32 +105,21 @@ export const PUT = withAuth<{ id: string }>(
       const body = await request.json();
       const { transcript, customSessionId, chatGroupId, humeChatId, requestId, actualTime } = body;
 
-      // Ensure required fields are present
-      if (!chatGroupId) {
-        logger.warn("Missing required field: chatGroupId");
-        return NextResponse.json(formatErrorEntity("Missing required field: chatGroupId"), {
-          status: 400,
-        });
-      }
+      // Build update object with only provided fields
+      const updateData: Partial<typeof interviews.$inferInsert> = {
+        updatedAt: new Date(),
+      };
 
-      if (!humeChatId) {
-        logger.warn("Missing required field: humeChatId");
-        return NextResponse.json(formatErrorEntity("Missing required field: humeChatId"), {
-          status: 400,
-        });
-      }
+      if (transcript !== undefined) updateData.transcript = transcript;
+      if (customSessionId !== undefined) updateData.customSessionId = customSessionId;
+      if (chatGroupId !== undefined) updateData.chatGroupId = chatGroupId;
+      if (humeChatId !== undefined) updateData.humeChatId = humeChatId;
+      if (requestId !== undefined) updateData.requestId = requestId;
+      if (actualTime !== undefined) updateData.actualTime = actualTime;
 
       const [updatedInterview] = await db
         .update(interviews)
-        .set({
-          customSessionId,
-          chatGroupId,
-          humeChatId,
-          requestId,
-          actualTime,
-          transcript,
-          updatedAt: new Date(),
-        })
+        .set(updateData)
         .where(eq(interviews.id, interviewId))
         .returning();
 
