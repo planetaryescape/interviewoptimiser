@@ -167,59 +167,60 @@ export default async function PricingPage() {
         <div className="container mx-auto px-4">
           <div className="grid gap-8 md:grid-cols-3">
             {plans.map((plan) => (
-              <Card
-                key={plan.name}
-                className={`relative flex flex-col rounded-2xl shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 overflow-hidden ${
-                  plan.recommended ? "border-primary/30" : "border-primary/10"
-                }`}
-              >
+              <div key={plan.name} className={`relative ${plan.recommended ? "pt-4" : ""}`}>
                 {plan.recommended && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-xs font-semibold text-primary-foreground">
+                  <div className="absolute -top-0 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-xs font-semibold text-primary-foreground z-10">
                     Most Popular
                   </div>
                 )}
-                <div className="p-6 flex flex-col items-center text-center">
-                  <div className="mb-3 text-primary">{plan.icon}</div>
-                  <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-6">{plan.description}</p>
+                <Card
+                  className={`relative flex flex-col rounded-2xl shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 overflow-hidden ${
+                    plan.recommended ? "border-primary/30" : "border-primary/10"
+                  }`}
+                >
+                  <div className="p-6 flex flex-col items-center text-center">
+                    <div className="mb-3 text-primary">{plan.icon}</div>
+                    <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
+                    <p className="text-sm text-muted-foreground mb-6">{plan.description}</p>
 
-                  <div className="p-4 w-full rounded-md bg-primary/5 text-center mb-6">
-                    <p className="text-3xl font-bold text-primary">
-                      ${(plan.price / 100).toFixed(2)}
-                      {offerActive && plan.originalPrice > plan.price && (
-                        <span className="ml-2 text-base line-through text-muted-foreground">
-                          ${(plan.originalPrice / 100).toFixed(2)}
-                        </span>
-                      )}
-                    </p>
-                    {offerActive && plan.originalPrice > plan.price && (
-                      <p className="text-sm font-semibold text-primary mt-1">
-                        Save {config.fomoDiscountPercentage}%
+                    <div className="p-4 w-full rounded-md bg-primary/5 text-center mb-6">
+                      <p className="text-3xl font-bold text-primary">
+                        ${(plan.price / 100).toFixed(2)}
+                        {offerActive && plan.originalPrice > plan.price && (
+                          <span className="ml-2 text-base line-through text-muted-foreground">
+                            ${(plan.originalPrice / 100).toFixed(2)}
+                          </span>
+                        )}
                       </p>
-                    )}
-                    <p className="text-xs text-muted-foreground mt-2">
-                      ${(plan.price / 100 / plan.minutes).toFixed(2)} per minute
-                    </p>
-                  </div>
-
-                  <div className="space-y-3 mb-6 w-full">
-                    {features.map((feature) => (
-                      <div key={feature.id} className="flex items-center gap-2">
-                        <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                        <span className="text-sm text-left">{feature.text}</span>
-                      </div>
-                    ))}
-                    <div className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                      <span className="text-sm text-left">
-                        <strong>{plan.minutes} minutes</strong> of AI interview time
-                      </span>
+                      {offerActive && plan.originalPrice > plan.price && (
+                        <p className="text-sm font-semibold text-primary mt-1">
+                          Save {config.fomoDiscountPercentage}%
+                        </p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-2">
+                        ${(plan.price / 100 / plan.minutes).toFixed(2)} per minute
+                      </p>
                     </div>
-                  </div>
 
-                  <PricingPlanButton recommended={plan.recommended} priceId={plan.priceId} />
-                </div>
-              </Card>
+                    <div className="space-y-3 mb-6 w-full">
+                      {features.map((feature) => (
+                        <div key={feature.id} className="flex items-center gap-2">
+                          <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                          <span className="text-sm text-left">{feature.text}</span>
+                        </div>
+                      ))}
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                        <span className="text-sm text-left">
+                          <strong>{plan.minutes} minutes</strong> of AI interview time
+                        </span>
+                      </div>
+                    </div>
+
+                    <PricingPlanButton recommended={plan.recommended} priceId={plan.priceId} />
+                  </div>
+                </Card>
+              </div>
             ))}
           </div>
         </div>
