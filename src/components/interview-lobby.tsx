@@ -1,6 +1,5 @@
 "use client";
 
-import { VoiceProvider } from "@humeai/voice-react";
 import { InterviewPlaceholder } from "./interview-placeholder";
 
 export default function InterviewLobby({
@@ -14,9 +13,7 @@ export default function InterviewLobby({
 
   return (
     <div className={"relative grid grid-rows-[1fr_auto] mx-auto w-full overflow-auto h-full"}>
-      <VoiceProvider>
-        <InterviewPlaceholder accessToken={accessToken} configId={configId} />
-      </VoiceProvider>
+      <InterviewPlaceholder accessToken={accessToken} configId={configId} />
     </div>
   );
 }

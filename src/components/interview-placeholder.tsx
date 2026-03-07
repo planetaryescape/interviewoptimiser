@@ -10,14 +10,13 @@ import { useJob } from "@/hooks/useJob";
 import { useUser } from "@/hooks/useUser";
 import { getRepository } from "@/lib/data/repositoryFactory";
 import { clientIdHandler } from "@/lib/utils/clientIdHandler";
-import { useVoice } from "@humeai/voice-react";
 import * as Sentry from "@sentry/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Home, Layout, MessageCircle, X } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { InterviewStartModal } from "./interview-start-modal";
 
@@ -131,6 +130,17 @@ export function InterviewPlaceholder({ accessToken, configId }: InterviewPlaceho
     }
   };
 
+  const backgroundElements = useMemo(
+    () =>
+      Array.from({ length: 6 }, () => ({
+        width: Math.random() * 400 + 200,
+        height: Math.random() * 400 + 200,
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+      })),
+    []
+  );
+
   if (isLoading || isUserLoading) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -169,15 +179,15 @@ export function InterviewPlaceholder({ accessToken, configId }: InterviewPlaceho
       <div className="flex-1 grid place-items-center relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
-          {Array.from({ length: 6 }).map((_, i) => (
+          {backgroundElements.map((el, i) => (
             <motion.div
               key={`bg-element-${i + 1}`}
               className="absolute rounded-full bg-primary/10 blur-3xl"
               style={{
-                width: Math.random() * 400 + 200,
-                height: Math.random() * 400 + 200,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
+                width: el.width,
+                height: el.height,
+                left: el.left,
+                top: el.top,
               }}
               animate={{
                 x: [0, 30, 0],
