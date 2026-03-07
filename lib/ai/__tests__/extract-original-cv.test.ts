@@ -98,8 +98,8 @@ vi.mock("ai", () => ({
       ],
     },
     usage: {
-      promptTokens: 100,
-      completionTokens: 200,
+      inputTokens: 100,
+      outputTokens: 200,
     },
   }),
 }));

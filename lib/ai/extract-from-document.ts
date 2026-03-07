@@ -1,10 +1,10 @@
-import type { LanguageModelV1 } from "@ai-sdk/provider";
 import * as Sentry from "@sentry/nextjs";
-import { type LanguageModelUsage, generateText } from "ai";
+import type { LanguageModel, LanguageModelUsage } from "ai";
+import { generateText } from "ai";
 import { logger } from "~/lib/logger";
 
 export interface ExtractFromDocumentParams {
-  model: LanguageModelV1;
+  model: LanguageModel;
   fileBuffer: Buffer;
   fileType: string;
   userEmail?: string;
@@ -108,7 +108,7 @@ export async function extractFromDocument({
       : {
           type: "file" as const,
           data: dataUrl,
-          mimeType: mimeType,
+          mediaType: mimeType,
         };
 
     const result = await generateText({
@@ -125,7 +125,7 @@ export async function extractFromDocument({
           ],
         },
       ],
-      maxTokens: 8000,
+      maxOutputTokens: 8000,
       temperature: 0.1, // Low temperature for accurate extraction
     });
 

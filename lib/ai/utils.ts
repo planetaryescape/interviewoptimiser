@@ -1,8 +1,8 @@
-import type { LanguageModelV1 } from "@ai-sdk/provider";
+import type { LanguageModel } from "ai";
 import { generateObject, generateText } from "ai";
 import type { z } from "zod";
+import { getModelForOperation } from "~/lib/ai/models";
 import { logger } from "~/lib/logger";
-import { getOpenAiClient } from "~/lib/openai";
 
 /**
  * Performs a two-step AI process where Gemini generates initial text and o4-mini structures it.
@@ -18,7 +18,7 @@ export async function twoStepAIProcess<T>({
   schemaDescription,
   userEmail,
 }: {
-  initialModel: LanguageModelV1;
+  initialModel: LanguageModel;
   systemPrompt: string;
   userPrompt: string;
   schema: z.ZodType<T>;
@@ -47,7 +47,7 @@ export async function twoStepAIProcess<T>({
     });
 
     // Step 2: Structure the output with o4-mini
-    const o3Mini = getOpenAiClient(userEmail)("o4-mini");
+    const o3Mini = getModelForOperation("analyse_interview", userEmail);
     const { object: structuredOutput, usage: o3MiniUsage } = await generateObject({
       model: o3Mini,
       schema,
@@ -76,13 +76,13 @@ export async function twoStepAIProcess<T>({
         data: null,
         error: safeParseResult.success ? undefined : safeParseResult.error,
         usage: {
-          prompt_tokens: initialUsage.promptTokens + o3MiniUsage.promptTokens,
-          completion_tokens: initialUsage.completionTokens + o3MiniUsage.completionTokens,
+          prompt_tokens: (initialUsage.inputTokens ?? 0) + (o3MiniUsage.inputTokens ?? 0),
+          completion_tokens: (initialUsage.outputTokens ?? 0) + (o3MiniUsage.outputTokens ?? 0),
           total_tokens:
-            initialUsage.promptTokens +
-            initialUsage.completionTokens +
-            o3MiniUsage.promptTokens +
-            o3MiniUsage.completionTokens,
+            (initialUsage.inputTokens ?? 0) +
+            (initialUsage.outputTokens ?? 0) +
+            (o3MiniUsage.inputTokens ?? 0) +
+            (o3MiniUsage.outputTokens ?? 0),
         },
       };
     }
@@ -91,13 +91,13 @@ export async function twoStepAIProcess<T>({
       data: parsedOutput,
       error: null,
       usage: {
-        prompt_tokens: initialUsage.promptTokens + o3MiniUsage.promptTokens,
-        completion_tokens: initialUsage.completionTokens + o3MiniUsage.completionTokens,
+        prompt_tokens: (initialUsage.inputTokens ?? 0) + (o3MiniUsage.inputTokens ?? 0),
+        completion_tokens: (initialUsage.outputTokens ?? 0) + (o3MiniUsage.outputTokens ?? 0),
         total_tokens:
-          initialUsage.promptTokens +
-          initialUsage.completionTokens +
-          o3MiniUsage.promptTokens +
-          o3MiniUsage.completionTokens,
+          (initialUsage.inputTokens ?? 0) +
+          (initialUsage.outputTokens ?? 0) +
+          (o3MiniUsage.inputTokens ?? 0) +
+          (o3MiniUsage.outputTokens ?? 0),
       },
     };
   } catch (error) {
@@ -127,7 +127,7 @@ export async function singleStepAIProcess<T>({
   schemaDescription,
   userEmail,
 }: {
-  model: LanguageModelV1;
+  model: LanguageModel;
   systemPrompt: string;
   userPrompt: string;
   schema: z.ZodType<T>;
@@ -172,9 +172,9 @@ export async function singleStepAIProcess<T>({
         data: null,
         error: safeParseResult.success ? undefined : safeParseResult.error,
         usage: {
-          prompt_tokens: usage.promptTokens,
-          completion_tokens: usage.completionTokens,
-          total_tokens: usage.promptTokens + usage.completionTokens,
+          prompt_tokens: usage.inputTokens ?? 0,
+          completion_tokens: usage.outputTokens ?? 0,
+          total_tokens: (usage.inputTokens ?? 0) + (usage.outputTokens ?? 0),
         },
       };
     }
@@ -183,9 +183,9 @@ export async function singleStepAIProcess<T>({
       data: parsedOutput,
       error: null,
       usage: {
-        prompt_tokens: usage.promptTokens,
-        completion_tokens: usage.completionTokens,
-        total_tokens: usage.promptTokens + usage.completionTokens,
+        prompt_tokens: usage.inputTokens ?? 0,
+        completion_tokens: usage.outputTokens ?? 0,
+        total_tokens: (usage.inputTokens ?? 0) + (usage.outputTokens ?? 0),
       },
     };
   } catch (error) {

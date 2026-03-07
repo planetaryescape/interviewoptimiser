@@ -1,4 +1,4 @@
-import type { LanguageModelV1 } from "@ai-sdk/provider";
+import type { LanguageModel } from "ai";
 import { generateObject } from "ai";
 import { createInsertSchema } from "drizzle-zod";
 import type { CompletionUsage } from "openai/resources/completions.mjs";
@@ -72,7 +72,7 @@ export const StructuredJobDescriptionSchema = JobDescriptionSchema.extend({
 });
 
 export interface ExtractJobDescriptionParams {
-  model: LanguageModelV1;
+  model: LanguageModel;
   jobDescriptionText: string;
   userEmail?: string;
 }
@@ -182,9 +182,9 @@ export async function extractJobDescription({
     return {
       data: validatedOutput,
       usage: {
-        prompt_tokens: usage.promptTokens,
-        completion_tokens: usage.completionTokens,
-        total_tokens: usage.promptTokens + usage.completionTokens,
+        prompt_tokens: usage.inputTokens ?? 0,
+        completion_tokens: usage.outputTokens ?? 0,
+        total_tokens: (usage.inputTokens ?? 0) + (usage.outputTokens ?? 0),
       },
     };
   } catch (error) {

@@ -1,5 +1,4 @@
-import type { LanguageModelV1, LanguageModelV1FinishReason } from "@ai-sdk/provider";
-import type { GenerateObjectResult, GenerateTextResult, JSONValue } from "ai";
+import type { LanguageModel } from "ai";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { logger } from "~/lib/logger";
@@ -29,50 +28,79 @@ vi.mock("ai", () => ({
   generateObject: vi.fn(),
 }));
 
+// AI SDK v6 mock helpers — use `as any` since we mock at the module level
+const mockModel = {
+  specificationVersion: "v3",
+  provider: "openai",
+  modelId: "gpt-5-mini",
+} as unknown as LanguageModel;
+
+function mockUsageV6() {
+  return {
+    inputTokens: mockUsage.prompt_tokens,
+    outputTokens: mockUsage.completion_tokens,
+    totalTokens: mockUsage.total_tokens,
+    inputTokenDetails: {
+      noCacheTokens: undefined,
+      cacheReadTokens: undefined,
+      cacheWriteTokens: undefined,
+    },
+    outputTokenDetails: { reasoningTokens: undefined },
+  };
+}
+
+function mockTextResult(overrides: Record<string, unknown> = {}) {
+  return {
+    text: "Generated text",
+    reasoning: [],
+    sources: [],
+    files: [],
+    experimental_output: null,
+    toolCalls: [],
+    reasoningDetails: [],
+    finishReason: "stop",
+    usage: mockUsageV6(),
+    request: {},
+    response: {
+      id: "res_1",
+      timestamp: new Date(),
+      modelId: "gpt-5-mini",
+      messages: [],
+    },
+    warnings: [],
+    toolResults: [],
+    steps: [],
+    logprobs: undefined,
+    providerMetadata: {},
+    experimental_providerMetadata: {},
+    ...overrides,
+  } as any;
+}
+
+function mockObjectResult(object: unknown, overrides: Record<string, unknown> = {}) {
+  return {
+    object,
+    finishReason: "stop",
+    warnings: [],
+    request: {},
+    response: {
+      id: "res_2",
+      timestamp: new Date(),
+      modelId: "gpt-5-mini",
+    },
+    usage: mockUsageV6(),
+    logprobs: undefined,
+    providerMetadata: {},
+    experimental_providerMetadata: {},
+    toJsonResponse: () => new Response(JSON.stringify(object)),
+    ...overrides,
+  } as any;
+}
+
 describe("twoStepAIProcess", () => {
   const mockSchema = z.object({
     field: z.string(),
   });
-
-  const mockInitialModel: LanguageModelV1 = {
-    specificationVersion: "v1" as const,
-    provider: "openai" as const,
-    modelId: "o4-mini",
-    defaultObjectGenerationMode: "json" as const,
-    doGenerate: async () => ({
-      text: "",
-      finishReason: "stop" as LanguageModelV1FinishReason,
-      usage: {
-        promptTokens: mockUsage.prompt_tokens,
-        completionTokens: mockUsage.completion_tokens,
-        totalTokens: mockUsage.total_tokens,
-      },
-      rawCall: { rawPrompt: null, rawSettings: {} },
-    }),
-    doStream: async () => {
-      throw new Error("Not implemented");
-    },
-  };
-
-  const mockGpt4oMini: LanguageModelV1 = {
-    specificationVersion: "v1" as const,
-    provider: "openai" as const,
-    modelId: "o4-mini",
-    defaultObjectGenerationMode: "json" as const,
-    doGenerate: async () => ({
-      text: "",
-      finishReason: "stop" as LanguageModelV1FinishReason,
-      usage: {
-        promptTokens: mockUsage.prompt_tokens,
-        completionTokens: mockUsage.completion_tokens,
-        totalTokens: mockUsage.total_tokens,
-      },
-      rawCall: { rawPrompt: null, rawSettings: {} },
-    }),
-    doStream: async () => {
-      throw new Error("Not implemented");
-    },
-  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -82,62 +110,12 @@ describe("twoStepAIProcess", () => {
     const { generateText, generateObject } = await import("ai");
     const { openai } = await import("@ai-sdk/openai");
 
-    const mockTextResult: GenerateTextResult<Record<string, never>, JSONValue> = {
-      text: "Generated text",
-      reasoning: "",
-      sources: [],
-      files: [],
-      experimental_output: null,
-      toolCalls: [],
-      reasoningDetails: [],
-      finishReason: "stop" as LanguageModelV1FinishReason,
-      usage: {
-        promptTokens: mockUsage.prompt_tokens,
-        completionTokens: mockUsage.completion_tokens,
-        totalTokens: mockUsage.total_tokens,
-      },
-      request: {},
-      response: {
-        id: "res_1",
-        timestamp: new Date(),
-        modelId: "o4-mini",
-        messages: [],
-      },
-      warnings: [],
-      toolResults: [],
-      steps: [],
-      logprobs: undefined,
-      providerMetadata: {},
-      experimental_providerMetadata: {},
-    };
-
-    const mockObjectResult: GenerateObjectResult<JSONValue> = {
-      object: { field: "Structured output" },
-      finishReason: "stop" as LanguageModelV1FinishReason,
-      warnings: [],
-      request: {},
-      response: {
-        id: "res_2",
-        timestamp: new Date(),
-        modelId: "o4-mini",
-      },
-      usage: {
-        promptTokens: mockUsage.prompt_tokens,
-        completionTokens: mockUsage.completion_tokens,
-        totalTokens: mockUsage.total_tokens,
-      },
-      logprobs: undefined,
-      providerMetadata: {},
-      experimental_providerMetadata: {},
-      toJsonResponse: () => new Response(JSON.stringify({ field: "Structured output" })),
-    };
-
-    vi.mocked(generateText).mockResolvedValue(mockTextResult);
-    vi.mocked(openai).mockReturnValue(mockGpt4oMini);
-    vi.mocked(generateObject).mockResolvedValue(mockObjectResult);
+    vi.mocked(generateText).mockResolvedValue(mockTextResult());
+    vi.mocked(openai).mockReturnValue(mockModel as any);
+    vi.mocked(generateObject).mockResolvedValue(mockObjectResult({ field: "Structured output" }));
 
     const result = await twoStepAIProcess({
-      initialModel: mockInitialModel,
+      initialModel: mockModel,
       systemPrompt: "System prompt",
       userPrompt: "User prompt",
       schema: mockSchema,
@@ -161,7 +139,7 @@ describe("twoStepAIProcess", () => {
     vi.mocked(generateText).mockRejectedValue(new Error("Text generation failed"));
 
     const result = await twoStepAIProcess({
-      initialModel: mockInitialModel,
+      initialModel: mockModel,
       systemPrompt: "System prompt",
       userPrompt: "User prompt",
       schema: mockSchema,
@@ -190,41 +168,12 @@ describe("twoStepAIProcess", () => {
     const { generateText, generateObject } = await import("ai");
     const { openai } = await import("@ai-sdk/openai");
 
-    const mockTextResult: GenerateTextResult<Record<string, never>, JSONValue> = {
-      text: "Generated text",
-      reasoning: "",
-      sources: [],
-      files: [],
-      experimental_output: null,
-      toolCalls: [],
-      reasoningDetails: [],
-      finishReason: "stop" as LanguageModelV1FinishReason,
-      usage: {
-        promptTokens: mockUsage.prompt_tokens,
-        completionTokens: mockUsage.completion_tokens,
-        totalTokens: mockUsage.total_tokens,
-      },
-      request: {},
-      response: {
-        id: "res_3",
-        timestamp: new Date(),
-        modelId: "o4-mini",
-        messages: [],
-      },
-      warnings: [],
-      toolResults: [],
-      steps: [],
-      logprobs: undefined,
-      providerMetadata: {},
-      experimental_providerMetadata: {},
-    };
-
-    vi.mocked(generateText).mockResolvedValue(mockTextResult);
-    vi.mocked(openai).mockReturnValue(mockGpt4oMini);
+    vi.mocked(generateText).mockResolvedValue(mockTextResult());
+    vi.mocked(openai).mockReturnValue(mockModel as any);
     vi.mocked(generateObject).mockRejectedValue(new Error("Structured output generation failed"));
 
     const result = await twoStepAIProcess({
-      initialModel: mockInitialModel,
+      initialModel: mockModel,
       systemPrompt: "System prompt",
       userPrompt: "User prompt",
       schema: mockSchema,
@@ -253,62 +202,12 @@ describe("twoStepAIProcess", () => {
     const { generateText, generateObject } = await import("ai");
     const { openai } = await import("@ai-sdk/openai");
 
-    const mockTextResult: GenerateTextResult<Record<string, never>, JSONValue> = {
-      text: "Generated text",
-      reasoning: "",
-      sources: [],
-      files: [],
-      experimental_output: null,
-      toolCalls: [],
-      reasoningDetails: [],
-      finishReason: "stop" as LanguageModelV1FinishReason,
-      usage: {
-        promptTokens: mockUsage.prompt_tokens,
-        completionTokens: mockUsage.completion_tokens,
-        totalTokens: mockUsage.total_tokens,
-      },
-      request: {},
-      response: {
-        id: "res_4",
-        timestamp: new Date(),
-        modelId: "o4-mini",
-        messages: [],
-      },
-      warnings: [],
-      toolResults: [],
-      steps: [],
-      logprobs: undefined,
-      providerMetadata: {},
-      experimental_providerMetadata: {},
-    };
-
-    const mockInvalidObjectResult: GenerateObjectResult<JSONValue> = {
-      object: { wrongField: "Invalid output" },
-      finishReason: "stop" as LanguageModelV1FinishReason,
-      warnings: [],
-      request: {},
-      response: {
-        id: "res_5",
-        timestamp: new Date(),
-        modelId: "o4-mini",
-      },
-      usage: {
-        promptTokens: mockUsage.prompt_tokens,
-        completionTokens: mockUsage.completion_tokens,
-        totalTokens: mockUsage.total_tokens,
-      },
-      logprobs: undefined,
-      providerMetadata: {},
-      experimental_providerMetadata: {},
-      toJsonResponse: () => new Response(JSON.stringify({ wrongField: "Invalid output" })),
-    };
-
-    vi.mocked(generateText).mockResolvedValue(mockTextResult);
-    vi.mocked(openai).mockReturnValue(mockGpt4oMini);
-    vi.mocked(generateObject).mockResolvedValue(mockInvalidObjectResult);
+    vi.mocked(generateText).mockResolvedValue(mockTextResult());
+    vi.mocked(openai).mockReturnValue(mockModel as any);
+    vi.mocked(generateObject).mockResolvedValue(mockObjectResult({ wrongField: "Invalid output" }));
 
     const result = await twoStepAIProcess({
-      initialModel: mockInitialModel,
+      initialModel: mockModel,
       systemPrompt: "System prompt",
       userPrompt: "User prompt",
       schema: mockSchema,
@@ -335,62 +234,12 @@ describe("twoStepAIProcess", () => {
     const { generateText, generateObject } = await import("ai");
     const { openai } = await import("@ai-sdk/openai");
 
-    const mockTextResult: GenerateTextResult<Record<string, never>, JSONValue> = {
-      text: "Generated text",
-      reasoning: "",
-      sources: [],
-      files: [],
-      experimental_output: null,
-      toolCalls: [],
-      reasoningDetails: [],
-      finishReason: "stop" as LanguageModelV1FinishReason,
-      usage: {
-        promptTokens: mockUsage.prompt_tokens,
-        completionTokens: mockUsage.completion_tokens,
-        totalTokens: mockUsage.total_tokens,
-      },
-      request: {},
-      response: {
-        id: "res_6",
-        timestamp: new Date(),
-        modelId: "o4-mini",
-        messages: [],
-      },
-      warnings: [],
-      toolResults: [],
-      steps: [],
-      logprobs: undefined,
-      providerMetadata: {},
-      experimental_providerMetadata: {},
-    };
-
-    const mockObjectResult: GenerateObjectResult<JSONValue> = {
-      object: { field: "Structured output" },
-      finishReason: "stop" as LanguageModelV1FinishReason,
-      warnings: [],
-      request: {},
-      response: {
-        id: "res_7",
-        timestamp: new Date(),
-        modelId: "o4-mini",
-      },
-      usage: {
-        promptTokens: mockUsage.prompt_tokens,
-        completionTokens: mockUsage.completion_tokens,
-        totalTokens: mockUsage.total_tokens,
-      },
-      logprobs: undefined,
-      providerMetadata: {},
-      experimental_providerMetadata: {},
-      toJsonResponse: () => new Response(JSON.stringify({ field: "Structured output" })),
-    };
-
-    vi.mocked(generateText).mockResolvedValue(mockTextResult);
-    vi.mocked(openai).mockReturnValue(mockGpt4oMini);
-    vi.mocked(generateObject).mockResolvedValue(mockObjectResult);
+    vi.mocked(generateText).mockResolvedValue(mockTextResult());
+    vi.mocked(openai).mockReturnValue(mockModel as any);
+    vi.mocked(generateObject).mockResolvedValue(mockObjectResult({ field: "Structured output" }));
 
     await twoStepAIProcess({
-      initialModel: mockInitialModel,
+      initialModel: mockModel,
       systemPrompt: "System prompt",
       userPrompt: "User prompt",
       schema: mockSchema,

@@ -4,14 +4,10 @@ import { idHandler } from "@/lib/utils/idHandler";
 import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { config } from "~/config";
 import { db } from "~/db";
 import { interviews, reports } from "~/db/schema";
+import { inngest } from "~/lib/inngest";
 import { logger } from "~/lib/logger";
-
-const API_GATEWAY_URL = config.apiGatewayUrlAddToQueue;
-
-const API_KEY = process.env.INTERVIEWOPTIMISER_API_KEY;
 
 export const POST = withAuth(
   async (request, { user }) => {
@@ -83,91 +79,21 @@ export const POST = withAuth(
         return NextResponse.json({ error: "Report not found" }, { status: 404 });
       }
 
-      // Configure the API requests
-      const reportRequest = fetch(API_GATEWAY_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": API_KEY || "",
+      // Send both events to Inngest
+      logger.info({ jobId, reportId, interviewId }, "Sending events to Inngest");
+      await inngest.send([
+        {
+          name: "interview/report.requested",
+          data: { jobId, reportId, interviewId, userId },
         },
-        body: JSON.stringify({
-          data: {
-            jobId,
-            reportId,
-            interviewId,
-          },
-          userId,
-          queueType: "generate-report",
-        }),
-      });
-
-      const audioRequest = fetch(API_GATEWAY_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": API_KEY || "",
+        {
+          name: "interview/audio-save.requested",
+          data: { reportId, interviewId, userId },
         },
-        body: JSON.stringify({
-          data: {
-            jobId,
-            reportId,
-            interviewId,
-          },
-          userId,
-          queueType: "save-interview-audio-to-s3",
-        }),
-      });
-
-      // Execute both requests in parallel
-      logger.info({ jobId, reportId, interviewId }, "Sending parallel requests to API Gateway");
-      const [reportResponse, audioResponse] = await Promise.all([reportRequest, audioRequest]);
-
-      // Parse the JSON responses in parallel
-      const [reportResponseData, audioResponseData] = await Promise.all([
-        reportResponse.json(),
-        audioResponse.json(),
       ]);
 
-      logger.info(
-        {
-          reportStatus: reportResponse.status,
-          audioStatus: audioResponse.status,
-        },
-        "Received responses from API Gateway"
-      );
-
-      // Check if either request failed
-      if (!reportResponse.ok || !audioResponse.ok) {
-        logger.error(
-          {
-            reportError: reportResponse.ok ? null : reportResponse.statusText,
-            reportStatus: reportResponse.status,
-            reportBody: reportResponseData,
-            audioError: audioResponse.ok ? null : audioResponse.statusText,
-            audioStatus: audioResponse.status,
-            audioBody: audioResponseData,
-          },
-          "Failed to queue one or more tasks"
-        );
-
-        // Return the first error
-        if (!reportResponse.ok) {
-          return NextResponse.json(reportResponseData, {
-            status: reportResponse.status,
-          });
-        } else {
-          return NextResponse.json(audioResponseData, {
-            status: audioResponse.status,
-          });
-        }
-      }
-
       return NextResponse.json(
-        {
-          message: "Report generation and audio reconstruction started",
-          reportStatus: reportResponse.status,
-          audioStatus: audioResponse.status,
-        },
+        { message: "Report generation and audio reconstruction started" },
         { status: 200 }
       );
     } catch (error) {

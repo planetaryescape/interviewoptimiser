@@ -1,4 +1,4 @@
-import type { LanguageModelV1 } from "@ai-sdk/provider";
+import type { LanguageModel } from "ai";
 import type { CompletionUsage } from "openai/resources/completions.mjs";
 import type { z } from "zod";
 import type { Interview } from "~/db/schema";
@@ -23,7 +23,7 @@ export interface BaseAnalyzeParams {
   /**
    * The language model to use for analysis
    */
-  model: LanguageModelV1;
+  model: LanguageModel;
   /**
    * The parsed interview transcript
    */
@@ -65,7 +65,7 @@ export interface AnalyseInterviewParams {
   /**
    * The language model to use for analysis
    */
-  model: LanguageModelV1;
+  model: LanguageModel;
   /**
    * The job object containing basic information
    */
