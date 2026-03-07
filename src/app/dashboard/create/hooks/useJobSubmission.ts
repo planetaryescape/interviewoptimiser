@@ -18,6 +18,8 @@ interface UseJobSubmissionProps {
   cvText: string;
   jobDescriptionText: string;
   additionalInfo: string;
+  saveAsDefault?: boolean;
+  cvFilename?: string | null;
 }
 
 export function useJobSubmission({
@@ -25,6 +27,8 @@ export function useJobSubmission({
   cvText,
   jobDescriptionText,
   additionalInfo,
+  saveAsDefault,
+  cvFilename,
 }: UseJobSubmissionProps) {
   const router = useRouter();
   const posthog = usePostHog();
@@ -83,11 +87,29 @@ export function useJobSubmission({
 
       return createdJob;
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       setShowTakeover(true);
+
+      // Save as default CV if checkbox was checked
+      if (saveAsDefault && cvText?.trim()) {
+        try {
+          await secureFetch("/api/users/default-cv", {
+            method: "POST",
+            body: JSON.stringify({
+              cvText,
+              filename: cvFilename ?? undefined,
+            }),
+          });
+        } catch (err) {
+          // Non-blocking — don't prevent navigation on failure
+          Sentry.captureException(err, { extra: { context: "save-default-cv" } });
+        }
+      }
+
       setTimeout(() => {
-        resetStore();
         router.push(`/dashboard/jobs/${clientIdHandler.formatId(data.sys.id)}/interviews/new`);
+        // Reset store after a short delay so takeover stays visible during navigation
+        setTimeout(() => resetStore(), 500);
       }, 9000);
     },
     onError: (error) => {
@@ -115,6 +137,7 @@ export function useJobSubmission({
     try {
       if (!cvText?.trim() || !jobDescriptionText?.trim()) {
         toast.error("Please provide both CV and job description.");
+        setShowTakeover(false);
         return;
       }
 

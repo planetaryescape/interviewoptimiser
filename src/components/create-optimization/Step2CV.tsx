@@ -1,27 +1,63 @@
 "use client";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Textarea } from "@/components/ui/textarea";
 import { useExtractFile } from "@/hooks/useExtractText";
 import { cn } from "@/lib/utils";
-import { useCreateJobActions, useCreateJobCVText } from "@/stores/createJobStore";
+import {
+  useCreateJobActions,
+  useCreateJobCVText,
+  useCreateJobSaveAsDefault,
+} from "@/stores/createJobStore";
 import * as Sentry from "@sentry/nextjs";
-import { AlertCircle, FileText, HelpCircle } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { AlertCircle, FileText, HelpCircle, Upload } from "lucide-react";
 import { usePostHog } from "posthog-js/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { config } from "~/config";
 
+interface DefaultCvResponse {
+  data: {
+    defaultCvText: string;
+    defaultCvFilename: string | null;
+  } | null;
+}
+
 export function Step2CV() {
   const cvText = useCreateJobCVText();
-  const { setCVText } = useCreateJobActions();
+  const saveAsDefault = useCreateJobSaveAsDefault();
+  const { setCVText, setSaveAsDefault, setCvFilename } = useCreateJobActions();
   const [cvFile, setCVFile] = useState<File | null>(null);
   const [showStep2Error, setShowStep2Error] = useState(false);
   const posthog = usePostHog();
 
   const extractFileMutation = useExtractFile();
   const isLoading = extractFileMutation.isPending;
+
+  const { data: defaultCvData } = useQuery<DefaultCvResponse>({
+    queryKey: ["default-cv"],
+    queryFn: async () => {
+      const response = await fetch("/api/users/default-cv");
+      if (!response.ok) throw new Error("Failed to fetch default CV");
+      return response.json();
+    },
+  });
+
+  const hasDefaultCv = !!defaultCvData?.data?.defaultCvText;
+
+  const handleLoadDefaultCv = () => {
+    if (defaultCvData?.data?.defaultCvText) {
+      setCVText(defaultCvData.data.defaultCvText);
+      setCvFilename(defaultCvData.data.defaultCvFilename ?? null);
+      setShowStep2Error(false);
+      posthog.capture("default_cv_loaded");
+      toast.success("Default CV loaded");
+    }
+  };
 
   const handleFileChange = async (files: File[]) => {
     if (files.length === 0) {
@@ -49,9 +85,9 @@ export function Step2CV() {
             if (extractedText?.trim()) {
               setCVText(extractedText);
               setCVFile(file);
+              setCvFilename(file.name);
               setShowStep2Error(false);
 
-              // Track successful CV upload
               posthog.capture("cv_uploaded", {
                 fileSize: file.size,
                 fileType: file.type,
@@ -68,7 +104,6 @@ export function Step2CV() {
                 }
               );
 
-              // Track failed CV parsing
               posthog.capture("error_encountered", {
                 errorType: "cv_parsing_failed",
                 errorMessage: "Failed to extract text from file",
@@ -85,7 +120,6 @@ export function Step2CV() {
             });
             toast.error("An error occurred while processing the file. Please try again.");
 
-            // Track CV upload error
             posthog.capture("error_encountered", {
               errorType: "cv_upload_error",
               errorMessage: error instanceof Error ? error.message : "Unknown error",
@@ -97,7 +131,6 @@ export function Step2CV() {
       } else {
         toast.error("Please upload only PDF or Word documents.");
 
-        // Track invalid file type
         posthog.capture("error_encountered", {
           errorType: "invalid_file_type",
           errorMessage: `Unsupported file type: ${fileType}`,
@@ -125,6 +158,24 @@ export function Step2CV() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
           {/* Left Column (Main Content - File Upload & Text Input) - Takes 3/5 of space on lg+ */}
           <div className="lg:col-span-3 space-y-8">
+            {/* Default CV Button */}
+            {hasDefaultCv && !cvText && (
+              <div className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                <Upload className="h-5 w-5 text-primary" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">Use your saved default CV</p>
+                  {defaultCvData?.data?.defaultCvFilename && (
+                    <p className="text-xs text-muted-foreground">
+                      {defaultCvData.data.defaultCvFilename}
+                    </p>
+                  )}
+                </div>
+                <Button variant="outline" size="sm" onClick={handleLoadDefaultCv}>
+                  Use Default CV
+                </Button>
+              </div>
+            )}
+
             {/* File Upload Section */}
             <section className="space-y-4">
               <div className="flex items-center gap-2">
@@ -179,6 +230,23 @@ export function Step2CV() {
                 <p className="text-destructive text-sm font-medium">
                   Please provide your CV content before continuing
                 </p>
+              )}
+
+              {/* Save as Default Checkbox */}
+              {cvText?.trim() && (
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="save-default-cv"
+                    checked={saveAsDefault}
+                    onCheckedChange={(checked) => setSaveAsDefault(checked === true)}
+                  />
+                  <label
+                    htmlFor="save-default-cv"
+                    className="text-sm text-muted-foreground cursor-pointer"
+                  >
+                    Save as my default CV for future interviews
+                  </label>
+                </div>
               )}
             </section>
           </div>

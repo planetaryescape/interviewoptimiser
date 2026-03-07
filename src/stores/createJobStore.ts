@@ -21,6 +21,8 @@ interface CreateJobState {
   isOutOfMinutesDialogOpen: boolean;
   isScheduleErrorDialogOpen: boolean;
   errorMessage?: string;
+  saveAsDefault: boolean;
+  cvFilename: string | null;
 }
 
 interface CreateJobActions {
@@ -35,6 +37,8 @@ interface CreateJobActions {
   setIsOutOfMinutesDialogOpen: (isOpen: boolean) => void;
   setIsScheduleErrorDialogOpen: (isOpen: boolean) => void;
   setErrorMessage: (message?: string) => void;
+  setSaveAsDefault: (save: boolean) => void;
+  setCvFilename: (filename: string | null) => void;
   resetStore: () => void;
 }
 
@@ -50,6 +54,8 @@ const initialState: CreateJobState = {
   isOutOfMinutesDialogOpen: false,
   isScheduleErrorDialogOpen: false,
   errorMessage: undefined,
+  saveAsDefault: false,
+  cvFilename: null,
 };
 
 export const useCreateJobStore = create(
@@ -69,6 +75,8 @@ export const useCreateJobStore = create(
       setIsScheduleErrorDialogOpen: (isScheduleErrorDialogOpen: boolean) =>
         set({ isScheduleErrorDialogOpen }),
       setErrorMessage: (errorMessage?: string) => set({ errorMessage }),
+      setSaveAsDefault: (saveAsDefault: boolean) => set({ saveAsDefault }),
+      setCvFilename: (cvFilename: string | null) => set({ cvFilename }),
       resetStore: () => set(initialState),
     },
   }))
@@ -89,4 +97,6 @@ export const useCreateJobIsOutOfMinutesDialogOpen = () =>
 export const useCreateJobIsScheduleErrorDialogOpen = () =>
   useCreateJobStore((state) => state.isScheduleErrorDialogOpen);
 export const useCreateJobErrorMessage = () => useCreateJobStore((state) => state.errorMessage);
+export const useCreateJobSaveAsDefault = () => useCreateJobStore((state) => state.saveAsDefault);
+export const useCreateJobCvFilename = () => useCreateJobStore((state) => state.cvFilename);
 export const useCreateJobActions = () => useCreateJobStore((state) => state.actions);
