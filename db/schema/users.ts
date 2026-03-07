@@ -32,6 +32,8 @@ export const users = pgTable(
       .$default(() => new Date())
       .notNull(),
     minutes: p.integer().notNull().default(2),
+    defaultCvText: p.text(),
+    defaultCvFilename: p.varchar({ length: 255 }),
   }),
   (users) => [
     uniqueIndex("users_username_idx").on(users.username),
