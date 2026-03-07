@@ -1,7 +1,7 @@
 "use client";
 
 import { VoiceProvider, useVoice } from "@humeai/voice-react";
-import { type ReactNode, useEffect } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { clientLogger } from "~/lib/pino-client-logger";
 import {
   handleVoiceClose,
@@ -57,7 +57,24 @@ function InterviewVoiceConnector({
   interviewId?: string | null;
   children: ReactNode;
 }) {
-  const { connect, status } = useVoice();
+  const { connect, status, sendSessionSettings } = useVoice();
+  const sessionSettingsSentRef = useRef(false);
+
+  // Send session settings after connection opens (not in URL to avoid length limits)
+  useEffect(() => {
+    if (
+      status.value === "connected" &&
+      !sessionSettingsSentRef.current &&
+      sessionSettings?.systemPrompt
+    ) {
+      sessionSettingsSentRef.current = true;
+      logger.info("Sending session settings over WebSocket");
+      sendSessionSettings({
+        systemPrompt: sessionSettings.systemPrompt,
+        ...(sessionSettings.context && { context: sessionSettings.context }),
+      });
+    }
+  }, [status.value, sessionSettings, sendSessionSettings]);
 
   useEffect(() => {
     // Reset flag if navigating to a different interview
@@ -68,6 +85,7 @@ function InterviewVoiceConnector({
       );
       hasGlobalConnectionAttempt = false;
       lastConnectionInterviewId = interviewId;
+      sessionSettingsSentRef.current = false;
     }
 
     // Only attempt connection once globally (survives strict mode remounts for same interview)
@@ -89,29 +107,34 @@ function InterviewVoiceConnector({
     // Mark that we've attempted connection globally
     hasGlobalConnectionAttempt = true;
 
-    // Connect with auth configuration
-    const humeSessionSettings = {
-      type: "session_settings" as const,
-      systemPrompt: sessionSettings.systemPrompt,
-      ...(sessionSettings.context && { context: sessionSettings.context }),
-    };
+    // Delay connection slightly to survive React Strict Mode double-mount.
+    // Without this, the first mount starts a WebSocket that gets canceled by
+    // cleanup, and the second mount sees hasGlobalConnectionAttempt=true and skips.
+    const connectTimer = setTimeout(() => {
+      // Connect WITHOUT sessionSettings to avoid URL length limits.
+      // Session settings are sent as a WebSocket message after connection opens.
+      connect({
+        auth: authConfig,
+        configId,
+      }).catch((error) => {
+        logger.error({ error }, "Connection failed");
 
-    connect({
-      auth: authConfig,
-      configId,
-      sessionSettings: humeSessionSettings,
-    }).catch((error) => {
-      logger.error({ error }, "Connection failed");
+        // Notify state machine of connection error
+        interviewStateMachine.send({
+          type: "CONNECTION_ERROR",
+          error: error instanceof Error ? error.message : "Connection failed",
+        });
 
-      // Notify state machine of connection error
-      interviewStateMachine.send({
-        type: "CONNECTION_ERROR",
-        error: error instanceof Error ? error.message : "Connection failed",
+        // Reset so we can retry on error
+        hasGlobalConnectionAttempt = false;
       });
+    }, 100);
 
-      // Reset so we can retry on error
+    return () => {
+      clearTimeout(connectTimer);
+      // If canceled before connect fires, allow retry
       hasGlobalConnectionAttempt = false;
-    });
+    };
   }, [connect, authConfig, configId, sessionSettings, status, interviewStateMachine, interviewId]);
 
   return <>{children}</>;

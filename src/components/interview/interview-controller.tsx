@@ -130,12 +130,17 @@ export const InterviewController = React.memo(function InterviewController({
     },
   });
 
-  // Expose forceSave to parent for AI disconnect handling
+  // Expose forceSave to parent via ref to avoid re-render loop
+  // (forceSave changes every time messages change, which would cause
+  //  parent setState → re-render → children re-render → new forceSave → loop)
+  const forceSaveRef = useRef(forceSave);
+  forceSaveRef.current = forceSave;
+
   React.useEffect(() => {
-    if (onForceSaveReady && forceSave) {
-      onForceSaveReady(forceSave);
+    if (onForceSaveReady) {
+      onForceSaveReady(() => forceSaveRef.current());
     }
-  }, [onForceSaveReady, forceSave]);
+  }, [onForceSaveReady]);
 
   // End of interview mutation
   const { mutate: endInterview } = useMutation({
