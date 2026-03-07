@@ -13,6 +13,7 @@ import { AlertCircle, FileText, HelpCircle, LinkIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { config } from "~/config";
+import { isValidHttpUrl } from "~/lib/utils/validate-url";
 
 export function Step1JobDescription() {
   const jobDescriptionText = useCreateJobJobDescriptionText();
@@ -29,6 +30,10 @@ export function Step1JobDescription() {
 
   useEffect(() => {
     if (!debouncedJobDescriptionLink) return;
+
+    if (!isValidHttpUrl(debouncedJobDescriptionLink)) {
+      return;
+    }
 
     extractUrlMutation.mutate(debouncedJobDescriptionLink, {
       onSuccess: (data) => {
