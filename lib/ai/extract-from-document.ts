@@ -95,20 +95,17 @@ export async function extractFromDocument({
       mimeType = "image/jpeg";
     }
 
-    // Create the data URL
-    const dataUrl = `data:${mimeType};base64,${base64Data}`;
-
     // Use generateText for text extraction with vision model
     // For images, use the "image" type, for PDFs use "file" type
     const contentPart = mimeType.startsWith("image/")
       ? {
           type: "image" as const,
-          image: dataUrl,
+          image: base64Data,
         }
       : {
           type: "file" as const,
-          data: dataUrl,
-          mediaType: mimeType,
+          data: base64Data,
+          mimeType,
         };
 
     const result = await generateText({
@@ -125,7 +122,7 @@ export async function extractFromDocument({
           ],
         },
       ],
-      maxOutputTokens: 8000,
+      maxTokens: 8000,
       temperature: 0.1, // Low temperature for accurate extraction
     });
 

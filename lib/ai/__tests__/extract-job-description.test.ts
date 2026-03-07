@@ -61,8 +61,8 @@ vi.mock("ai", () => {
         keyTechnologies: ["React", "TypeScript", "Node.js"],
       },
       usage: {
-        inputTokens: 100,
-        outputTokens: 200,
+        promptTokens: 100,
+        completionTokens: 200,
       },
     }),
   };

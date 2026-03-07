@@ -37,8 +37,8 @@ const mockModel = {
 
 function mockUsageV6() {
   return {
-    inputTokens: mockUsage.prompt_tokens,
-    outputTokens: mockUsage.completion_tokens,
+    promptTokens: mockUsage.prompt_tokens,
+    completionTokens: mockUsage.completion_tokens,
     totalTokens: mockUsage.total_tokens,
     inputTokenDetails: {
       noCacheTokens: undefined,

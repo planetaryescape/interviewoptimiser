@@ -19,8 +19,8 @@ const baseModelObj = {
     text: "",
     finishReason: "stop",
     usage: {
-      inputTokens: mockUsage.prompt_tokens,
-      outputTokens: mockUsage.completion_tokens,
+      promptTokens: mockUsage.prompt_tokens,
+      completionTokens: mockUsage.completion_tokens,
     },
     rawCall: { rawPrompt: null, rawSettings: {} },
   }),
@@ -35,8 +35,8 @@ export const mockEvaluateModel = {
     text: JSON.stringify(mockEvaluation),
     finishReason: "stop",
     usage: {
-      inputTokens: mockUsage.prompt_tokens,
-      outputTokens: mockUsage.completion_tokens,
+      promptTokens: mockUsage.prompt_tokens,
+      completionTokens: mockUsage.completion_tokens,
     },
     rawCall: { rawPrompt: null, rawSettings: {} },
   }),
@@ -48,8 +48,8 @@ export const mockOptimiseModel = {
     text: JSON.stringify(mockCV),
     finishReason: "stop",
     usage: {
-      inputTokens: mockUsage.prompt_tokens,
-      outputTokens: mockUsage.completion_tokens,
+      promptTokens: mockUsage.prompt_tokens,
+      completionTokens: mockUsage.completion_tokens,
     },
     rawCall: { rawPrompt: null, rawSettings: {} },
   }),
@@ -62,8 +62,8 @@ export const mockCoverLetterModel = {
     object: mockCoverLetter,
     finishReason: "stop",
     usage: {
-      inputTokens: mockUsage.prompt_tokens,
-      outputTokens: mockUsage.completion_tokens,
+      promptTokens: mockUsage.prompt_tokens,
+      completionTokens: mockUsage.completion_tokens,
     },
     rawCall: { rawPrompt: null, rawSettings: {} },
   }),
