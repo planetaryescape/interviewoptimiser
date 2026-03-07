@@ -104,9 +104,9 @@ Remember to reference specific examples from the transcript for each point in yo
     return {
       data: structuredOutput,
       usage: {
-        prompt_tokens: usage.promptTokens,
-        completion_tokens: usage.completionTokens,
-        total_tokens: usage.promptTokens + usage.completionTokens,
+        prompt_tokens: usage.inputTokens ?? 0,
+        completion_tokens: usage.outputTokens ?? 0,
+        total_tokens: (usage.inputTokens ?? 0) + (usage.outputTokens ?? 0),
       },
     };
   } catch (error) {

@@ -1,6 +1,6 @@
 import type { InterviewTypeDefinition } from "@/fixtures/interview-types";
 import { interviewTypes } from "@/fixtures/interview-types";
-import type { LanguageModelV1 } from "@ai-sdk/provider";
+import type { LanguageModel } from "ai";
 import { generateObject } from "ai";
 import type { CompletionUsage } from "openai/resources/completions.mjs";
 import { z } from "zod";
@@ -16,7 +16,7 @@ const KeyQuestionsSchema = z.object({
 });
 
 export interface ExtractKeyQuestionsParams {
-  model: LanguageModelV1;
+  model: LanguageModel;
   jobDescriptionData: JobDescription;
   interviewType: string;
   userEmail?: string;
@@ -116,9 +116,9 @@ export async function extractKeyQuestions({
     return {
       data: validatedOutput,
       usage: {
-        prompt_tokens: usage.promptTokens,
-        completion_tokens: usage.completionTokens,
-        total_tokens: usage.promptTokens + usage.completionTokens,
+        prompt_tokens: usage.inputTokens ?? 0,
+        completion_tokens: usage.outputTokens ?? 0,
+        total_tokens: (usage.inputTokens ?? 0) + (usage.outputTokens ?? 0),
       },
     };
   } catch (error) {

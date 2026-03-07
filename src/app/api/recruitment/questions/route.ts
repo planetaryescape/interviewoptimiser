@@ -9,8 +9,8 @@ import type { InterviewType } from "~/db/schema/interviews";
 import { interviewTypeEnum } from "~/db/schema/interviews";
 import type { JobDescription } from "~/db/schema/jobDescriptions";
 import { extractKeyQuestions } from "~/lib/ai/extract-key-questions";
+import { getModelForOperation } from "~/lib/ai/models";
 import { logger } from "~/lib/logger";
-import { getOpenAiClient } from "~/lib/openai";
 
 const RequestBodySchema = z.object({
   jobDescriptionText: z.string().min(50, "Job description must be at least 50 characters long."),
@@ -68,7 +68,7 @@ export const POST = withAuth(
 
       const { jobDescriptionText, interviewType, duration } = validationResult.data;
 
-      const model = getOpenAiClient(userEmail).chat(process.env.OPENAI_CHAT_MODEL || "gpt-4o");
+      const model = getModelForOperation("recruitment_questions", userEmail);
 
       const jobDescriptionData: JobDescription = {
         id: 0,

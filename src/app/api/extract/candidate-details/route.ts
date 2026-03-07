@@ -7,8 +7,8 @@ import { z } from "zod";
 import { db } from "~/db";
 import { candidateDetails } from "~/db/schema";
 import { extractCandidateDetails } from "~/lib/ai/extract-candidate-details";
+import { getModelForOperation } from "~/lib/ai/models";
 import { logger } from "~/lib/logger";
-import { getOpenAiClient } from "~/lib/openai";
 
 export const maxDuration = 300; // 5 minutes timeout
 
@@ -32,7 +32,7 @@ export const POST = withAuth(
       const { jobId: jobIdString, cvText } = extractRequestSchema.parse(body);
       const jobId = idHandler.decode(jobIdString);
 
-      const model = getOpenAiClient(email)("o4-mini");
+      const model = getModelForOperation("extract_candidate_details", email);
 
       // Run extractions in parallel
       const candidateDetailsResult = await extractCandidateDetails({

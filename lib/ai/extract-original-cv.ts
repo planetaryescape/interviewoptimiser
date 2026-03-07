@@ -1,4 +1,4 @@
-import type { LanguageModelV1 } from "@ai-sdk/provider";
+import type { LanguageModel } from "ai";
 import { generateObject } from "ai";
 import type { CompletionUsage } from "openai/resources/completions.mjs";
 import { z } from "zod";
@@ -123,7 +123,7 @@ export const StructuredOriginalCVSchema = ExtendedOriginalCVSchema.extend({
 });
 
 export interface ExtractOriginalCVParams {
-  model: LanguageModelV1;
+  model: LanguageModel;
   submittedCVText: string;
   userEmail?: string;
 }
@@ -216,9 +216,9 @@ export async function extractOriginalCV({
     return {
       data: validatedOutput,
       usage: {
-        prompt_tokens: usage.promptTokens,
-        completion_tokens: usage.completionTokens,
-        total_tokens: usage.promptTokens + usage.completionTokens,
+        prompt_tokens: usage.inputTokens ?? 0,
+        completion_tokens: usage.outputTokens ?? 0,
+        total_tokens: (usage.inputTokens ?? 0) + (usage.outputTokens ?? 0),
       },
     };
   } catch (error) {

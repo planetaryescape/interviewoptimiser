@@ -45,8 +45,8 @@ vi.mock("ai", () => ({
         otherUrls: ["https://github.com/johnsmith"],
       },
       usage: {
-        promptTokens: mockUsage.prompt_tokens,
-        completionTokens: mockUsage.completion_tokens,
+        inputTokens: mockUsage.prompt_tokens,
+        outputTokens: mockUsage.completion_tokens,
         totalTokens: mockUsage.total_tokens,
       },
     };

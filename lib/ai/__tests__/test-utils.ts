@@ -1,4 +1,4 @@
-import type { LanguageModelV1 } from "@ai-sdk/provider";
+import type { LanguageModel } from "ai";
 import type { CompletionUsage } from "openai/resources/completions";
 
 export const mockUsage: CompletionUsage = {
@@ -7,19 +7,20 @@ export const mockUsage: CompletionUsage = {
   total_tokens: 150,
 };
 
-const baseModel: LanguageModelV1 = {
-  specificationVersion: "v1" as const,
+// In AI SDK v6, LanguageModel is a complex interface (LanguageModelV3).
+// For tests that mock generateText/generateObject at the module level,
+// we only need a token model reference — the actual doGenerate is never called.
+const baseModelObj = {
+  specificationVersion: "v3" as const,
   provider: "openai" as const,
   modelId: "gpt-4",
   defaultObjectGenerationMode: "json" as const,
-  doGenerate: async (
-    _options: Parameters<LanguageModelV1["doGenerate"]>[0]
-  ): Promise<Awaited<ReturnType<LanguageModelV1["doGenerate"]>>> => ({
+  doGenerate: async () => ({
     text: "",
     finishReason: "stop",
     usage: {
-      promptTokens: mockUsage.prompt_tokens,
-      completionTokens: mockUsage.completion_tokens,
+      inputTokens: mockUsage.prompt_tokens,
+      outputTokens: mockUsage.completion_tokens,
     },
     rawCall: { rawPrompt: null, rawSettings: {} },
   }),
@@ -29,32 +30,44 @@ const baseModel: LanguageModelV1 = {
 };
 
 export const mockEvaluateModel = {
-  ...baseModel,
-  doGenerate: async (options: Parameters<LanguageModelV1["doGenerate"]>[0]) => ({
-    ...(await baseModel.doGenerate(options)),
+  ...baseModelObj,
+  doGenerate: async () => ({
     text: JSON.stringify(mockEvaluation),
+    finishReason: "stop",
+    usage: {
+      inputTokens: mockUsage.prompt_tokens,
+      outputTokens: mockUsage.completion_tokens,
+    },
+    rawCall: { rawPrompt: null, rawSettings: {} },
   }),
-};
+} as unknown as LanguageModel;
 
 export const mockOptimiseModel = {
-  ...baseModel,
-  doGenerate: async (options: Parameters<LanguageModelV1["doGenerate"]>[0]) => ({
-    ...(await baseModel.doGenerate(options)),
+  ...baseModelObj,
+  doGenerate: async () => ({
     text: JSON.stringify(mockCV),
+    finishReason: "stop",
+    usage: {
+      inputTokens: mockUsage.prompt_tokens,
+      outputTokens: mockUsage.completion_tokens,
+    },
+    rawCall: { rawPrompt: null, rawSettings: {} },
   }),
-};
+} as unknown as LanguageModel;
 
 export const mockCoverLetterModel = {
-  ...baseModel,
-  doGenerate: async (options: any) => {
-    const result = await baseModel.doGenerate(options);
-    return {
-      ...result,
-      text: JSON.stringify(mockCoverLetter),
-      object: mockCoverLetter,
-    };
-  },
-};
+  ...baseModelObj,
+  doGenerate: async () => ({
+    text: JSON.stringify(mockCoverLetter),
+    object: mockCoverLetter,
+    finishReason: "stop",
+    usage: {
+      inputTokens: mockUsage.prompt_tokens,
+      outputTokens: mockUsage.completion_tokens,
+    },
+    rawCall: { rawPrompt: null, rawSettings: {} },
+  }),
+} as unknown as LanguageModel;
 
 // Mock data
 export const mockCV = {

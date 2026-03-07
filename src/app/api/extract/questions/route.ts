@@ -8,8 +8,8 @@ import { z } from "zod";
 import { db } from "~/db";
 import { jobDescriptions } from "~/db/schema";
 import { extractKeyQuestions } from "~/lib/ai/extract-key-questions";
+import { getModelForOperation } from "~/lib/ai/models";
 import { logger } from "~/lib/logger";
-import { getOpenAiClient } from "~/lib/openai";
 
 export const maxDuration = 300; // 5 minutes timeout
 
@@ -34,7 +34,7 @@ export const POST = withAuth(
       const { jobId: jobIdString, interviewType, duration } = extractRequestSchema.parse(body);
       const jobId = idHandler.decode(jobIdString);
 
-      const model = getOpenAiClient(email)("o4-mini");
+      const model = getModelForOperation("extract_questions", email);
 
       const jobDescription = await db.query.jobDescriptions.findFirst({
         where: eq(jobDescriptions.jobId, jobId),
