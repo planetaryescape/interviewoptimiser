@@ -437,8 +437,8 @@ export default function JobReportPage(props: {
         className={cn("flex-1 overflow-y-auto overflow-x-hidden p-8 bg-muted", bodyFont)}
         ref={containerRef}
         style={{
-          height: report?.data?.interviewAudioUrl ? "calc(100vh - 134px)" : "calc(100vh - 64px)",
-          paddingBottom: report?.data?.interviewAudioUrl ? "76px" : "16px",
+          height: report?.data?.interviewAudioUrl ? "calc(100vh - 166px)" : "calc(100vh - 64px)",
+          paddingBottom: report?.data?.interviewAudioUrl ? "108px" : "16px",
         }}
       >
         <PagePreview
@@ -484,6 +484,12 @@ export default function JobReportPage(props: {
       {/* Fixed Audio Player at bottom */}
       {report?.data?.interviewAudioUrl && (
         <div className="fixed bottom-0 left-0 right-0 z-10">
+          <div className="bg-amber-50 dark:bg-amber-950/50 border-t border-amber-200 dark:border-amber-800 px-4 py-1.5 text-center">
+            <p className="text-xs text-amber-700 dark:text-amber-400">
+              Interview recordings are available for 30 days. Download your recording to keep it
+              permanently.
+            </p>
+          </div>
           <AudioPlayer audioUrl={report.data.interviewAudioUrl} disabled={false} />
         </div>
       )}

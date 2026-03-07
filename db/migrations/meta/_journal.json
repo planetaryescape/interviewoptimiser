@@ -71,6 +71,13 @@
       "when": 1760290327482,
       "tag": "0009_first_hellfire_club",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1772761966652,
+      "tag": "0010_damp_lightspeed",
+      "breakpoints": true
     }
   ]
 }
