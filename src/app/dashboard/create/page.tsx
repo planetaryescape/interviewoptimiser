@@ -9,11 +9,13 @@ import {
   useCreateJobActions,
   useCreateJobAdditionalInfo,
   useCreateJobCVText,
+  useCreateJobCvFilename,
   useCreateJobErrorMessage,
   useCreateJobIsAlertDialogOpen,
   useCreateJobIsOutOfMinutesDialogOpen,
   useCreateJobIsScheduleErrorDialogOpen,
   useCreateJobJobDescriptionText,
+  useCreateJobSaveAsDefault,
   useCreateJobShowTakeover,
   useCreateJobStep,
 } from "@/stores/createJobStore";
@@ -33,6 +35,8 @@ export default function CreateJob() {
   const isOutOfMinutesDialogOpen = useCreateJobIsOutOfMinutesDialogOpen();
   const isScheduleErrorDialogOpen = useCreateJobIsScheduleErrorDialogOpen();
   const errorMessage = useCreateJobErrorMessage();
+  const saveAsDefault = useCreateJobSaveAsDefault();
+  const cvFilename = useCreateJobCvFilename();
 
   const {
     setStep,
@@ -69,6 +73,8 @@ export default function CreateJob() {
     cvText,
     jobDescriptionText,
     additionalInfo,
+    saveAsDefault,
+    cvFilename,
   });
 
   const handleNextStep = () => {
