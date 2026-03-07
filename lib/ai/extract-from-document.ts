@@ -105,7 +105,7 @@ export async function extractFromDocument({
       : {
           type: "file" as const,
           data: base64Data,
-          mimeType,
+          mediaType: mimeType,
         };
 
     const result = await generateText({
@@ -122,7 +122,7 @@ export async function extractFromDocument({
           ],
         },
       ],
-      maxTokens: 8000,
+      maxOutputTokens: 8000,
       temperature: 0.1, // Low temperature for accurate extraction
     });
 

@@ -76,14 +76,13 @@ export async function twoStepAIProcess<T>({
         data: null,
         error: safeParseResult.success ? undefined : safeParseResult.error,
         usage: {
-          prompt_tokens: (initialUsage.promptTokens ?? 0) + (o3MiniUsage.promptTokens ?? 0),
-          completion_tokens:
-            (initialUsage.completionTokens ?? 0) + (o3MiniUsage.completionTokens ?? 0),
+          prompt_tokens: (initialUsage.inputTokens ?? 0) + (o3MiniUsage.inputTokens ?? 0),
+          completion_tokens: (initialUsage.outputTokens ?? 0) + (o3MiniUsage.outputTokens ?? 0),
           total_tokens:
-            (initialUsage.promptTokens ?? 0) +
-            (initialUsage.completionTokens ?? 0) +
-            (o3MiniUsage.promptTokens ?? 0) +
-            (o3MiniUsage.completionTokens ?? 0),
+            (initialUsage.inputTokens ?? 0) +
+            (initialUsage.outputTokens ?? 0) +
+            (o3MiniUsage.inputTokens ?? 0) +
+            (o3MiniUsage.outputTokens ?? 0),
         },
       };
     }
@@ -92,14 +91,13 @@ export async function twoStepAIProcess<T>({
       data: parsedOutput,
       error: null,
       usage: {
-        prompt_tokens: (initialUsage.promptTokens ?? 0) + (o3MiniUsage.promptTokens ?? 0),
-        completion_tokens:
-          (initialUsage.completionTokens ?? 0) + (o3MiniUsage.completionTokens ?? 0),
+        prompt_tokens: (initialUsage.inputTokens ?? 0) + (o3MiniUsage.inputTokens ?? 0),
+        completion_tokens: (initialUsage.outputTokens ?? 0) + (o3MiniUsage.outputTokens ?? 0),
         total_tokens:
-          (initialUsage.promptTokens ?? 0) +
-          (initialUsage.completionTokens ?? 0) +
-          (o3MiniUsage.promptTokens ?? 0) +
-          (o3MiniUsage.completionTokens ?? 0),
+          (initialUsage.inputTokens ?? 0) +
+          (initialUsage.outputTokens ?? 0) +
+          (o3MiniUsage.inputTokens ?? 0) +
+          (o3MiniUsage.outputTokens ?? 0),
       },
     };
   } catch (error) {
@@ -174,9 +172,9 @@ export async function singleStepAIProcess<T>({
         data: null,
         error: safeParseResult.success ? undefined : safeParseResult.error,
         usage: {
-          prompt_tokens: usage.promptTokens ?? 0,
-          completion_tokens: usage.completionTokens ?? 0,
-          total_tokens: (usage.promptTokens ?? 0) + (usage.completionTokens ?? 0),
+          prompt_tokens: usage.inputTokens ?? 0,
+          completion_tokens: usage.outputTokens ?? 0,
+          total_tokens: (usage.inputTokens ?? 0) + (usage.outputTokens ?? 0),
         },
       };
     }
@@ -185,9 +183,9 @@ export async function singleStepAIProcess<T>({
       data: parsedOutput,
       error: null,
       usage: {
-        prompt_tokens: usage.promptTokens ?? 0,
-        completion_tokens: usage.completionTokens ?? 0,
-        total_tokens: (usage.promptTokens ?? 0) + (usage.completionTokens ?? 0),
+        prompt_tokens: usage.inputTokens ?? 0,
+        completion_tokens: usage.outputTokens ?? 0,
+        total_tokens: (usage.inputTokens ?? 0) + (usage.outputTokens ?? 0),
       },
     };
   } catch (error) {
