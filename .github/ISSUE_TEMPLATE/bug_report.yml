@@ -9,7 +9,7 @@ body:
       description: |
         Run this command in your project root and paste the results in a code block:
         ```bash
-        npx envinfo --system --binaries
+        bunx envinfo --system --binaries
         ```
     validations:
       required: true
