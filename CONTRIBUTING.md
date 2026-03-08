@@ -63,7 +63,7 @@ See `.env.example` for all variable names and descriptions.
 
 ## Project Structure
 
-```
+```text
 src/app/                 # Next.js pages and API routes
 lib/ai/                  # AI analysis and interview logic
 db/                      # Database schema, queries, migrations

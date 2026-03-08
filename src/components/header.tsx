@@ -148,7 +148,12 @@ export function Header({ className }: { className?: string }) {
 
           <div className="flex items-center space-x-2">
             <Button variant="ghost" size="icon" asChild className="hidden md:inline-flex">
-              <Link href={config.githubUrl} target="_blank" aria-label="GitHub">
+              <Link
+                href={config.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub"
+              >
                 <Github className="h-4 w-4" />
               </Link>
             </Button>

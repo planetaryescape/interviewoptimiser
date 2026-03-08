@@ -105,6 +105,7 @@ export function MobileMenu({ isDashboard, onFeedbackClick }: MobileMenuProps) {
               <Link
                 href={config.githubUrl}
                 target="_blank"
+                rel="noopener noreferrer"
                 onClick={closeMenu}
                 className="px-3 py-3 rounded-md transition-colors text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center gap-2"
               >

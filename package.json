@@ -4,6 +4,7 @@
   "description": "Open-source AI voice interview practice with real-time prosody analysis",
   "license": "MIT",
   "author": "Bhekani Khumalo",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/planetaryescape/interviewoptimiser.git"

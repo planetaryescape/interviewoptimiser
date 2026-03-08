@@ -51,7 +51,7 @@ Quick reference for security implementations in Interview Optimiser.
 
 ### Reporting Security Issues
 1. **DO NOT** create public GitHub issues
-2. Email security concerns to: [security@interviewoptimiser.com]
+2. Email security concerns to: interviewoptimiser@bhekani.com
 3. Include: Description, steps to reproduce, impact assessment
 
 ### Common Security Tasks

@@ -9,7 +9,7 @@ export function Footer() {
     <footer className="relative w-full border-t border-border/20 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto px-4 md:px-6 max-w-7xl">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 py-16">
           {/* Brand Column */}
           <div className="space-y-4">
             <Link
@@ -34,8 +34,6 @@ export function Footer() {
               out in the job market.
             </p>
           </div>
-
-          {/* Spacer removed — grid now has 5 columns */}
 
           {/* Legal Links */}
           <div className="space-y-4">
@@ -68,6 +66,7 @@ export function Footer() {
                 <Link
                   href={config.githubUrl}
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="text-style-body-small text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-2"
                 >
                   <Github className="w-4 h-4" />
@@ -78,6 +77,7 @@ export function Footer() {
                 <Link
                   href={`${config.githubUrl}/blob/main/CONTRIBUTING.md`}
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="text-style-body-small text-muted-foreground hover:text-foreground transition-colors duration-200"
                 >
                   Contributing Guide
@@ -94,6 +94,7 @@ export function Footer() {
                 <Link
                   href="https://www.cvoptimiser.com/"
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="text-style-body-small text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-2"
                 >
                   <span>CV Optimiser</span>
@@ -118,6 +119,7 @@ export function Footer() {
                 <Link
                   href="https://dealbase.africa/"
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="text-style-body-small text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-2"
                 >
                   <span>Dealbase Africa</span>
