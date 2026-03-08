@@ -129,6 +129,7 @@ export function Hero() {
               <Link
                 href={config.githubUrl}
                 target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 text-muted-foreground border border-border/50 hover:bg-muted hover:text-foreground transition-colors text-xs font-medium"
               >
                 <Github size={14} />

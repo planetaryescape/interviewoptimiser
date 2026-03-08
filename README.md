@@ -5,7 +5,7 @@ AI voice interview practice that analyses not just what you say, but how you say
 ## Quick Start
 
 ```bash
-git clone git@github.com:planetaryescape/interviewoptimiser.git
+git clone https://github.com/planetaryescape/interviewoptimiser.git
 cd interviewoptimiser
 bun install
 ```
@@ -65,7 +65,7 @@ bun run dev:webhooks     # Start ngrok for webhook testing
 
 ## Project Structure
 
-```
+```text
 src/app/                 # Next.js pages and API routes
 lib/ai/                  # AI analysis and interview logic
 db/                      # Database schema, queries, migrations

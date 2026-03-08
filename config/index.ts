@@ -4,7 +4,7 @@ const domain = isDev ? "localhost:3000" : "interviewoptimiser.com";
 export const config = {
   projectName: "Interview Optimiser",
   githubUrl: "https://github.com/planetaryescape/interviewoptimiser",
-  baseUrl: `http://${domain}`,
+  baseUrl: isDev ? `http://${domain}` : `https://${domain}`,
   domain,
   supportEmail: `${domain.split(".")[0]}@bhekani.com`,
   discordUserId: "549143313257725969",
