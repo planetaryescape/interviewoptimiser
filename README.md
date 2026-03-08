@@ -68,7 +68,7 @@ bun run dev:webhooks     # Start ngrok for webhook testing
 ```
 src/app/                 # Next.js pages and API routes
 lib/ai/                  # AI analysis and interview logic
-lib/db/                  # Database schema, queries, migrations
+db/                      # Database schema, queries, migrations
 lib/inngest/             # Background job processing
 lib/utils/               # Shared utilities
 src/components/          # React components
