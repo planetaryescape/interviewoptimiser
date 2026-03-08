@@ -1,78 +1,110 @@
 # Interview Optimiser
 
-AI-powered voice interview practice that analyzes not just what you say, but how you say it.
+AI voice interview practice that analyses not just what you say, but how you say it -- tone, hesitation, enthusiasm, and confidence.
 
-## 💰 The Money Feature
-
-**Real-time voice-to-voice AI interviews with prosody analysis** - Our AI doesn&apos;t just transcribe your answers, it analyzes your tone, hesitation, enthusiasm, and confidence levels to give you feedback that actually improves your interview performance.
-
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
-# 1. Clone and install
-git clone https://github.com/yourusername/interviewoptimiser.git
+git clone git@github.com:planetaryescape/interviewoptimiser.git
 cd interviewoptimiser
 bun install
+```
 
-# 2. Setup secrets with Doppler
+### Secrets
+
+**With Doppler** (recommended):
+```bash
 doppler setup
+```
 
-# 3. Run database migrations
+**Without Doppler** -- copy `.env.example` and add keys from each service below:
+```bash
+cp .env.example .env.local
+```
+
+### Database
+
+```bash
 bun run db:migrate:dev
+```
 
-# 4. Start development server
+### Run
+
+```bash
 bun run dev
 ```
 
-Visit `http://localhost:3000` and upload your CV to start practicing.
+Visit `http://localhost:3000`.
 
-## 📦 Requirements
+## External Services
 
-- Node.js 18+
-- Bun package manager
-- PostgreSQL
-- Doppler account (for secrets)
-- AWS account (for S3 storage)
+| Service | Purpose | Get Keys |
+|---------|---------|----------|
+| [Clerk](https://clerk.com) | Authentication | Dashboard > API Keys |
+| [Hume AI](https://hume.ai) | Voice-to-voice interviews | Platform > API Keys |
+| [Stripe](https://stripe.com) | Payments | Developers > API Keys |
+| [OpenAI](https://platform.openai.com) | AI analysis | API Keys |
+| PostgreSQL | Database | Local or hosted (Neon, Supabase) |
+| [AWS S3](https://aws.amazon.com/s3/) | Audio file storage | IAM > Access Keys |
+| [Upstash Redis](https://upstash.com) | Rate limiting, caching | Console > REST API |
+| [Sentry](https://sentry.io) | Error monitoring | Settings > Client Keys |
 
-## 🔧 Essential Commands
+All keys are managed via Doppler. See `.env.example` for variable names.
+
+## Commands
 
 ```bash
-bun run dev              # Start development server
+bun run dev              # Dev server (Doppler injects secrets)
 bun run build            # Production build
 bun run test             # Run tests
-bun run lint:fix         # Fix linting issues
-bun run typecheck        # Check TypeScript types
-bun run db:studio        # Open Drizzle Studio GUI
+bun run lint:fix         # Fix linting (Biome)
+bun run typecheck        # TypeScript check
+bun run db:studio        # Drizzle Studio GUI
+bun run dev:webhooks     # Start ngrok for webhook testing
 ```
 
-## 🏗️ Tech Stack
+## Project Structure
 
-- **Frontend**: Next.js 15, React 19, TailwindCSS, ShadCN/UI
-- **Backend**: PostgreSQL, Drizzle ORM, Next.js API Routes
-- **AI/Voice**: OpenAI, Hume AI Voice SDK
+```
+src/app/                 # Next.js pages and API routes
+lib/ai/                  # AI analysis and interview logic
+lib/db/                  # Database schema, queries, migrations
+lib/inngest/             # Background job processing
+lib/utils/               # Shared utilities
+src/components/          # React components
+src/emails/              # Email templates (React Email)
+terraform/               # AWS infrastructure (Lambda, S3)
+docs/                    # Detailed documentation
+```
+
+## Tech Stack
+
+- **Framework**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS, shadcn/ui
+- **Database**: PostgreSQL, Drizzle ORM
+- **AI/Voice**: Hume AI Voice SDK, AI SDK v6 + OpenAI
 - **Auth**: Clerk
-- **Storage**: AWS S3
-- **Monitoring**: Sentry
+- **Payments**: Stripe
+- **Background Jobs**: Inngest
+- **Storage**: AWS S3, CloudFront
+- **Monitoring**: Sentry, PostHog
 
-## 📚 Documentation
+## Documentation
 
-- [Technical Architecture](docs/technical-spec.md) - System design and API docs
-- [Product Spec](docs/prd.md) - Features and roadmap
-- [Development Guide](CLAUDE.md) - Patterns and conventions
-- [Security](docs/security/) - CSRF, webhooks, rate limiting
+- [Technical Architecture](docs/technical-spec.md)
+- [Product Spec](docs/product/prd.md)
+- [Development Guides](docs/development/) -- auth, audio, caching, migrations
+- [Security](docs/security/) -- CSRF, webhooks, rate limiting
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork and clone
 2. Create feature branch
-3. Make changes with tests
-4. Run `bun run lint:fix && bun run typecheck`
-5. Submit PR
+3. Use Bun exclusively (never npm/yarn)
+4. Biome for linting (not ESLint)
+5. Commit format: `type: description`
+6. Run `bun run lint:fix && bun run typecheck` before PRs
 
-## 📄 License
+## License
 
 MIT
-
----
-
-Built for indie developers shipping fast 🚀
