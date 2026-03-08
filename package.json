@@ -1,7 +1,13 @@
 {
   "name": "interviewoptimiser",
   "version": "0.1.0",
-  "private": true,
+  "description": "Open-source AI voice interview practice with real-time prosody analysis",
+  "license": "MIT",
+  "author": "Bhekani Khumalo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/planetaryescape/interviewoptimiser.git"
+  },
   "scripts": {
     "env": "doppler setup -c dev -p interview-optimiser",
     "dev": "SENTRY_SUPPRESS_TURBOPACK_WARNING=1 NODE_OPTIONS='--trace-deprecation' doppler run -- next dev --turbopack | pino-pretty",
