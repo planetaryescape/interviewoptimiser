@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ClerkProvider, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { Github } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -146,6 +147,11 @@ export function Header({ className }: { className?: string }) {
           </SignedOut>
 
           <div className="flex items-center space-x-2">
+            <Button variant="ghost" size="icon" asChild className="hidden md:inline-flex">
+              <Link href={config.githubUrl} target="_blank" aria-label="GitHub">
+                <Github className="h-4 w-4" />
+              </Link>
+            </Button>
             <ThemeToggle />
             <SignedIn>
               <UserButton

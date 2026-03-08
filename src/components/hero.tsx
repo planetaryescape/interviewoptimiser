@@ -5,11 +5,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, CheckCircle2, Clock, Play, Shield, Sparkles, Trophy } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Clock,
+  Github,
+  Play,
+  Shield,
+  Sparkles,
+  Trophy,
+} from "lucide-react";
 import { useTheme } from "next-themes";
 import { unstable_noStore as noStore } from "next/cache";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { config } from "~/config";
 import { BorderBeam } from "./magicui/border-beam";
 import HeroVideoDialog from "./magicui/hero-video-dialog";
 import Particles from "./magicui/particles";
@@ -114,10 +124,20 @@ export function Hero() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
         <div className="flex flex-col items-center text-center">
           <div className="space-y-8 w-full">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20 mx-auto">
-              <Sparkles size={16} className="animate-pulse" />
-              <span className="text-sm font-medium">Land Your Dream Job 3x Faster</span>
+            {/* Badges */}
+            <div className="flex flex-col items-center gap-3">
+              <Link
+                href={config.githubUrl}
+                target="_blank"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 text-muted-foreground border border-border/50 hover:bg-muted hover:text-foreground transition-colors text-xs font-medium"
+              >
+                <Github size={14} />
+                <span>Open Source</span>
+              </Link>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20 mx-auto">
+                <Sparkles size={16} className="animate-pulse" />
+                <span className="text-sm font-medium">Land Your Dream Job 3x Faster</span>
+              </div>
             </div>
 
             {/* Headline and copy */}

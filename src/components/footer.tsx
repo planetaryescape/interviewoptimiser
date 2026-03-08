@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Github } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { config } from "~/config";
@@ -8,7 +9,7 @@ export function Footer() {
     <footer className="relative w-full border-t border-border/20 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto px-4 md:px-6 max-w-7xl">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 py-16">
           {/* Brand Column */}
           <div className="space-y-4">
             <Link
@@ -34,8 +35,7 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Spacer for better grid layout */}
-          <div className="hidden lg:block" />
+          {/* Spacer removed — grid now has 5 columns */}
 
           {/* Legal Links */}
           <div className="space-y-4">
@@ -55,6 +55,32 @@ export function Footer() {
                   className="text-style-body-small text-muted-foreground hover:text-foreground transition-colors duration-200"
                 >
                   Terms of Service
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Community */}
+          <div className="space-y-4">
+            <h3 className="text-style-h4 text-foreground">Community</h3>
+            <ul className="space-y-3">
+              <li>
+                <Link
+                  href={config.githubUrl}
+                  target="_blank"
+                  className="text-style-body-small text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-2"
+                >
+                  <Github className="w-4 h-4" />
+                  <span>GitHub</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={`${config.githubUrl}/blob/main/CONTRIBUTING.md`}
+                  target="_blank"
+                  className="text-style-body-small text-muted-foreground hover:text-foreground transition-colors duration-200"
+                >
+                  Contributing Guide
                 </Link>
               </li>
             </ul>
@@ -118,7 +144,7 @@ export function Footer() {
         {/* Copyright Bar */}
         <div className="border-t border-border/20 py-8">
           <p className="text-style-caption text-muted-foreground text-center">
-            © {new Date().getFullYear()} {config.projectName}. All rights reserved.
+            © {new Date().getFullYear()} {config.projectName}. MIT License.
           </p>
         </div>
       </div>
