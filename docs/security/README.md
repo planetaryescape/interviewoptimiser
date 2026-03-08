@@ -14,7 +14,7 @@ Quick reference for security implementations in Interview Optimiser.
 - **Pattern**: HMAC signature verification
 - **Providers**: Clerk, Stripe, custom webhooks
 
-### [Rate Limiting](../rate-limiting.md)
+### [Rate Limiting](./rate-limiting.md)
 - **Status**: ✅ Implemented
 - **Backend**: Upstash Redis
 - **Limits**: 60 req/min (API), 10 req/10min (uploads)
@@ -86,7 +86,7 @@ All webhooks automatically verify signatures. To add a new provider:
 ## 📋 Security Audit Log
 
 ### Latest Audit: July 2025
-- **Report**: [security-audit-report.md](../../security-audit-report.md)
+- **Report**: [security-audit-report.md](../archive/security-audit-report-2025-07.md)
 - **Critical Issues**: 0
 - **High Issues**: 2 (fixed)
 - **Medium Issues**: 5 (3 fixed, 2 in progress)
