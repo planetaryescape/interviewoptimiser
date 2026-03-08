@@ -4,6 +4,7 @@ import TurndownService from "turndown";
 import { setExtractionResult } from "~/lib/extraction-store";
 import { inngest } from "~/lib/inngest";
 import { logger } from "~/lib/logger";
+import { validateUrlForFetch } from "~/lib/utils/validate-url";
 
 export const extractUrlFn = inngest.createFunction(
   {
@@ -23,9 +24,18 @@ export const extractUrlFn = inngest.createFunction(
   async ({ event, step }) => {
     const { extractionId, url, userId } = event.data;
 
-    // Step 1: Fetch URL
+    // Step 1: Validate and fetch URL
     const html = await step.run("fetch-url", async () => {
-      const response = await fetch(url);
+      // Defense in depth: re-validate even though API route already checked
+      const { valid, url: safeUrl, error } = validateUrlForFetch(url);
+      if (!valid || !safeUrl) {
+        throw new Error(`URL blocked by SSRF protection: ${error}`);
+      }
+
+      const response = await fetch(safeUrl, {
+        redirect: "follow",
+        signal: AbortSignal.timeout(15_000),
+      });
       if (!response.ok) {
         throw new Error(`Failed to fetch URL: ${response.status}`);
       }

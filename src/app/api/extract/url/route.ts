@@ -6,6 +6,7 @@ import { z } from "zod";
 import { setExtractionResult } from "~/lib/extraction-store";
 import { inngest } from "~/lib/inngest";
 import { logger } from "~/lib/logger";
+import { validateUrlForFetch } from "~/lib/utils/validate-url";
 
 export const maxDuration = 60;
 
@@ -23,7 +24,13 @@ export const POST = withAuth(
       }
 
       const body = await request.json();
-      const { url } = extractUrlRequestSchema.parse(body);
+      const { url: rawUrl } = extractUrlRequestSchema.parse(body);
+
+      // SSRF protection: validate URL before dispatching
+      const { valid, url, error: urlError } = validateUrlForFetch(rawUrl);
+      if (!valid || !url) {
+        return NextResponse.json(formatErrorEntity(urlError || "Invalid URL"), { status: 400 });
+      }
 
       const extractionId = crypto.randomUUID();
 
