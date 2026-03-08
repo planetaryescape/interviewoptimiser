@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { useUser } from "@/hooks/useUser";
 import { cn } from "@/lib/utils";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { CreditCard, MenuIcon } from "lucide-react";
+import { CreditCard, Github, MenuIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -101,6 +101,16 @@ export function MobileMenu({ isDashboard, onFeedbackClick }: MobileMenuProps) {
               <NavLink href="/changelog">Changelog</NavLink>
               <NavLink href="/feature-requests">Feature Requests</NavLink>
               <NavLink href="/pricing">Pricing</NavLink>
+
+              <Link
+                href={config.githubUrl}
+                target="_blank"
+                onClick={closeMenu}
+                className="px-3 py-3 rounded-md transition-colors text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center gap-2"
+              >
+                <Github className="h-4 w-4" />
+                GitHub
+              </Link>
 
               {!isDashboard && (
                 <SignedIn>

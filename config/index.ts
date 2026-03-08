@@ -3,6 +3,7 @@ const domain = isDev ? "localhost:3000" : "interviewoptimiser.com";
 
 export const config = {
   projectName: "Interview Optimiser",
+  githubUrl: "https://github.com/planetaryescape/interviewoptimiser",
   baseUrl: `http://${domain}`,
   domain,
   supportEmail: `${domain.split(".")[0]}@bhekani.com`,
