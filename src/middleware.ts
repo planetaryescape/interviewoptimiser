@@ -13,6 +13,7 @@ const isPublicApiRoute = createRouteMatcher([
   "/api/stripe/create-customer",
   "/api/changelogs",
   "/api/feature-requests",
+  "/api/inngest",
   "/api/public/(.*)",
 ]);
 
