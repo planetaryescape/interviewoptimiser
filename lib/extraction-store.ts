@@ -30,17 +30,32 @@ export async function setExtractionResult(
   const redis = getRedis();
   if (!redis) return;
 
-  await redis.set(`${EXTRACTION_PREFIX}${extractionId}`, JSON.stringify(result), {
-    ex: EXTRACTION_TTL,
-  });
+  try {
+    await redis.set(`${EXTRACTION_PREFIX}${extractionId}`, JSON.stringify(result), {
+      ex: EXTRACTION_TTL,
+    });
+  } catch (error) {
+    logger.warn(
+      { error, extractionId },
+      "Failed to set extraction result in Redis, continuing without cache"
+    );
+  }
 }
 
 export async function getExtractionResult(extractionId: string): Promise<ExtractionResult | null> {
   const redis = getRedis();
   if (!redis) return null;
 
-  const result = await redis.get<string>(`${EXTRACTION_PREFIX}${extractionId}`);
-  if (!result) return null;
+  try {
+    const result = await redis.get<string>(`${EXTRACTION_PREFIX}${extractionId}`);
+    if (!result) return null;
 
-  return typeof result === "string" ? JSON.parse(result) : (result as ExtractionResult);
+    return typeof result === "string" ? JSON.parse(result) : (result as ExtractionResult);
+  } catch (error) {
+    logger.warn(
+      { error, extractionId },
+      "Failed to get extraction result from Redis, returning null"
+    );
+    return null;
+  }
 }
