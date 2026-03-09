@@ -23,6 +23,7 @@ function getRedis(): Redis | null {
   return Redis.fromEnv();
 }
 
+/** Stores an extraction result in Redis cache. Best-effort: silently continues if Redis is unreachable. */
 export async function setExtractionResult(
   extractionId: string,
   result: ExtractionResult
@@ -42,6 +43,7 @@ export async function setExtractionResult(
   }
 }
 
+/** Retrieves an extraction result from Redis cache. Returns null if Redis is unreachable or key is missing. */
 export async function getExtractionResult(extractionId: string): Promise<ExtractionResult | null> {
   const redis = getRedis();
   if (!redis) return null;
@@ -50,7 +52,7 @@ export async function getExtractionResult(extractionId: string): Promise<Extract
     const result = await redis.get<string>(`${EXTRACTION_PREFIX}${extractionId}`);
     if (!result) return null;
 
-    return typeof result === "string" ? JSON.parse(result) : (result as ExtractionResult);
+    return JSON.parse(result) as ExtractionResult;
   } catch (error) {
     logger.warn(
       { error, extractionId },
