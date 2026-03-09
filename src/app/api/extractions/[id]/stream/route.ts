@@ -3,6 +3,8 @@ import { type NextRequest, NextResponse } from "next/server";
 import { getExtractionResult } from "~/lib/extraction-store";
 import { logger } from "~/lib/logger";
 
+export const maxDuration = 300;
+
 export const GET = withAuth<{ id: string }>(
   async (_request: NextRequest, { params }) => {
     const extractionId = params?.id;
@@ -14,7 +16,7 @@ export const GET = withAuth<{ id: string }>(
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
-        const maxPolls = 60; // 60 polls * 1s = 60s max
+        const maxPolls = 300; // 300 polls * 1s = 5min max
         let polls = 0;
 
         const poll = async () => {
