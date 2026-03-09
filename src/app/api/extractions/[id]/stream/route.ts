@@ -5,6 +5,9 @@ import { logger } from "~/lib/logger";
 
 export const maxDuration = 300;
 
+// Leave 10s buffer so polling stops before Vercel kills the function
+const maxPolls = maxDuration - 10;
+
 export const GET = withAuth<{ id: string }>(
   async (_request: NextRequest, { params }) => {
     const extractionId = params?.id;
@@ -14,49 +17,67 @@ export const GET = withAuth<{ id: string }>(
     }
 
     const encoder = new TextEncoder();
+    let cancelled = false;
+
     const stream = new ReadableStream({
       async start(controller) {
-        const maxPolls = 300; // 300 polls * 1s = 5min max
         let polls = 0;
 
         const poll = async () => {
+          if (cancelled) return;
+
           try {
             const result = await getExtractionResult(extractionId);
 
             if (result?.status === "completed" || result?.status === "error") {
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify(result)}\n\n`));
-              controller.close();
+              if (!cancelled) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify(result)}\n\n`));
+                controller.close();
+              }
               return;
             }
 
-            controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify({ status: "pending" })}\n\n`)
-            );
+            if (!cancelled) {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ status: "pending" })}\n\n`)
+              );
+            }
 
             polls++;
             if (polls >= maxPolls) {
-              controller.enqueue(
-                encoder.encode(
-                  `data: ${JSON.stringify({ status: "error", error: "Extraction timed out" })}\n\n`
-                )
-              );
-              controller.close();
+              if (!cancelled) {
+                controller.enqueue(
+                  encoder.encode(
+                    `data: ${JSON.stringify({ status: "error", error: "Extraction timed out" })}\n\n`
+                  )
+                );
+                controller.close();
+              }
               return;
             }
 
             setTimeout(poll, 1000);
           } catch (error) {
             logger.error({ error, extractionId }, "Error polling extraction result");
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({ status: "error", error: "Internal error" })}\n\n`
-              )
-            );
-            controller.close();
+            if (!cancelled) {
+              try {
+                controller.enqueue(
+                  encoder.encode(
+                    `data: ${JSON.stringify({ status: "error", error: "Internal error" })}\n\n`
+                  )
+                );
+                controller.close();
+              } catch {
+                // Stream already closed by client disconnect
+              }
+            }
           }
         };
 
         await poll();
+      },
+      cancel() {
+        cancelled = true;
       },
     });
 
