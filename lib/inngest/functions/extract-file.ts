@@ -10,7 +10,7 @@ export const extractFileFn = inngest.createFunction(
   {
     id: "extract-file",
     retries: 2,
-    concurrency: [{ limit: 20 }],
+    concurrency: [{ limit: 5 }],
     throttle: {
       limit: 5,
       period: "1m",

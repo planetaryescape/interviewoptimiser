@@ -10,7 +10,7 @@ export const extractUrlFn = inngest.createFunction(
   {
     id: "extract-url",
     retries: 2,
-    concurrency: [{ limit: 10 }],
+    concurrency: [{ limit: 5 }],
     onFailure: async ({ error, event }) => {
       const extractionId = event.data.event.data.extractionId;
       logger.error({ error: error.message, extractionId }, "URL extraction failed after retries");

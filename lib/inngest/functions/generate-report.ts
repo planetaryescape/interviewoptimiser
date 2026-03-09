@@ -36,7 +36,7 @@ export const generateReportFn = inngest.createFunction(
   {
     id: "generate-report",
     retries: 2,
-    concurrency: [{ limit: 10 }],
+    concurrency: [{ limit: 5 }],
     onFailure: async ({ error, event }) => {
       await sendDiscordDM({
         title: "❌ Interview Report Generation Failed",
