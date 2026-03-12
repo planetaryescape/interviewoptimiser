@@ -37,7 +37,7 @@ async function fetchJobs() {
 export default function JobsSection() {
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [currentPage, setCurrentPage] = useState(1);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | string | null>(null);
 
   const {
     data: jobsData,
@@ -61,7 +61,7 @@ export default function JobsSection() {
   const currentJobs = jobs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const deleteOptimizationMutation = useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: number | string) => {
       setDeletingId(id);
       const repository = await getRepository<Job>("admin/jobs", true);
       await repository.delete(clientIdHandler.formatId(id));
@@ -85,7 +85,7 @@ export default function JobsSection() {
     },
   });
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: number | string) => {
     deleteOptimizationMutation.mutate(id);
   };
 
@@ -127,13 +127,13 @@ export default function JobsSection() {
       ) : viewMode === "grid" ? (
         <JobsGrid
           deletingId={deletingId}
-          jobs={currentJobs.map((job) => job.data)}
+          jobs={currentJobs.map((job) => ({ ...job.data, id: job.sys.id as number }))}
           onDelete={handleDelete}
         />
       ) : (
         <JobsTable
           deletingId={deletingId}
-          jobs={currentJobs.map((job) => job.data)}
+          jobs={currentJobs.map((job) => ({ ...job.data, id: job.sys.id as number }))}
           onDelete={handleDelete}
         />
       )}

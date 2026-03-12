@@ -49,8 +49,8 @@ export interface JobForUITable extends InferredJobWithDetails {
 
 interface JobsTableProps {
   jobs: Array<JobForUITable>;
-  onDelete?: (id: number) => void;
-  deletingId: number | null;
+  onDelete?: (id: number | string) => void;
+  deletingId: number | string | null;
 }
 
 import * as React from "react";
