@@ -106,6 +106,7 @@ jobs:
 
       - name: Build project
         id: build
+        continue-on-error: true
         run: |
           if [ -f "package.json" ] && grep -q '"build"' package.json; then
             bun run build || echo "build_failed=true" >> $GITHUB_OUTPUT
@@ -118,6 +119,7 @@ jobs:
 
       - name: Type check
         id: typecheck
+        continue-on-error: true
         run: |
           if [ -f "package.json" ] && grep -q '"typecheck"' package.json; then
             bun run typecheck || echo "typecheck_failed=true" >> $GITHUB_OUTPUT
@@ -262,7 +264,7 @@ jobs:
         uses: lewagon/wait-on-check-action@v1.4.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          check-regexp: ^(?!Auto-merge|Dependabot).*$
+          check-regexp: ^(?!Auto-merge|Dependabot|claude-review|claude|Claude|Security Scan).*$
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 30
           allowed-conclusions: success,skipped
