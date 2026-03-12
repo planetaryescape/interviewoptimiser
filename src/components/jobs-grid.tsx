@@ -14,8 +14,8 @@ type JobWithCandidateDetailsAndJobDescriptionAndInterviews = InferResultType<
 
 interface JobsGridProps {
   jobs: Array<JobWithCandidateDetailsAndJobDescriptionAndInterviews>;
-  onDelete?: (id: number) => void;
-  deletingId: number | null;
+  onDelete?: (id: number | string) => void;
+  deletingId: number | string | null;
 }
 
 export const JobsGrid = ({ jobs, onDelete, deletingId }: JobsGridProps) => {

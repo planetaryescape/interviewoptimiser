@@ -46,8 +46,8 @@ export interface JobForUICard extends InferredJobWithDetails {
 
 interface JobCardProps {
   job: JobForUICard;
-  onDelete?: (id: number) => void;
-  deletingId: number | null;
+  onDelete?: (id: number | string) => void;
+  deletingId: number | string | null;
 }
 
 export const JobCard = ({ job, onDelete, deletingId }: JobCardProps) => {
@@ -73,7 +73,7 @@ export const JobCard = ({ job, onDelete, deletingId }: JobCardProps) => {
 
   return (
     <Link
-      href={`/dashboard/jobs/${clientIdHandler.formatId(job.id)}`}
+      href={`/dashboard/jobs/${clientIdHandler.formatId(job.id)}/interviews`}
       className="block group h-full"
     >
       <Card
