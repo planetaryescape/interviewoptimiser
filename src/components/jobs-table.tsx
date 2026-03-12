@@ -41,9 +41,9 @@ type InferredJobWithDetails = InferResultType<
   }
 >;
 
-// UI-specific type that extends the inferred type to include an optional status
-// This allows the component to expect 'status' without breaking if the base type doesn't provide it directly.
-export interface JobForUITable extends InferredJobWithDetails {
+// UI-specific type — id is string | number because pages pass server-encoded IDs
+export interface JobForUITable extends Omit<InferredJobWithDetails, "id"> {
+  id: number | string;
   status?: string | null;
 }
 
