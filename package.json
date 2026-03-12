@@ -176,7 +176,7 @@
     "@types/node": "^22",
     "@types/react": "npm:types-react@19.0.0-rc.1",
     "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
-    "@types/react-virtualized": "^9.21.30",
+    "@types/react-virtualized": "^9.22.3",
     "@types/turndown": "^5.0.5",
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^5.0.4",
