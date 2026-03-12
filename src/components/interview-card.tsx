@@ -38,10 +38,10 @@ type InferredJobWithDetails = InferResultType<
   }
 >;
 
-// UI-specific type that extends the inferred type to include an optional status
-export interface JobForUICard extends InferredJobWithDetails {
+// UI-specific type — id is string | number because pages pass server-encoded IDs
+export interface JobForUICard extends Omit<InferredJobWithDetails, "id"> {
+  id: number | string;
   status?: string | null;
-  // 'role', 'company', 'createdAt', etc., are inherited from InferredJobWithDetails if they are direct columns on the 'jobs' table.
 }
 
 interface JobCardProps {

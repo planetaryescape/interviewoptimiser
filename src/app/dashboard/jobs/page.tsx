@@ -163,13 +163,13 @@ export default function JobsSection() {
           <>
             {viewMode === "grid" ? (
               <JobsGrid
-                jobs={currentJobs.map((job) => ({ ...job.data, id: job.sys.id as number }))}
+                jobs={currentJobs.map((job) => ({ ...job.data, id: job.sys.id ?? job.data.id }))}
                 onDelete={handleDelete}
                 deletingId={deletingId}
               />
             ) : (
               <JobsTable
-                jobs={currentJobs.map((job) => ({ ...job.data, id: job.sys.id as number }))}
+                jobs={currentJobs.map((job) => ({ ...job.data, id: job.sys.id ?? job.data.id }))}
                 onDelete={handleDelete}
                 deletingId={deletingId}
               />

@@ -3,14 +3,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import type { InferResultType } from "~/db/helpers";
 import { JobCard } from "./interview-card";
 
-type JobWithCandidateDetailsAndJobDescriptionAndInterviews = InferResultType<
-  "jobs",
-  {
-    candidateDetails: true;
-    jobDescription: true;
-    interviews: true;
-  }
->;
+type JobWithCandidateDetailsAndJobDescriptionAndInterviews = Omit<
+  InferResultType<"jobs", { candidateDetails: true; jobDescription: true; interviews: true }>,
+  "id"
+> & { id: number | string };
 
 interface JobsGridProps {
   jobs: Array<JobWithCandidateDetailsAndJobDescriptionAndInterviews>;
