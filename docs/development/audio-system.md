@@ -10,9 +10,9 @@ The audio recording system follows this high-level workflow:
 
 1. During an interview session, voice interactions are processed through Hume AI's Voice SDK
 2. After interview completion, the frontend initiates audio reconstruction via an API endpoint
-3. A Lambda function processes the reconstruction asynchronously
+3. Inngest functions process the reconstruction asynchronously
 4. The audio is stored in S3 with CloudFront CDN for delivery
-5. The interview record is updated with the audio URL
+5. The report record is updated with the audio URL
 
 ## Key Components
 
@@ -30,11 +30,10 @@ The audio recording system follows this high-level workflow:
   - Implements proper cache behaviors for different audio formats
   - HTTPS-only access
 
-- **Lambda Function**: `save-chat-audio-to-s3`
-  - Triggered via SQS message queue
-  - Polls Hume API for audio reconstruction status
-  - Downloads, processes, and uploads audio to S3
-  - Updates the interview record with the CloudFront URL
+- **Inngest Functions**:
+  - `generate-missing-audio`: finds reports with missing audio and requests Hume reconstruction
+  - `save-audio-to-s3`: polls Hume, downloads completed audio, uploads it to S3, and updates the report
+  - `regenerate-incomplete-reports`: retries incomplete reports on a schedule
 
 ### Backend Components
 
@@ -44,10 +43,12 @@ The audio recording system follows this high-level workflow:
   - Checks authorization and validates interview ownership
   - Returns reconstruction status
 
-- **Utility Functions**: `src/lib/utils/audio-storage.ts`
-  - `uploadAudioRecording`: Uploads audio to S3 and returns CloudFront URL
-  - `deleteAudioRecording`: Removes audio files from S3
-  - `generateCloudFrontUrl`: Creates signed URLs for secure access
+- **Inngest Route**: `/api/inngest`
+  - Serves the active Inngest functions for report generation and audio recovery
+
+- **Utility Functions**:
+  - `src/lib/utils/hume-audio-reconstruction.ts`: requests and polls Hume audio reconstruction
+  - `lib/utils/s3-audio.ts`: uploads audio to S3 and returns a CloudFront URL
 
 ### Frontend Integration
 
@@ -81,28 +82,28 @@ The interview recording playback component automatically loads when viewing comp
 1. User completes an interview session
 2. Frontend calls the audio reconstruction API endpoint
 3. API endpoint verifies authorization and initiates reconstruction process
-4. An SQS message is sent to trigger the Lambda function
-5. Lambda polls Hume API until reconstruction is complete
-6. When ready, Lambda downloads the audio file
+4. Inngest queues the audio save workflow
+5. Inngest polls Hume API until reconstruction is complete
+6. When ready, Inngest downloads the audio file
 7. Audio is uploaded to S3 with proper metadata
-8. Interview record is updated with the CloudFront URL
+8. Report record is updated with the CloudFront URL
 9. Audio is available for playback in the interface
 
 ## Database Schema
 
-The `interviews` table includes an `interviewAudioUrl` field that stores the CloudFront URL to the processed audio file.
+The `reports` table includes an `interviewAudioUrl` field that stores the CloudFront URL to the processed audio file.
 
 ## Error Handling
 
 - Comprehensive error handling at each stage
-- SQS dead-letter queue for failed processing
+- Inngest retry handling for async failures
 - Sentry integration for error tracking
 - Discord notifications for critical failures
 
 ## Security Considerations
 
 - Private S3 bucket with no public access
-- CloudFront signed URLs for secure access
+- CloudFront distribution for secure delivery
 - CORS configuration to allow playback only from authorized domains
 - Proper IAM permissions and policies
 
