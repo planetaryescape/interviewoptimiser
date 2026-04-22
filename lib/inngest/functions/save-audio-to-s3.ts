@@ -20,11 +20,16 @@ export const saveAudioToS3Fn = inngest.createFunction(
     retries: 2,
     concurrency: [{ limit: 5 }],
     onFailure: async ({ error, event }) => {
+      const reportId = event.data.event.data.reportId;
+      await db
+        .update(reports)
+        .set({ audioSaveSkippedReason: "failed-after-retries", updatedAt: new Date() })
+        .where(eq(reports.id, reportId));
       await sendDiscordDM({
         title: "❌ Interview Audio Save Failed",
         description: "Failed to save interview audio to S3 after retries",
         metadata: {
-          "Report ID": event.data.event.data.reportId,
+          "Report ID": reportId,
           "Interview ID": event.data.event.data.interviewId,
           Error: error.message,
           Timestamp: new Date().toISOString(),
@@ -49,6 +54,12 @@ export const saveAudioToS3Fn = inngest.createFunction(
     const chatId = interview.humeChatId;
     if (!chatId) {
       logger.warn({ interviewId }, "No humeChatId — skipping audio save");
+      await step.run("mark-skipped-no-hume-chat-id", () =>
+        db
+          .update(reports)
+          .set({ audioSaveSkippedReason: "no-hume-chat-id", updatedAt: new Date() })
+          .where(eq(reports.id, reportId))
+      );
       return { skipped: true, reason: "no-hume-chat-id" };
     }
 
@@ -66,11 +77,18 @@ export const saveAudioToS3Fn = inngest.createFunction(
       }
 
       if (status.status === "ERROR" || status.status === "CANCELED") {
+        const reason = `hume-status-${status.status.toLowerCase()}`;
         logger.warn(
           { interviewId, chatId, status: status.status },
           "Audio reconstruction unavailable — skipping"
         );
-        return { skipped: true, reason: `hume-status-${status.status.toLowerCase()}` };
+        await step.run("mark-skipped-hume-terminal", () =>
+          db
+            .update(reports)
+            .set({ audioSaveSkippedReason: reason, updatedAt: new Date() })
+            .where(eq(reports.id, reportId))
+        );
+        return { skipped: true, reason };
       }
 
       await step.sleep(`wait-${i}`, "10s");
@@ -78,6 +96,12 @@ export const saveAudioToS3Fn = inngest.createFunction(
 
     if (!reconstructionResponse?.signed_audio_url) {
       logger.warn({ interviewId, chatId }, "Audio reconstruction timed out — skipping");
+      await step.run("mark-skipped-timeout", () =>
+        db
+          .update(reports)
+          .set({ audioSaveSkippedReason: "timeout", updatedAt: new Date() })
+          .where(eq(reports.id, reportId))
+      );
       return { skipped: true, reason: "timeout" };
     }
 

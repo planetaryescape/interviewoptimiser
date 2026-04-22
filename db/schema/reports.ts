@@ -34,6 +34,7 @@ export const reports = pgTable(
     areasOfStrength: p.text().notNull(),
     areasForImprovement: p.text().notNull(),
     interviewAudioUrl: p.text(),
+    audioSaveSkippedReason: p.text(),
     actionableNextSteps: p.text().notNull(),
     isPublic: p.boolean().notNull().default(false),
     isCompleted: p.boolean().notNull().default(false),

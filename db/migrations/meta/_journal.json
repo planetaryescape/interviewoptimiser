@@ -78,6 +78,20 @@
       "when": 1772761966652,
       "tag": "0010_damp_lightspeed",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1776898532345,
+      "tag": "0011_abnormal_nocturne",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1776898780686,
+      "tag": "0012_backfill_legacy_audio",
+      "breakpoints": true
     }
   ]
 }

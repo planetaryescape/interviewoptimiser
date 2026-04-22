@@ -1,6 +1,6 @@
 import { requestChatAudioReconstruction } from "@/lib/utils/hume-audio-reconstruction";
 import * as Sentry from "@sentry/aws-serverless";
-import { and, isNull } from "drizzle-orm";
+import { and, gte, isNull } from "drizzle-orm";
 import { db } from "~/db";
 import { reports } from "~/db/schema";
 import { sendDiscordDM } from "~/lib/discord";
@@ -15,8 +15,13 @@ export const handler = Sentry.wrapHandler(async () => {
   try {
     logger.info("Checking for reports without audio");
 
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const reportsToProcess = await db.query.reports.findMany({
-      where: and(isNull(reports.interviewAudioUrl)),
+      where: and(
+        isNull(reports.interviewAudioUrl),
+        isNull(reports.audioSaveSkippedReason),
+        gte(reports.createdAt, sevenDaysAgo)
+      ),
       with: {
         interview: {
           with: {

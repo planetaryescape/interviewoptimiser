@@ -1,0 +1,1 @@
+ALTER TABLE "reports" ADD COLUMN "audio_save_skipped_reason" text;

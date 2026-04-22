@@ -1,6 +1,6 @@
 import { requestChatAudioReconstruction } from "@/lib/utils/hume-audio-reconstruction";
 import * as Sentry from "@sentry/nextjs";
-import { and, isNull } from "drizzle-orm";
+import { and, gte, isNull } from "drizzle-orm";
 import { db } from "~/db";
 import { reports } from "~/db/schema";
 import { sendDiscordDM } from "~/lib/discord";
@@ -15,8 +15,13 @@ export const generateMissingAudioFn = inngest.createFunction(
   { cron: "*/10 * * * *" },
   async ({ step }) => {
     const reportsToProcess = await step.run("find-missing-audio", async () => {
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
       const results = await db.query.reports.findMany({
-        where: and(isNull(reports.interviewAudioUrl)),
+        where: and(
+          isNull(reports.interviewAudioUrl),
+          isNull(reports.audioSaveSkippedReason),
+          gte(reports.createdAt, sevenDaysAgo)
+        ),
         with: {
           interview: {
             with: {
