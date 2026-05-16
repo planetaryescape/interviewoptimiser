@@ -119,7 +119,7 @@
     "hume": "^0.12.1",
     "immer": "^10.1.1",
     "import-in-the-middle": "^1.11.2",
-    "inngest": "^3.52.6",
+    "inngest": "^3.54.0",
     "isomorphic-dompurify": "^2.22.0",
     "lodash": "^4.17.21",
     "lottie-react": "^2.4.1",
