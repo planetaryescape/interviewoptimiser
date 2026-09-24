@@ -41,6 +41,6 @@ Historical docs for reference:
 
 ## Quick Links
 
-- [CLAUDE.md](../CLAUDE.md) - AI dev context and coding conventions
+- [AGENTS.md](../AGENTS.md) - AI dev context and coding conventions
 - [README.md](../README.md) - Project overview and setup
 - [Scripts](../scripts/README.md) - ngrok webhook dev setup
